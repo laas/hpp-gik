@@ -11,7 +11,7 @@ EXTRA_DIST = \
 	header.html \
 	footer.html \
 	hpp.css \
-	additionalDoc/hppGik.h \
+	additionalDoc/main-page.h \
 	pictures/HRP2.jpg
 
 

@@ -43,7 +43,7 @@ host_triplet = @host@
 subdir = include
 DIST_COMMON = $(hppGikConst_HEADERS) $(hppGikCore_HEADERS) \
 	$(hppGikPlanners_HEADERS) $(hppGikRobot_HEADERS) \
-	$(hppGikTasks_HEADERS) $(srcdir)/Makefile.am \
+	$(hppGikTasks_HEADERS) $(hppGik_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -59,20 +59,21 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(gainfiledir)" \
+am__installdirs = "$(DESTDIR)$(gainfiledir)" "$(DESTDIR)$(hppGikdir)" \
 	"$(DESTDIR)$(hppGikConstdir)" "$(DESTDIR)$(hppGikCoredir)" \
 	"$(DESTDIR)$(hppGikPlannersdir)" "$(DESTDIR)$(hppGikRobotdir)" \
 	"$(DESTDIR)$(hppGikTasksdir)"
 gainfileDATA_INSTALL = $(INSTALL_DATA)
 DATA = $(gainfile_DATA)
+hppGikHEADERS_INSTALL = $(INSTALL_HEADER)
 hppGikConstHEADERS_INSTALL = $(INSTALL_HEADER)
 hppGikCoreHEADERS_INSTALL = $(INSTALL_HEADER)
 hppGikPlannersHEADERS_INSTALL = $(INSTALL_HEADER)
 hppGikRobotHEADERS_INSTALL = $(INSTALL_HEADER)
 hppGikTasksHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(hppGikConst_HEADERS) $(hppGikCore_HEADERS) \
-	$(hppGikPlanners_HEADERS) $(hppGikRobot_HEADERS) \
-	$(hppGikTasks_HEADERS)
+HEADERS = $(hppGik_HEADERS) $(hppGikConst_HEADERS) \
+	$(hppGikCore_HEADERS) $(hppGikPlanners_HEADERS) \
+	$(hppGikRobot_HEADERS) $(hppGikTasks_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -191,9 +192,15 @@ gainfile_DATA = \
 	motionplanners/hppGikPreviewController5ms.ini	\
 	motionplanners/hppGikPreviewController50ms.ini
 
+EXTRA_DIST = $(gainfile_DATA)
+hppGikdir = $(includedir)/hpp
+hppGik_HEADERS = \
+	hppGikTools.h
+
 hppGikConstdir = $(includedir)/hpp/constraints
 hppGikConst_HEADERS = \
-	constraints/hppGikPlaneConstraint.h \
+	constraints/hppGikComConstraint.h	\
+	constraints/hppGikPlaneConstraint.h 	\
 	constraints/hppGikPointingConstraint.h \
 	constraints/hppGikGazeConstraint.h \
 	constraints/hppGikParallelConstraint.h \
@@ -294,6 +301,23 @@ uninstall-gainfileDATA:
 	  f=$(am__strip_dir) \
 	  echo " rm -f '$(DESTDIR)$(gainfiledir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(gainfiledir)/$$f"; \
+	done
+install-hppGikHEADERS: $(hppGik_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(hppGikdir)" || $(MKDIR_P) "$(DESTDIR)$(hppGikdir)"
+	@list='$(hppGik_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(hppGikHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(hppGikdir)/$$f'"; \
+	  $(hppGikHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(hppGikdir)/$$f"; \
+	done
+
+uninstall-hppGikHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(hppGik_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(hppGikdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(hppGikdir)/$$f"; \
 	done
 install-hppGikConstHEADERS: $(hppGikConst_HEADERS)
 	@$(NORMAL_INSTALL)
@@ -459,7 +483,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(gainfiledir)" "$(DESTDIR)$(hppGikConstdir)" "$(DESTDIR)$(hppGikCoredir)" "$(DESTDIR)$(hppGikPlannersdir)" "$(DESTDIR)$(hppGikRobotdir)" "$(DESTDIR)$(hppGikTasksdir)"; do \
+	for dir in "$(DESTDIR)$(gainfiledir)" "$(DESTDIR)$(hppGikdir)" "$(DESTDIR)$(hppGikConstdir)" "$(DESTDIR)$(hppGikCoredir)" "$(DESTDIR)$(hppGikPlannersdir)" "$(DESTDIR)$(hppGikRobotdir)" "$(DESTDIR)$(hppGikTasksdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -505,8 +529,9 @@ info: info-am
 info-am:
 
 install-data-am: install-gainfileDATA install-hppGikConstHEADERS \
-	install-hppGikCoreHEADERS install-hppGikPlannersHEADERS \
-	install-hppGikRobotHEADERS install-hppGikTasksHEADERS
+	install-hppGikCoreHEADERS install-hppGikHEADERS \
+	install-hppGikPlannersHEADERS install-hppGikRobotHEADERS \
+	install-hppGikTasksHEADERS
 
 install-dvi: install-dvi-am
 
@@ -541,8 +566,9 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-gainfileDATA uninstall-hppGikConstHEADERS \
-	uninstall-hppGikCoreHEADERS uninstall-hppGikPlannersHEADERS \
-	uninstall-hppGikRobotHEADERS uninstall-hppGikTasksHEADERS
+	uninstall-hppGikCoreHEADERS uninstall-hppGikHEADERS \
+	uninstall-hppGikPlannersHEADERS uninstall-hppGikRobotHEADERS \
+	uninstall-hppGikTasksHEADERS
 
 .MAKE: install-am install-strip
 
@@ -553,17 +579,17 @@ uninstall-am: uninstall-gainfileDATA uninstall-hppGikConstHEADERS \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-gainfileDATA \
 	install-hppGikConstHEADERS install-hppGikCoreHEADERS \
-	install-hppGikPlannersHEADERS install-hppGikRobotHEADERS \
-	install-hppGikTasksHEADERS install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-gainfileDATA \
+	install-hppGikHEADERS install-hppGikPlannersHEADERS \
+	install-hppGikRobotHEADERS install-hppGikTasksHEADERS \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags uninstall uninstall-am uninstall-gainfileDATA \
 	uninstall-hppGikConstHEADERS uninstall-hppGikCoreHEADERS \
-	uninstall-hppGikPlannersHEADERS uninstall-hppGikRobotHEADERS \
-	uninstall-hppGikTasksHEADERS
+	uninstall-hppGikHEADERS uninstall-hppGikPlannersHEADERS \
+	uninstall-hppGikRobotHEADERS uninstall-hppGikTasksHEADERS
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

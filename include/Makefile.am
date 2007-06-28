@@ -9,10 +9,16 @@ gainfiledir=	$(datadir)/gik
 gainfile_DATA=\
 	motionplanners/hppGikPreviewController5ms.ini	\
 	motionplanners/hppGikPreviewController50ms.ini
+EXTRA_DIST=	$(gainfile_DATA)
+
+hppGikdir = $(includedir)/hpp
+hppGik_HEADERS = \
+	hppGikTools.h
 
 hppGikConstdir = $(includedir)/hpp/constraints
 hppGikConst_HEADERS = \
-	constraints/hppGikPlaneConstraint.h \
+	constraints/hppGikComConstraint.h	\
+	constraints/hppGikPlaneConstraint.h 	\
 	constraints/hppGikPointingConstraint.h \
 	constraints/hppGikGazeConstraint.h \
 	constraints/hppGikParallelConstraint.h \
