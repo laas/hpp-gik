@@ -1,0 +1,60 @@
+# Research carried out within the scope of the Associated
+# International Laboratory: Joint Japanese-French Robotics Laboratory
+# (JRL)
+#
+# Author: Florent Lamiraux
+#
+
+gainfiledir=	$(datadir)/gik
+gainfile_DATA=\
+	motionplanners/hppGikPreviewController5ms.ini	\
+	motionplanners/hppGikPreviewController50ms.ini
+
+hppGikConstdir = $(includedir)/hpp/constraints
+hppGikConst_HEADERS = \
+	constraints/hppGikPlaneConstraint.h \
+	constraints/hppGikPointingConstraint.h \
+	constraints/hppGikGazeConstraint.h \
+	constraints/hppGikParallelConstraint.h \
+	constraints/hppGikRotationConstraint.h \
+	constraints/hppGikPositionConstraint.h \
+	constraints/hppGikTransformationConstraint.h \
+	constraints/hppGikSingleMotionElementConstraint.h \
+	constraints/hppGikMotionConstraint.h 
+
+hppGikCoredir = $(includedir)/hpp/core
+hppGikCore_HEADERS = \
+	core/hppGikSolver.h \
+	core/hppGikMotionPlanColumn.h \
+	core/hppGikMotionPlanElement.h \
+	core/hppGikMotionPlan.h \
+	core/hppGikMotionPlanRow.h
+
+hppGikTasksdir = $(includedir)/hpp/tasks
+hppGikTasks_HEADERS = \
+	tasks/hppGikGenericTask.h \
+	tasks/hppGikGenericTaskElements.h \
+	tasks/hppGikWholeBodyTask.h \
+	tasks/hppGikRobotTask.h \
+	tasks/hppGikStepBackTask.h \
+	tasks/hppGikStepTask.h \
+	tasks/hppGikSnoopTask.h \
+	tasks/hppGikHandTask.h \
+	tasks/hppGikMetaTask.h \
+	tasks/hppGikReachTask.h \
+	tasks/hppGikConfigurationTask.h \
+	tasks/hppGikHalfSittingTaskBeta.h \
+	tasks/hppGikHalfSittingTask.h
+
+hppGikPlannersdir = $(includedir)/hpp/motionplanners
+hppGikPlanners_HEADERS = \
+	motionplanners/hppGikLocomotionPlan.h \
+	motionplanners/hppGikPreviewController.h \
+	motionplanners/hppGikSingleMotionsPlan.h
+
+hppGikRobotdir = $(includedir)/hpp/robot
+hppGikRobot_HEADERS = \
+	robot/hppGikFootprintRelated.h \
+	robot/hppGikMaskFactory.h \
+	robot/hppRobotMotion.h \
+	robot/hppGikStandingRobot.h
