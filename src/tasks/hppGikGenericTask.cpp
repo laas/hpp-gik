@@ -113,11 +113,8 @@ void ChppGikGenericTask::clearElements()
 bool ChppGikGenericTask::algorithmSolve()
 {
     vectorN gikWeights(attRobot->numberDof()-6);
-    vectorN jointsMask(attRobot->numberDof()-6);
-
     CjrlJoint* supportJoint = 0;
     std::vector<CjrlGikStateConstraint*> constraintStack;
-    std::vector<unsigned int> unsolvedRanks;
 
     double time, motionStartTime, motionEndTime, gapTime;
     unsigned int rank = 0;
@@ -169,15 +166,25 @@ bool ChppGikGenericTask::algorithmSolve()
         constraintStack = attMotionPlan->columnAtTime(time)->constraints();
 
         //Compute the weights used in solving the gik problem
-        computeGikWeights(time, gikWeights, jointsMask);
-
-        //Update config of the robot according to constraints (solve!)
-        ok = attGikSolver->solve(constraintStack,gikWeights,jointsMask);
-
-        ////Activate this to check the solution (values of constraints)
-        //attGikSolver->getUnsolvedConstraints(constraintStack, unsolvedRanks, 1e-3);
+        computeGikWeights(time, gikWeights);
         
-        if (!ok || !unsolvedRanks.empty())
+        //set the weights in the gik solver
+        attGikSolver->weights(gikWeights);
+        
+        //compute foot(fixed joint) jacobian
+        supportJoint->computeJacobianJointWrtConfig();
+        
+        //compute hpp constaints values and jacobians (these need the previous support joint jacobian computation)
+        for (unsigned int i = 0; i< constraintStack.size();i++)
+        {
+            constraintStack[i]->computeValue();
+            constraintStack[i]->computeJacobian();
+        }
+        
+        //Update config of the robot according to constraints (solve!)
+        ok = attGikSolver->gradientStep(constraintStack);
+        
+        if (!ok)
         {
 
             std::cout <<"ChppGikGenericTask::solve() Could not solve motion plan at time "<< time << "\n";
@@ -191,7 +198,7 @@ bool ChppGikGenericTask::algorithmSolve()
         attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
 
         //append sample to solution motion
-        attSolutionMotion->appendSample(attGikSolver->solutionConfiguration(),ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs);
+        attSolutionMotion->appendSample(attStandingRobot->robot()->currentConfiguration(),ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs);
 
         //check stability
         curSupportPolygon = attStandingRobot->supportPolygon();
@@ -210,7 +217,7 @@ bool ChppGikGenericTask::algorithmSolve()
     return ok;
 }
 
-void ChppGikGenericTask::computeGikWeights(double inTime, vectorN& outGikWeights, vectorN& jointsMask)
+void ChppGikGenericTask::computeGikWeights(double inTime, vectorN& outGikWeights)
 {
     //GIK weights
     if (attUseDynamicWeights)
@@ -235,6 +242,8 @@ void ChppGikGenericTask::computeGikWeights(double inTime, vectorN& outGikWeights
         for (unsigned int i = 0; i<activeTasks.size();i++)
             attStandingRobot->maskFactory()->combineMasks(jointsMask,activeTasks[i]->workingJoints(), jointsMask);
     }
+    for (unsigned int i=0;i<jointsMask.size();i++)
+        outGikWeights(i) *= jointsMask(i);
 }
 
 

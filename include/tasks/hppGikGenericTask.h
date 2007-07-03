@@ -51,7 +51,7 @@ private:
 
     virtual bool algorithmSolve();
     
-    void computeGikWeights(double inTime, vectorN& outGikWeights, vectorN& jointsMask);
+    void computeGikWeights(double inTime, vectorN& outGikWeights);
     
     CjrlHumanoidDynamicRobot* attRobot;
 
@@ -86,5 +86,10 @@ private:
     \brief Motion replanning option
      */
     bool attEnableReplanning;
+    
+    /**
+    \brief computation vector
+    */
+    vectorN jointsMask;
 };
 #endif

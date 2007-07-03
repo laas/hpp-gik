@@ -29,25 +29,19 @@ public:
      */
 
     /**
-    \brief Compute a configuration complying with the stack of constraitns.
-    This uses the prioritized inverse kinematiks framework (ref Prof.Nakamura)
-    \param inWeights is a vector of length robot.numberDof()-6 used in the formula W^{-1}Jt(JJt)^{-1} which gives the weighted pseudoinverse of a constraint jacobian
-        If the provided parameter has a bad size, an all-one vector is used instead, giving no particular preference to any joint
-    \param inJointsMask is also a vectorN of length robot.numberDof()-6. It defines the set of joints to be used (1= used, 0= not used)
-    \param inMaxIter is the maxmum number of iterations of the algorithm
-    \return false if the robot did not have a fixed joint.
-     */
-    bool solve(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, vectorN& inWeights,vectorN& inJointsMask, unsigned int inMaxIter=1);
+    \brief set pseudo inverse weights according to current configuration and entered weights. A 0 weight indicates a disactivated joint. The given vector must be of size (robot.numberDofs - 6).
+    The default vector (on the construction of an instance) is an all-one vector.
+    \return false if inWeights of incorrect size
+    */
+    bool weights(vectorN& inWeights);
 
     /**
-    \brief Get a vector containing the ranks of unsolved constraints. A constraint is considered unsolved if its value is inferior to the threshold ErrorThresh.
-    */
-    void getUnsolvedConstraints(std::vector<CjrlGikStateConstraint*>& inConstraintStack, std::vector<unsigned int>& outUnsolved, double inThreshold);
-            
-    /**
-        \brief Get the computed configuration of the robot.
+    \brief perform a single gradient descent step on the given constraints (ordered from the most to the least prioriary constraint). Constraints jacobians and values computations are left to the user. The result of the gradient descent, if any, is directly applied to the robot.
+    The last weights vector set is used.
+    \return false if a fixed joint is not set in the robot.
      */
-    const vectorN& solutionConfiguration();
+    bool gradientStep(std::vector<CjrlGikStateConstraint*>& inSortedConstraints);
+
     /**
         @}
      */
@@ -63,10 +57,7 @@ private:
         \brief Pointer to the relevant robot.
      */
     CjrlHumanoidDynamicRobot* attRobot;
-    /**
-        \brief Output of solve(): configuration complying with the task stack.
-     */
-    vectorN attSolutionConfig;
+
     /**
         \brief Resize matrices used in solve().
         Default maximum size of subtask is assumed to be 6. If a subtask has a bigger dimension, matrices get resized internally by this method in order to match the subtask. They keep the latest allocated size. For now there is no mecanism to shrink the matrices back when subtasks are smaller.
@@ -83,11 +74,18 @@ private:
      */
     double brakeCoefForJoint(const double& qVal,const double& lowerLimit, const double& upperLimit, const double& dq);
 
+
+    /**
+    \brief Update weights according to joint limits.
+     */
+    void accountForJointLimits();
+
     /**
         \name Variables used by solve() and allocated in the constructor to avoid dynamic allocation
         @{
      */
 
+    unsigned int LongSize;
     unsigned int numDof;
     unsigned int numJoints;
     unsigned int xDefaultDim;
@@ -105,13 +103,12 @@ private:
     unsigned int MaximumIteration;
     vectorN PenroseMask;
     vectorN PIWeights;
+    vectorN Weights;
     vectorN PIWeightsBackup;
-    vectorN JointMask;
     vectorN JointUpperLimitWindow;
 
 
     ublas::vector<unsigned int> UsedIndexes;
-    std::vector<unsigned int> UnsolvedRanks;
 
     matrixNxP H0;
     matrixNxP Hif;
