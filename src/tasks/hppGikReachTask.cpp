@@ -114,9 +114,7 @@ bool ChppGikReachTask::algorithmSolve()
     delete poc;
     delete gc;
     
-    if(!solved)
-        return solved;
     cropMotion(attWholeBodyTask);
 
-    return true;
+    return solved;
 }

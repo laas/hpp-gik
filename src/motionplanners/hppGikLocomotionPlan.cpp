@@ -71,6 +71,8 @@ bool ChppGikLocomotionPlan::reset(double inStartTime)
         std::cout << "ChppGikLocomotionPlan::reset : failed to identify a double support polygon on the current robot configuration\n";
         return false;
     }
+    attStandingRobot->supportPolygon()->rfootTransformation(attStandingRobot->robot()->rightFoot()->currentTransformation());
+    attStandingRobot->supportPolygon()->lfootTransformation(attStandingRobot->robot()->leftFoot()->currentTransformation());
     //Add first support polygon to the support polygon motion
     attSupportPolygonMotion->pushbackSupportPolygon(attStandingRobot->supportPolygon(),0.0);
 

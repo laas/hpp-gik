@@ -21,7 +21,6 @@ ChppGikSolver::ChppGikSolver(CjrlHumanoidDynamicRobot* inRobot)
 
     xDefaultDim = 6;
     SVDThreshold = 0.001;
-    ErrorThresh = 1e-8;
 
     LongSize = numJoints;
     scalar_vector<char> temp(numJoints,1);

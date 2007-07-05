@@ -64,8 +64,7 @@ bool ChppGikStepTask::algorithmSolve()
     //Solve
     bool isSolved = attGenericTask->solve();
 
-    if (isSolved)
-        cropMotion( attGenericTask );
+    cropMotion( attGenericTask );
 
     return isSolved;
 

@@ -307,6 +307,20 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
     ChppGikTransformationConstraint* footConstraint = dynamic_cast<ChppGikTransformationConstraint*>( outFootMotion.stateConstraintAtRank(0)->clone());
 
     CjrlHumanoidDynamicRobot& robot = footConstraint->robot();
+    
+    matrix4d startFootTransformation;
+    matrix4d endFootTransformation;
+    matrixNxP uH(4,4);
+    uH.clear();
+    uH(3,3)=1;
+    matrixNxP uR(3,3);
+    ChppGikTools::RotFromYaw(attTargetFootprint->th(),uR);
+    subrange(uH,0,3,0,3) = uR;
+    uH(0,3) = attTargetFootprint->x();
+    uH(1,3) = attTargetFootprint->y();
+    uH(2,3) = robot.footHeight();
+    ChppGikTools::UblastoMatrix4(uH,endFootTransformation);
+    
     if (attIsRight)
     {
         nonsupportFootprint = lastSupportPolygon->rightFootprint();
@@ -314,6 +328,11 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
         supportFootJoint = robot.leftFoot();
         nonsupportFootJoint = robot.rightFoot();
         newDoubleSupportPolygon = new ChppGikSupportPolygon(*supportFootprint, *attTargetFootprint);
+        newDoubleSupportPolygon->lfootTransformation(*(lastSupportPolygon->lfootTransformation()));
+        newDoubleSupportPolygon->rfootTransformation(endFootTransformation);
+        newSingleSupportPolygon = new ChppGikSupportPolygon(*supportFootprint,!attIsRight);
+        newSingleSupportPolygon->lfootTransformation(*(lastSupportPolygon->lfootTransformation()));
+        startFootTransformation = *(lastSupportPolygon->rfootTransformation());
     }
     else
     {
@@ -322,22 +341,41 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
         supportFootJoint = robot.rightFoot();
         nonsupportFootJoint = robot.leftFoot();
         newDoubleSupportPolygon = new ChppGikSupportPolygon(*attTargetFootprint, *supportFootprint);
+        newDoubleSupportPolygon->rfootTransformation(*(lastSupportPolygon->lfootTransformation()));
+        newDoubleSupportPolygon->lfootTransformation(endFootTransformation);
+        newSingleSupportPolygon = new ChppGikSupportPolygon(*supportFootprint,!attIsRight);
+        newSingleSupportPolygon->rfootTransformation(*(lastSupportPolygon->rfootTransformation()));
+        startFootTransformation = *(lastSupportPolygon->lfootTransformation());
     }
 
+    //Update support polygon motion object
+    outSupportPolygonMotion.pushbackSupportPolygon(newSingleSupportPolygon, attDuration);
+    outSupportPolygonMotion.pushbackSupportPolygon(newDoubleSupportPolygon, 0.0);
+    delete newSingleSupportPolygon;
+    delete newDoubleSupportPolygon;
+    
     //We plan the foot motion so that it reaches the desired x y and yaw before it touches the ground by numberZbufferSamples*inSamplingPeriod seconds
     //interpolation related variables
     unsigned int nsamples = sizeNewChunk+1;
-    matrixNxP data(4,nsamples);
+    matrixNxP data(6,nsamples);
     vectorN tempInterpolationResult(nsamples);
 
-    vectorN startXYYaw(3);
-    vectorN endXYYaw(3);
-    startXYYaw(0) = nonsupportFootprint->x();
-    endXYYaw(0) = attTargetFootprint->x();
-    startXYYaw(1) = nonsupportFootprint->y();
-    endXYYaw(1) = attTargetFootprint->y();
-    startXYYaw(2) = nonsupportFootprint->th();
-    endXYYaw(2) = attTargetFootprint->th();
+    vectorN tempEulerr(3);
+    vectorN tempTrans(3);
+    matrixNxP tempRota(3,3);
+    ChppGikTools::HtoRT(startFootTransformation,tempRota,tempTrans);
+    ChppGikTools::RottoEulerZYX(tempRota,tempEulerr);
+
+    vectorN startXYZRPY(6);
+    vectorN endXYZRPY(6);
+    subrange(startXYZRPY,0,2) = subrange(tempTrans,0,2);
+    subrange(startXYZRPY,3,6) = tempEulerr;
+    endXYZRPY(0) = attTargetFootprint->x();
+    endXYZRPY(1) = attTargetFootprint->y();
+    endXYZRPY(2) = 0.0;
+    endXYZRPY(3) = 0.0;
+    endXYZRPY(4) = 0.0;
+    endXYZRPY(5) = attTargetFootprint->th();
 
     if (inSamplingPeriod <= 6e-3) // small enough
     {
@@ -346,9 +384,12 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
         unsigned int padStart = nsamples - numberZbufferSamples;//we are sure this is a strictly positive integer because we threshold the minimum stepping time in the ChppStep constructor
         matrixNxP vectomat(1,padStart);
         //interpolate
-        for (unsigned int i = 0; i< 3 ; i++)
+        for (unsigned int i = 0; i< 6 ; i++)
         {
-            bool contn = ChppGikTools::minJerkCurve(flightTime,inSamplingPeriod,startXYYaw(i),0.0,0.0,endXYYaw(i),tempInterpolationResult);
+            if (i==2)
+                continue;
+            
+            bool contn = ChppGikTools::minJerkCurve(flightTime,inSamplingPeriod,startXYZRPY(i),0.0,0.0,endXYZRPY(i),tempInterpolationResult);
 
             row(vectomat,0) = subrange(tempInterpolationResult,0,padStart);
             subrange(data,i,i+1,0,padStart) = vectomat;
@@ -365,9 +406,12 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
     else // the sampling period is too gross, (might be for debugging, so don't do the previous trick)
     {
         double flightTime = attDuration;
-        for (unsigned int i = 0; i< 3 ; i++)
+        for (unsigned int i = 0; i< 6 ; i++)
         {
-            bool contn = ChppGikTools::minJerkCurve(flightTime,inSamplingPeriod,startXYYaw(i),0.0,0.0,endXYYaw(i),tempInterpolationResult);
+            if (i==2)
+                continue;
+            
+            bool contn = ChppGikTools::minJerkCurve(flightTime,inSamplingPeriod,startXYZRPY(i),0.0,0.0,endXYZRPY(i),tempInterpolationResult);
             row(data,i) = tempInterpolationResult;
             if (!contn)
                 return false;
@@ -375,8 +419,8 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
     }
 
     //now plan z
-    double lowZ = robot.footHeight();
-    double highZ = robot.footHeight()+attHeight;
+    double lowZ = tempTrans(2);// robot.footHeight();
+    double highZ = lowZ+attHeight;
     bool simpleConcat;
     unsigned int halfnsamples;
     double flightTime;
@@ -396,7 +440,7 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
     //foot z up
     bool ok = ChppGikTools::minJerkCurve(flightTime,inSamplingPeriod,lowZ,0.0,0.0,highZ,tempInterpolationResult);
     row(vectomat,0) = tempInterpolationResult;
-    subrange(data,3,4,0,halfnsamples) = vectomat;
+    subrange(data,2,3,0,halfnsamples) = vectomat;
     if (!ok)
         return false;
 
@@ -405,12 +449,12 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
     if (simpleConcat)
     {
         row(vectomat,0) = tempInterpolationResult;
-        subrange(data,3,4,halfnsamples,nsamples) = vectomat;
+        subrange(data,2,3,halfnsamples,nsamples) = vectomat;
     }
     else
     {
         row(vectomat,0) = tempInterpolationResult;
-        subrange(data,3,4,halfnsamples-1,nsamples) = vectomat;
+        subrange(data,2,3,halfnsamples-1,nsamples) = vectomat;
     }
 
     //End of interpolation
@@ -418,14 +462,16 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
     //Storing new planned data
     //Foot motion constaint
     footConstraint->joint( nonsupportFootJoint );
-    vectorN vecXYYawZ(4);
+    vectorN vecXYZRPY(6);
     for (unsigned int i = 1; i< nsamples; i++)
     {
-        vecXYYawZ = column(data,i);
-        fillFootConstraint(footConstraint, vecXYYawZ);
+        vecXYZRPY = column(data,i);
+        fillFootConstraint(footConstraint, vecXYZRPY);
         outFootMotion.pushbackStateConstraint((CjrlGikTransformationConstraint*)footConstraint);
     }
     delete footConstraint;
+    
+    
 
     outZMPmotion.resize(3,newSize,true);
 
@@ -433,29 +479,20 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
     for (unsigned int i = previousSize; i< newSize; i++)
         column(outZMPmotion,i)= paddingZMP;
 
-    //Update support polygon motion object
-    //last value of feet mask must indicate a double support
-    newSingleSupportPolygon = new ChppGikSupportPolygon(*supportFootprint,!attIsRight);
-    outSupportPolygonMotion.pushbackSupportPolygon(newSingleSupportPolygon, attDuration);
-    delete newSingleSupportPolygon;
-    outSupportPolygonMotion.pushbackSupportPolygon(newDoubleSupportPolygon, 0.0);
-    delete newDoubleSupportPolygon;
-
     return true;
 }
 
-void ChppGikFootDisplaceElement::fillFootConstraint( ChppGikTransformationConstraint* inConstraint, vectorN& inVectorX_Y_YAW_Z)
+void ChppGikFootDisplaceElement::fillFootConstraint( ChppGikTransformationConstraint* inConstraint, vectorN& inVectorXYZRPY)
 {
-    if (inVectorX_Y_YAW_Z.size() !=4)
+    if (inVectorXYZRPY.size() !=6)
         std::cout << "ChppGikLocomotionPlan::fillFootConstraint(): Shouldn't happen\n";
 
-    ChppGikTools::RotFromYaw(inVectorX_Y_YAW_Z(2), tempRot);
+    vectorN rpy = ublas::subrange(inVectorXYZRPY,3,6);
+    ChppGikTools::EulerZYXtoRot(rpy, tempRot);
 
-    vectorN targetU(3);
-    targetU(0) =  inVectorX_Y_YAW_Z(0);
-    targetU(1) =  inVectorX_Y_YAW_Z(1);
-    targetU(2) =  inVectorX_Y_YAW_Z(3);
-    inConstraint->worldTargetU(targetU);
+    vectorN xyz = ublas::subrange(inVectorXYZRPY,0,3);
+
+    inConstraint->worldTargetU(xyz);
     inConstraint->targetOrientationU(tempRot);
 }
 

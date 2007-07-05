@@ -15,13 +15,14 @@ bool ChppGikHalfSittingTaskBeta::algorithmSolve()
     attStepBackTask->targetFeetDistance(attStandingRobot->halfsittingFeetDistance());
 
     bool isSolved = attStepBackTask->solve();
+    
+    cropMotion( attStepBackTask );
+    
     if (!isSolved)
     {
         std::cout << "ChppGikHalfSittingTaskBeta::solve(): failure on phase 1.\n";
         return false;
     }
-
-    cropMotion( attStepBackTask );
 
     //Waist positioning
     matrix4d nowlFootH = attStandingRobot->robot()->leftFoot()->currentTransformation();
@@ -49,9 +50,9 @@ bool ChppGikHalfSittingTaskBeta::algorithmSolve()
 
     isSolved = attGenericTask->solve();
 
-    if (isSolved)
-        cropMotion( attGenericTask );
-    else
+    cropMotion( attGenericTask );
+    
+    if (!isSolved)
         std::cout << "ChppGikHalfSittingTaskBeta::solve(): failing on phase 2.\n";
 
     return isSolved;

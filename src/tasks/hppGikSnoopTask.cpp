@@ -84,8 +84,7 @@ bool ChppGikSnoopTask::algorithmSolve()
 
     bool isSolved = attGenericTask->solve();
 
-    if (isSolved)
-        cropMotion( attGenericTask );
+    cropMotion( attGenericTask );
 
     return isSolved;
 }

@@ -96,7 +96,6 @@ private:
     bool         SatisfactorySolution;
     CjrlJoint*  FixedJoint;
     double      SVDThreshold;
-    double      ErrorThresh;
     double      BrakingZone;
     double      WindowStep;
 

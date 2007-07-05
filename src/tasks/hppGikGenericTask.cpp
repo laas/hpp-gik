@@ -204,7 +204,8 @@ bool ChppGikGenericTask::algorithmSolve()
         curSupportPolygon = attStandingRobot->supportPolygon();
         if (!curSupportPolygon->isPointInside(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
         {
-            std::cout << "ZMP out of polygon at time " << time << "\n";
+            std::cout << "ZMP: " << V3_I(ZMPworObs,0) <<" , "<< V3_I(ZMPworObs,1) <<" out of polygon at time " << time << "\n";
+            curSupportPolygon->print();
             atLeastOneZMPUnsafe = true;
         }
 

@@ -124,10 +124,9 @@ public:
     bool isDoubleSupport() const;
 
     /**
-    \brief try to construct a double support polygon from the given transformation.
-    \return 0 if construction fails to identify a double support polygon
+    \brief print the current support polygon
     */
-    static ChppGikSupportPolygon* makeDoubleSupportPolygon(const matrix4d& leftFootH, const matrix4d& rightFootH, double normmakealAnkleHeight);
+    void print();
      
     /**
     \brief try to construct the support polygon from the given transformation.
@@ -150,12 +149,39 @@ public:
      */
     bool isPointInside(double x, double y) const;
 
+    /**
+    \brief Get a pointer to a stored transformation matrix for the right foot. Temporary method (until new version is ready):
+    \return 0 if nothing stored
+    */
+    const matrix4d* rfootTransformation() const;
+    
+    /**
+    \brief Get a pointer to a stored transformation matrix for the left foot. Temporary method (until new version is ready):
+    \return 0 if nothing stored
+     */
+    const matrix4d* lfootTransformation() const;
+    
+    /**
+    \brief store a transformation matrix for the right foot. Temporary method (until new version is ready):
+    \return 0 if nothing stored
+    */
+    void rfootTransformation( const matrix4d& inMatrix);
+    
+    /**
+    \brief store matrix for the left foot. Temporary method (until new version is ready):
+    \return 0 if nothing stored
+     */
+    void lfootTransformation( const matrix4d& inMatrix);
+    
+    
     ~ChppGikSupportPolygon();
 
 private:
     ChppGikFootprint* attLeftFootprint;
     ChppGikFootprint* attRightFootprint;
     double attDiscRadiusSqr;
+    matrix4d* attRfootM;
+    matrix4d* attLfootM;
 };
 
 

@@ -28,10 +28,12 @@ bool ChppGikMetaTask::algorithmSolve()
     for (unsigned int i=0; i< attTasks.size(); i++ )
     {
         solved = attTasks[i]->solve();
-        if (solved)
-            cropMotion( attTasks[i]);
-        else
+        cropMotion( attTasks[i]);
+        if (!solved)
+        {
+            std::cout << "MetaTask: task ranked "<< i <<" not solved. Abort.\n";
             break;
+        }
     }
     
     return solved;
