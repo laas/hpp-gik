@@ -110,7 +110,12 @@ bool ChppGikWholeBodyTask::basicSolve()
     furthestTargetProjection(centerX,centerY,targetX, targetY, distance);
 
     if (distance > 0.7)
+    {
+        std::cout << "ChppGikWholeBodyTask::basicSolve() : one transformation or position constraint was too far.\n";
+        std::cout << "Current support polygon center "<< centerX << " " << centerY <<"\n";
+        std::cout << "Furthest target projection "<< targetX << " " << targetY <<"\n";
         return false;
+    }
 
     double defaultStartTime = attStartTime;
     double defaultTaskDuration = 4.0; //in seconds
@@ -236,6 +241,10 @@ bool ChppGikWholeBodyTask::onestepSolve()
 
 void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double centerY,double& outX, double& outY, double& outDistance)
 {
+    outDistance = 0.0;
+    outX = centerX;
+    outY = centerY;
+    
     double maxDist = 0;
     vectorN target(3);
     bool check = false;
