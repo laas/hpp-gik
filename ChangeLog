@@ -1,1 +1,9 @@
+hppGik 1.1 released Fri 06 Jul 2007
+
+	2. (oussama) Tolerant to noise on the start configuration of the
+	robot.
+	1. (oussama) Constraints values and jacobians computations
+	are left to the user. The solving methos name is changed to
+	gradientStep. Pseudo inverse Weights are now set separately.
+    
 hppGik 1.0 released Thu 28 Jun 2007
