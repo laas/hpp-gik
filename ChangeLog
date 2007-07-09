@@ -1,3 +1,7 @@
+hppGik 1.1.1 released Mon 09 Jul 2007
+
+	3. (oussama) bug fix in wholebodyTask.
+
 hppGik 1.1 released Fri 06 Jul 2007
 
 	2. (oussama) Tolerant to noise on the start configuration of the
