@@ -175,16 +175,22 @@ bool ChppGikPreviewController::ZMPtoCOM(const matrixNxP& inZMP, matrixNxP& outCO
     plannedZMPError(0,0) = 0;
     plannedZMPError(0,1) = 0;
 
-    currentComState(0,0) = ZMPref(0,0);
-    currentComState(0,1) = ZMPref(0,1);
+    double startZMPoffsetX = ZMPref(0,0),startZMPoffsetY = ZMPref(0,1);
+    
+    for (unsigned int i=0;i < ZMPlength;i++)
+    {
+        ZMPref(i,0) = ZMPref(i,0) - startZMPoffsetX;
+        ZMPref(i,1) = ZMPref(i,1) - startZMPoffsetY;
+    }
 
     for (unsigned int i=0;i < ZMPlength-attNumberPreviewSamples+1;i++)
     {
         ZMPChunk = ublas::subrange(ZMPref,i,i+attNumberPreviewSamples,0,2);
         singleZMPtoCOMState(ZMPChunk, currentComState, plannedZMPError);
-        outCOM(0,i) = currentComState(0,0);
-        outCOM(1,i) = currentComState(0,1);
+        outCOM(0,i) = currentComState(0,0) + startZMPoffsetX;
+        outCOM(1,i) = currentComState(0,1) + startZMPoffsetY;
     }
+    
     return true;
 }
 

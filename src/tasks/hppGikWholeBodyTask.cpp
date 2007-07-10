@@ -96,6 +96,8 @@ bool ChppGikWholeBodyTask::basicSolve()
     //Clean task plan
     clear();
 
+    std::cout << "Trying to solve without making a step.\n";
+    
     //get initial support polygon
     if (!attStandingRobot->supportPolygon()->isDoubleSupport())
     {
@@ -111,9 +113,7 @@ bool ChppGikWholeBodyTask::basicSolve()
 
     if (distance > 0.7)
     {
-        std::cout << "ChppGikWholeBodyTask::basicSolve() : one transformation or position constraint was too far.\n";
-        std::cout << "Current support polygon center "<< centerX << " " << centerY <<"\n";
-        std::cout << "Furthest target projection "<< targetX << " " << targetY <<"\n";
+        std::cout << "Failed. One constraint target was too far.\n";
         return false;
     }
 
@@ -151,6 +151,8 @@ bool ChppGikWholeBodyTask::onestepSolve()
     // compute footprint candidates
     // go through footprint candidates until a solution motion is met or all footprints unsuccessful
 
+    std::cout << "Trying to solve with a step.\n";
+    
     //get initial support polygon
     if (!attStandingRobot->supportPolygon()->isDoubleSupport())
     {

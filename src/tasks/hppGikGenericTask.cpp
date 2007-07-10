@@ -129,7 +129,12 @@ bool ChppGikGenericTask::algorithmSolve()
         attLocomotionPlan->extendEnd(-gapTime);
 
     // Solve the locomotion tasks (implicitely deletes previously computed locomotion)
-    attLocomotionPlan->solveOneStage();
+    bool okloco = attLocomotionPlan->solveOneStage();
+    if (!okloco)
+    {
+        std::cout << "An error occured while planning.Aborting.\n";
+        return false;
+    }
 
     motionStartTime = attMotionPlan->startTime();
 

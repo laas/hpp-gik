@@ -268,7 +268,7 @@ bool ChppGikSupportPolygon::isPointInside ( double inx, double iny ) const
     }
 
 }
-void ChppGikSupportPolygon::print()
+void ChppGikSupportPolygon::print() const
 {
     std::cout << "Support Polygon:---\n";
     if ( attLeftFootprint )

@@ -623,12 +623,17 @@ bool ChppGikStepElement::planMotions(ChppGikSupportPolygonMotion& outSupportPoly
         else
         {
             lastSupportPolygon = outSupportPolygonMotion.lastSupportPolygon();
+            const ChppGikFootprint* rfp = lastSupportPolygon->rightFootprint();
             
-            targetZMPx = lastSupportPolygon->rightFootprint()->x() + attRfoot2TargetZMPX;
-            targetZMPy = lastSupportPolygon->rightFootprint()->y() + attRfoot2TargetZMPY;
+            targetZMPx = rfp->x() + cos(rfp->th())*attRfoot2TargetZMPX - sin(rfp->th())*attRfoot2TargetZMPY;
+            
+            targetZMPy = rfp->y() + sin(rfp->th())*attRfoot2TargetZMPX + cos(rfp->th())*attRfoot2TargetZMPY;
+            
             if (!lastSupportPolygon->isPointInside( targetZMPx, targetZMPy)) 
             {
                 std::cout << "Error: tried to plan a zmp out of the support polygon\n";
+                std::cout << "Target ZMP: " << targetZMPx <<" , "<< targetZMPy <<" \n";
+                lastSupportPolygon->print();
                 return false;
             }
         }

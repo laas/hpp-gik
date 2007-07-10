@@ -126,7 +126,7 @@ public:
     /**
     \brief print the current support polygon
     */
-    void print();
+    void print() const;
      
     /**
     \brief try to construct the support polygon from the given transformation.
