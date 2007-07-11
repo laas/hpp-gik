@@ -82,13 +82,32 @@ bool ChppGikWholeBodyTask::algorithmSolve()
 
     attHadToStep = false;
 
-    //try to solve the problem without stepping
-    bool isSolved = basicSolve();
+    bool tryBasic = true;
+    bool isSolved = false;
+    
+    if (attEnableStep)
+    {
+        double targetX, targetY, distance,centerX,centerY;
+
+        attStandingRobot->supportPolygon()->center ( centerX,centerY );
+
+        furthestTargetProjection ( centerX,centerY,targetX, targetY, distance );
+
+        if ( distance > 0.7 )
+            tryBasic =  false;
+    }
+    
+    if (tryBasic)
+    {
+        //try to solve the problem without stepping
+        isSolved = basicSolve();
+    }
+    
     if (!isSolved && attEnableStep)
     {
         attHadToStep = true;
         restoreRobot();
-        isSolved = onestepSolve();//(auto resets planners and motion plan)
+        isSolved = onestepSolve();
     }
 
     cropMotion( attGenericTask );
@@ -111,18 +130,6 @@ bool ChppGikWholeBodyTask::basicSolve()
     if (!attStandingRobot->supportPolygon()->isDoubleSupport())
     {
         std::cout << "ChppGikWholeBodyTask::basicSolve() : failed to identify a double support polygon on the current robot configuration\n";
-        return false;
-    }
-
-    double targetX, targetY, distance,centerX,centerY;
-
-    attStandingRobot->supportPolygon()->center(centerX,centerY);
-
-    furthestTargetProjection(centerX,centerY,targetX, targetY, distance);
-
-    if (distance > 0.7)
-    {
-        std::cout << "Failed. One constraint target was too far.\n";
         return false;
     }
 
