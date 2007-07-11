@@ -1,9 +1,6 @@
-hppGik 1.1.3 released Mon 11 Jul 2007
+hppGik 1.1.4 released Mon 11 Jul 2007
 
 	6. (oussama) successive steps should be working again.
-
-hppGik 1.1.2 released Mon 11 Jul 2007
-
 	5. (oussama) restore waist contraints while stepping (roll and
 	pich null all the time).
 	4. (oussama) bug fix in preview controller.
