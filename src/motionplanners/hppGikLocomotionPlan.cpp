@@ -231,7 +231,7 @@ bool ChppGikLocomotionPlan::solveOneStage()
             std::cout << "Failed to reset locomotionplan 1\n";
             return false;
         }
-        retVal = prolongate(prevT);
+        retVal = prolongate(attTasks[0]->startTime() - moddedStartTime);
         if (!retVal)
         {
             std::cout << "Failed to reset locomotionplan 2\n";
