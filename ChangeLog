@@ -1,3 +1,9 @@
+hppGik 1.1.2 released Mon 11 Jul 2007
+
+	5. (oussama) restore waist contraints while stepping (roll and
+	pich null all the time).
+	4. (oussama) bug fix in preview controller.
+
 hppGik 1.1.1 released Mon 09 Jul 2007
 
 	3. (oussama) bug fix in wholebodyTask.
