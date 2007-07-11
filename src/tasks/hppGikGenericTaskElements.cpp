@@ -341,7 +341,7 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
         supportFootJoint = robot.rightFoot();
         nonsupportFootJoint = robot.leftFoot();
         newDoubleSupportPolygon = new ChppGikSupportPolygon(*attTargetFootprint, *supportFootprint);
-        newDoubleSupportPolygon->rfootTransformation(*(lastSupportPolygon->lfootTransformation()));
+        newDoubleSupportPolygon->rfootTransformation(*(lastSupportPolygon->rfootTransformation()));
         newDoubleSupportPolygon->lfootTransformation(endFootTransformation);
         newSingleSupportPolygon = new ChppGikSupportPolygon(*supportFootprint,attIsRight);
         newSingleSupportPolygon->rfootTransformation(*(lastSupportPolygon->rfootTransformation()));
