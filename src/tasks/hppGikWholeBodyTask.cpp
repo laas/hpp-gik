@@ -16,6 +16,8 @@ ChppGikWholeBodyTask::ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot
     
     attEnableStep = true;
     
+    attHadToStep = false;
+    
     attGenericTask = new ChppGikGenericTask(inStandingRobot, inSamplingPeriod);
 }
 
@@ -64,6 +66,11 @@ void ChppGikWholeBodyTask::enableStepping(bool inEnabled)
     attEnableStep = inEnabled;
 }
 
+bool ChppGikWholeBodyTask::hadToStep()
+{
+    return attHadToStep;
+}
+
 bool ChppGikWholeBodyTask::algorithmSolve()
 {
 
@@ -73,11 +80,13 @@ bool ChppGikWholeBodyTask::algorithmSolve()
         return false;
     }
 
+    attHadToStep = false;
 
     //try to solve the problem without stepping
     bool isSolved = basicSolve();
     if (!isSolved && attEnableStep)
     {
+        attHadToStep = true;
         restoreRobot();
         isSolved = onestepSolve();//(auto resets planners and motion plan)
     }
@@ -222,7 +231,7 @@ bool ChppGikWholeBodyTask::onestepSolve()
 
         attGenericTask->addElement(stepTask);
 
-        //waistTask = new ChppGikSingleMotionElement(waistConstraint, 4, 0.0, otherTasksStartTime+otherTasksDuration);
+        waistTask = new ChppGikSingleMotionElement(waistConstraint, 4, 0.0, otherTasksStartTime+otherTasksDuration);
         //attGenericTask->addElement(waistTask);
 
         //wrap & time user-entered state constraints, and add them to attPlannerTasks vector

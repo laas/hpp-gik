@@ -215,7 +215,10 @@ bool ChppGikLocomotionPlan::solveOneStage()
     {
         retVal = reset(attStartTime);
         if (!retVal)
+        {
+            std::cout << "Failed to reset locomotionplan 0\n";
             return false;
+        }
     }
     else
     {
@@ -224,10 +227,16 @@ bool ChppGikLocomotionPlan::solveOneStage()
             moddedStartTime = attStartTime;
         retVal = reset(moddedStartTime);
         if (!retVal)
+        {
+            std::cout << "Failed to reset locomotionplan 1\n";
             return false;
+        }
         retVal = prolongate(prevT);
         if (!retVal)
+        {
+            std::cout << "Failed to reset locomotionplan 2\n";
             return false;
+        }
     }
 
     //Extra time due to preview controller
@@ -235,7 +244,10 @@ bool ChppGikLocomotionPlan::solveOneStage()
     //build motions
     retVal = buildMotions();
     if (!retVal)
+    {
+        std::cout << "Failed to plan locomotion\n";
         return false;
+    }
 
     //filter ZMP motion to improve stability
     matrixNxP filteringResult;
@@ -247,7 +259,10 @@ bool ChppGikLocomotionPlan::solveOneStage()
     matrixNxP resultTrajCOMXY;
     retVal = attPreviewController->ZMPtoCOM(attPlannedZMP,resultTrajCOMXY);
     if (!retVal)
+    {
+        std::cout << "Failed to plan center of mass motion\n";
         return false;
+    }
 
     //fill in com motion constraint
     ChppGikComConstraint* comC = new ChppGikComConstraint(*(attStandingRobot->robot()));
@@ -258,6 +273,7 @@ bool ChppGikLocomotionPlan::solveOneStage()
     }
 
     delete comC;
+    return true;
 }
 
 

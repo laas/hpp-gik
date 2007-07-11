@@ -35,6 +35,11 @@ public:
     void addMotionConstraint(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority);
 
     /**
+    \brief Tell if last solution computation needed making a step
+    */
+    bool hadToStep();
+    
+    /**
     \brief enable stepping if a solution could not be found with the current support polygon.Default value upon construction is True.
     */
     void enableStepping(bool inEnabled);
@@ -98,11 +103,15 @@ protected:
      */
     void deleteFootprintCandidates(std::vector<ChppGikFootprint*>& inVectorFootprints );
 
-
     /**
     \brief Determines whether the algorithm can try to plan a step for the robot in order to solve the stack of constraints. Default value upon construction is True.
     */
     bool attEnableStep;
+    
+    /**
+    \brief Tell if last solve() needed stepping
+    */
+    bool attHadToStep;
             
     /**
     \brief The solution task plan
