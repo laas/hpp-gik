@@ -232,7 +232,7 @@ bool ChppGikWholeBodyTask::onestepSolve()
         attGenericTask->addElement(stepTask);
 
         waistTask = new ChppGikSingleMotionElement(waistConstraint, 4, 0.0, otherTasksStartTime+otherTasksDuration);
-        //attGenericTask->addElement(waistTask);
+        attGenericTask->addElement(waistTask);
 
         //wrap & time user-entered state constraints, and add them to attPlannerTasks vector
         defaultPlannerTaskMaker(otherTasksStartTime,otherTasksDuration);
