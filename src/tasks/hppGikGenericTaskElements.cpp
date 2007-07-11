@@ -343,7 +343,7 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
         newDoubleSupportPolygon = new ChppGikSupportPolygon(*attTargetFootprint, *supportFootprint);
         newDoubleSupportPolygon->rfootTransformation(*(lastSupportPolygon->lfootTransformation()));
         newDoubleSupportPolygon->lfootTransformation(endFootTransformation);
-        newSingleSupportPolygon = new ChppGikSupportPolygon(*supportFootprint,!attIsRight);
+        newSingleSupportPolygon = new ChppGikSupportPolygon(*supportFootprint,attIsRight);
         newSingleSupportPolygon->rfootTransformation(*(lastSupportPolygon->rfootTransformation()));
         startFootTransformation = *(lastSupportPolygon->lfootTransformation());
     }
