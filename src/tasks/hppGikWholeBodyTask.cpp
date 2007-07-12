@@ -209,12 +209,14 @@ bool ChppGikWholeBodyTask::onestepSolve()
     //Write solving loop
     double stepStartTime = attStartTime+1.7;
 
-    double zmpstartshifttime = 0.2;//0.1;
-    double zmpendshifttime = 0.4;//0.1;
-    double footflighttime = 0.9;//0.7;
+    double zmpstartshifttime = 0.02;//0.1;
+    double zmpendshifttime = 0.1;//0.1;
+    double footflighttime = 0.8;//0.7;
     double zmpendcoef = 0.70;
 
-    double otherTasksStartTime = stepStartTime + 2.2;
+    attGenericTask->dynamicWeights(false);
+    
+    double otherTasksStartTime = stepStartTime + 1.8;
     double otherTasksDuration = 4.0;
 
     bool isSolved =false;
@@ -235,7 +237,7 @@ bool ChppGikWholeBodyTask::onestepSolve()
 
         //Create step task (default timings)
         stepTask = new ChppGikStepElement(stepStartTime, vectorFootprints[i], whichFoot, zmpendcoef, zmpendshifttime, zmpstartshifttime, footflighttime);
-
+        
         attGenericTask->addElement(stepTask);
 
         waistTask = new ChppGikSingleMotionElement(waistConstraint, 4, 0.0, otherTasksStartTime+otherTasksDuration);

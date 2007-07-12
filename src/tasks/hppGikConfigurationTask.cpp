@@ -66,16 +66,11 @@ bool ChppGikConfigurationTask::algorithmSolve()
 
     bool atLeastOneZMPUnsafe = false;
     vector3d ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs;
-    double staticZMPx,staticZMPy;
-    
-    curSupportPolygon->center(staticZMPx,staticZMPy);
-    V3_I(ZMPworPla,0) = staticZMPx;
-    V3_I(ZMPworPla,1) = staticZMPy;
-    V3_I(ZMPworPla,2) = 0.0;
 
     for (unsigned int i=0; i<nSamples; i++)
     {
         attStandingRobot->robot()->applyConfiguration(column(interpolationMatrix,i));
+        ZMPworPla = attStandingRobot->robot()->positionCenterOfMass();
         attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
         if (!curSupportPolygon->isPointInside(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
             atLeastOneZMPUnsafe = true;
