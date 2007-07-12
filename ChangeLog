@@ -1,5 +1,6 @@
-hppGik 1.1.4 released Mon 11 Jul 2007
+hppGik 1.1.5 released Thu 12 Jul 2007
 
+	7. (oussama) improved stepping timings in wholebodytask
 	6. (oussama) successive steps should be working again.
 	5. (oussama) restore waist contraints while stepping (roll and
 	pich null all the time).
