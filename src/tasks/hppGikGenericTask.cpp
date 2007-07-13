@@ -147,7 +147,7 @@ bool ChppGikGenericTask::algorithmSolve()
     bool atLeastOneZMPUnsafe = false;
     vector3d ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla;
     vectorN uZMPworPla(3);
-
+    
     // Adjust solution motion start time according to planned locomotion
     attSolutionMotion->startTime(motionStartTime);
 
@@ -185,7 +185,7 @@ bool ChppGikGenericTask::algorithmSolve()
             constraintStack[i]->computeValue();
             constraintStack[i]->computeJacobian();
         }
-        
+
         //Update config of the robot according to constraints (solve!)
         ok = attGikSolver->gradientStep(constraintStack);
         

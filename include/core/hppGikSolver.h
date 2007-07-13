@@ -102,12 +102,15 @@ private:
     unsigned int MaximumIteration;
     vectorN PenroseMask;
     vectorN PIWeights;
+    vectorN NextPIWeights;
     vectorN Weights;
     vectorN PIWeightsBackup;
     vectorN JointUpperLimitWindow;
 
 
     ublas::vector<unsigned int> UsedIndexes;
+    ublas::vector<unsigned int> NextUsedIndexes;
+    
 
     matrixNxP H0;
     matrixNxP Hif;
