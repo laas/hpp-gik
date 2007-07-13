@@ -86,6 +86,7 @@ private:
      */
 
     unsigned int LongSize;
+    unsigned int LongSizeBackup;
     unsigned int numDof;
     unsigned int numJoints;
     unsigned int xDefaultDim;
@@ -110,6 +111,7 @@ private:
 
     ublas::vector<unsigned int> UsedIndexes;
     ublas::vector<unsigned int> NextUsedIndexes;
+    ublas::vector<unsigned int> UsedIndexesBackup;
     
 
     matrixNxP H0;
