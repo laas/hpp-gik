@@ -20,6 +20,8 @@ install-doc: doc
 	$(INSTALL_DATA) html/* $(hppGikdir)
 	mkdir -p $(hppGikdir)/pictures
 	$(INSTALL_DATA) $(srcdir)/pictures/* $(hppGikdir)/pictures
+	mkdir -p $(datadir)/doc/doxytag
+	$(INSTALL_DATA) hppGik.doxytag $(datadir)/doc/doxytag
 
 doc: hpp.dox
 	doxygen $<
