@@ -85,6 +85,13 @@ public:
     @}
      */
 
+    /**
+       \brief Get constraints included in this element
+     */
+    const std::vector<CjrlGikStateConstraint*>& constraints(){
+      return attConstraints;
+    }
+
     ~ChppGikMotionPlanElement();
 
 
