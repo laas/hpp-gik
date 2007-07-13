@@ -29,6 +29,11 @@ public:
      */
 
     /**
+    \brief Update weights according to joint limits.
+     */
+    void accountForJointLimits();
+
+    /**
     \brief set pseudo inverse weights according to current configuration and entered weights. A 0 weight indicates a disactivated joint. The given vector must be of size (robot.numberDofs - 6).
     The default vector (on the construction of an instance) is an all-one vector.
     \return false if inWeights of incorrect size
@@ -74,11 +79,6 @@ private:
      */
     double brakeCoefForJoint(const double& qVal,const double& lowerLimit, const double& upperLimit, const double& dq);
 
-
-    /**
-    \brief Update weights according to joint limits.
-     */
-    void accountForJointLimits();
 
     /**
         \name Variables used by solve() and allocated in the constructor to avoid dynamic allocation

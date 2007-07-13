@@ -47,12 +47,7 @@ public :
      */
     ~ChppGikGenericTask();
 
-private:
-
-    virtual bool algorithmSolve();
-    
-    void computeGikWeights(double inTime, vectorN& outGikWeights);
-    
+protected:
     CjrlHumanoidDynamicRobot* attRobot;
 
     ChppGikMotionPlan* attMotionPlan;
@@ -63,6 +58,12 @@ private:
     
     ChppGikSolver* attGikSolver;
 
+    void computeGikWeights(double inTime, vectorN& outGikWeights);
+    
+private:
+
+    virtual bool algorithmSolve();
+    
     /**
     \brief Remember the pointers to the entered ready motion constraints
     */

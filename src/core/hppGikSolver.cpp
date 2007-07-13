@@ -129,6 +129,9 @@ double ChppGikSolver::brakeCoefForJoint ( const double& qVal,const double& lower
         double curve_Fraction = qFraction/BrakingZone;
         unsigned int windowTick = ChppGikTools::timetoRank ( 0.0, curve_Fraction, WindowStep );
         //std::cout << "low brake: "<< JointUpperLimitWindow(JointUpperLimitWindow.size()-1-windowTick) <<"\n";
+        if (windowTick >= JointUpperLimitWindow.size())
+            return 0;
+
         return JointUpperLimitWindow ( JointUpperLimitWindow.size()-1-windowTick );
     }
 
@@ -152,13 +155,18 @@ void ChppGikSolver::accountForJointLimits()
     LongSize = 0;
     unsigned int realrank;
     double coefLjoint;
+    const vectorN& cfg = attRobot->currentConfiguration(); 
+    double q, ub, lb;
 
     for ( unsigned int i=0; i<numJoints;i++ )
         if ( Weights ( i ) >1e-2 )
         {
             realrank = 6 + i;
 
-            coefLjoint =  brakeCoefForJoint ( attRobot->currentConfiguration() ( realrank ),attRobot->lowerBoundDof ( realrank ),attRobot->upperBoundDof ( realrank ),attRobot->currentVelocity() ( realrank ) );
+	    q = attRobot->currentConfiguration()(realrank);
+	    lb = attRobot->lowerBoundDof(realrank, cfg);
+	    ub = attRobot->upperBoundDof(realrank, cfg);
+            coefLjoint =  brakeCoefForJoint(q,lb,ub,attRobot->currentVelocity()(realrank));
 
             UsedIndexes ( LongSize ) = i;
 
@@ -171,8 +179,6 @@ void ChppGikSolver::accountForJointLimits()
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints )
 {
-    accountForJointLimits();
-
     subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
 
     //store the fixed foot's tranformation (Hif)
@@ -277,18 +283,25 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         //compute new dof vector & perform a basic check on joint limits
         CurFullConfig = attRobot->currentConfiguration();
 
-        //joint limit checking
+	//update dof config
         unsigned int iC,realIndex;
+        for ( iC=0; iC< LongSize; iC++ )
+        {
+            realIndex = 6+UsedIndexes ( iC );
+            CurFullConfig ( realIndex ) += DeltaQ ( iC );
+	}
+
+        //joint limit checking
+	double ub, lb;
         recompute = false;
         unsigned int NextLongSize = 0;
         for ( iC=0; iC< LongSize; iC++ )
         {
-            //update dof config
             realIndex = 6+UsedIndexes ( iC );
-            CurFullConfig ( realIndex ) += DeltaQ ( iC );
-
+	    lb = attRobot->lowerBoundDof(realIndex, CurFullConfig);
+	    ub = attRobot->upperBoundDof(realIndex, CurFullConfig);
             //check for joint limits
-            if ( CurFullConfig ( realIndex ) < attRobot->lowerBoundDof ( realIndex ) +1e-2 || CurFullConfig ( realIndex ) > attRobot->upperBoundDof ( realIndex )-1e-2 )
+            if ( CurFullConfig ( realIndex ) < lb +1e-2 || CurFullConfig ( realIndex ) > ub-1e-2 )
             {
                 recompute = true;
                 PIWeights ( iC ) = 0; // disable this dof for recomputation

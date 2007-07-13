@@ -17,7 +17,7 @@ public:
     /**
     \brief Constructor
      */
-    ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, unsigned int inMaxIterations =1);
+    ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, unsigned int inMaxIterations =1, ChppGikGenericTask *inGenericTask=NULL);
 
     /**
     \brief Get associated robot

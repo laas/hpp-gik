@@ -31,7 +31,7 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
 void ChppGikStandingRobot::updateDynamics(double inSamplingPeriod, const vector3d& inZMPworPla, vector3d& outZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
 {
     //Update kinematics (finite difference method)
-    attRobot->FiniteDifferenceStateUpdate(inSamplingPeriod);
+    attRobot->FiniteDifferenceStateEstimate(inSamplingPeriod);
 
     //Observed ZMP
     outZMPworObs = attRobot->zeroMomentumPoint();

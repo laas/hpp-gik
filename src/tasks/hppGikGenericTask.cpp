@@ -186,13 +186,14 @@ bool ChppGikGenericTask::algorithmSolve()
             constraintStack[i]->computeJacobian();
         }
 
+	attGikSolver->accountForJointLimits();
         //Update config of the robot according to constraints (solve!)
         ok = attGikSolver->gradientStep(constraintStack);
         
         if (!ok)
         {
 
-            std::cout <<"ChppGikGenericTask::solve() Could not solve motion plan at time "<< time << "\n";
+            std::cout <<"ChppGikGenericTask::gradientStep() Could not solve motion plan at time "<< time << "\n";
             return false;
         }
 
@@ -201,6 +202,8 @@ bool ChppGikGenericTask::algorithmSolve()
         ChppGikTools::UblastoVector3(uZMPworPla, ZMPworPla);
 
         attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
+
+	attStandingRobot->robot()->SaveCurrentStateAsPastState();
 
         //append sample to solution motion
         attSolutionMotion->appendSample(attStandingRobot->robot()->currentConfiguration(),ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs);

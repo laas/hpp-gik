@@ -10,7 +10,7 @@
 #include "hppGikTools.h"
 
 
-ChppGikWholeBodyTask::ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, unsigned int inMaxIterations):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"WholebodyTask")
+ChppGikWholeBodyTask::ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, unsigned int inMaxIterations, ChppGikGenericTask *inGenericTask):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"WholebodyTask")
 {
     attMaxIterations = inMaxIterations;
     
@@ -18,7 +18,12 @@ ChppGikWholeBodyTask::ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot
     
     attHadToStep = false;
     
-    attGenericTask = new ChppGikGenericTask(inStandingRobot, inSamplingPeriod);
+    if (inGenericTask){
+	attGenericTask = inGenericTask;
+    }else{
+	attGenericTask = new ChppGikGenericTask(inStandingRobot, 
+						inSamplingPeriod);
+    }
 }
 
 CjrlHumanoidDynamicRobot& ChppGikWholeBodyTask::robot()const
