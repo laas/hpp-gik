@@ -158,8 +158,9 @@ SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   
 #---------------------------------------------------------------------------
-TAGFILES               = 
-GENERATE_TAGFILE       = 
+TAGFILES               = @ABS_GIKTASK_PREFIX@/share/doc/doxytag/abstractGikTask.doxytag=@ABS_GIKTASK_PREFIX@/share/doc/abstractGikTask \
+
+GENERATE_TAGFILE       = hppGik.doxytag
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES
 PERL_PATH              = /usr/bin/perl
