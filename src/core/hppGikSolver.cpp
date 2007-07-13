@@ -33,6 +33,7 @@ ChppGikSolver::ChppGikSolver ( CjrlHumanoidDynamicRobot* inRobot )
     DeltaQ.resize ( numJoints,false );
     UsedIndexes.resize ( numJoints,false );
     NextUsedIndexes.resize ( numJoints,false );
+    UsedIndexesBackup.resize ( numJoints,false );
     for ( unsigned int i=0; i<numJoints;i++ )
         UsedIndexes ( i ) = i;
 
@@ -152,7 +153,7 @@ bool ChppGikSolver::weights ( vectorN& inWeights )
 
 void ChppGikSolver::accountForJointLimits()
 {
-    LongSize = 0;
+    LongSizeBackup = 0;
     unsigned int realrank;
     double coefLjoint;
     const vectorN& cfg = attRobot->currentConfiguration(); 
@@ -168,18 +169,20 @@ void ChppGikSolver::accountForJointLimits()
 	    ub = attRobot->upperBoundDof(realrank, cfg);
             coefLjoint =  brakeCoefForJoint(q,lb,ub,attRobot->currentVelocity()(realrank));
 
-            UsedIndexes ( LongSize ) = i;
+            UsedIndexesBackup ( LongSizeBackup ) = i;
 
-            PIWeightsBackup ( LongSize ) = Weights ( i ) * coefLjoint;
+            PIWeightsBackup ( LongSizeBackup ) = Weights ( i ) * coefLjoint;
 
-            LongSize++;
+            LongSizeBackup++;
         }
 }
 
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints )
 {
+    LongSize = LongSizeBackup;
     subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
+    subrange ( UsedIndexes,0,LongSize ) = subrange ( UsedIndexesBackup,0,LongSize );
 
     //store the fixed foot's tranformation (Hif)
     FixedJoint = & ( attRobot->fixedJoint ( 0 ) );
@@ -304,8 +307,12 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
             if ( CurFullConfig ( realIndex ) < lb +1e-2 || CurFullConfig ( realIndex ) > ub-1e-2 )
             {
                 recompute = true;
-                PIWeights ( iC ) = 0; // disable this dof for recomputation
-                //std::cout << "Disactivating dof "<< realIndex <<"\n";
+		/*
+                std::cout << "Deactivating dof "<< realIndex 
+			  << "(" << lb << ", " << CurFullConfig(realIndex)
+			  << ", " << ub << ")\n";
+		*/
+
             }
             else
             {
