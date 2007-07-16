@@ -5,7 +5,7 @@ dnl
 dnl   Author: Florent Lamiraux LAAS-CNRS
 dnl
 
-AC_INIT([hppGik],[1.1.5],[openrobots@laas.fr])
+AC_INIT([hppGik],[1.2],[openrobots@laas.fr])
 AC_PREREQ(2.59)
 
 AM_INIT_AUTOMAKE([foreign])
@@ -19,7 +19,7 @@ ABS_GIKTASK_PREFIX=`$PKG_CONFIG abstractGikTask --variable=prefix`
 AC_SUBST(ABS_GIKTASK_PREFIX)
 AC_SUBST(ABS_GIKTASK_CFLAGS)
 
-PKG_CHECK_MODULES(DYNAMICSJRLJAPAN, dynamicsJRLJapan >= 1.3.1)
+PKG_CHECK_MODULES(DYNAMICSJRLJAPAN, dynamicsJRLJapan >= 1.4)
 AC_SUBST(DYNAMICSJRLJAPAN_CFLAGS)
 AC_SUBST(DYNAMICSJRLJAPAN_LIBS)
 

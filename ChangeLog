@@ -1,3 +1,16 @@
+hppGik 1.2 released Mon 16 Jul 2007
+
+	13. (fumio) some of member variables and functions are moved from
+	private to protected or public.
+	12. (fumio) CjrlDynamicRobot::{upper|lower}BoundDof(int, const vectorN&)
+	is used instead of {upper|lower}BoundDof(int)
+	11. (fumio) Now ChppGikSolver::accountForJointLimits() must be called
+	before calling ChppGikSolver::gradientStep()
+	10. (fumio) Use CjrlDynamicRobot::FiniteDifferenceStateEstimate() and 
+ 	CjrlDynamicRobot::SaveCurrentStateAsPastState().
+	9. (fumio) generate doxytags.
+	8. (oussama) fix hppGikSolver to prevent infinite loops in some cases.
+	
 hppGik 1.1.5 released Thu 12 Jul 2007
 
 	7. (oussama) improved stepping timings in wholebodytask
