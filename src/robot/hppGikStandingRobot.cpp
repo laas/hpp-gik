@@ -26,6 +26,10 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
     attRelativeCOM = attRobot->positionCenterOfMass();
     for (unsigned int i=0; i < 3; i++)
         V3_I(attRelativeCOM,i) = V3_I(attRelativeCOM,i) - M4_IJ(attRFoot,i,3);
+
+    if (attRobot->countFixedJoints()==0){
+	attRobot->addFixedJoint(attRobot->rightFoot());
+    }
 }
 
 void ChppGikStandingRobot::updateDynamics(double inSamplingPeriod, const vector3d& inZMPworPla, vector3d& outZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
