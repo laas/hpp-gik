@@ -15,7 +15,7 @@ EXTRA_DIST = \
 	pictures/HRP2.jpg
 
 
-install-doc: doc
+install: html-doc
 	mkdir -p $(hppGikdir)
 	$(INSTALL_DATA) html/* $(hppGikdir)
 	mkdir -p $(hppGikdir)/pictures
@@ -23,7 +23,7 @@ install-doc: doc
 	mkdir -p $(datadir)/doc/doxytag
 	$(INSTALL_DATA) hppGik.doxytag $(datadir)/doc/doxytag
 
-doc: hpp.dox
+html-doc: hpp.dox
 	doxygen $<
 
 clean-local:
