@@ -17,7 +17,7 @@ public:
     /**
         \brief Constructor
      */
-    ChppGikSolver(CjrlHumanoidDynamicRobot* inRobot);
+    ChppGikSolver(CjrlDynamicRobot* inRobot);
 
     /**
         @}
@@ -61,7 +61,7 @@ private:
     /**
         \brief Pointer to the relevant robot.
      */
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
 
     /**
         \brief Resize matrices used in solve().

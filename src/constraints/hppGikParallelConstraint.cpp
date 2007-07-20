@@ -4,7 +4,7 @@
 #include "hppGikTools.h"
 
 
-ChppGikParallelConstraint::ChppGikParallelConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalVector, const vector3d& inTargetVector)
+ChppGikParallelConstraint::ChppGikParallelConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalVector, const vector3d& inTargetVector)
 {
 
 
@@ -52,7 +52,7 @@ unsigned int ChppGikParallelConstraint::dimension() const
 }
 
 
-CjrlHumanoidDynamicRobot& ChppGikParallelConstraint::robot()
+CjrlDynamicRobot& ChppGikParallelConstraint::robot()
 {
     return *attRobot;
 }

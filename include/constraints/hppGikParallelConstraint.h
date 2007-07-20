@@ -21,7 +21,7 @@ public:
     /**
     \brief Constructor
      */
-    ChppGikParallelConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint,const vector3d& inLocalVector,  const vector3d& inTargetVector);
+    ChppGikParallelConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint,const vector3d& inLocalVector,  const vector3d& inTargetVector);
 
     /**
     \brief Copy the object
@@ -35,7 +35,7 @@ public:
     /**
     \brief Get robot associated to the constraint.
      */
-    virtual CjrlHumanoidDynamicRobot& robot();
+    virtual CjrlDynamicRobot& robot();
 
     /**
     \brief Set the joint associated to the constraint.
@@ -135,7 +135,7 @@ public:
 
 private:
 
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
 
     CjrlJoint* attJoint;
 

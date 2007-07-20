@@ -19,7 +19,7 @@ public:
     /**
     \brief Constructor
      */
-    ChppGikPositionConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame);
+    ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame);
 
 
     /**
@@ -35,7 +35,7 @@ public:
     /**
     \brief Get robot associated to the constraint.
      */
-    virtual CjrlHumanoidDynamicRobot& robot();
+    virtual CjrlDynamicRobot& robot();
 
     /**
     \brief Set the joint associated to the constraint.
@@ -137,7 +137,7 @@ public:
 
 private:
 
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
 
     CjrlJoint* attJoint;
 

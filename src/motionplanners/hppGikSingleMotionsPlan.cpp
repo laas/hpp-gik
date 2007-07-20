@@ -14,8 +14,12 @@ ChppGikSingleMotionsPlan::ChppGikSingleMotionsPlan(ChppGikMotionPlan* inAssociat
 bool ChppGikSingleMotionsPlan::addTask(ChppGikSingleMotionElement* inTask)
 {
     CjrlJoint* taskJoint = inTask->targetConstraint()->joint();
-    CjrlHumanoidDynamicRobot& robot = inTask->targetConstraint()->robot();
-    if (taskJoint == robot.leftFoot() || taskJoint == robot.rightFoot())
+    CjrlDynamicRobot& robot = inTask->targetConstraint()->robot();
+    CjrlHumanoidDynamicRobot* humanoid;
+    humanoid = dynamic_cast<CjrlHumanoidDynamicRobot *>(&robot);
+    if (humanoid
+	&& (taskJoint == humanoid->leftFoot() 
+	    || taskJoint == humanoid->rightFoot()))
     {
         std::cout << "ChppGikSingleMotionsPlan::addTask() Entered task should not be on the feet joints\n";
         return false;

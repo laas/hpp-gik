@@ -5,12 +5,16 @@
 
 using namespace ublas;
 
-ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame)
+ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame)
 {
     attJoint = &inJoint;
     attRobot = &inRobot;
 
-    tempNumJoints = inRobot.numberDof()-6;
+    if (attRobot->countFixedJoints()){
+	tempNumJoints = inRobot.numberDof()-6;
+    }else{
+	tempNumJoints = 6;
+    }
 
     attLocalPointVector3 =  inPointInBodyLocalFrame;
     attWorldTargetVector3 =  inPointInWorldFrame;
@@ -44,7 +48,7 @@ unsigned int ChppGikPositionConstraint::dimension() const
 }
 
 
-CjrlHumanoidDynamicRobot& ChppGikPositionConstraint::robot()
+CjrlDynamicRobot& ChppGikPositionConstraint::robot()
 {
     return *attRobot;
 }
@@ -111,47 +115,54 @@ void ChppGikPositionConstraint::computeValue()
 vectorN& ChppGikPositionConstraint::influencingDofs()
 {
     unsigned int i;
+    std::vector<CjrlJoint *> joints;
     attInfluencingDofs.clear();
-    for( i=1; i< attRobot->fixedJoint(0).jointsFromRootToThis().size(); i++)
-        attInfluencingDofs(attRobot->fixedJoint(0).jointsFromRootToThis()[i]->rankInConfiguration()) = 1;
-    for(i=1; i< attJoint->jointsFromRootToThis().size(); i++)
-        attInfluencingDofs(attJoint->jointsFromRootToThis()[i]->rankInConfiguration()) = 1;
+    if (attRobot->countFixedJoints()>0){
+	joints = attRobot->fixedJoint(0).jointsFromRootToThis();
+	for( i=1; i< joints.size(); i++)
+	    attInfluencingDofs(joints[i]->rankInConfiguration()) = 1;
+    }else{
+	CjrlJoint *root = attRobot->rootJoint();
+	unsigned int start = root->rankInConfiguration();
+	for (i=0; i<root->numberDof(); i++){
+	    attInfluencingDofs[start+i] = 1;
+	}
+    }
+    joints = attJoint->jointsFromRootToThis();
+    for(i=1; i< joints.size(); i++)
+        attInfluencingDofs(joints[i]->rankInConfiguration()) = 1;
     return attInfluencingDofs;
 }
 void ChppGikPositionConstraint::computeJacobian()
 {
-
-    tempFixedJoint = &(attRobot->fixedJoint(0));
-    if (!tempFixedJoint)
-    {
-        std::cout << "ChppGikPositionConstraint::computeJacobian() expected a fixed joint on the robot.\n";
-        return;
-    }
-    
-    tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-    if (!tempFixedJointJacobian)
-    {
-        std::cout << "ChppGikPositionConstraint::computeJacobian() could not retrieve partial jacobians.\n";
-        return;
-    }
-
-    //attJoint->computeJacobianJointWrtConfig();
-
     attJoint->getJacobianPointWrtConfig(attLocalPointVector3, tempJacobian);
 
-    attJacobian = subrange(tempJacobian,0,3,6,attRobot->numberDof());
+    int start = attRobot->numberDof() - tempNumJoints;
+    attJacobian = subrange(tempJacobian,0,3,start,attRobot->numberDof());
     
-    attJacobian.minus_assign(subrange(*tempFixedJointJacobian,0,3,6,attRobot->numberDof()));
-    
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
-    noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
-    temp3DVec.plus_assign(temp3DVec1);//joint point in world
 
-    ChppGikTools::HtoT(tempFixedJoint->currentTransformation(),temp3DVec1);
-    temp3DVec.minus_assign(temp3DVec1);//joint point in world - ankle joint center in world
+    if (attRobot->countFixedJoints()>0){
+	tempFixedJoint = &(attRobot->fixedJoint(0));
+	tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
+	if (!tempFixedJointJacobian)
+	{
+	    std::cout << "ChppGikPositionConstraint::computeJacobian() could not retrieve partial jacobians.\n";
+	    return;
+	}
+	attJacobian.minus_assign(subrange(*tempFixedJointJacobian,
+					  0,3,start,attRobot->numberDof()));
     
-    ChppGikTools::equivAsymMat(temp3DVec,tempRot);
-    noalias(attJacobian) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
+	ChppGikTools::HtoRT(attJoint->currentTransformation(),
+			    tempRot,temp3DVec);
+	noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
+	temp3DVec.plus_assign(temp3DVec1);//joint point in world
+
+	ChppGikTools::HtoT(tempFixedJoint->currentTransformation(),temp3DVec1);
+	temp3DVec.minus_assign(temp3DVec1);//joint point in world - ankle joint center in world
+    
+	ChppGikTools::equivAsymMat(temp3DVec,tempRot);
+	noalias(attJacobian) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,start,attRobot->numberDof()));
+    }
     
 //     std::cout << "attJacobian\n";
 //     ChppGikTools::printBlasMat( attJacobian );

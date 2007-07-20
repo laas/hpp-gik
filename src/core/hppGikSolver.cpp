@@ -12,17 +12,21 @@ namespace lapack = boost::numeric::bindings::lapack;
 
 using namespace ublas;
 
-ChppGikSolver::ChppGikSolver ( CjrlHumanoidDynamicRobot* inRobot )
+ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
 {
     attRobot = inRobot;
 
     numDof = attRobot->numberDof();
-    numJoints = numDof-6;
+    if (attRobot->countFixedJoints() > 0){
+	numJoints = numDof-6;
+    }else{
+	numJoints = 6;
+    }
 
     xDefaultDim = 6;
     SVDThreshold = 0.001;
 
-    LongSize = numJoints;
+    LongSize = LongSizeBackup = numJoints;
     scalar_vector<char> temp ( numJoints,1 );
     PIWeights = temp;
     NextPIWeights = temp;
@@ -34,8 +38,10 @@ ChppGikSolver::ChppGikSolver ( CjrlHumanoidDynamicRobot* inRobot )
     UsedIndexes.resize ( numJoints,false );
     NextUsedIndexes.resize ( numJoints,false );
     UsedIndexesBackup.resize ( numJoints,false );
-    for ( unsigned int i=0; i<numJoints;i++ )
+    for ( unsigned int i=0; i<numJoints;i++ ){
         UsedIndexes ( i ) = i;
+        UsedIndexesBackup ( i ) = i;
+    }
 
 
     identity_matrix<double> tempid ( numJoints );
@@ -158,16 +164,21 @@ void ChppGikSolver::accountForJointLimits()
     double coefLjoint;
     const vectorN& cfg = attRobot->currentConfiguration(); 
     double q, ub, lb;
+    unsigned int offset = attRobot->countFixedJoints()>0 ? 6 : 0;
 
     for ( unsigned int i=0; i<numJoints;i++ )
         if ( Weights ( i ) >1e-2 )
         {
-            realrank = 6 + i;
+            realrank = offset + i;
 
-	    q = attRobot->currentConfiguration()(realrank);
-	    lb = attRobot->lowerBoundDof(realrank, cfg);
-	    ub = attRobot->upperBoundDof(realrank, cfg);
-            coefLjoint =  brakeCoefForJoint(q,lb,ub,attRobot->currentVelocity()(realrank));
+	    if (realrank >= 6){
+		q = attRobot->currentConfiguration()(realrank);
+		lb = attRobot->lowerBoundDof(realrank, cfg);
+		ub = attRobot->upperBoundDof(realrank, cfg);
+		coefLjoint =  brakeCoefForJoint(q,lb,ub,attRobot->currentVelocity()(realrank));
+	    }else{
+		coefLjoint = 1.0;
+	    }
 
             UsedIndexesBackup ( LongSizeBackup ) = i;
 
@@ -184,17 +195,18 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
     subrange ( UsedIndexes,0,LongSize ) = subrange ( UsedIndexesBackup,0,LongSize );
 
-    //store the fixed foot's tranformation (Hif)
-    FixedJoint = & ( attRobot->fixedJoint ( 0 ) );
-    if ( FixedJoint == 0 )
-    {
-        std::cout << "solve(): the robot did not have a valid fixed joint.\n";
-        return false;
+    std::vector<CjrlJoint*> supportJoints;
+    if (attRobot->countFixedJoints()>0){
+	//store the fixed foot's tranformation (Hif)
+	FixedJoint = & ( attRobot->fixedJoint ( 0 ) );
+	//joints from root to fixed joint (including both)
+	supportJoints = FixedJoint->jointsFromRootToThis();
+	ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),
+				       Hif );
+    }else{
+	FixedJoint = NULL;
     }
-    //joints from root to fixed joint (including both)
-    std::vector<CjrlJoint*> supportJoints = FixedJoint->jointsFromRootToThis();
-    ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),Hif );
-
+    
     unsigned int elementCount;
     bool recompute = true;
     Iteration = 0;
@@ -287,10 +299,11 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         CurFullConfig = attRobot->currentConfiguration();
 
 	//update dof config
-        unsigned int iC,realIndex;
+        unsigned int iC,realIndex, offset;
+	offset = attRobot->countFixedJoints()>0 ? 6 : 0;
         for ( iC=0; iC< LongSize; iC++ )
         {
-            realIndex = 6+UsedIndexes ( iC );
+            realIndex = offset+UsedIndexes ( iC );
             CurFullConfig ( realIndex ) += DeltaQ ( iC );
 	}
 
@@ -300,11 +313,15 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         unsigned int NextLongSize = 0;
         for ( iC=0; iC< LongSize; iC++ )
         {
-            realIndex = 6+UsedIndexes ( iC );
-	    lb = attRobot->lowerBoundDof(realIndex, CurFullConfig);
-	    ub = attRobot->upperBoundDof(realIndex, CurFullConfig);
+            realIndex = offset+UsedIndexes ( iC );
+	    if (realIndex >= 6){
+		lb = attRobot->lowerBoundDof(realIndex, CurFullConfig);
+		ub = attRobot->upperBoundDof(realIndex, CurFullConfig);
+	    }
             //check for joint limits
-            if ( CurFullConfig ( realIndex ) < lb +1e-2 || CurFullConfig ( realIndex ) > ub-1e-2 )
+            if ( realIndex >= 6 
+		 && (CurFullConfig ( realIndex ) < lb +1e-2 
+		     || CurFullConfig ( realIndex ) > ub-1e-2 ))
             {
                 recompute = true;
 		/*
@@ -332,25 +349,27 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
                 continue;
             }
 
-        //go to waist frame
-        for ( iC=0; iC< 6; iC++ )
-            CurFullConfig ( iC ) = 0;
+	if (FixedJoint){
+	    //go to waist frame
+	    for ( iC=0; iC< 6; iC++ )
+		CurFullConfig ( iC ) = 0;
 
-        //update joints transformations from root to fixed joint in waist frame
-        for ( iC=0; iC< supportJoints.size(); iC++ )
-            supportJoints[iC]->updateTransformation ( CurFullConfig );
+	    //update joints transformations from root to fixed joint in waist frame
+	    for ( iC=0; iC< supportJoints.size(); iC++ )
+		supportJoints[iC]->updateTransformation ( CurFullConfig );
 
-        //Compute new waist transformation
-        ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),Hf );
-        ChppGikTools::invertTransformation ( Hf,InvHf );
-        noalias ( H0 ) = prod ( Hif, InvHf );
+	    //Compute new waist transformation
+	    ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),Hf );
+	    ChppGikTools::invertTransformation ( Hf,InvHf );
+	    noalias ( H0 ) = prod ( Hif, InvHf );
 
-        //Compute free flyer dofs (apparently the dynamic robot require euler XYZ)
-        ChppGikTools::RottoEulerZYX ( subrange ( H0,0,3,0,3 ),BaseEuler );
-        for ( iC=0; iC< 3; iC++ )
-            CurFullConfig ( iC ) = H0 ( iC,3 );
-        for ( iC=3; iC< 6; iC++ )
-            CurFullConfig ( iC ) = BaseEuler ( iC-3 );
+	    //Compute free flyer dofs (apparently the dynamic robot require euler XYZ)
+	    ChppGikTools::RottoEulerZYX ( subrange ( H0,0,3,0,3 ),BaseEuler );
+	    for ( iC=0; iC< 3; iC++ )
+		CurFullConfig ( iC ) = H0 ( iC,3 );
+	    for ( iC=3; iC< 6; iC++ )
+		CurFullConfig ( iC ) = BaseEuler ( iC-3 );
+	}
 
         attRobot->applyConfiguration ( CurFullConfig );
     }
