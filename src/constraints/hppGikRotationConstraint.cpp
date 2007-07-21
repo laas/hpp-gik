@@ -5,7 +5,7 @@
 
 using namespace ublas;
 
-ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const matrix3d& inTargetOrientation)
+ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const matrix3d& inTargetOrientation)
 {
 
 
@@ -41,7 +41,7 @@ unsigned int ChppGikRotationConstraint::dimension() const
 }
 
 
-CjrlHumanoidDynamicRobot& ChppGikRotationConstraint::robot()
+CjrlDynamicRobot& ChppGikRotationConstraint::robot()
 {
     return *attRobot;
 }

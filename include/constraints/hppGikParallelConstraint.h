@@ -83,7 +83,7 @@ public:
     virtual vectorN& influencingDofs();
     /**
     \brief This method computes a minimum jerk motion constraint for the given motion time and sampling rate.
-    First the current position velocity and acceleration of the constraint are computed using outputs from the CjrlHumanoidDynamicRobot.
+    First the current position velocity and acceleration of the constraint are computed using outputs from the CjrlDynamicRobot.
     inStateConstraint must have a target position, velocity and acceleration.
     This implementation assumes the target velocity and accelerations to be constantly 0.
      */

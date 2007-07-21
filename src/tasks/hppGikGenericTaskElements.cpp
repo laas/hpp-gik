@@ -306,7 +306,8 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
 
     ChppGikTransformationConstraint* footConstraint = dynamic_cast<ChppGikTransformationConstraint*>( outFootMotion.stateConstraintAtRank(0)->clone());
 
-    CjrlHumanoidDynamicRobot& robot = footConstraint->robot();
+    CjrlDynamicRobot& drobot = footConstraint->robot();
+    CjrlHumanoidDynamicRobot& robot = dynamic_cast<CjrlHumanoidDynamicRobot&>(drobot);
     
     matrix4d startFootTransformation;
     matrix4d endFootTransformation;

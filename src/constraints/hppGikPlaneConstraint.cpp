@@ -5,14 +5,18 @@
 
 using namespace ublas;
 
-ChppGikPlaneConstraint::ChppGikPlaneConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inWorldPlanePoint, const vector3d& inWorldPlaneNormal)
+ChppGikPlaneConstraint::ChppGikPlaneConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inWorldPlanePoint, const vector3d& inWorldPlaneNormal)
 {
 
 
     attJoint = &inJoint;
     attRobot = &inRobot;
 
-    tempNumJoints = attRobot->numberDof()-6;
+    if (attRobot->countFixedJoints()>0){
+	tempNumJoints = attRobot->numberDof()-6;
+    }else{
+	tempNumJoints = 6;
+    }
 
     attLocalPointVector3 = inPointInBodyLocalFrame;
     attWorldPlanePointVector3 = inWorldPlanePoint;
@@ -52,7 +56,7 @@ unsigned int ChppGikPlaneConstraint::dimension() const
 }
 
 
-CjrlHumanoidDynamicRobot& ChppGikPlaneConstraint::robot()
+CjrlDynamicRobot& ChppGikPlaneConstraint::robot()
 {
     return *attRobot;
 }
@@ -130,10 +134,21 @@ vectorN& ChppGikPlaneConstraint::influencingDofs()
 {
     unsigned int i;
     attInfluencingDofs.clear();
-    for( i=1; i< attRobot->fixedJoint(0).jointsFromRootToThis().size(); i++)
-        attInfluencingDofs(attRobot->fixedJoint(0).jointsFromRootToThis()[i]->rankInConfiguration()) = 1;
-    for(i=1; i< attJoint->jointsFromRootToThis().size(); i++)
-        attInfluencingDofs(attJoint->jointsFromRootToThis()[i]->rankInConfiguration()) = 1;
+    std::vector<CjrlJoint *> joints;
+    if (attRobot->countFixedJoints()>0){
+	joints = attRobot->fixedJoint(0).jointsFromRootToThis();
+	for( i=1; i< joints.size(); i++)
+	    attInfluencingDofs(joints[i]->rankInConfiguration()) = 1;
+    }else{
+	CjrlJoint *root = attRobot->rootJoint();
+	unsigned int start = root->rankInConfiguration();
+	for (i=0; i<root->numberDof(); i++){
+	    attInfluencingDofs[start+i] = 1;
+	}
+    }
+    joints = attJoint->jointsFromRootToThis();
+    for(i=1; i< joints.size(); i++)
+        attInfluencingDofs(joints[i]->rankInConfiguration()) = 1;
     return attInfluencingDofs;
 }
 

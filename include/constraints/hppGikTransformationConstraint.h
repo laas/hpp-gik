@@ -20,9 +20,9 @@ public:
     /**
     \brief Constructor
      */
-    ChppGikTransformationConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame, const matrix3d& inOrientation);
+    ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame, const matrix3d& inOrientation);
     
-    ChppGikTransformationConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame,  const matrix4d& inTransformation);
+    ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame,  const matrix4d& inTransformation);
 
 
     /**
@@ -39,7 +39,7 @@ public:
     /**
     \brief Get robot associated to the constraint.
      */
-    virtual CjrlHumanoidDynamicRobot& robot();
+    virtual CjrlDynamicRobot& robot();
 
     /**
     \brief Set the joint associated to the constraint.
@@ -98,7 +98,7 @@ public:
     virtual vectorN& influencingDofs();
     /**
     \brief This method computes a minimum jerk motion constraint for the given motion time and sampling rate.
-    First the current position velocity and acceleration of the constraint are computed using outputs from the CjrlHumanoidDynamicRobot.
+    First the current position velocity and acceleration of the constraint are computed using outputs from the CjrlDynamicRobot.
     inStateConstraint must have a target position, velocity and acceleration.
     This implementation assumes the target velocity and accelerations to be constantly 0.
      */
@@ -151,7 +151,7 @@ public:
 
 private:
 
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
 
     CjrlJoint* attJoint;
 

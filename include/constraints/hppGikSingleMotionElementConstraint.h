@@ -12,7 +12,7 @@ class ChppGikInterpolable
 public:
     /**
     \brief This method computes a minimum jerk motion constraint for the entered state constraint, motion time and sampling rate.
-    First the current position velocity and acceleration of the constraint are computed using outputs from CjrlHumanoidDynamicRobot.
+    First the current position velocity and acceleration of the constraint are computed using outputs from CjrlDynamicRobot.
     inStateConstraint must have a target position, velocity and acceleration.
     \return true if interpolation succeeded
      */

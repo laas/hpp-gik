@@ -5,7 +5,7 @@
 
 using namespace ublas;
 
-ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalOrigin, const vector3d& inLocalVector, const vector3d& inTargetWorldPoint)
+ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalOrigin, const vector3d& inLocalVector, const vector3d& inTargetWorldPoint)
 {
     attJoint = &inJoint;
     attRobot = &inRobot;
@@ -61,7 +61,7 @@ unsigned int ChppGikPointingConstraint::dimension() const
 }
 
 
-CjrlHumanoidDynamicRobot& ChppGikPointingConstraint::robot()
+CjrlDynamicRobot& ChppGikPointingConstraint::robot()
 {
     return *attRobot;
 }

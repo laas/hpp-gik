@@ -15,7 +15,7 @@ public:
         @{
      */
 
-    ChppGikPointingConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalOrigin, const vector3d& inLocalVector, const vector3d& inTargetWorldPoint);
+    ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalOrigin, const vector3d& inLocalVector, const vector3d& inTargetWorldPoint);
     /**
         \brief Copy
      */
@@ -29,7 +29,7 @@ public:
     /**
         \brief Get robot associated to the constraint.
      */
-    CjrlHumanoidDynamicRobot& robot();
+    CjrlDynamicRobot& robot();
 
     /**
         \brief Set the joint associated to the constraint.
@@ -135,7 +135,7 @@ public:
 
 protected:
 
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
 
     CjrlJoint* attJoint;
 

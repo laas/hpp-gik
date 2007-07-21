@@ -5,7 +5,7 @@
 
 using namespace ublas;
 
-ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame, const matrix3d& inTargetOrientation)
+ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame, const matrix3d& inTargetOrientation)
 {
     attJoint = &inJoint;
     attRobot = &inRobot;
@@ -34,7 +34,7 @@ ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlHumanoidDyn
     attInfluencingDofs.resize(inRobot.numberDof(),false);
 }
 
-ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlHumanoidDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame,  const matrix4d& inTransformation)
+ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame,  const matrix4d& inTransformation)
 {
     attJoint = &inJoint;
     attRobot = &inRobot;
@@ -76,7 +76,7 @@ unsigned int ChppGikTransformationConstraint::dimension() const
 }
 
 
-CjrlHumanoidDynamicRobot& ChppGikTransformationConstraint::robot()
+CjrlDynamicRobot& ChppGikTransformationConstraint::robot()
 {
     return *attRobot;
 }
