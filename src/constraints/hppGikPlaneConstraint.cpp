@@ -18,21 +18,16 @@ ChppGikPlaneConstraint::ChppGikPlaneConstraint(CjrlDynamicRobot& inRobot, CjrlJo
 	tempNumJoints = 6;
     }
 
-    attLocalPointVector3 = inPointInBodyLocalFrame;
-    attWorldPlanePointVector3 = inWorldPlanePoint;
-    attWorldPlaneNormalVector3 = inWorldPlaneNormal;
-
     attLocalPoint.resize(3,false);
     attWorldPlanePoint.resize(3,false);
     attWorldPlaneNormal.resize(3,false);
+    attWorldPlaneNormalTrans.resize(1,3);
 
-    ChppGikTools::Vector3toUblas( attLocalPointVector3,attLocalPoint);
-    ChppGikTools::Vector3toUblas( attWorldPlanePointVector3,attWorldPlanePoint);
-    ChppGikTools::Vector3toUblas( attWorldPlaneNormalVector3,attWorldPlaneNormal);
-    attWorldPlaneNormal =  attWorldPlaneNormal/ublas::norm_2(attWorldPlaneNormal);
-    ChppGikTools::UblastoVector3(attWorldPlaneNormal,attWorldPlaneNormalVector3);
+    localPoint(inPointInBodyLocalFrame);
+    worldPlanePoint(inWorldPlanePoint);
+    worldPlaneNormal(inWorldPlaneNormal);
 
-
+    tempEffectorJointJacobian.resize(3,inRobot.numberDof(),false);
     tempJointPositionJacobian.resize(3,tempNumJoints,false);
     attJacobian.resize(1,tempNumJoints,false);
     attValue.resize(1, false);
@@ -97,8 +92,11 @@ void  ChppGikPlaneConstraint::worldPlaneNormal(const vector3d& inPlaneNormal)
 {
     attWorldPlaneNormalVector3 = inPlaneNormal;
     ChppGikTools::Vector3toUblas(attWorldPlaneNormalVector3, attWorldPlaneNormal);
-    attWorldPlaneNormal =  attWorldPlaneNormal/ublas::norm_2(attWorldPlaneNormal);
+    attWorldPlaneNormal /=  ublas::norm_2(attWorldPlaneNormal);
     ChppGikTools::UblastoVector3(attWorldPlaneNormal,attWorldPlaneNormalVector3);
+    for (unsigned int i=0; i<attWorldPlaneNormal.size(); i++){
+	attWorldPlaneNormalTrans(0, i) = attWorldPlaneNormal(i);
+    }
 }
 
 const vector3d& ChppGikPlaneConstraint::worldPlaneNormal()
@@ -121,8 +119,11 @@ const vectorN& ChppGikPlaneConstraint::worldPlanePointU()
 void  ChppGikPlaneConstraint::worldPlaneNormalU(const vectorN& inPlaneNormal)
 {
     attWorldPlaneNormal = inPlaneNormal;
-    attWorldPlaneNormal =  attWorldPlaneNormal/ublas::norm_2(attWorldPlaneNormal);
+    attWorldPlaneNormal /= ublas::norm_2(attWorldPlaneNormal);
     ChppGikTools::UblastoVector3(attWorldPlaneNormal,attWorldPlaneNormalVector3);
+    for (unsigned int i=0; i<attWorldPlaneNormal.size(); i++){
+	attWorldPlaneNormalTrans(0, i) = attWorldPlaneNormal(i);
+    }
 }
 
 const vectorN& ChppGikPlaneConstraint::worldPlaneNormalU()
@@ -164,39 +165,38 @@ void ChppGikPlaneConstraint::computeValue()
 //certainly not optimal here. should be moved to Humanoid robot.
 void ChppGikPlaneConstraint::computeJacobian()
 {
+    attJoint->getJacobianPointWrtConfig(attLocalPointVector3, 
+					tempEffectorJointJacobian);
 
-    tempFixedJoint = &(attRobot->fixedJoint(0));
-    if (!tempFixedJoint)
-    {
-        std::cout << "ChppGikPlaneConstraint::computeJacobian() expected a fixed joint on the robot.\n";
-        return;
+    int start = attRobot->numberDof() - tempNumJoints;
+    tempJointPositionJacobian = subrange(tempEffectorJointJacobian,
+					 0,3,start,attRobot->numberDof());
+
+    if (attRobot->countFixedJoints()>0){
+	tempFixedJoint = &(attRobot->fixedJoint(0));
+	tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
+	if (!tempFixedJointJacobian)
+	{
+	    std::cout << "ChppGikPlaneConstraint::computeJacobian() could not retrieve partial jacobians.\n";
+	    return;
+	}
+	tempJointPositionJacobian -= subrange(*tempFixedJointJacobian,
+					      0,3,start,attRobot->numberDof());
+
+	ChppGikTools::HtoRT(attJoint->currentTransformation(),
+			    tempRot,temp3DVec);
+	noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
+	temp3DVec += temp3DVec1;
+
+	ChppGikTools::HtoT(tempFixedJoint->currentTransformation(),temp3DVec1);
+	temp3DVec -= temp3DVec1;
+
+	ChppGikTools::equivAsymMat(temp3DVec,tempRot);
+	tempJointPositionJacobian += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,start,attRobot->numberDof()));
     }
 
-    attJoint->computeJacobianJointWrtConfig();
-    //tempFixedJoint->computeJacobianJointWrtConfig();
-
-    tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-    tempEffectorJointJacobian = &(attJoint->jacobianJointWrtConfig());
-    if (!tempFixedJointJacobian || !tempEffectorJointJacobian)
-    {
-        std::cout << "ChppGikPlaneConstraint::computeJacobian() could not retrieve partial jacobians.\n";
-        return;
-    }
-
-    noalias(tempJointPositionJacobian) = subrange(*tempEffectorJointJacobian,0,3,6,attRobot->numberDof()) - subrange(*tempFixedJointJacobian,0,3,6,attRobot->numberDof());
-
-
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
-    noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
-    temp3DVec += temp3DVec1;
-
-    ChppGikTools::HtoRT(tempFixedJoint->currentTransformation(),tempRot,temp3DVec1);
-    temp3DVec -= temp3DVec1;
-
-    ChppGikTools::equivAsymMat(temp3DVec,tempRot);
-    tempJointPositionJacobian += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
-
-    noalias(row(attJacobian,0)) = prod(attWorldPlaneNormal,tempJointPositionJacobian); //Check this ?
+    noalias(attJacobian) = prod(attWorldPlaneNormalTrans,
+				tempJointPositionJacobian);
 }
 
 

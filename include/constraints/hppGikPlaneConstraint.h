@@ -165,6 +165,7 @@ private:
 
     vector3d attWorldPlaneNormalVector3;
 
+    matrixNxP attWorldPlaneNormalTrans;
 
     vectorN attLocalPoint;
 
@@ -186,7 +187,7 @@ private:
     matrixNxP tempRot;
     CjrlJoint* tempFixedJoint;
     const matrixNxP* tempFixedJointJacobian;
-    const matrixNxP* tempEffectorJointJacobian;
+    matrixNxP tempEffectorJointJacobian;
     matrixNxP tempJointPositionJacobian;
     /**
     @}
