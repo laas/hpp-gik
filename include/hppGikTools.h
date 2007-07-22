@@ -27,9 +27,20 @@ public :
      */
     static void EulerZYXtoRot(const vectorN& inEuler, matrixNxP& outRot);
 
+    /**
+    Inverse of RottoEulerZYX
+     */
+    static void EulerZYXtoRot(double inThetaX, double inThetaY, 
+			      double inThetaZ, matrixNxP& outRot);
+
     //inH and outH are supposed distinct
     static void invertTransformation(const matrixNxP& inH, matrixNxP& outH);
 
+    /**
+       \brief compute homogeneous matrix from configuration vector of freeflyer
+       \param inDof configuration of freeflyer joint. Its length must be 6
+       \param outH homogeneous matrix. Its size must be (4,4)
+    */
     static void flyerTransformation(const vectorN& inDof, matrixNxP& outH);
 
     static void HtoT(const matrix4d& inH, vectorN& outT);

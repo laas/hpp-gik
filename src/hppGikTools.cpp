@@ -28,15 +28,21 @@ void ChppGikTools::Rodrigues(const vectorN& inW, double inAngle, matrixNxP& outR
 
 void ChppGikTools::EulerZYXtoRot(const vectorN& inEuler, matrixNxP& outRot)
 {
+    EulerZYXtoRot(inEuler(0), inEuler(1), inEuler(2), outRot);
+}
 
-    double cx = cos(inEuler(0));
-    double sx = sin(inEuler(0));
+void ChppGikTools::EulerZYXtoRot(double inThetaX, double inThetaY,
+				 double inThetaZ, matrixNxP& outRot)
+{
 
-    double cy = cos(inEuler(1));
-    double sy = sin(inEuler(1));
+    double cx = cos(inThetaX);
+    double sx = sin(inThetaX);
 
-    double cz = cos(inEuler(2));
-    double sz = sin(inEuler(2));
+    double cy = cos(inThetaY);
+    double sy = sin(inThetaY);
+
+    double cz = cos(inThetaZ);
+    double sz = sin(inThetaZ);
 
     outRot(0,0) =cy*cz ;
     outRot(1,0) =cy*sz;
