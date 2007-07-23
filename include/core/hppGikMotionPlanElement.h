@@ -18,7 +18,7 @@ public:
     /**
     \brief Constructor.
      */
-    ChppGikMotionPlanElement(CjrlHumanoidDynamicRobot* inRobot, unsigned int inPriority);
+    ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, unsigned int inPriority);
    
     /**
     \brief Copy
@@ -28,7 +28,7 @@ public:
     /**
     \brief Get associated robot
      */
-    CjrlHumanoidDynamicRobot& robot();
+    CjrlDynamicRobot& robot();
 
     /**
     \brief Get the priority
@@ -100,7 +100,7 @@ private:
     /**
     \brief robot
     */
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
     /**
     \brief  Priority
     */

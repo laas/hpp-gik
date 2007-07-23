@@ -3,14 +3,20 @@
 #include "core/hppGikMotionPlanElement.h"
 
 
-ChppGikMotionPlanElement::ChppGikMotionPlanElement(CjrlHumanoidDynamicRobot* inRobot, unsigned int inPriority)
+ChppGikMotionPlanElement::ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, unsigned int inPriority)
 {
     attDimension = 0;
     attPriority = inPriority;
     attRobot = inRobot;
     //initialize the jacobians' length with the number of internal degrees of freedom in the robot
-    attJacobian.resize(0,attRobot->numberDof()-6,false);
-    attInfluencingDofs.resize(attRobot->numberDof()-6,false);
+    unsigned int dof;
+    if (attRobot->countFixedJoints()>0){
+	dof = attRobot->numberDof() - 6;
+    }else{
+	dof = 6;
+    }
+    attJacobian.resize(0,dof,false);
+    attInfluencingDofs.resize(dof,false);
     attInfluencingDofsTemp.resize(attRobot->numberDof(),false);
 }
 
@@ -20,7 +26,7 @@ CjrlGikStateConstraint* ChppGikMotionPlanElement::clone() const
     return (CjrlGikStateConstraint*) new ChppGikMotionPlanElement(*this);
 }
 
-CjrlHumanoidDynamicRobot& ChppGikMotionPlanElement::robot()
+CjrlDynamicRobot& ChppGikMotionPlanElement::robot()
 {
     return *attRobot;
 }
@@ -53,12 +59,14 @@ void ChppGikMotionPlanElement::clear()
 vectorN& ChppGikMotionPlanElement::influencingDofs()
 {
     attInfluencingDofs.clear();
+    unsigned int offset = attRobot->countFixedJoints() > 0 ? 6 : 0;
+    
     std::vector<CjrlGikStateConstraint*>::iterator iter;
     for (iter = attConstraints.begin(); iter != attConstraints.end(); iter++)
     {
         attInfluencingDofsTemp =  (*iter)->influencingDofs();
         for (unsigned int i=0; i<attInfluencingDofs.size(); i++)
-            if (attInfluencingDofsTemp(i+6) > 0)
+            if (attInfluencingDofsTemp(i+offset) > 0)
                 attInfluencingDofs(i) = 1;
     }
     return attInfluencingDofs;
