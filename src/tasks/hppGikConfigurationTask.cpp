@@ -72,6 +72,7 @@ bool ChppGikConfigurationTask::algorithmSolve()
         attStandingRobot->robot()->applyConfiguration(column(interpolationMatrix,i));
         ZMPworPla = attStandingRobot->robot()->positionCenterOfMass();
         attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
+	attStandingRobot->robot()->SaveCurrentStateAsPastState();
         if (!curSupportPolygon->isPointInside(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
             atLeastOneZMPUnsafe = true;
         attSolutionMotion->appendSample(column(interpolationMatrix,i), ZMPwstPla, ZMPwstObs, ZMPworPla, ZMPworObs);
@@ -81,6 +82,7 @@ bool ChppGikConfigurationTask::algorithmSolve()
     {
         attStandingRobot->robot()->applyConfiguration(column(interpolationMatrix,nSamples-1));
         attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
+	attStandingRobot->robot()->SaveCurrentStateAsPastState();
         if (!curSupportPolygon->isPointInside(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
             atLeastOneZMPUnsafe = true;
         attSolutionMotion->appendSample(column(interpolationMatrix,nSamples-1), ZMPwstPla, ZMPwstObs, ZMPworPla, ZMPworObs);
