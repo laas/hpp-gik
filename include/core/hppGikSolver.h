@@ -48,6 +48,12 @@ public:
     bool gradientStep(std::vector<CjrlGikStateConstraint*>& inSortedConstraints);
 
     /**
+       \brief Set the minimum singular value
+       \param i_threshold the minimum singular value
+     */
+    void SVDThreshold(double i_threshold) { attSVDThreshold = i_threshold;}
+
+    /**
         @}
      */
 
@@ -81,6 +87,12 @@ private:
 
 
     /**
+       \brief solve one constraint. The solution is accumulated in DeltaQ and NullSpace is updated.
+       \param inConstraint a constraint to be solved
+    */
+    void solveOneConstraint(CjrlGikStateConstraint *inConstraint);
+
+    /**
         \name Variables used by solve() and allocated in the constructor to avoid dynamic allocation
         @{
      */
@@ -96,7 +108,7 @@ private:
     double       ValueNorm;
     bool         SatisfactorySolution;
     CjrlJoint*  FixedJoint;
-    double      SVDThreshold;
+    double      attSVDThreshold;
     double      BrakingZone;
     double      WindowStep;
 

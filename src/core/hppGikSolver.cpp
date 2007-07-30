@@ -24,7 +24,7 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
     }
 
     xDefaultDim = 6;
-    SVDThreshold = 0.001;
+    attSVDThreshold = 0.001;
 
     LongSize = LongSizeBackup = numJoints;
     scalar_vector<char> temp ( numJoints,1 );
@@ -188,6 +188,80 @@ void ChppGikSolver::accountForJointLimits()
         }
 }
 
+void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint)
+{
+    //determin task dimension
+    xDim = inConstraint->dimension();
+
+    if ( xDim > xDefaultDim )
+	resizeMatrices ( xDim );
+    
+    //store used columns only
+    for ( unsigned int col = 0; col<LongSize;col++ )
+	subrange ( CarvedJacobian,0,xDim,col,col+1 ) =  subrange ( inConstraint->jacobian(),0,xDim,UsedIndexes ( col ),UsedIndexes ( col ) +1 );
+    
+    //update value according to previous tasks
+    noalias ( subrange ( Residual,0,xDim ) ) = inConstraint->value();
+    noalias ( subrange ( Residual,0,xDim ) ) -= prod ( subrange ( CarvedJacobian,0,xDim,0,LongSize ),subrange ( DeltaQ,0,LongSize ) );
+    
+    //slightly faster product to obtain projected jacobian on previous tasks nullspace
+    HatJacobian.clear();
+    vectorN& ElementMask = inConstraint->influencingDofs();
+    for ( unsigned int d = 0; d<xDim;d++ )
+	{
+	    for ( unsigned int col = 0; col<LongSize;col++ )
+		if ( ElementMask ( UsedIndexes ( col ) ) == 1 )
+		    noalias ( subrange ( HatJacobian,d,d+1,0,LongSize ) ) += CarvedJacobian ( d,col ) * subrange ( NullSpace,col,col+1,0,LongSize );
+	}
+    
+    //pseudo inverse of the projected jacobian
+    noalias ( subrange ( WJt,0,LongSize,0,xDim ) ) = trans ( subrange ( HatJacobian,0,xDim,0,LongSize ) );
+    
+    for ( unsigned int lin=0;lin<LongSize;lin++ )
+	row ( WJt,lin ) *= PIWeights ( lin );
+    
+    noalias ( subrange ( JWJt,0,xDim,0,xDim ) ) = prod ( subrange ( HatJacobian,0,xDim,0,LongSize ),subrange ( WJt,0,LongSize,0,xDim ) );
+    
+    //svd
+    vectorN tempS ( xDim );
+    matrix<double, column_major> tempU ( xDim,xDim );
+    matrix<double, column_major> tempVt ( xDim,xDim );
+    matrix<double, column_major> tempJWJt = subrange ( JWJt,0,xDim,0,xDim );
+    lapack::gesvd ( jobU,jobVt,tempJWJt, tempS, tempU, tempVt );
+    tempU = trans ( tempVt );
+    
+    PenroseMask.clear();
+    
+    //Determin task value projection space
+    for ( unsigned int i=0;i<xDim;i++ )
+	{
+	    if ( attSVDThreshold > tempS ( i ) )
+		row ( tempVt,i ) *= 0;
+	    else
+		{
+		    PenroseMask ( i ) =  1;
+                    row ( tempVt,i ) /= tempS ( i );
+                }
+	}
+    
+    if ( PenroseMask ( 0 ) ==0 ){
+	return;
+    }
+    
+    //inverse of JwJt
+    noalias ( subrange ( InverseJWJt,0,xDim,0,xDim ) ) = prod ( tempU,tempVt );
+    
+    //PseudoInverse Jsharp
+    noalias ( subrange ( Jsharp,0,LongSize,0,xDim ) ) = prod ( subrange ( WJt,0,LongSize,0,xDim ),subrange ( InverseJWJt,0,xDim,0,xDim ) );
+    
+    //Updated deltaQ
+    noalias ( subrange ( DeltaQ,0,LongSize ) ) += prod ( subrange ( Jsharp,0,LongSize,0,xDim ), subrange ( Residual,0,xDim ) );
+    
+    //Updated null space
+    noalias ( subrange ( BigMat2,0,LongSize,0,LongSize ) ) = prod ( subrange ( Jsharp,0,LongSize,0,xDim ),subrange ( HatJacobian,0,xDim,0,LongSize ) );
+    noalias ( subrange ( BigMat1,0,LongSize,0,LongSize ) ) = prod ( subrange ( NullSpace,0,LongSize,0,LongSize ),  subrange ( BigMat2,0,LongSize,0,LongSize ) );
+    subrange ( NullSpace,0,LongSize,0,LongSize ).minus_assign ( subrange ( BigMat1,0,LongSize,0,LongSize ) );
+}
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints )
 {
@@ -207,101 +281,49 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
 	FixedJoint = NULL;
     }
     
-    unsigned int elementCount;
     bool recompute = true;
-    Iteration = 0;
     std::vector<CjrlGikStateConstraint*>::iterator iter;
-    //while maxiteration not reached
     while ( recompute )
     {
-        elementCount = 0;
         subrange ( NullSpace,0,LongSize,0,LongSize ) = subrange ( IdentityMat,0,LongSize,0,LongSize );
         DeltaQ.clear();
 
         //for every subtask
-        for ( iter = inSortedConstraints.begin(); iter != inSortedConstraints.end(); iter++ )
-        {
-            elementCount++;
-
-            //determin task dimension
-            xDim = ( *iter )->dimension();
-
-            if ( xDim > xDefaultDim )
-                resizeMatrices ( xDim );
-
-            //store used columns only
-            for ( unsigned int col = 0; col<LongSize;col++ )
-                subrange ( CarvedJacobian,0,xDim,col,col+1 ) =  subrange ( ( *iter )->jacobian(),0,xDim,UsedIndexes ( col ),UsedIndexes ( col ) +1 );
-
-            //update value according to previous tasks
-            noalias ( subrange ( Residual,0,xDim ) ) = ( *iter )->value();
-            noalias ( subrange ( Residual,0,xDim ) ) -= prod ( subrange ( CarvedJacobian,0,xDim,0,LongSize ),subrange ( DeltaQ,0,LongSize ) );
-
-            //slightly faster product to obtain projected jacobian on previous tasks nullspace
-            HatJacobian.clear();
-            vectorN& ElementMask = ( *iter )->influencingDofs();
-            for ( unsigned int d = 0; d<xDim;d++ )
-            {
-                for ( unsigned int col = 0; col<LongSize;col++ )
-                    if ( ElementMask ( UsedIndexes ( col ) ) == 1 )
-                        noalias ( subrange ( HatJacobian,d,d+1,0,LongSize ) ) += CarvedJacobian ( d,col ) * subrange ( NullSpace,col,col+1,0,LongSize );
-            }
-
-            //pseudo inverse of the projected jacobian
-            noalias ( subrange ( WJt,0,LongSize,0,xDim ) ) = trans ( subrange ( HatJacobian,0,xDim,0,LongSize ) );
-
-            for ( unsigned int lin=0;lin<LongSize;lin++ )
-                row ( WJt,lin ) *= PIWeights ( lin );
-
-            noalias ( subrange ( JWJt,0,xDim,0,xDim ) ) = prod ( subrange ( HatJacobian,0,xDim,0,LongSize ),subrange ( WJt,0,LongSize,0,xDim ) );
-
-            //svd
-            vectorN tempS ( xDim );
-            matrix<double, column_major> tempU ( xDim,xDim );
-            matrix<double, column_major> tempVt ( xDim,xDim );
-            matrix<double, column_major> tempJWJt = subrange ( JWJt,0,xDim,0,xDim );
-            lapack::gesvd ( jobU,jobVt,tempJWJt, tempS, tempU, tempVt );
-            tempU = trans ( tempVt );
-
-            PenroseMask.clear();
-
-            //Determin task value projection space
-            for ( unsigned int i=0;i<xDim;i++ )
-            {
-                if ( SVDThreshold > tempS ( i ) )
-                    row ( tempVt,i ) *= 0;
-                else
-                {
-                    PenroseMask ( i ) =  1;
-                    row ( tempVt,i ) /= tempS ( i );
-                }
-            }
-
-            if ( PenroseMask ( 0 ) ==0 )
-                continue;
-
-            //inverse of JwJt
-            noalias ( subrange ( InverseJWJt,0,xDim,0,xDim ) ) = prod ( tempU,tempVt );
-
-            //PseudoInverse Jsharp
-            noalias ( subrange ( Jsharp,0,LongSize,0,xDim ) ) = prod ( subrange ( WJt,0,LongSize,0,xDim ),subrange ( InverseJWJt,0,xDim,0,xDim ) );
-
-            //Updated deltaQ
-            noalias ( subrange ( DeltaQ,0,LongSize ) ) += prod ( subrange ( Jsharp,0,LongSize,0,xDim ), subrange ( Residual,0,xDim ) );
-
-            //Updated null space
-            noalias ( subrange ( BigMat2,0,LongSize,0,LongSize ) ) = prod ( subrange ( Jsharp,0,LongSize,0,xDim ),subrange ( HatJacobian,0,xDim,0,LongSize ) );
-            noalias ( subrange ( BigMat1,0,LongSize,0,LongSize ) ) = prod ( subrange ( NullSpace,0,LongSize,0,LongSize ),  subrange ( BigMat2,0,LongSize,0,LongSize ) );
-            subrange ( NullSpace,0,LongSize,0,LongSize ).minus_assign ( subrange ( BigMat1,0,LongSize,0,LongSize ) );
+        for ( iter = inSortedConstraints.begin(); iter != inSortedConstraints.end(); iter++ ){
+	    solveOneConstraint(*iter);
         }
 
         //compute new dof vector & perform a basic check on joint limits
         CurFullConfig = attRobot->currentConfiguration();
 
 	//update dof config
-        unsigned int iC,realIndex, offset;
-	offset = attRobot->countFixedJoints()>0 ? 6 : 0;
-        for ( iC=0; iC< LongSize; iC++ )
+        unsigned int iC,realIndex, offset, start;
+	if (attRobot->countFixedJoints()>0){
+	    offset = 6; start = 0;
+	}else{
+	    offset = 0; start = 6;
+	    iC = 0;
+	    while(iC < LongSize && UsedIndexes(iC)<3) {
+		CurFullConfig(UsedIndexes(iC)) += DeltaQ(iC);
+		iC++;
+	    }
+	    matrixNxP R1(3,3), R2(3,3), R(3,3);
+	    ChppGikTools::EulerZYXtoRot(CurFullConfig(3), CurFullConfig(4),
+					CurFullConfig(5), R1);
+	    vectorN euler(3);
+	    euler[0] = euler[1] = euler[2] = 0;
+	    while(iC < LongSize && UsedIndexes(iC)<6) {
+		euler(UsedIndexes(iC)-3) = DeltaQ(iC);
+		iC++;
+	    }
+	    ChppGikTools::EulerZYXtoRot(euler, R2);
+	    R = prod(R2,R1);
+	    ChppGikTools::RottoEulerZYX(R, euler);
+	    CurFullConfig(3) = euler(0);
+	    CurFullConfig(4) = euler(1);
+	    CurFullConfig(5) = euler(2);
+	}
+        for ( iC=start; iC< LongSize; iC++ )
         {
             realIndex = offset+UsedIndexes ( iC );
             CurFullConfig ( realIndex ) += DeltaQ ( iC );
@@ -340,39 +362,38 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         }
         if ( recompute )
             if ( NextLongSize == 0 )
-                break;
+		return false;
             else
             {
                 UsedIndexes = NextUsedIndexes;
                 LongSize = NextLongSize;
                 PIWeights = NextPIWeights;
-                continue;
             }
-
-	if (FixedJoint){
-	    //go to waist frame
-	    for ( iC=0; iC< 6; iC++ )
-		CurFullConfig ( iC ) = 0;
-
-	    //update joints transformations from root to fixed joint in waist frame
-	    for ( iC=0; iC< supportJoints.size(); iC++ )
-		supportJoints[iC]->updateTransformation ( CurFullConfig );
-
-	    //Compute new waist transformation
-	    ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),Hf );
-	    ChppGikTools::invertTransformation ( Hf,InvHf );
-	    noalias ( H0 ) = prod ( Hif, InvHf );
-
-	    //Compute free flyer dofs (apparently the dynamic robot require euler XYZ)
-	    ChppGikTools::RottoEulerZYX ( subrange ( H0,0,3,0,3 ),BaseEuler );
-	    for ( iC=0; iC< 3; iC++ )
-		CurFullConfig ( iC ) = H0 ( iC,3 );
-	    for ( iC=3; iC< 6; iC++ )
-		CurFullConfig ( iC ) = BaseEuler ( iC-3 );
-	}
-
-        attRobot->applyConfiguration ( CurFullConfig );
     }
+    if (FixedJoint){
+	unsigned int iC;
+	//go to waist frame
+	for ( iC=0; iC< 6; iC++ )
+	    CurFullConfig ( iC ) = 0;
+	
+	//update joints transformations from root to fixed joint in waist frame
+	for ( iC=0; iC< supportJoints.size(); iC++ )
+	    supportJoints[iC]->updateTransformation ( CurFullConfig );
+	
+	//Compute new waist transformation
+	ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),Hf );
+	ChppGikTools::invertTransformation ( Hf,InvHf );
+	noalias ( H0 ) = prod ( Hif, InvHf );
+	
+	//Compute free flyer dofs (apparently the dynamic robot require euler XYZ)
+	ChppGikTools::RottoEulerZYX ( subrange ( H0,0,3,0,3 ),BaseEuler );
+	for ( iC=0; iC< 3; iC++ )
+	    CurFullConfig ( iC ) = H0 ( iC,3 );
+	for ( iC=3; iC< 6; iC++ )
+	    CurFullConfig ( iC ) = BaseEuler ( iC-3 );
+    }
+    
+    attRobot->applyConfiguration ( CurFullConfig );
 
     return true;
 }
