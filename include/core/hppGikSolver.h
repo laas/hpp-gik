@@ -48,7 +48,7 @@ public:
     bool gradientStep(std::vector<CjrlGikStateConstraint*>& inSortedConstraints);
 
     /**
-       \brief Set the minimum singular value
+       \brief Set the minimum singular value. If a singular value is smaller than this value, it is set to zero in the computation process of pseudo inverse. 
        \param i_threshold the minimum singular value
      */
     void SVDThreshold(double i_threshold) { attSVDThreshold = i_threshold;}
@@ -87,7 +87,7 @@ private:
 
 
     /**
-       \brief solve one constraint. The solution is accumulated in DeltaQ and NullSpace is updated.
+       \brief solve one constraint in the current null space. The solution is accumulated in ChppGikSolver::DeltaQ and ChppGikSolver::NullSpace is updated.
        \param inConstraint a constraint to be solved
     */
     void solveOneConstraint(CjrlGikStateConstraint *inConstraint);
