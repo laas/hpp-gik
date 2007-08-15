@@ -19,7 +19,7 @@ public:
     /**
         \brief Copy
      */
-    CjrlGikStateConstraint* clone() const;
+    virtual CjrlGikStateConstraint* clone() const;
 
     /**
         \brief Get the dimension of the constraint.

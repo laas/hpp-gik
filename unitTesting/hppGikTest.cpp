@@ -737,7 +737,7 @@ void ChppGikTest::goDownChain(const CjrlJoint* startJoint)
 
     if (startJoint->countChildJoints() != 0)
     {
-        const CjrlJoint* childJoint = &(startJoint->childJoint(0));
+        const CjrlJoint* childJoint = startJoint->childJoint(0);
         goDownChain(childJoint);
     }
 }
@@ -749,7 +749,7 @@ void ChppGikTest::goDownTree(const CjrlJoint* startJoint)
 
     for (unsigned int i = 0; i<startJoint->countChildJoints(); i++)
     {
-        const CjrlJoint* childJoint = &(startJoint->childJoint(i));
+        const CjrlJoint* childJoint = startJoint->childJoint(i);
         goDownTree(childJoint);
     }
 }

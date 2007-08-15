@@ -2,7 +2,7 @@
 #define HPP_GIKTEST_H
 
 #include "robotDynamics/jrlRobotDynamicsObjectConstructor.h"
-#include "robotDynamicsJRLJapan/HumanoidDynamicMultiBody.h"
+#include "dynamicsJRLJapan/HumanoidDynamicMultiBody.h"
 #include "gikTask/jrlGikObjectConstructor.h"
 
 #include "constraints/hppGikPlaneConstraint.h"
