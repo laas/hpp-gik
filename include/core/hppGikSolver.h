@@ -87,7 +87,15 @@ private:
 
 
     /**
-       \brief solve one constraint in the current null space. The solution is accumulated in ChppGikSolver::DeltaQ and ChppGikSolver::NullSpace is updated.
+       \brief solve one constraint in the current null space. The solution is added to ChppGikSolver::DeltaQ and ChppGikSolver::NullSpace is updated by the following procedure.
+       -# get task value \f$v\f$ and jacobian \f$J\f$ from \a inConstraint
+       -# compute residual task value: \f$ r \leftarrow v - J\delta q \f$
+       -# compute projected jacobian: \f$ \hat{J} \leftarrow JN \f$
+       -# singular value decomposition: \f$ S, U, V^t \leftarrow SVD(\hat{J}W\hat{J}^t) \f$
+       -# compute inverse:\f$ (\hat{J}W\hat{J}^t)^{-1} \leftarrow US^{-1}V^t \f$
+       -# compute pseudo inverse:\f$ \hat{J}^\# \leftarrow W\hat{J}^t(\hat{J}W\hat{J}^t)^{-1}\f$
+       -# update solution:\f$ \delta q \leftarrow \delta q + \hat{J}^\#r \f$
+       -# update null space:\f$ N \leftarrow N(I-\hat{J}^\#\hat{J}) \f$
        \param inConstraint a constraint to be solved
     */
     void solveOneConstraint(CjrlGikStateConstraint *inConstraint);
