@@ -162,7 +162,7 @@ void ChppGikMaskFactory::supportedMass(vectorN& massVec, const CjrlJoint* inJoin
 
     for (unsigned int i = 0; i<inJoint->countChildJoints(); i++)
     {
-        const CjrlJoint* childJoint = &(inJoint->childJoint(i));
+        const CjrlJoint* childJoint = inJoint->childJoint(i);
         rankChildJoint = rankInSupportedMassVector(childJoint);
         //std::cout << "rankchildjoint "<< rankChildJoint <<"\n";
 
