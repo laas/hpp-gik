@@ -45,6 +45,11 @@ public:
     The last weights vector set is used.
     \return false if a fixed joint is not set in the robot.
      */
+    bool gradientStep(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs );
+
+    /**
+       \brief variant of above gradientStep(). Zero-vector is passed to inSRcoefs.
+     */
     bool gradientStep(std::vector<CjrlGikStateConstraint*>& inSortedConstraints);
 
     /**
@@ -52,6 +57,12 @@ public:
        \param i_threshold the minimum singular value
      */
     void SVDThreshold(double i_threshold) { attSVDThreshold = i_threshold;}
+
+    /**
+       \brief Get Penrose mask vector
+       \return Penrose mask vector
+    */
+    const vectorN& penroseMask() const { return PenroseMask; }
 
     /**
         @}
@@ -97,8 +108,10 @@ private:
        -# update solution:\f$ \delta q \leftarrow \delta q + \hat{J}^\#r \f$
        -# update null space:\f$ N \leftarrow N(I-\hat{J}^\#\hat{J}) \f$
        \param inConstraint a constraint to be solved
+       \param inSRcoef if non-zero value is given, \f$ (\hat{J}W\hat{J}^t)^{-1} \f$ is computed using SR-Inverse.
     */
-    void solveOneConstraint(CjrlGikStateConstraint *inConstraint);
+    void solveOneConstraint(CjrlGikStateConstraint *inConstraint, 
+			    double inSRcoef=0.0);
 
     /**
         \name Variables used by solve() and allocated in the constructor to avoid dynamic allocation

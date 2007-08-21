@@ -188,7 +188,8 @@ void ChppGikSolver::accountForJointLimits()
         }
 }
 
-void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint)
+void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
+				       double inSRcoef)
 {
     //determin task dimension
     xDim = inConstraint->dimension();
@@ -227,6 +228,10 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint)
     matrix<double, column_major> tempU ( xDim,xDim );
     matrix<double, column_major> tempVt ( xDim,xDim );
     matrix<double, column_major> tempJWJt = subrange ( JWJt,0,xDim,0,xDim );
+    if (inSRcoef != 0){
+	identity_matrix<double> I ( xDim );
+	tempJWJt = inSRcoef*I + tempJWJt;
+    }
     lapack::gesvd ( jobU,jobVt,tempJWJt, tempS, tempU, tempVt );
     tempU = trans ( tempVt );
     
@@ -263,7 +268,13 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint)
     subrange ( NullSpace,0,LongSize,0,LongSize ).minus_assign ( subrange ( BigMat1,0,LongSize,0,LongSize ) );
 }
 
-bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints )
+bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints)
+{
+    std::vector<double> SRcoefs(inSortedConstraints.size(), 0);
+    return gradientStep(inSortedConstraints, SRcoefs);
+}
+
+bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs )
 {
     LongSize = LongSizeBackup;
     subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
@@ -283,14 +294,16 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     
     bool recompute = true;
     std::vector<CjrlGikStateConstraint*>::iterator iter;
+    std::vector<double>::iterator iter2;
     while ( recompute )
     {
         subrange ( NullSpace,0,LongSize,0,LongSize ) = subrange ( IdentityMat,0,LongSize,0,LongSize );
         DeltaQ.clear();
 
         //for every subtask
-        for ( iter = inSortedConstraints.begin(); iter != inSortedConstraints.end(); iter++ ){
-	    solveOneConstraint(*iter);
+        for ( iter = inSortedConstraints.begin(), iter2 = inSRcoefs.begin();
+	      iter != inSortedConstraints.end(); iter++,iter2++ ){
+	    solveOneConstraint(*iter, *iter2);
         }
 
         //compute new dof vector & perform a basic check on joint limits
