@@ -28,7 +28,7 @@ public:
     /**
     \brief Copy the object
     */
-    CjrlGikStateConstraint* clone() const;
+    virtual CjrlGikStateConstraint* clone() const;
 
 
     /**
