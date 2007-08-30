@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: @PACKAGE@
 Description: Implementation of abstract interface for Generalized Inverse Kinematics
 Version: @VERSION@
-Requires: abstractGikTask >= 1.0, dynamicsJRLJapan >= 1.4
-Libs: -L${libdir} -lhppGik @DYNAMICSJRLJAPAN_LIBS@
-Cflags: -I${includedir}/hpp @ABS_GIKTASK_CFLAGS@ @DYNAMICSJRLJAPAN_CFLAGS@
+Requires: @ABSTRACTGIKTASK_REQD@, @DYNAMICSJRLJAPAN_REQD@
+Libs: -L${libdir} -lhppGik
+Cflags: -I${includedir}/hpp
