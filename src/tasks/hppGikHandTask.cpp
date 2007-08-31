@@ -95,4 +95,6 @@ bool ChppGikHandTask::algorithmSolve()
 
 
 ChppGikHandTask::~ChppGikHandTask()
-{}
+{
+    cleanUp();
+}

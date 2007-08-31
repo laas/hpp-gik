@@ -131,4 +131,5 @@ bool ChppGikStepBackTask::algorithmSolve()
 ChppGikStepBackTask::~ChppGikStepBackTask()
 {
     delete attGenericTask;
+    cleanUp();
 }

@@ -77,7 +77,7 @@ bool ChppGikRobotTask::solve()
     return isSolved;
 }
 
-ChppGikRobotTask::~ChppGikRobotTask()
+void ChppGikRobotTask::cleanUp()
 {
     delete attSolutionMotion;
     free(Tps);

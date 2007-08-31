@@ -15,6 +15,7 @@ ChppGikSnoopTask::ChppGikSnoopTask(ChppGikStandingRobot* inStandingRobot, double
 ChppGikSnoopTask::~ChppGikSnoopTask()
 {
     delete attGenericTask;
+    cleanUp();
 }
 
 

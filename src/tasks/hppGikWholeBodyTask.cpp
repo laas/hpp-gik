@@ -367,4 +367,5 @@ ChppGikWholeBodyTask::~ChppGikWholeBodyTask()
 {
     reset();
     delete attGenericTask;
+    cleanUp();
 }

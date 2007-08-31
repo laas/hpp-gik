@@ -14,7 +14,7 @@ class ChppGikHalfSittingTaskBeta : public ChppGikHalfSittingTask
         
     protected:
         
-        virtual bool algorithmSolve();
+        bool algorithmSolve();
 
 };
 #endif

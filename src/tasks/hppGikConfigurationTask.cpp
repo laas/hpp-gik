@@ -95,4 +95,6 @@ bool ChppGikConfigurationTask::algorithmSolve()
 }
 
 ChppGikConfigurationTask::~ChppGikConfigurationTask()
-{}
+{
+    cleanUp();
+}

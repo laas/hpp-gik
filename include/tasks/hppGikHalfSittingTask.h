@@ -17,12 +17,10 @@ public:
      */
     ChppGikHalfSittingTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod);
 
-
-
     /**
     \brief Destructor
      */
-    ~ChppGikHalfSittingTask();
+    virtual ~ChppGikHalfSittingTask();
 
 protected :
     /**

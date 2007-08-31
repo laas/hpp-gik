@@ -473,12 +473,12 @@ public:
     \brief Get the time when the solution motion to this task should start
     */
     double startTime()
-    {}
+    {return 0;}
     /**
     \brief Get the time available to solve the task
      */
     virtual double duration()
-    {}
+    {return 0;}
 
     /**
     \brief (not implemented yet) Append a custom foot motion constraint computed by the user.
@@ -487,7 +487,7 @@ public:
     \return false if Prequisites not met
      */
     virtual bool planMotions(ChppGikSupportPolygonMotion* outSupportPolygonMotion, ChppGikMotionConstraint* outFootMotion, matrixNxP& outZMPmotion, double inSamplingPeriod)
-    {}
+    {return false;}
     /**
     \brief Destructor
      */

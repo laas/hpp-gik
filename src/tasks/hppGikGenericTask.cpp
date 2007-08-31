@@ -263,4 +263,5 @@ ChppGikGenericTask::~ChppGikGenericTask()
     delete attSingleMotionsPlan;
     delete attMotionPlan;
     delete attGikSolver;
+    cleanUp();
 }

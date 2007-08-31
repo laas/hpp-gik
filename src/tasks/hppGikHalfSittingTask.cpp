@@ -83,4 +83,5 @@ ChppGikHalfSittingTask::~ChppGikHalfSittingTask()
     delete attStepBackTask;
     delete attUpperBodyTask;
     delete attGenericTask;
+    cleanUp();
 }

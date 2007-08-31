@@ -19,6 +19,7 @@ ChppGikReachTask::ChppGikReachTask(ChppGikStandingRobot* inStandingRobot, double
 ChppGikReachTask::~ChppGikReachTask()
 {
     delete attWholeBodyTask;
+    cleanUp();
 }
 
 void ChppGikReachTask::target(const vector3d& inReachTarget, bool isForRightHand)

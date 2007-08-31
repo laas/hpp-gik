@@ -41,4 +41,5 @@ bool ChppGikMetaTask::algorithmSolve()
 
 ChppGikMetaTask::~ChppGikMetaTask()
 {
+    cleanUp();
 }

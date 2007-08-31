@@ -73,4 +73,5 @@ bool ChppGikStepTask::algorithmSolve()
 ChppGikStepTask::~ChppGikStepTask()
 {
     delete attGenericTask;
+    cleanUp();
 }

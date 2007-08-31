@@ -35,10 +35,15 @@ public:
     /**
     \brief destructor
     */
-    ~ChppGikRobotTask();
+    virtual ~ChppGikRobotTask() {}
 
 
 protected:
+    /**
+    \brief Delete objects created in this instance. Meant to be called by derived classes'destructors
+    */
+    void cleanUp();
+            
     /**
     \brief The algorithm implemented by solve()
     */
