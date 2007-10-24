@@ -51,14 +51,12 @@ void ChppGikTest::createHumanoidRobot()
     dynamicsJRLJapan::HumanoidDynamicMultiBody *aHDMB;
     aHDMB = (dynamicsJRLJapan::HumanoidDynamicMultiBody*) attRobot;
 
-    dynamicsJRLJapan::DynamicMultiBody* aDMB = (dynamicsJRLJapan::DynamicMultiBody *) aHDMB->getDynamicMultiBody();
-
     std::string path = "./";
     std::string name = "HRP2JRLmain.wrl.longneck.clean";
-    aDMB->parserVRML(path,name,"./HRP2LinkJointRank.xml");
+    aHDMB->parserVRML(path,name,"./HRP2LinkJointRank.xml");
     std::string aName="./HRP2Specificities.xml";
     aHDMB->SetHumanoidSpecificitiesFile(aName);
-    aDMB->SetTimeStep(attSamplingPeriod);
+    aHDMB->SetTimeStep(attSamplingPeriod);
 
     unsigned int nDof = attRobot->numberDof();
     vectorN halfsittingConf(nDof);
