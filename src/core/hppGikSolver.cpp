@@ -264,8 +264,9 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     
     //Updated null space
     noalias ( subrange ( BigMat2,0,LongSize,0,LongSize ) ) = prod ( subrange ( Jsharp,0,LongSize,0,xDim ),subrange ( HatJacobian,0,xDim,0,LongSize ) );
-    noalias ( subrange ( BigMat1,0,LongSize,0,LongSize ) ) = prod ( subrange ( NullSpace,0,LongSize,0,LongSize ),  subrange ( BigMat2,0,LongSize,0,LongSize ) );
-    subrange ( NullSpace,0,LongSize,0,LongSize ).minus_assign ( subrange ( BigMat1,0,LongSize,0,LongSize ) );
+    subrange ( NullSpace,0,LongSize,0,LongSize ).minus_assign ( subrange ( BigMat2,0,LongSize,0,LongSize ) );
+    //noalias ( subrange ( BigMat1,0,LongSize,0,LongSize ) ) = prod ( subrange ( NullSpace,0,LongSize,0,LongSize ),  subrange ( BigMat2,0,LongSize,0,LongSize ) );
+    //subrange ( NullSpace,0,LongSize,0,LongSize ).minus_assign ( subrange ( BigMat1,0,LongSize,0,LongSize ) );
 }
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints)
