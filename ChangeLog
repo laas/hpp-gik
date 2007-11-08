@@ -1,4 +1,8 @@
-2007/10/24
+$Id: ChangeLog 2007/11/08 16:56:40 mallet $
+
+hppGik 1.4 released Thu 08 Nov 2007
+
+	21. Updated hppGikComConstraint according to gik abstract interface 1.2
 	20. Adaptation to changes in dynamicsJRLJapan (in unitTesting only).
 
 hppGik 1.3 released Thu 30 Aug 2007
