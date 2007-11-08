@@ -11,6 +11,7 @@
 #include "constraints/hppGikTransformationConstraint.h"
 #include "constraints/hppGikParallelConstraint.h"
 #include "constraints/hppGikGazeConstraint.h"
+#include "constraints/hppGikComConstraint.h"
 
 #include "tasks/hppGikWholeBodyTask.h"
 #include "tasks/hppGikStepBackTask.h"
@@ -37,6 +38,11 @@ public:
     \brief User commands interpreter
     */
     void interprete();
+    
+    /**
+    \brief a method serving as an example on gikSolver usage
+    */
+    void basicExample();
 
 
 private:
@@ -90,7 +96,7 @@ private:
     
     CjrlHumanoidDynamicRobot* attRobot;
     
-    CjrlGikObjectConstructor<ChppGikPlaneConstraint, ChppGikParallelConstraint, ChppGikRotationConstraint, ChppGikPositionConstraint, ChppGikTransformationConstraint, ChppGikPointingConstraint, ChppGikGazeConstraint> attGikFactory;
+    CjrlGikObjectConstructor<ChppGikPlaneConstraint, ChppGikParallelConstraint, ChppGikRotationConstraint, ChppGikPositionConstraint, ChppGikTransformationConstraint, ChppGikPointingConstraint, ChppGikGazeConstraint, ChppGikComConstraint> attGikFactory;
 
     ChppGikRobotTask* attLastRobotTask;
     ChppGikWholeBodyTask* attWholeBodyTask;

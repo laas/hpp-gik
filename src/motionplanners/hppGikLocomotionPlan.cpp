@@ -265,7 +265,7 @@ bool ChppGikLocomotionPlan::solveOneStage()
     }
 
     //fill in com motion constraint
-    ChppGikComConstraint* comC = new ChppGikComConstraint(*(attStandingRobot->robot()));
+    ChppGikComConstraint* comC = new ChppGikComConstraint(*(attStandingRobot->robot()),0,0);
     for (unsigned int i=0; i<attFootMotion->numberStateConstraints(); i++)
     {
         comC->targetXY(resultTrajCOMXY(0,i), resultTrajCOMXY(1,i));

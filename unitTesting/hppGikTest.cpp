@@ -751,3 +751,108 @@ void ChppGikTest::goDownTree(const CjrlJoint* startJoint)
         goDownTree(childJoint);
     }
 }
+
+
+
+void ChppGikTest::basicExample()
+{
+    //We have a robot at some initial configuration
+
+    //all coordinates are in world frame (when the robot is in half sitting configuration, the world frame is located at the projection of the waist center on the ground, x axis pointing forwards, z axis upwards)
+
+    //In this example, target points and transformation are fed to the constraint constructors. They are equivalent to velocities when we knoe the sampling period of the problem.
+
+    //Note that the following constrants are being created and stacked in decreasing priority
+
+    //Create a Gik solver
+    ChppGikSolver* gikSolver = new ChppGikSolver(attRobot);
+
+    //Create an empty stack of constraints
+    std::vector<CjrlGikStateConstraint*> stack;
+
+    //some variables
+    vector3d targetPoint, localPoint;
+
+    //-- Stability-related constraints --//
+    //-----------------------------------//
+    //Select the support foot
+    CjrlJoint* fixedFoot = attRobot->rightFoot(); //arbitrary
+
+    //create the non support foot constraint
+    localPoint[0] = 0.0;
+    localPoint[1] = 0.0;
+    localPoint[2] = 0.0;
+    CjrlJoint& nsfJoint = *(attRobot->leftFoot());
+    matrix4d nsfTransform = nsfJoint.currentTransformation();
+    CjrlGikStateConstraint* nsfc = attGikFactory.createTransformationConstraint(*attRobot, nsfJoint, localPoint, nsfTransform);
+
+    stack.push_back(nsfc);
+
+    //create a CoM constraint
+    vector3d com = attRobot->positionCenterOfMass();
+    CjrlGikStateConstraint* comc = attGikFactory.createComConstraint(*attRobot, com[0], com[1]);
+
+    stack.push_back(comc);
+
+    
+    //-- User constraints --//
+    //----------------------//
+    //create a position constraint on a localPoint in the right wrist
+    CjrlJoint& rwJoint = *(attRobot->rightWrist());
+    localPoint = attRobot->rightHand()->centerInWristFrame();
+    targetPoint[0] = 0.3;
+    targetPoint[1] = -0.2;
+    targetPoint[2] = 1.0;
+    CjrlGikStateConstraint* pc = attGikFactory.createPositionConstraint(*attRobot,rwJoint,localPoint,targetPoint);
+
+    stack.push_back(pc);
+
+    //create a gaze constraint
+    targetPoint[0] = 1.0;
+    targetPoint[1] = -0.3;
+    targetPoint[2] = 2.0;
+    CjrlGikStateConstraint* gc = attGikFactory.createGazeConstraint(*attRobot, targetPoint);
+
+    stack.push_back(gc);
+
+    //-- Do one solving step --//
+    //-------------------------//
+    //Record the fixed foot in the robot object:
+    attRobot->clearFixedJoints();
+    attRobot->addFixedJoint( fixedFoot );
+    
+    //compute the support foot jacobian (this is done to avoid computing this jacobian several times as it is needed to computes the jacobians of every constraint)
+    fixedFoot->computeJacobianJointWrtConfig();
+    
+    //compute constraints jacobians and values
+    for (unsigned int i = 0; i< stack.size();i++)
+    {
+        stack[i]->computeValue();
+        stack[i]->computeJacobian();
+    }
+    
+    //Set the weights used in solving the inverse kinematics problem
+    //GikSolver treats all joints equally by default. Toy with these weights for realism.
+    vectorN activated =  attStandingRobot->maskFactory()->wholeBodyMask();
+    vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
+    vectorN combined = activated;
+    attStandingRobot->maskFactory()->combineMasks( weights, activated, combined);
+    gikSolver->weights(combined);
+    
+    //Account for joint limits: modifies the weights according to current configuration
+    gikSolver->accountForJointLimits();
+    
+    //1-step Solve (might not fulfill the desired constraints)
+    bool ok = gikSolver->gradientStep( stack ); //There is a more singularity-robust but less accurate method with one more argument (see GikSolver.h) 
+
+    //-- Retrieve solution --//
+    //-----------------------//
+    vectorN solutionConfig = attRobot->currentConfiguration();
+
+    std::cout << "Basic example result :" << solutionConfig << "\n";
+    
+    //clean the mess
+    delete gikSolver;
+    for (unsigned int i = 0; i<stack.size();i++)
+        delete stack[i];
+}

@@ -42,7 +42,7 @@ public:
 
     /**
     \brief perform a single gradient descent step on the given constraints (ordered from the most to the least prioriary constraint). Constraints jacobians and values computations are left to the user. The result of the gradient descent, if any, is directly applied to the robot.
-    The last weights vector set is used.
+    The last vector contains the damping factors for solving the corresponding constraints. 0.01 should be a good filling value for this vector.
     \return false if a fixed joint is not set in the robot.
      */
     bool gradientStep(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs );
@@ -145,7 +145,6 @@ private:
     ublas::vector<unsigned int> UsedIndexes;
     ublas::vector<unsigned int> NextUsedIndexes;
     ublas::vector<unsigned int> UsedIndexesBackup;
-    
 
     matrixNxP H0;
     matrixNxP Hif;
@@ -156,11 +155,9 @@ private:
     vectorN CurFullConfig;
     vectorN DeltaQ;
 
-
     vectorN   Residual;
     ublas::matrix<double, ublas::column_major > IdentityMat;
     ublas::matrix<double, ublas::column_major > BigMat1;
-    ublas::matrix<double, ublas::column_major > BigMat2;
     ublas::matrix<double, ublas::column_major > HatJacobian;
     ublas::matrix<double, ublas::column_major > WJt;
     ublas::matrix<double, ublas::column_major > JWJt;

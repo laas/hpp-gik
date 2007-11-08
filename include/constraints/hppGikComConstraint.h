@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_COM_CONSTRAINT_H
 #define HPP_GIK_COM_CONSTRAINT_H
 
-#include "gikTask/jrlGikStateConstraint.h"
+#include "gikTask/jrlGikComConstraint.h"
 
 
 
@@ -9,7 +9,7 @@
 \brief Specify a full or partial position constraint on the center of mass.
  */
 
-class ChppGikComConstraint:public CjrlGikStateConstraint
+class ChppGikComConstraint:public CjrlGikComConstraint
 {
 public:
     /**
@@ -20,7 +20,7 @@ public:
     /**
     \brief Constructor
      */
-    ChppGikComConstraint(CjrlHumanoidDynamicRobot& inRobot);
+    ChppGikComConstraint(CjrlDynamicRobot& inRobot, double inX, double inY);
     
     /**
     \brief Copy the object
@@ -35,7 +35,7 @@ public:
     /**
     \brief Get robot associated to the constraint.
      */
-    virtual CjrlHumanoidDynamicRobot& robot();
+    virtual CjrlDynamicRobot& robot();
 
     /**
     \brief Set a constraint on Xcom and Ycom (in world's frame).
@@ -115,7 +115,7 @@ private:
     
     void dimension(unsigned int inDim);
 
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
 
     CjrlJoint* attJoint;
     

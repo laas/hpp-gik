@@ -4,16 +4,20 @@
 #include "hppGikTools.h"
 
 
-ChppGikComConstraint::ChppGikComConstraint(CjrlHumanoidDynamicRobot& inRobot)
+ChppGikComConstraint::ChppGikComConstraint(CjrlDynamicRobot& inRobot, double inX, double inY)
 {
     attRobot = &inRobot;
 
     tempNumJoints = inRobot.numberDof()-6;
 
-    attDimension = 3;
+    attDimension = 2;
 
     attJacobian.resize(attDimension,tempNumJoints,false);
     attValue.resize(attDimension, false);
+    attWorldTarget.resize(attDimension,false);
+    attWorldTarget(0) = inX;
+    attWorldTarget(1) = inY;
+    
     tempJacobian.resize(3,tempNumJoints,false);
     tempRot.resize(3,3,false);
     temp3DVec.resize(3,false);
@@ -48,7 +52,7 @@ unsigned int ChppGikComConstraint::dimension() const
 }
 
 
-CjrlHumanoidDynamicRobot& ChppGikComConstraint::robot()
+CjrlDynamicRobot& ChppGikComConstraint::robot()
 {
     return *attRobot;
 }

@@ -10,6 +10,8 @@ int main(int argc, char *argv[])
     
     ChppGikTest gikTest;
 
+    gikTest.basicExample();
+    
     gikTest.interprete();
 }
 
