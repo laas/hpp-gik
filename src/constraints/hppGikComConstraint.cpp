@@ -2,7 +2,7 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "constraints/hppGikComConstraint.h"
 #include "hppGikTools.h"
-
+using namespace ublas;
 
 ChppGikComConstraint::ChppGikComConstraint(CjrlDynamicRobot& inRobot, double inX, double inY)
 {
@@ -18,7 +18,8 @@ ChppGikComConstraint::ChppGikComConstraint(CjrlDynamicRobot& inRobot, double inX
     attWorldTarget(0) = inX;
     attWorldTarget(1) = inY;
     
-    tempJacobian.resize(3,tempNumJoints,false);
+    tempJacobian.resize(3,inRobot.numberDof(),false);
+    //tempJacobian.resize(3,tempNumJoints,false);
     tempRot.resize(3,3,false);
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
@@ -102,8 +103,7 @@ void ChppGikComConstraint::computeJacobian()
     }
     
     attRobot->computeJacobianCenterOfMass();
-    //tempFixedJoint->computeJacobianJointWrtConfig();
-    
+     
     tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
     tempEffectorJointJacobian = &(attRobot->jacobianCenterOfMass());
     if (!tempFixedJointJacobian || !tempEffectorJointJacobian)
@@ -112,61 +112,32 @@ void ChppGikComConstraint::computeJacobian()
         return;
     }
 
-    /////*****//////
-    /*
-    std::vector<CjrlJoint*> vectorJoints = attRobot->jointVector();
-    CjrlBody* body;
-    CjrlJoint* joint;
-    tempJacobian.clear();
-    vector3d localCOM;
-    vectorN localCOMU(3);
-    double weight;
-    
-    for (unsigned int i=0; i<vectorJoints.size();i++)
-    {
-        joint = vectorJoints[i];
-        if (joint == attRobot->rootJoint())
-            continue;
-        
-        //center of mass of link i
-        body = joint->linkedBody();
-        localCOM = body->localCenterOfMass();
-        ChppGikTools::Vector3toUblas( localCOM,localCOMU);
-        //weight
-        weight = body->mass()/attRobot->mass();
-        
-        //Jacobian of the current link com
-        joint->computeJacobianJointWrtConfig();
-        
-        ChppGikTools::HtoRT(joint->currentTransformation(),tempRot,temp3DVec);
-        ublas::noalias(temp3DVec) = -ublas::prod(tempRot,localCOMU);
-        ChppGikTools::equivAsymMat(temp3DVec,tempRot);
-
-        ublas::noalias(tempJacobian) +=weight*(ublas::subrange(joint->jacobianJointWrtConfig(),0,3,6,attRobot->numberDof()) + ublas::prod(tempRot,ublas::subrange(joint->jacobianJointWrtConfig(),3,6,6,attRobot->numberDof())));
-    }
-    
-    //modded
-    ublas::noalias(tempJacobian) -= ublas::subrange(*tempFixedJointJacobian,0,3,6,attRobot->numberDof());
-    */
-    /////*******///////
-    
-    
     ChppGikTools::Vector3toUblas( attRobot->positionCenterOfMass(), temp3DVec);
 
     ChppGikTools::HtoRT(tempFixedJoint->currentTransformation(),tempRot,temp3DVec1);
     temp3DVec.minus_assign(temp3DVec1);//COM in world - ankle joint center in world
 
+    /*
     ublas::noalias(tempJacobian) = ublas::subrange(*tempEffectorJointJacobian,0,3,6,attRobot->numberDof()) - ublas::subrange(*tempFixedJointJacobian,0,3,6,attRobot->numberDof());
 
     ChppGikTools::equivAsymMat(temp3DVec,tempRot);
     ublas::noalias(tempJacobian) += ublas::prod(tempRot,ublas::subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
 
     attJacobian = ublas::subrange(tempJacobian,0,attDimension,0,tempNumJoints);
+    */
+    
+    
+    ChppGikTools::equivAsymMat(temp3DVec,tempRot);
+    for (unsigned int i = 0; i< attDimension;i++)
+    {
+       noalias (row(tempJacobian,i)) = row(*tempEffectorJointJacobian,i) - row(*tempFixedJointJacobian,i);
+        for (unsigned int j =0;j<3;j++)
+            noalias (row(tempJacobian,i)) += tempRot(i,j) * row(*tempFixedJointJacobian,j+3);
+    }
+    
+    noalias (subrange(attJacobian,0,attDimension,0, tempNumJoints) )= subrange(tempJacobian,0,attDimension,6,attRobot->numberDof());
+    
 
-//     std::cout << "comJacobian\n";
-//     ChppGikTools::printBlasMat( tempJacobian );
-//      std::cout << "Config of computations\n";
-//      std::cout << attRobot->currentConfiguration() << std::endl ;
 }
 
 

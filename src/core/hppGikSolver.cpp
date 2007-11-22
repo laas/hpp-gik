@@ -2,6 +2,7 @@
 #include <sys/time.h>
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
+#include "boost/numeric/ublas/operation.hpp"
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
@@ -27,7 +28,7 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
         numJoints = 6;
         Offset = 0;
     }
-    
+
     xDefaultDim = 6;
     attSVDThreshold = 0.001;
 
@@ -39,10 +40,10 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
     Weights = temp;
 
 
-    DeltaQ.resize ( numJoints,false );
     UsedIndexes.resize ( numJoints,false );
     NextUsedIndexes.resize ( numJoints,false );
     UsedIndexesBackup.resize ( numJoints,false );
+
     for ( unsigned int i=0; i<numJoints;i++ )
     {
         UsedIndexes ( i ) = i;
@@ -53,10 +54,6 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
     identity_matrix<double> tempid ( numJoints );
     IdentityMat.resize ( numJoints,numJoints,false );
     IdentityMat = tempid;
-    BigMat1.resize ( numJoints,numJoints,false );
-
-    NullSpace.resize ( numJoints,numJoints,false );
-    NullSpace = tempid;
 
     resizeMatrices ( xDefaultDim );
 
@@ -77,20 +74,21 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
 }
 
 
-void ChppGikSolver::resizeMatrices ( unsigned int inSize )
+void ChppGikSolver::resizeMatrices ( unsigned int inSize)
 {
-    xDefaultDim = inSize;
+    Residual.resize ( inSize,false );
+    PenroseMask.resize ( inSize,false );
+    tempS.resize(inSize, false);
 
-    CarvedJacobian.resize ( xDefaultDim,numJoints,false );
-    HatJacobian.resize ( xDefaultDim,numJoints,false );
-    Residual.resize ( xDefaultDim,false );
-    WJt.resize ( numJoints,xDefaultDim,false );
-    JWJt.resize ( xDefaultDim,xDefaultDim,false );
-    Jsharp.resize ( numJoints,xDefaultDim,false );
-    InverseJWJt.resize ( xDefaultDim,xDefaultDim,false );
+    CarvedJacobian.resize ( inSize,LongSize,false );
+    HatJacobian.resize ( inSize,LongSize,false );
+    WJt.resize ( LongSize,inSize,false );
+    JWJt.resize ( inSize,inSize,false );
+    Jsharp.resize ( LongSize,inSize,false );
+    InverseJWJt.resize ( inSize,inSize,false );
 
-    PenroseMask.resize ( xDefaultDim,false );
-
+    tempU.resize(inSize,inSize,false);
+    tempVt.resize(inSize,inSize,false);
 }
 
 
@@ -107,12 +105,6 @@ void ChppGikSolver::prepareBrakeWindow()
     ChppGikTools::minJerkCurve ( 1.0-WindowStep*extra,WindowStep,1.0,0.0,0.0,0.0,JointUpperLimitWindow );
 
     subrange ( JointUpperLimitWindow, sizeWindow - extra, sizeWindow ) = zero_vector<double> ( extra );
-
-    /* // dump braking window
-    matrixNxP mat(1,sizeWindow);
-    row(mat,0) = JointUpperLimitWindow;
-    ChppGikTools::dumpMatrix( "cloche", mat, 0.0, WindowStep);
-    */
 }
 
 
@@ -131,9 +123,6 @@ double ChppGikSolver::brakeCoefForJoint ( const double& qVal,const double& lower
         unsigned int windowTick = ChppGikTools::timetoRank ( 0.0, curve_Fraction, WindowStep );
         if ( windowTick >= JointUpperLimitWindow.size() )
             return 0;
-
-        //std::cout << "up brake: "<< JointUpperLimitWindow(windowTick) <<"\n";
-
         return JointUpperLimitWindow ( windowTick );
     }
 
@@ -141,7 +130,6 @@ double ChppGikSolver::brakeCoefForJoint ( const double& qVal,const double& lower
     {
         double curve_Fraction = qFraction/BrakingZone;
         unsigned int windowTick = ChppGikTools::timetoRank ( 0.0, curve_Fraction, WindowStep );
-        //std::cout << "low brake: "<< JointUpperLimitWindow(JointUpperLimitWindow.size()-1-windowTick) <<"\n";
         if (windowTick >= JointUpperLimitWindow.size())
             return 0;
 
@@ -195,7 +183,7 @@ void ChppGikSolver::accountForJointLimits()
             LongSizeBackup++;
         }
 
-        //std::cout <<UsedIndexesBackup << "\n";
+    //std::cout <<UsedIndexesBackup << "\n";
 }
 
 void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
@@ -204,46 +192,42 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     //determin task dimension
     xDim = inConstraint->dimension();
 
-    if ( xDim > xDefaultDim )
-        resizeMatrices ( xDim );
+    resizeMatrices ( xDim );
 
     //store used columns only
     for ( unsigned int col = 0; col<LongSize;col++ )
-        subrange ( CarvedJacobian,0,xDim,col,col+1 ) =  subrange ( inConstraint->jacobian(),0,xDim,UsedIndexes ( col ),UsedIndexes ( col ) +1 );
+        noalias (column ( CarvedJacobian,col) )=  column ( inConstraint->jacobian(),UsedIndexes ( col ));
 
     //update value according to previous tasks
-    noalias ( subrange ( Residual,0,xDim ) ) = inConstraint->value();
-    noalias ( subrange ( Residual,0,xDim ) ) -= prod ( subrange ( CarvedJacobian,0,xDim,0,LongSize ),subrange ( DeltaQ,0,LongSize ) );
+    noalias (Residual) = inConstraint->value();
+    noalias ( Residual) -= prod (CarvedJacobian,DeltaQ);
 
     //slightly faster product to obtain projected jacobian on previous tasks nullspace
     HatJacobian.clear();
     vectorN& ElementMask = inConstraint->influencingDofs();
+
     for ( unsigned int d = 0; d<xDim;d++ )
     {
         for ( unsigned int col = 0; col<LongSize;col++ )
             if ( ElementMask ( UsedIndexes ( col ) + Offset ) == 1 )
-                noalias ( subrange ( HatJacobian,d,d+1,0,LongSize ) ) += CarvedJacobian ( d,col ) * subrange ( NullSpace,col,col+1,0,LongSize );
+                noalias ( row (HatJacobian,d) ) += CarvedJacobian ( d,col ) * row ( NullSpace,col);
     }
 
     //pseudo inverse of the projected jacobian
-    noalias ( subrange ( WJt,0,LongSize,0,xDim ) ) = trans ( subrange ( HatJacobian,0,xDim,0,LongSize ) );
+    noalias ( WJt ) = trans ( HatJacobian);
 
     for ( unsigned int lin=0;lin<LongSize;lin++ )
         row ( WJt,lin ) *= PIWeights ( lin );
 
-    noalias ( subrange ( JWJt,0,xDim,0,xDim ) ) = prod ( subrange ( HatJacobian,0,xDim,0,LongSize ),subrange ( WJt,0,LongSize,0,xDim ) );
+    noalias ( JWJt ) = prod ( HatJacobian,  WJt );
 
     //svd
-    vectorN tempS ( xDim );
-    matrix<double, column_major> tempU ( xDim,xDim );
-    matrix<double, column_major> tempVt ( xDim,xDim );
-    matrix<double, column_major> tempJWJt = subrange ( JWJt,0,xDim,0,xDim );
     if (inSRcoef != 0)
     {
         identity_matrix<double> I ( xDim );
-        tempJWJt = inSRcoef*I + tempJWJt;
+        JWJt = inSRcoef*I + JWJt;
     }
-    lapack::gesvd ( jobU,jobVt,tempJWJt, tempS, tempU, tempVt );
+    lapack::gesvd ( jobU, jobVt, JWJt, tempS, tempU, tempVt );
     tempU = trans ( tempVt );
 
     PenroseMask.clear();
@@ -266,17 +250,19 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     }
 
     //inverse of JwJt
-    noalias ( subrange ( InverseJWJt,0,xDim,0,xDim ) ) = prod ( tempU,tempVt );
+    noalias ( InverseJWJt ) = prod ( tempU,tempVt );
 
     //PseudoInverse Jsharp
-    noalias ( subrange ( Jsharp,0,LongSize,0,xDim ) ) = prod ( subrange ( WJt,0,LongSize,0,xDim ),subrange ( InverseJWJt,0,xDim,0,xDim ) );
+    noalias ( Jsharp ) = prod (WJt , InverseJWJt);
 
     //Updated deltaQ
-    noalias ( subrange ( DeltaQ,0,LongSize ) ) += prod ( subrange ( Jsharp,0,LongSize,0,xDim ), subrange ( Residual,0,xDim ) );
+    noalias ( DeltaQ ) += prod ( Jsharp, Residual );
 
     //Updated null space
-    noalias ( subrange ( BigMat1,0,LongSize,0,LongSize ) ) = prod ( subrange ( Jsharp,0,LongSize,0,xDim ),subrange ( HatJacobian,0,xDim,0,LongSize ) );
-    subrange ( NullSpace,0,LongSize,0,LongSize ).minus_assign ( subrange ( BigMat1,0,LongSize,0,LongSize ) );
+    noalias ( BigMat1 ) = prod ( Jsharp, HatJacobian );
+    noalias (  NullSpace ) -=  BigMat1 ;
+
+
 }
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints)
@@ -291,8 +277,6 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
     subrange ( UsedIndexes,0,LongSize ) = subrange ( UsedIndexesBackup,0,LongSize );
 
-
-    
     std::vector<CjrlJoint*> supportJoints;
     if (attRobot->countFixedJoints()>0)
     {
@@ -313,7 +297,13 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     std::vector<double>::iterator iter2;
     while ( recompute )
     {
-        subrange ( NullSpace,0,LongSize,0,LongSize ) = subrange ( IdentityMat,0,LongSize,0,LongSize );
+
+        BigMat1.resize ( LongSize,LongSize,false );
+
+        NullSpace.resize ( LongSize, LongSize,false );
+        NullSpace = subrange ( IdentityMat,0,LongSize,0,LongSize );
+
+        DeltaQ.resize ( LongSize,false );
         DeltaQ.clear();
 
         //for every subtask
@@ -382,11 +372,6 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
                         || CurFullConfig ( realIndex ) > ub-1e-2 ))
             {
                 recompute = true;
-                /*
-                              std::cout << "Deactivating dof "<< realIndex 
-                	  << "(" << lb << ", " << CurFullConfig(realIndex)
-                	  << ", " << ub << ")\n";
-                */
 
             }
             else

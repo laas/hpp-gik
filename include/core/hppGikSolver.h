@@ -124,7 +124,6 @@ private:
     unsigned int numJoints;
     unsigned int xDefaultDim;
     unsigned int xDim;
-    unsigned int xDim2;
     unsigned int Iteration;
     double       ValueNorm;
     bool         SatisfactorySolution;
@@ -166,6 +165,10 @@ private:
     ublas::matrix<double, ublas::column_major > InverseJWJt;
     ublas::matrix<double, ublas::column_major > CarvedJacobian;
 
+    
+    vectorN tempS;
+    ublas::matrix<double, ublas::column_major> tempU;
+    ublas::matrix<double, ublas::column_major> tempVt;
 
     char jobU;
     char jobVt;

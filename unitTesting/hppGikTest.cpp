@@ -3,6 +3,8 @@
 #include <iostream>
 #include "hppGikTest.h"
 #include "hppGikTools.h"
+#include <time.h>
+#include <sys/time.h>
 
 using namespace std;
 
@@ -837,10 +839,15 @@ void ChppGikTest::basicExample()
 
     
     vector3d p;
-    p[0] = 0.5;
-    p[1] = 0.2;
-    p[2] = 1;
     ChppRobotMotion attSolutionMotion(attRobot, 0.0 , attSamplingPeriod);
+    
+    struct timeval *Tps, *Tpf;
+    struct timezone *Tzp;
+    Tps = (struct timeval*) malloc(sizeof(struct timeval));
+    Tpf = (struct timeval*) malloc(sizeof(struct timeval));
+    Tzp = 0;
+    gettimeofday (Tps, Tzp);
+    
     for (unsigned int j = 0; j< 500;j++)
     {
         p = ((CjrlGikPositionConstraint*)pc)->worldTarget();
@@ -874,6 +881,11 @@ void ChppGikTest::basicExample()
         attSolutionMotion.appendSample(solutionConfig,p,p,p,p);
     }
 
+    gettimeofday (Tpf, Tzp);
+    printf("Basic example solved in: %ld ms\n", (Tpf->tv_sec-Tps->tv_sec)*1000 + (Tpf->tv_usec-Tps->tv_usec)/1000);
+    free(Tps);
+    free(Tpf);
+    
     attSolutionMotion.dumpTo( "test" );
 
     //clean the mess
