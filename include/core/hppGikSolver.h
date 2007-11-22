@@ -169,6 +169,8 @@ private:
 
     char jobU;
     char jobVt;
+    
+    unsigned int Offset;
     /**
         @}
      */

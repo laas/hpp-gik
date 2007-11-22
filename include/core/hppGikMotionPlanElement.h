@@ -123,9 +123,6 @@ private:
     matrixNxP attJacobian;
 
     vectorN attInfluencingDofs;
-    vectorN attInfluencingDofsTemp;
-
-
 };
 
 #endif

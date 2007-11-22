@@ -20,12 +20,14 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
     if (attRobot->countFixedJoints() > 0)
     {
         numJoints = numDof-6;
+        Offset = 6;
     }
     else
     {
         numJoints = 6;
+        Offset = 0;
     }
-
+    
     xDefaultDim = 6;
     attSVDThreshold = 0.001;
 
@@ -71,6 +73,7 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
 
     jobU = 'N';
     jobVt = 'A';
+
 }
 
 
@@ -167,12 +170,11 @@ void ChppGikSolver::accountForJointLimits()
     double coefLjoint;
     const vectorN& cfg = attRobot->currentConfiguration();
     double q, ub, lb;
-    unsigned int offset = attRobot->countFixedJoints()>0 ? 6 : 0;
 
     for ( unsigned int i=0; i<numJoints;i++ )
         if ( Weights ( i ) >1e-2 )
         {
-            realrank = offset + i;
+            realrank = Offset + i;
 
             if (realrank >= 6)
             {
@@ -192,6 +194,8 @@ void ChppGikSolver::accountForJointLimits()
 
             LongSizeBackup++;
         }
+
+        //std::cout <<UsedIndexesBackup << "\n";
 }
 
 void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
@@ -217,7 +221,7 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     for ( unsigned int d = 0; d<xDim;d++ )
     {
         for ( unsigned int col = 0; col<LongSize;col++ )
-            if ( ElementMask ( UsedIndexes ( col ) ) == 1 )
+            if ( ElementMask ( UsedIndexes ( col ) + Offset ) == 1 )
                 noalias ( subrange ( HatJacobian,d,d+1,0,LongSize ) ) += CarvedJacobian ( d,col ) * subrange ( NullSpace,col,col+1,0,LongSize );
     }
 
@@ -287,6 +291,8 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
     subrange ( UsedIndexes,0,LongSize ) = subrange ( UsedIndexesBackup,0,LongSize );
 
+
+    
     std::vector<CjrlJoint*> supportJoints;
     if (attRobot->countFixedJoints()>0)
     {
@@ -321,15 +327,13 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         CurFullConfig = attRobot->currentConfiguration();
 
         //update dof config
-        unsigned int iC,realIndex, offset, start;
+        unsigned int iC,realIndex, start;
         if (attRobot->countFixedJoints()>0)
         {
-            offset = 6;
             start = 0;
         }
         else
         {
-            offset = 0;
             start = 6;
             iC = 0;
             while(iC < LongSize && UsedIndexes(iC)<3)
@@ -356,7 +360,7 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         }
         for ( iC=start; iC< LongSize; iC++ )
         {
-            realIndex = offset+UsedIndexes ( iC );
+            realIndex = Offset+UsedIndexes ( iC );
             CurFullConfig ( realIndex ) += DeltaQ ( iC );
         }
 
@@ -366,7 +370,7 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         unsigned int NextLongSize = 0;
         for ( iC=0; iC< LongSize; iC++ )
         {
-            realIndex = offset+UsedIndexes ( iC );
+            realIndex = Offset+UsedIndexes ( iC );
             if (realIndex >= 6)
             {
                 lb = attRobot->lowerBoundDof(realIndex, CurFullConfig);

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <iostream>
 #include "hppGikTest.h"
+#include "hppGikTools.h"
 
 using namespace std;
 
@@ -56,7 +57,6 @@ void ChppGikTest::createHumanoidRobot()
     aHDMB->parserVRML(path,name,"./HRP2LinkJointRank.xml");
     std::string aName="./HRP2Specificities.xml";
     aHDMB->SetHumanoidSpecificitiesFile(aName);
-    aHDMB->SetTimeStep(attSamplingPeriod);
 
     unsigned int nDof = attRobot->numberDof();
     vectorN halfsittingConf(nDof);
@@ -764,6 +764,13 @@ void ChppGikTest::basicExample()
 
     //Note that the following constrants are being created and stacked in decreasing priority
 
+    
+    //Select the support foot
+    CjrlJoint* fixedFoot = attRobot->rightFoot(); //arbitrary
+    //Record the fixed foot in the robot object:
+    attRobot->clearFixedJoints();
+    attRobot->addFixedJoint( fixedFoot );
+    
     //Create a Gik solver
     ChppGikSolver* gikSolver = new ChppGikSolver(attRobot);
 
@@ -775,8 +782,7 @@ void ChppGikTest::basicExample()
 
     //-- Stability-related constraints --//
     //-----------------------------------//
-    //Select the support foot
-    CjrlJoint* fixedFoot = attRobot->rightFoot(); //arbitrary
+
 
     //create the non support foot constraint
     localPoint[0] = 0.0;
@@ -794,63 +800,82 @@ void ChppGikTest::basicExample()
 
     stack.push_back(comc);
 
-    
+
     //-- User constraints --//
     //----------------------//
     //create a position constraint on a localPoint in the right wrist
+    matrix4d curT=  attRobot->rightWrist()->currentTransformation();
+    targetPoint[0] = 0.5;
+    targetPoint[1] = -0.3;
+    targetPoint[2] = 1.0;
     CjrlJoint& rwJoint = *(attRobot->rightWrist());
     localPoint = attRobot->rightHand()->centerInWristFrame();
-    targetPoint[0] = 0.3;
-    targetPoint[1] = -0.2;
-    targetPoint[2] = 1.0;
-    CjrlGikStateConstraint* pc = attGikFactory.createPositionConstraint(*attRobot,rwJoint,localPoint,targetPoint);
-
+    CjrlGikStateConstraint* pc = attGikFactory.createPositionConstraint(*attRobot,rwJoint,localPoint, curT*localPoint);
+       
+    
     stack.push_back(pc);
 
     //create a gaze constraint
-    targetPoint[0] = 1.0;
-    targetPoint[1] = -0.3;
-    targetPoint[2] = 2.0;
+    targetPoint[0] = 1;
+    targetPoint[1] = -1;
+    targetPoint[2] = 0.0;
     CjrlGikStateConstraint* gc = attGikFactory.createGazeConstraint(*attRobot, targetPoint);
 
-    stack.push_back(gc);
+    //stack.push_back(gc);
 
     //-- Do one solving step --//
     //-------------------------//
-    //Record the fixed foot in the robot object:
-    attRobot->clearFixedJoints();
-    attRobot->addFixedJoint( fixedFoot );
-    
-    //compute the support foot jacobian (this is done to avoid computing this jacobian several times as it is needed to computes the jacobians of every constraint)
-    fixedFoot->computeJacobianJointWrtConfig();
-    
-    //compute constraints jacobians and values
-    for (unsigned int i = 0; i< stack.size();i++)
-    {
-        stack[i]->computeValue();
-        stack[i]->computeJacobian();
-    }
-    
-    //Set the weights used in solving the inverse kinematics problem
-    //GikSolver treats all joints equally by default. Toy with these weights for realism.
+            //Set the weights used in solving the inverse kinematics problem
+        //GikSolver treats all joints equally by default. Toy with these weights for realism.
     vectorN activated =  attStandingRobot->maskFactory()->wholeBodyMask();
     vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
-    vectorN combined = activated;
-    attStandingRobot->maskFactory()->combineMasks( weights, activated, combined);
+    vectorN combined = weights;
+
+    for (unsigned int i=0;i<combined.size();i++)
+        combined(i) *= activated(i);
     gikSolver->weights(combined);
-    
-    //Account for joint limits: modifies the weights according to current configuration
-    gikSolver->accountForJointLimits();
-    
-    //1-step Solve (might not fulfill the desired constraints)
-    bool ok = gikSolver->gradientStep( stack ); //There is a more singularity-robust but less accurate method with one more argument (see GikSolver.h) 
 
-    //-- Retrieve solution --//
-    //-----------------------//
-    vectorN solutionConfig = attRobot->currentConfiguration();
-
-    std::cout << "Basic example result :" << solutionConfig << "\n";
     
+    vector3d p;
+    p[0] = 0.5;
+    p[1] = 0.2;
+    p[2] = 1;
+    ChppRobotMotion attSolutionMotion(attRobot, 0.0 , attSamplingPeriod);
+    for (unsigned int j = 0; j< 500;j++)
+    {
+        p = ((CjrlGikPositionConstraint*)pc)->worldTarget();
+        p[0] += 0.001;
+        ((CjrlGikPositionConstraint*)pc)->worldTarget(p);
+
+        //compute the support foot jacobian (this is done to avoid computing this jacobian several times as it is needed to computes the jacobians of every constraint)
+        fixedFoot->computeJacobianJointWrtConfig();
+
+        //compute constraints jacobians and values
+        for (unsigned int i = 0; i< stack.size();i++)
+        {
+            stack[i]->computeValue();
+            stack[i]->computeJacobian();
+        }
+
+        gikSolver->weights(combined);
+
+        //Account for joint limits: modifies the weights according to current configuration
+        gikSolver->accountForJointLimits();
+
+        //1-step Solve (might not fulfill the desired constraints)
+        bool ok = gikSolver->gradientStep( stack ); //There is a more singularity-robust but less accurate method with one more argument (see GikSolver.h)
+
+        //-- Retrieve solution --//
+        //-----------------------//
+        vectorN solutionConfig = attRobot->currentConfiguration();
+
+        //store
+        attRobot->FiniteDifferenceStateUpdate(attSamplingPeriod);
+        attSolutionMotion.appendSample(solutionConfig,p,p,p,p);
+    }
+
+    attSolutionMotion.dumpTo( "test" );
+
     //clean the mess
     delete gikSolver;
     for (unsigned int i = 0; i<stack.size();i++)

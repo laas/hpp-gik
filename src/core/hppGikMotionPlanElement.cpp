@@ -11,13 +11,13 @@ ChppGikMotionPlanElement::ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, un
     //initialize the jacobians' length with the number of internal degrees of freedom in the robot
     unsigned int dof;
     if (attRobot->countFixedJoints()>0){
-	dof = attRobot->numberDof() - 6;
+	dof = attRobot->numberDof()-6;
     }else{
 	dof = 6;
     }
+    
     attJacobian.resize(0,dof,false);
-    attInfluencingDofs.resize(dof,false);
-    attInfluencingDofsTemp.resize(attRobot->numberDof(),false);
+    attInfluencingDofs.resize(attRobot->numberDof(),false);
 }
 
 
@@ -59,14 +59,12 @@ void ChppGikMotionPlanElement::clear()
 vectorN& ChppGikMotionPlanElement::influencingDofs()
 {
     attInfluencingDofs.clear();
-    unsigned int offset = attRobot->countFixedJoints() > 0 ? 6 : 0;
-    
     std::vector<CjrlGikStateConstraint*>::iterator iter;
     for (iter = attConstraints.begin(); iter != attConstraints.end(); iter++)
     {
-        attInfluencingDofsTemp =  (*iter)->influencingDofs();
+        vectorN& attInfluencingDofsTemp =  (*iter)->influencingDofs();
         for (unsigned int i=0; i<attInfluencingDofs.size(); i++)
-            if (attInfluencingDofsTemp(i+offset) > 0)
+            if (attInfluencingDofsTemp(i) > 0)
                 attInfluencingDofs(i) = 1;
     }
     return attInfluencingDofs;

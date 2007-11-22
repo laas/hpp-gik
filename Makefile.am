@@ -7,7 +7,6 @@
 
 SUBDIRS = \
 	src \
-	doc \
 	include \
 	unitTesting
 
