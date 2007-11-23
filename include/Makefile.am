@@ -8,6 +8,8 @@
 gainfiledir=	$(datadir)/gik
 gainfile_DATA=\
 	motionplanners/hppGikPreviewController5ms.ini	\
+	motionplanners/hppGikPreviewController10ms.ini	\
+	motionplanners/hppGikPreviewController20ms.ini	\
 	motionplanners/hppGikPreviewController50ms.ini
 EXTRA_DIST=	$(gainfile_DATA)
 

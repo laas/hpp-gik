@@ -156,7 +156,6 @@ private:
 
     vectorN   Residual;
     ublas::matrix<double, ublas::column_major > IdentityMat;
-    ublas::matrix<double, ublas::column_major > BigMat1;
     ublas::matrix<double, ublas::column_major > HatJacobian;
     ublas::matrix<double, ublas::column_major > WJt;
     ublas::matrix<double, ublas::column_major > JWJt;

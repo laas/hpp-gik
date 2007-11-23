@@ -10,7 +10,7 @@ using namespace ublas;
 
 ChppGikPreviewController::ChppGikPreviewController(double inSamplingPeriod)
 {
-    if (fabs(inSamplingPeriod-5e-3)>1e-5 && fabs(inSamplingPeriod-5e-2)>1e-5)
+    if (fabs(inSamplingPeriod-5e-3)>1e-5 && fabs(inSamplingPeriod-5e-2)>1e-5 && fabs(inSamplingPeriod-1e-2)>1e-5 && fabs(inSamplingPeriod-2e-2)>1e-5)
     {
         std::cout << "ChppGikPreviewController: Constructor: The sampling period does not match the stored gains. Interrupting instance construction\n";
         return;
@@ -22,7 +22,14 @@ ChppGikPreviewController::ChppGikPreviewController(double inSamplingPeriod)
     if (fabs(inSamplingPeriod-5e-3)<1e-5)
         loadGains(GAINDIR "/hppGikPreviewController5ms.ini");
     else
-        loadGains(GAINDIR "/hppGikPreviewController50ms.ini");
+        if (fabs(inSamplingPeriod-1e-2)<1e-5)
+            loadGains(GAINDIR "/hppGikPreviewController10ms.ini");
+        else
+            if (fabs(inSamplingPeriod-2e-2)<1e-5)
+                loadGains(GAINDIR "/hppGikPreviewController20ms.ini");
+            else
+                if (fabs(inSamplingPeriod-5e-2)<1e-5)
+                    loadGains(GAINDIR "/hppGikPreviewController50ms.ini");
 }
 
 double ChppGikPreviewController::previewTime()
@@ -101,7 +108,7 @@ bool ChppGikPreviewController::loadGains(const char* inFileName)
     }
 
 
-    
+
     //gainsKs
     stream.clear();
     stream.str(lineKs);
@@ -113,7 +120,7 @@ bool ChppGikPreviewController::loadGains(const char* inFileName)
         return false;
     }
 
-    
+
     //comHeight
     stream.clear();
     stream.str(lineZg);
@@ -124,7 +131,7 @@ bool ChppGikPreviewController::loadGains(const char* inFileName)
         std::cout << "ChppGikPreviewController::loadGains(): Zg value missing\n";
         return false;
     }
-    
+
     systemA.resize(3,3,false);
     systemA = ublas::identity_matrix<double>(3);
 
@@ -141,30 +148,30 @@ bool ChppGikPreviewController::loadGains(const char* inFileName)
     systemC(0,0) = 1;
     systemC(0,1) = 0;
     systemC(0,2) = -comHeight/9.8;
-    
-    u.resize(1,2,false); 
-    plannedZMP.resize(1,2,false); 
+
+    u.resize(1,2,false);
+    plannedZMP.resize(1,2,false);
     return true;
 }
 
 bool ChppGikPreviewController::ZMPtoCOM(const matrixNxP& inZMP, matrixNxP& outCOM)
 {
     unsigned int ZMPlength = inZMP.size2();
-    
+
     if (inZMP.size1() <=2)
     {
         std::cout << "ChppGikPreviewController::ZMPtoCOM(). ZMP matrix must have a least two columns\n";
         return false;
     }
-    
+
     if (ZMPlength < attNumberPreviewSamples)
     {
         std::cout << "ChppGikPreviewController::ZMPtoCOM(). Not enough ZMP samples to compute a single COM state.\n";
         return false;
     }
-    
+
     matrixNxP ZMPref = trans(inZMP);
-    
+
     //resize COM output matrix
     outCOM.resize(2, ZMPlength-attNumberPreviewSamples+1, false);
 
@@ -176,7 +183,7 @@ bool ChppGikPreviewController::ZMPtoCOM(const matrixNxP& inZMP, matrixNxP& outCO
     plannedZMPError(0,1) = 0;
 
     double startZMPoffsetX = ZMPref(0,0),startZMPoffsetY = ZMPref(0,1);
-    
+
     for (unsigned int i=0;i < ZMPlength;i++)
     {
         ZMPref(i,0) = ZMPref(i,0) - startZMPoffsetX;
@@ -190,7 +197,7 @@ bool ChppGikPreviewController::ZMPtoCOM(const matrixNxP& inZMP, matrixNxP& outCO
         outCOM(0,i) = currentComState(0,0) + startZMPoffsetX;
         outCOM(1,i) = currentComState(0,1) + startZMPoffsetY;
     }
-    
+
     return true;
 }
 

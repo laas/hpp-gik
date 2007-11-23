@@ -9,7 +9,7 @@
 using namespace std;
 
 
-ChppGikTest::ChppGikTest() : attSamplingPeriod(5e-3)
+ChppGikTest::ChppGikTest() : attSamplingPeriod(10e-3)
 {
     attLastRobotTask = 0;
 

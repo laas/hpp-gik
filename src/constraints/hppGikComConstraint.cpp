@@ -136,7 +136,6 @@ void ChppGikComConstraint::computeJacobian()
     }
     
     noalias (subrange(attJacobian,0,attDimension,0, tempNumJoints) )= subrange(tempJacobian,0,attDimension,6,attRobot->numberDof());
-    
 
 }
 

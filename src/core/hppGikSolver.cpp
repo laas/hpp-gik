@@ -259,8 +259,7 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     noalias ( DeltaQ ) += prod ( Jsharp, Residual );
 
     //Updated null space
-    noalias ( BigMat1 ) = prod ( Jsharp, HatJacobian );
-    noalias (  NullSpace ) -=  BigMat1 ;
+    noalias (  NullSpace ) -= prod ( Jsharp, HatJacobian );
 
 
 }
@@ -276,6 +275,8 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     LongSize = LongSizeBackup;
     subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
     subrange ( UsedIndexes,0,LongSize ) = subrange ( UsedIndexesBackup,0,LongSize );
+
+
 
     std::vector<CjrlJoint*> supportJoints;
     if (attRobot->countFixedJoints()>0)
@@ -297,9 +298,6 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     std::vector<double>::iterator iter2;
     while ( recompute )
     {
-
-        BigMat1.resize ( LongSize,LongSize,false );
-
         NullSpace.resize ( LongSize, LongSize,false );
         NullSpace = subrange ( IdentityMat,0,LongSize,0,LongSize );
 
