@@ -375,8 +375,8 @@ void ChppGikLocomotionPlan::addtoMotionPlan()
 {
     unsigned int priority_0 = 0;
     unsigned int priority_1 = 1;
-    attComMotionPlanRow =  attAssociatedMotionPlan->addMotionConstraint(attComMotion, priority_0);
-    attFootMotionPlanRow =  attAssociatedMotionPlan->addMotionConstraint(attFootMotion, priority_1);
+    attComMotionPlanRow =  attAssociatedMotionPlan->addMotionConstraint(attComMotion, priority_1);
+    attFootMotionPlanRow =  attAssociatedMotionPlan->addMotionConstraint(attFootMotion, priority_0);
 }
 
 bool ChppGikLocomotionPlan::prolongate(double inDuration)

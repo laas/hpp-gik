@@ -187,13 +187,12 @@ void ChppGikSolver::accountForJointLimits()
 }
 
 void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
-                                       double inSRcoef)
+                                       double inSRcoef, bool inComputeHatJacobian)
 {
     //determin task dimension
     xDim = inConstraint->dimension();
-
     resizeMatrices ( xDim );
-
+    
     //store used columns only
     for ( unsigned int col = 0; col<LongSize;col++ )
         noalias (column ( CarvedJacobian,col) )=  column ( inConstraint->jacobian(),UsedIndexes ( col ));
@@ -206,32 +205,33 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     HatJacobian.clear();
     vectorN& ElementMask = inConstraint->influencingDofs();
 
-    for ( unsigned int d = 0; d<xDim;d++ )
-    {
-        for ( unsigned int col = 0; col<LongSize;col++ )
-            if ( ElementMask ( UsedIndexes ( col ) + Offset ) == 1 )
-                noalias ( row (HatJacobian,d) ) += CarvedJacobian ( d,col ) * row ( NullSpace,col);
-    }
+    if (inComputeHatJacobian)
+        for ( unsigned int d = 0; d<xDim;d++ )
+        {
+            for ( unsigned int col = 0; col<LongSize;col++ )
+                if ( ElementMask ( UsedIndexes ( col ) + Offset ) == 1)
+                    noalias ( row (HatJacobian,d) ) += CarvedJacobian ( d,col ) * row ( NullSpace,col);
+        }
+    else
+        noalias (HatJacobian) = CarvedJacobian;
 
-    //pseudo inverse of the projected jacobian
     noalias ( WJt ) = trans ( HatJacobian);
-
     for ( unsigned int lin=0;lin<LongSize;lin++ )
         row ( WJt,lin ) *= PIWeights ( lin );
-
+    
     noalias ( JWJt ) = prod ( HatJacobian,  WJt );
-
+    
     //svd
     if (inSRcoef != 0)
     {
         identity_matrix<double> I ( xDim );
         JWJt = inSRcoef*I + JWJt;
     }
+
     lapack::gesvd ( jobU, jobVt, JWJt, tempS, tempU, tempVt );
     tempU = trans ( tempVt );
 
     PenroseMask.clear();
-
     //Determin task value projection space
     for ( unsigned int i=0;i<xDim;i++ )
     {
@@ -243,25 +243,17 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
             row ( tempVt,i ) /= tempS ( i );
         }
     }
-
     if ( PenroseMask ( 0 ) ==0 )
-    {
         return;
-    }
 
     //inverse of JwJt
     noalias ( InverseJWJt ) = prod ( tempU,tempVt );
-
     //PseudoInverse Jsharp
     noalias ( Jsharp ) = prod (WJt , InverseJWJt);
-
     //Updated deltaQ
     noalias ( DeltaQ ) += prod ( Jsharp, Residual );
-
     //Updated null space
     noalias (  NullSpace ) -= prod ( Jsharp, HatJacobian );
-
-
 }
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints)
@@ -272,6 +264,9 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs )
 {
+    if (inSortedConstraints.empty())
+        return true;
+
     LongSize = LongSizeBackup;
     subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
     subrange ( UsedIndexes,0,LongSize ) = subrange ( UsedIndexesBackup,0,LongSize );
@@ -304,11 +299,18 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         DeltaQ.resize ( LongSize,false );
         DeltaQ.clear();
 
+
+        //Solve first constraint (faster than the following due to initial nullspace)
+        iter = inSortedConstraints.begin();
+        iter2 = inSRcoefs.begin();
+        solveOneConstraint(*iter, *iter2, false);
+        
+        iter++;
+        iter2++;
         //for every subtask
-        for ( iter = inSortedConstraints.begin(), iter2 = inSRcoefs.begin();
-                iter != inSortedConstraints.end(); iter++,iter2++ )
+        for ( iter, iter2; iter != inSortedConstraints.end(); iter++,iter2++ )
         {
-            solveOneConstraint(*iter, *iter2);
+            solveOneConstraint(*iter, *iter2, true);
         }
 
         //compute new dof vector & perform a basic check on joint limits
