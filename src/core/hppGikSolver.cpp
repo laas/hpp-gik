@@ -187,12 +187,12 @@ void ChppGikSolver::accountForJointLimits()
 }
 
 void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
-                                       double inSRcoef, bool inComputeHatJacobian)
+                                       double inSRcoef, bool inComputeHatJacobian, bool inComputeNullspace)
 {
     //determin task dimension
     xDim = inConstraint->dimension();
     resizeMatrices ( xDim );
-    
+
     //store used columns only
     for ( unsigned int col = 0; col<LongSize;col++ )
         noalias (column ( CarvedJacobian,col) )=  column ( inConstraint->jacobian(),UsedIndexes ( col ));
@@ -218,9 +218,9 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     noalias ( WJt ) = trans ( HatJacobian);
     for ( unsigned int lin=0;lin<LongSize;lin++ )
         row ( WJt,lin ) *= PIWeights ( lin );
-    
+
     noalias ( JWJt ) = prod ( HatJacobian,  WJt );
-    
+
     //svd
     if (inSRcoef != 0)
     {
@@ -253,7 +253,8 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     //Updated deltaQ
     noalias ( DeltaQ ) += prod ( Jsharp, Residual );
     //Updated null space
-    noalias (  NullSpace ) -= prod ( Jsharp, HatJacobian );
+    if (inComputeNullspace)
+        noalias (  NullSpace ) -= prod ( Jsharp, HatJacobian );
 }
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints)
@@ -264,6 +265,7 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs )
 {
+
     if (inSortedConstraints.empty())
         return true;
 
@@ -299,19 +301,27 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         DeltaQ.resize ( LongSize,false );
         DeltaQ.clear();
 
-
-        //Solve first constraint (faster than the following due to initial nullspace)
+        //Solve constraints
         iter = inSortedConstraints.begin();
         iter2 = inSRcoefs.begin();
-        solveOneConstraint(*iter, *iter2, false);
-        
-        iter++;
-        iter2++;
-        //for every subtask
-        for ( iter, iter2; iter != inSortedConstraints.end(); iter++,iter2++ )
+        if (inSortedConstraints.size() == 1)
+            solveOneConstraint(*iter, *iter2, false, false);
+            
+        else
         {
-            solveOneConstraint(*iter, *iter2, true);
+            solveOneConstraint(*iter, *iter2, false, true);
+            
+            iter++;
+            iter2++;
+            
+            //for every constraint
+            for ( iter, iter2; iter != inSortedConstraints.end()-1; iter++,iter2++ )
+                solveOneConstraint(*iter, *iter2, true, true);
+            
+            solveOneConstraint(*iter, *iter2, true, false);
         }
+        
+
 
         //compute new dof vector & perform a basic check on joint limits
         CurFullConfig = attRobot->currentConfiguration();

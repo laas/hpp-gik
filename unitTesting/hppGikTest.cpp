@@ -877,6 +877,7 @@ void ChppGikTest::basicExample()
         vectorN solutionConfig = attRobot->currentConfiguration();
 
         //store
+        //attRobot->SaveCurrentStateAsPastState();
         attRobot->FiniteDifferenceStateUpdate(attSamplingPeriod);
         attSolutionMotion.appendSample(solutionConfig,p,p,p,p);
     }

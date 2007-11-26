@@ -111,7 +111,7 @@ private:
        \param inSRcoef if non-zero value is given, \f$ (\hat{J}W\hat{J}^t)^{-1} \f$ is computed using SR-Inverse.
     */
     void solveOneConstraint(CjrlGikStateConstraint *inConstraint, 
-			    double inSRcoef=0.0, bool computeHatJacobian = true);
+                            double inSRcoef=0.0, bool computeHatJacobian = true, bool inComputeNullspace = true);
 
     /**
         \name Variables used by solve() and allocated in the constructor to avoid dynamic allocation
