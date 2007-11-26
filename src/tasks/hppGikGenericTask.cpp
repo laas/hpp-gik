@@ -110,6 +110,11 @@ void ChppGikGenericTask::clearElements()
 
 }
 
+unsigned int ChppGikGenericTask::numberElements()
+{
+    return attPlanningTasks.size();
+}
+
 bool ChppGikGenericTask::algorithmSolve()
 {
     vectorN gikWeights(attRobot->numberDof()-6);

@@ -5,7 +5,7 @@
 #include "hppGikTools.h"
 #include <time.h>
 #include <sys/time.h>
-
+//#include "tasks/hppGikCmpTask.h"
 using namespace std;
 
 
@@ -16,7 +16,7 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(10e-3)
     strcpy(attMotionName,"usermotion");
 
     createHumanoidRobot();
-
+    
     attWholeBodyTask = new ChppGikWholeBodyTask(attStandingRobot,attSamplingPeriod);
 
     attHalfSittingTask = new ChppGikHalfSittingTask(attStandingRobot, attSamplingPeriod);
@@ -26,7 +26,12 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(10e-3)
     attStepBackTask = new ChppGikStepBackTask(attStandingRobot, attSamplingPeriod);
 
     attMotion = new ChppRobotMotion(attRobot, 0.0, attSamplingPeriod);
-
+    
+    /*
+    ChppGikCmpTask cmpTask(attStandingRobot,attSamplingPeriod);
+    cmpTask.solve();
+    cmpTask.solutionMotion().dumpTo( "cmpMotion");
+    */
 }
 
 ChppGikTest::~ChppGikTest()
@@ -758,6 +763,7 @@ void ChppGikTest::goDownTree(const CjrlJoint* startJoint)
 
 void ChppGikTest::basicExample()
 {
+    
     //We have a robot at some initial configuration
 
     //all coordinates are in world frame (when the robot is in half sitting configuration, the world frame is located at the projection of the waist center on the ground, x axis pointing forwards, z axis upwards)
@@ -817,18 +823,10 @@ void ChppGikTest::basicExample()
     
     stack.push_back(pc);
 
-    //create a gaze constraint
-    targetPoint[0] = 1;
-    targetPoint[1] = -1;
-    targetPoint[2] = 0.0;
-    CjrlGikStateConstraint* gc = attGikFactory.createGazeConstraint(*attRobot, targetPoint);
-
-    //stack.push_back(gc);
-
     //-- Do one solving step --//
     //-------------------------//
-            //Set the weights used in solving the inverse kinematics problem
-        //GikSolver treats all joints equally by default. Toy with these weights for realism.
+    //Set the weights used in solving the inverse kinematics problem
+    //GikSolver treats all joints equally by default. Toy with these weights for realism.
     vectorN activated =  attStandingRobot->maskFactory()->wholeBodyMask();
     vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
     vectorN combined = weights;
@@ -893,4 +891,5 @@ void ChppGikTest::basicExample()
     delete gikSolver;
     for (unsigned int i = 0; i<stack.size();i++)
         delete stack[i];
+    
 }

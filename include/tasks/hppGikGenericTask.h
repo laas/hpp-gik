@@ -37,6 +37,13 @@ public :
      */
     void motionReplanning(bool inSwitch);
     
+    
+    /**
+    \brief Return the number of stored elements
+     */
+    unsigned int numberElements();
+    
+    
     /**
     \brief Clear all the entered elements
      */
