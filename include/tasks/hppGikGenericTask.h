@@ -43,6 +43,10 @@ public :
      */
     unsigned int numberElements();
     
+    /**
+    \brief Return a pointer to the element at the requested rank. Null pointer is returned in case rank is out of bounds
+     */
+    ChppGikGenericTaskElement* elementAtRank(unsigned int inRank);
     
     /**
     \brief Clear all the entered elements

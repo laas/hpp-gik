@@ -115,6 +115,14 @@ unsigned int ChppGikGenericTask::numberElements()
     return attPlanningTasks.size();
 }
 
+ChppGikGenericTaskElement* ChppGikGenericTask::elementAtRank(unsigned int inRank)
+{
+    if (inRank < attPlanningTasks.size())
+        return attPlanningTasks[inRank];
+    else
+        return NULL;
+}
+
 bool ChppGikGenericTask::algorithmSolve()
 {
     vectorN gikWeights(attRobot->numberDof()-6);
