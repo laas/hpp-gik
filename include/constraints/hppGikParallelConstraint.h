@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_PARALLEL_CONSTRAINT_H
 #define HPP_GIK_PARALLEL_CONSTRAINT_H
 
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikParallelConstraint.h"
 #include "constraints/hppGikSingleMotionElementConstraint.h"
 

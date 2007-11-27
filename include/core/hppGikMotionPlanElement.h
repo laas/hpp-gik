@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string>
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikStateConstraint.h"
 
 

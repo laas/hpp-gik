@@ -1,4 +1,6 @@
-$Id: ChangeLog 2007/11/08 16:56:40 mallet $
+	22. Added #include "MatrixAbstractLayer/MatrixAbstractLayer.h" where necessary
+	    since MatrixAbstractLayer dependency has been removed from robotDynamics.
+
 
 hppGik 1.4 released Thu 08 Nov 2007
 

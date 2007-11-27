@@ -2,6 +2,7 @@
 #define HPP_GIK_GAZE_CONSTRAINT_H
 
 #include <vector>
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikGazeConstraint.h"
 #include "constraints/hppGikPointingConstraint.h"
 

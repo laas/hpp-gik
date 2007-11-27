@@ -8,6 +8,7 @@
 #ifndef HPP_GIK_PLANE_CONSTRAINT_H
 #define HPP_GIK_PLANE_CONSTRAINT_H
 
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikPlaneConstraint.h"
 #include "constraints/hppGikSingleMotionElementConstraint.h"
 

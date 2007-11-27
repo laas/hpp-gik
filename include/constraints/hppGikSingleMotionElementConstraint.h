@@ -2,6 +2,7 @@
 #define HPP_GIK_SINGLEMOTION_ELEMENT_CONSTRAINT_H
 
 #include "hppGikMotionConstraint.h"
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikJointStateConstraint.h"
 
 /**

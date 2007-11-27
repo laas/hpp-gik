@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_STANDING_ROBOT_H
 #define HPP_GIK_STANDING_ROBOT_H
 
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "robotDynamics/jrlHumanoidDynamicRobot.h"
 #include "robot/hppGikFootprintRelated.h"
 #include "robot/hppGikMaskFactory.h"

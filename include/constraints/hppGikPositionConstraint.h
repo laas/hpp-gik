@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_POSITION_CONSTRAINT_H
 #define HPP_GIK_POSITION_CONSTRAINT_H
 
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikPositionConstraint.h"
 #include "constraints/hppGikSingleMotionElementConstraint.h"
 

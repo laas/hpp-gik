@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_ROTATION_CONSTRAINT_H
 #define HPP_GIK_ROTATION_CONSTRAINT_H
 
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikRotationConstraint.h"
 #include "constraints/hppGikSingleMotionElementConstraint.h"
 

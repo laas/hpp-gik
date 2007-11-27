@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_MOTION_PLAN_ROW_H
 #define HPP_GIK_MOTION_PLAN_ROW_H
 
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikMotionConstraint.h"
 #include "core/hppGikMotionPlanElement.h"
 

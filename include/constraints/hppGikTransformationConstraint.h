@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_TRANSFORMATION_CONSTRAINT_H
 #define HPP_GIK_TRANSFORMATION_CONSTRAINT_H
 
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikTransformationConstraint.h"
 #include "constraints/hppGikSingleMotionElementConstraint.h"
 

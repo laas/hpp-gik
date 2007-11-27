@@ -2,6 +2,7 @@
 #define HPP_ROBOT_MOTION_H
 
 #include <list>
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlRobotMotion.h"
 
 
