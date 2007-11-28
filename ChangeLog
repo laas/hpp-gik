@@ -1,6 +1,13 @@
-	22. Added #include "MatrixAbstractLayer/MatrixAbstractLayer.h" where necessary
-	    since MatrixAbstractLayer dependency has been removed from robotDynamics.
+$Id: ChangeLog 2007/11/28 15:01:33 mallet $
+	
+hppGik 1.5 released Wed 28 Nov 2007
 
+	25. Added #include "MatrixAbstractLayer/MatrixAbstractLayer.h" where necessary
+	    since MatrixAbstractLayer dependency has been removed from
+	    robotDynamics.
+	24. Optimized code, gikSolver() is about 2 times faster.
+	23. Added support for 10ms and 20ms as motion sampling periods.
+	22. Fix bug in influencingDofs().
 
 hppGik 1.4 released Thu 08 Nov 2007
 
