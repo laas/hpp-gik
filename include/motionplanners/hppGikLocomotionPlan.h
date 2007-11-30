@@ -85,12 +85,7 @@ public:
     \brief Get planned ZMP motion. The returned matrix has 3 rows
      */
     const matrixNxP& plannedZMPmotion();
-    
-    /**
-    \brief (not implemented) Same as solveOneStage() but takes into account the observed ZMP motion. Returned motions start at attStartTime - 2 * PreviewControl->previewTime()
-    \param inObservedZMP has two columns: first for xZMP, second for yZMP
-     */
-    bool solveSecondStage(const matrixNxP& inObservedZMP);
+
     /**
     @}
      */

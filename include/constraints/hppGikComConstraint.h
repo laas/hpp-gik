@@ -22,7 +22,7 @@ public:
     \brief Constructor
      */
     ChppGikComConstraint(CjrlDynamicRobot& inRobot, double inX, double inY);
-    
+
     /**
     \brief Copy the object
      */
@@ -63,9 +63,15 @@ public:
      */
 
     /**
-    \brief Get a binary vector which size matches the robot cnfiguration's, where an element with value 1 indicates that the corresponding degree of freedom can modify the value of this constraint, and an element with value 0 cannot.
+    \brief Compute a binary vector whose size matches the robot cnfiguration's, where an element with value 1 indicates that the corresponding degree of freedom can modify the value of this constraint, and an element with value 0 cannot.
+     */
+    virtual void computeInfluencingDofs();
+
+    /**
+    \brief Get the influencing dofs.
      */
     virtual vectorN& influencingDofs();
+
     /**
     \brief Compute the value of the constraint.
      */
@@ -77,7 +83,7 @@ public:
     This method supposes that:
      * the robot has at least one fixed joint.
      * the jacobian for this fixed joint has been computed for the current configuration
-    
+
     Only the first fixed joint of the robot affects the computation of the jacobian. (closed kinematic chains are not handeled)
      */
     virtual void computeJacobian();
@@ -113,27 +119,27 @@ public:
     {}
 
 private:
-    
+
     void dimension(unsigned int inDim);
 
     CjrlDynamicRobot* attRobot;
 
     CjrlJoint* attJoint;
-    
+
     unsigned int attDimension;
 
     vectorN attWorldTarget;
 
-    /** 
+    /**
     \name Computation temporary variables (to avoid dynamic allocation)
     {@
      */
     vectorN attValue;
     vectorN attInfluencingDofs;
     matrixNxP attJacobian;
- 
-    
-    unsigned int tempNumJoints;
+
+
+    unsigned int attNumberActuatedDofs;
     vectorN temp3DVec;
     vectorN temp3DVec1;
     matrixNxP tempRot;

@@ -10,12 +10,15 @@ ChppGikMotionPlanElement::ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, un
     attRobot = inRobot;
     //initialize the jacobians' length with the number of internal degrees of freedom in the robot
     unsigned int dof;
-    if (attRobot->countFixedJoints()>0){
-	dof = attRobot->numberDof()-6;
-    }else{
-	dof = 6;
+    if (attRobot->countFixedJoints()>0)
+    {
+        dof = attRobot->numberDof()-6;
     }
-    
+    else
+    {
+        dof = 6;
+    }
+
     attJacobian.resize(0,dof,false);
     attInfluencingDofs.resize(attRobot->numberDof(),false);
 }
@@ -56,68 +59,108 @@ void ChppGikMotionPlanElement::clear()
 
 }
 
+void ChppGikMotionPlanElement::computeInfluencingDofs()
+{
+    if (attConstraints.size() == 1)
+        attConstraints[0]->computeInfluencingDofs();
+    else
+    {
+        std::vector<CjrlGikStateConstraint*>::iterator iter;
+        for (iter = attConstraints.begin(); iter != attConstraints.end(); iter++)
+        {
+            (*iter)->computeInfluencingDofs();
+        }
+    }
+}
+
 vectorN& ChppGikMotionPlanElement::influencingDofs()
 {
-    attInfluencingDofs.clear();
-    std::vector<CjrlGikStateConstraint*>::iterator iter;
-    for (iter = attConstraints.begin(); iter != attConstraints.end(); iter++)
+    if (attConstraints.size() == 1)
+        return attConstraints[0]->influencingDofs();
+    else
     {
-        vectorN& attInfluencingDofsTemp =  (*iter)->influencingDofs();
-        for (unsigned int i=0; i<attInfluencingDofs.size(); i++)
-            if (attInfluencingDofsTemp(i) > 0)
-                attInfluencingDofs(i) = 1;
+        attInfluencingDofs.clear();
+        std::vector<CjrlGikStateConstraint*>::iterator iter;
+        for (iter = attConstraints.begin(); iter != attConstraints.end(); iter++)
+        {
+            vectorN& attInfluencingDofsTemp =  (*iter)->influencingDofs();
+            for (unsigned int i=0; i<attInfluencingDofs.size(); i++)
+                if (attInfluencingDofsTemp(i) > 0)
+                    attInfluencingDofs(i) = 1;
+        }
+        return attInfluencingDofs;
     }
-    return attInfluencingDofs;
 }
 
 
 
 void ChppGikMotionPlanElement::computeValue()
 {
-    if (attDimension!= attValue.size())
-        attValue.resize(attDimension,false);
-
-    std::vector<CjrlGikStateConstraint*>::iterator iter;
-    unsigned int chunk_start = 0;
-    unsigned int chunk_end = 0;
-    for (iter = attConstraints.begin(); iter != attConstraints.end(); iter++)
+    if (attConstraints.size() == 1)
     {
-        chunk_end = chunk_start+(*iter)->dimension();
-        (*iter)->computeValue();
-        ublas::subrange(attValue, chunk_start, chunk_end) = (*iter)->value();
-        chunk_start = chunk_end;
+        attConstraints[0]->computeValue();
+    }
+    else
+    {
+        if (attDimension!= attValue.size())
+            attValue.resize(attDimension,false);
+
+        std::vector<CjrlGikStateConstraint*>::iterator iter;
+        unsigned int chunk_start = 0;
+        unsigned int chunk_end = 0;
+        for (iter = attConstraints.begin(); iter != attConstraints.end(); iter++)
+        {
+            chunk_end = chunk_start+(*iter)->dimension();
+            (*iter)->computeValue();
+            ublas::subrange(attValue, chunk_start, chunk_end) = (*iter)->value();
+            chunk_start = chunk_end;
+        }
     }
 }
 
 
 void ChppGikMotionPlanElement::computeJacobian()
 {
-    if (attDimension!= attJacobian.size1())
-        attJacobian.resize(attDimension,attJacobian.size2(),false);
-
-    std::vector<CjrlGikStateConstraint*>::iterator iter;
-    unsigned int chunk_start = 0;
-    unsigned int chunk_end = 0;
-
-    for (iter = attConstraints.begin(); iter != attConstraints.end(); iter++)
+    if (attConstraints.size() == 1)
     {
-        chunk_end = chunk_start+(*iter)->dimension();
-        (*iter)->computeJacobian();
-        ublas::subrange(attJacobian, chunk_start, chunk_end, 0, attJacobian.size2()) = (*iter)->jacobian();
-        chunk_start = chunk_end;
+        attConstraints[0]->computeJacobian();
+    }
+    else
+    {
+        if (attDimension!= attJacobian.size1())
+            attJacobian.resize(attDimension,attJacobian.size2(),false);
+
+        std::vector<CjrlGikStateConstraint*>::iterator iter;
+        unsigned int chunk_start = 0;
+        unsigned int chunk_end = 0;
+
+        for (iter = attConstraints.begin(); iter != attConstraints.end(); iter++)
+        {
+            chunk_end = chunk_start+(*iter)->dimension();
+            (*iter)->computeJacobian();
+            ublas::subrange(attJacobian, chunk_start, chunk_end, 0, attJacobian.size2()) = (*iter)->jacobian();
+            chunk_start = chunk_end;
+        }
     }
 }
 
 const vectorN& ChppGikMotionPlanElement::value()
 {
-    return attValue;
+    if (attConstraints.size() == 1)
+        attConstraints[0]->value();
+    else
+        return attValue;
 }
 
 
 const matrixNxP& ChppGikMotionPlanElement::jacobian()
 {
-    return attJacobian;
+    if (attConstraints.size() == 1)
+        attConstraints[0]->jacobian();
+    else
+        return attJacobian;
 }
+
 
 ChppGikMotionPlanElement::~ChppGikMotionPlanElement()
 {}

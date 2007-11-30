@@ -27,11 +27,6 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(10e-3)
 
     attMotion = new ChppRobotMotion(attRobot, 0.0, attSamplingPeriod);
     
-    /*
-    ChppGikCmpTask cmpTask(attStandingRobot,attSamplingPeriod);
-    cmpTask.solve();
-    cmpTask.solutionMotion().dumpTo( "cmpMotion");
-    */
 }
 
 ChppGikTest::~ChppGikTest()
@@ -798,13 +793,12 @@ void ChppGikTest::basicExample()
     localPoint[2] = 0.0;
     CjrlJoint& nsfJoint = *(attRobot->leftFoot());
     matrix4d nsfTransform = nsfJoint.currentTransformation();
-    CjrlGikStateConstraint* nsfc = attGikFactory.createTransformationConstraint(*attRobot, nsfJoint, localPoint, nsfTransform);
-
+    CjrlGikTransformationConstraint* nsfc = attGikFactory.createTransformationConstraint(*attRobot, nsfJoint, localPoint, nsfTransform);
     stack.push_back(nsfc);
 
     //create a CoM constraint
     vector3d com = attRobot->positionCenterOfMass();
-    CjrlGikStateConstraint* comc = attGikFactory.createComConstraint(*attRobot, com[0], com[1]);
+    CjrlGikComConstraint* comc = attGikFactory.createComConstraint(*attRobot, com[0], com[1]);
 
     stack.push_back(comc);
 
@@ -818,9 +812,7 @@ void ChppGikTest::basicExample()
     targetPoint[2] = 1.0;
     CjrlJoint& rwJoint = *(attRobot->rightWrist());
     localPoint = attRobot->rightHand()->centerInWristFrame();
-    CjrlGikStateConstraint* pc = attGikFactory.createPositionConstraint(*attRobot,rwJoint,localPoint, curT*localPoint);
-       
-    
+    CjrlGikPositionConstraint* pc = attGikFactory.createPositionConstraint(*attRobot,rwJoint,localPoint, curT*localPoint);
     stack.push_back(pc);
 
     //-- Do one solving step --//
@@ -848,9 +840,9 @@ void ChppGikTest::basicExample()
     
     for (unsigned int j = 0; j< 500;j++)
     {
-        p = ((CjrlGikPositionConstraint*)pc)->worldTarget();
+        p = pc->worldTarget();
         p[0] += 0.001;
-        ((CjrlGikPositionConstraint*)pc)->worldTarget(p);
+        pc->worldTarget(p);
 
         //compute the support foot jacobian (this is done to avoid computing this jacobian several times as it is needed to computes the jacobians of every constraint)
         fixedFoot->computeJacobianJointWrtConfig();

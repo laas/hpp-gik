@@ -115,6 +115,11 @@ private:
                             double inSRcoef=0.0, bool computeHatJacobian = true, bool inComputeNullspace = true);
 
     /**
+    \brief add supporting leg's dofs to constraint's dofs
+    */
+    void computeConstraintDofs(CjrlGikStateConstraint* inConstraint);
+            
+    /**
         \name Variables used by solve() and allocated in the constructor to avoid dynamic allocation
         @{
      */
@@ -154,6 +159,10 @@ private:
 
     vectorN CurFullConfig;
     vectorN DeltaQ;
+    vectorN ElementMask;
+    
+    std::vector<CjrlJoint*> supportJoints;
+    std::vector<unsigned int> supportJointsRanks;
 
     vectorN   Residual;
     ublas::matrix<double, ublas::column_major > IdentityMat;

@@ -72,11 +72,12 @@ public:
 private:
     std::vector<CjrlGikStateConstraint*> attVectorStateConstraint;
 
-    double attSamplingPeriod;
+    double attSamplingPeriod, attEps;
 
     double attStartTime;
 
     double attEndTime;
+    
 };
 
 

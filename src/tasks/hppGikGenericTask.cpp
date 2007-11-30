@@ -31,13 +31,6 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
 
 bool ChppGikGenericTask::addElement(ChppGikGenericTaskElement* inTask)
 {
-
-    if (inTask->startTime() < attStartTime-attSamplingPeriod/2)
-    {
-        std::cout <<"ChppGikGenericTask::addElement(): Entered task had an invalid start time ( "<< inTask->startTime() <<" )\n";
-        return false;
-    }
-
     //record the entered task for later deletion
     attPlanningTasks.push_back(inTask);
 
@@ -59,8 +52,10 @@ bool ChppGikGenericTask::addElement(ChppGikGenericTaskElement* inTask)
 
         if (ok)
             if (singlemotionTask->workingJoints().size()==0)
+            {
                 //assign default working joints
                 singlemotionTask->workingJoints( attStandingRobot->maskFactory()->maskForJoint(singlemotionTask->targetConstraint()->joint()) );
+            }
 
         return ok;
     }
@@ -133,7 +128,12 @@ bool ChppGikGenericTask::algorithmSolve()
     unsigned int rank = 0;
     bool ok,quit=false;
 
-    
+    // ZMP related
+    ChppGikSupportPolygon* curSupportPolygon=0;
+    bool atLeastOneZMPUnsafe = false;
+    vector3d ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla;
+    vectorN uZMPworPla(3);
+
     // Make sure the locomotion plan is not shorter the single motions plan
     double nonlocomotionEndtime = ( attSingleMotionsPlan->endTime() > attMotionPlan->endTime())? attSingleMotionsPlan->endTime() : attMotionPlan->endTime();
     gapTime = attLocomotionPlan->endTime() - nonlocomotionEndtime;
@@ -151,47 +151,44 @@ bool ChppGikGenericTask::algorithmSolve()
 
     motionStartTime = attMotionPlan->startTime();
 
-    motionEndTime = attMotionPlan->endTime();
+    motionEndTime = attMotionPlan->endTime() + attSamplingPeriod/2;
 
-    time = motionStartTime;
-
-    // ZMP related
-    ChppGikSupportPolygon* curSupportPolygon=0;
-    bool atLeastOneZMPUnsafe = false;
-    vector3d ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla;
-    vectorN uZMPworPla(3);
-    
     // Adjust solution motion start time according to planned locomotion
     attSolutionMotion->startTime(motionStartTime);
 
-    while (time < motionEndTime+attSamplingPeriod/2)
+    time = motionStartTime;
+    rank = 0;
+
+    //Plan start motion
+    ok = attSingleMotionsPlan->updateMotionPlan(time);
+    if (!ok)
+    {
+        std::cout <<"ChppGikGenericTask::solve() Could not update motion plan at time "<< time << "\n";
+        return false;
+    }
+
+    time += attSamplingPeriod;
+    rank++;
+
+    while (time < motionEndTime)
     {
         //record the support joint we are interested in in the robot
         attRobot->clearFixedJoints();
         supportJoint = attLocomotionPlan->supportFootJoint(time);
         attRobot->addFixedJoint(supportJoint);
 
-        //Update the motion plan with new motions triggered at this time
-        ok = attSingleMotionsPlan->updateMotionPlan(time);
-
-        if (!ok)
-        {
-            std::cout <<"ChppGikGenericTask::solve() Could not update motion plan at time "<< time << "\n";
-            return false;
-        }
-
         //get the stack of prioritized constraints to be solved at this time
         constraintStack = attMotionPlan->columnAtTime(time)->constraints();
 
         //Compute the weights used in solving the gik problem
         computeGikWeights(time, gikWeights);
-        
+
         //set the weights in the gik solver
         attGikSolver->weights(gikWeights);
-        
+
         //compute foot(fixed joint) jacobian
         supportJoint->computeJacobianJointWrtConfig();
-        
+
         //compute hpp constaints values and jacobians (these need the previous support joint jacobian computation)
         for (unsigned int i = 0; i< constraintStack.size();i++)
         {
@@ -199,10 +196,10 @@ bool ChppGikGenericTask::algorithmSolve()
             constraintStack[i]->computeJacobian();
         }
 
-	attGikSolver->accountForJointLimits();
+        attGikSolver->accountForJointLimits();
         //Update config of the robot according to constraints (solve!)
         ok = attGikSolver->gradientStep(constraintStack);
-        
+
         if (!ok)
         {
 
@@ -216,7 +213,7 @@ bool ChppGikGenericTask::algorithmSolve()
 
         attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
 
-	attStandingRobot->robot()->SaveCurrentStateAsPastState();
+        attStandingRobot->robot()->SaveCurrentStateAsPastState();
 
         //append sample to solution motion
         attSolutionMotion->appendSample(attStandingRobot->robot()->currentConfiguration(),ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs);
@@ -230,9 +227,19 @@ bool ChppGikGenericTask::algorithmSolve()
             atLeastOneZMPUnsafe = true;
         }
 
+        //Update the motion plan
+        ok = attSingleMotionsPlan->updateMotionPlan(time);
+
+        if (!ok)
+        {
+            std::cout <<"ChppGikGenericTask::solve() Could not update motion plan at time "<< time << "\n";
+            return false;
+        }
+
         time += attSamplingPeriod;
         rank++;
     }
+
 
     ok = !atLeastOneZMPUnsafe;
 
@@ -254,7 +261,7 @@ void ChppGikGenericTask::computeGikWeights(double inTime, vectorN& outGikWeights
     {
         const ChppGikLocomotionElement* currentLoco = attLocomotionPlan->activeTask(inTime);
         std::vector<const ChppGikSingleMotionElement*> activeTasks = attSingleMotionsPlan->activeTasks(inTime);
-        
+
         if (currentLoco)
             jointsMask = currentLoco->workingJoints();
         else

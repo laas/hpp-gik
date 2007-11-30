@@ -12,42 +12,61 @@ ChppGikPrioritizedStateConstraint::ChppGikPrioritizedStateConstraint(CjrlGikStat
     attStateConstraint = inStateConstraint;
     attPriority = inPriority;
 }
+
 CjrlGikStateConstraint* ChppGikPrioritizedStateConstraint::stateConstraint()
 {
     return attStateConstraint;
 }
+
 unsigned int ChppGikPrioritizedStateConstraint::priority()
 {
     return attPriority;
 }
+
 ChppGikPrioritizedStateConstraint::~ChppGikPrioritizedStateConstraint()
 {}
+
 /****************************************************************/
+
 ChppGikPrioritizedMotionConstraint::ChppGikPrioritizedMotionConstraint(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority)
 {
     attMotionConstraint = inMotionConstraint;
     attPriority = inPriority;
 }
+
 CjrlGikMotionConstraint* ChppGikPrioritizedMotionConstraint::motionConstraint()
 {
     return attMotionConstraint;
 }
+
 unsigned int ChppGikPrioritizedMotionConstraint::priority()
 {
     return attPriority;
 }
+
 ChppGikPrioritizedMotionConstraint::~ChppGikPrioritizedMotionConstraint()
 {}
+
 /****************************************************************/
-ChppGikSingleMotionElement::ChppGikSingleMotionElement(ChppGikSingleMotionElementConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime, double inDuration)
+
+ChppGikSingleMotionElement::ChppGikSingleMotionElement(ChppGikPlannableConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime, double inDuration)
 {
-    attPriority = inPriority+1; //(+1 to avoid confict with the locomotion motions)
+    attPriority = inPriority+2; //(+2 to avoid confict with the locomotion motions)
     attStartTime = inStartTime;
     attDuration = inDuration;
     attEndTime = inDuration + inStartTime;
-    attTargetConstraint = dynamic_cast<ChppGikSingleMotionElementConstraint*>(inTargetConstraint->clone());
+    
+    attConstraint = dynamic_cast<ChppGikPlannableConstraint*>(inTargetConstraint->clone());
+    attTarget = attConstraint->vectorizedTarget();
+    attSample = attTarget;
+
     attPlannedMotion = 0;
     attMotionRow = 0;
+    attSamplingPeriod = 0;
+    attEps = 0;
+
+    if (attStartTime < 0.0)
+        startTime( 0.0 );
 }
 
 unsigned int ChppGikSingleMotionElement::priority ()
@@ -62,16 +81,13 @@ double ChppGikSingleMotionElement::startTime()
 
 void ChppGikSingleMotionElement::startTime(double inStartTime)
 {
+    attEndTime = attStartTime + inStartTime;
     attStartTime = inStartTime;
-    attDuration = attEndTime - attStartTime;
-    if (attDuration <= 0)
-        attDuration = 0;
 }
 
-void ChppGikSingleMotionElement::duration(double inDuration)
+double ChppGikSingleMotionElement::endTime()
 {
-    attEndTime = attStartTime+inDuration;
-    attDuration = inDuration;
+    return attEndTime;
 }
 
 double ChppGikSingleMotionElement::duration()
@@ -79,35 +95,87 @@ double ChppGikSingleMotionElement::duration()
     return attDuration;
 }
 
-ChppGikSingleMotionElementConstraint* ChppGikSingleMotionElement::targetConstraint()
+ChppGikPlannableConstraint* ChppGikSingleMotionElement::targetConstraint()
 {
-    return attTargetConstraint;
+    attConstraint->vectorizedTarget ( attTarget );
+    return attConstraint;
 }
 
 ChppGikSingleMotionElement::~ChppGikSingleMotionElement()
 {
     dereferMotion();
-    delete attTargetConstraint;
-    delete attPlannedMotion;
+    delete attConstraint;
 }
 
-ChppGikMotionConstraint* ChppGikSingleMotionElement::motion()
+CjrlGikMotionConstraint* ChppGikSingleMotionElement::motion()
 {
     return attPlannedMotion;
 }
 
+CjrlGikStateConstraint* ChppGikSingleMotionElement::stateConstraintAtTime ( double inTime )
+{
+    if (attSamplingPeriod == 0)
+        return 0;
+    
+    if ( inTime < attStartTime + attEps )
+        return 0;
+
+    unsigned int i = ChppGikTools::timetoRank ( attStartTime,inTime,attSamplingPeriod );
+
+    if ( i > ( attInterpolationData.size2() -1 ) )
+        return 0;
+    else
+    {
+        attSample = ublas::column ( attInterpolationData,i );
+        attConstraint->vectorizedTarget ( attSample );
+        return attConstraint;
+    }
+}
+
+bool ChppGikSingleMotionElement::planningAlgorithm()
+{
+    unsigned int stateSize = attTarget.size();
+    
+    unsigned int nsamples = ChppGikTools::timetoRank ( 0, attDuration, attSamplingPeriod )+1;
+    
+    attInterpolationData.resize(stateSize, nsamples,false);
+    attInterpolationLine.resize(nsamples,false);
+    
+    vectorN currentState = attConstraint->vectorizedState();
+    
+    for ( unsigned int i=0; i<stateSize;i++ )
+    {
+        bool contn = ChppGikTools::minJerkCurve ( attDuration, attSamplingPeriod, currentState ( i ),currentState ( stateSize + i ),currentState ( 2*stateSize + i ),attTarget ( i ), attInterpolationLine );
+        if ( !contn )
+            return false;
+        row ( attInterpolationData,i ) = attInterpolationLine;
+    }
+
+    return true;
+}
+
 bool ChppGikSingleMotionElement::planMotion(double inSamplingPeriod)
 {
-    if (duration()<inSamplingPeriod)
+    if (attDuration < inSamplingPeriod)
         return false;
+    
+    attSamplingPeriod = inSamplingPeriod;
+    attEps = attSamplingPeriod/2;
 
     dereferMotion();
     
-    delete attPlannedMotion;
     attPlannedMotion = 0;
-    attPlannedMotion = new ChppGikMotionConstraint(inSamplingPeriod, attStartTime);
+   
+    bool planok = planningAlgorithm();
 
-    return attTargetConstraint->minimumJerkInterpolation(attPlannedMotion, inSamplingPeriod, attDuration);
+    if ( !planok )
+    {
+        std::cout << "ChppGikLinearElement::planMotion() failed to plan motion\n";
+        return false;
+    }
+
+    attPlannedMotion = this;
+    return true;
 
 }
 

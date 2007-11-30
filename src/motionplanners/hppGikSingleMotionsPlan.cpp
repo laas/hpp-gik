@@ -7,12 +7,14 @@ ChppGikSingleMotionsPlan::ChppGikSingleMotionsPlan(ChppGikMotionPlan* inAssociat
     attStartTime = inStartTime;
     attEndTime = inStartTime;
     attSamplingPeriod = inSamplingPeriod;
+    attEps = attSamplingPeriod/2;
     attAssociatedMotionPlan =  inAssociatedMotionPlan;
 }
 
 
 bool ChppGikSingleMotionsPlan::addTask(ChppGikSingleMotionElement* inTask)
 {
+    
     CjrlJoint* taskJoint = inTask->targetConstraint()->joint();
     CjrlDynamicRobot& robot = inTask->targetConstraint()->robot();
     CjrlHumanoidDynamicRobot* humanoid;
@@ -24,6 +26,7 @@ bool ChppGikSingleMotionsPlan::addTask(ChppGikSingleMotionElement* inTask)
         std::cout << "ChppGikSingleMotionsPlan::addTask() Entered task should not be on the feet joints\n";
         return false;
     }
+    
     attTasks.push_back(inTask);
     if (inTask->endTime()>attEndTime)
         attEndTime = inTask->endTime();
@@ -33,12 +36,11 @@ bool ChppGikSingleMotionsPlan::addTask(ChppGikSingleMotionElement* inTask)
 std::vector<const ChppGikSingleMotionElement*> ChppGikSingleMotionsPlan::activeTasks(double inTime) const
 {
     std::vector<const ChppGikSingleMotionElement*> retVec;
-    double epsilon = attSamplingPeriod/2;
 
     std::vector<ChppGikSingleMotionElement*>::const_iterator ppTask;
     for( ppTask = attTasks.begin(); ppTask != attTasks.end(); ppTask++)
     {
-        if ( ( (*ppTask)->startTime() < inTime +epsilon ) && ( (*ppTask)->endTime() >= inTime - epsilon ) )
+        if ( ( (*ppTask)->startTime() < inTime - attEps ) && ( (*ppTask)->endTime() >= inTime - attEps ) )
             retVec.push_back(*ppTask);
     }
     return retVec;
@@ -58,11 +60,10 @@ void ChppGikSingleMotionsPlan::clearTasks()
 bool ChppGikSingleMotionsPlan::updateMotionPlan(double inTime)
 {
     std::vector<ChppGikSingleMotionElement*>::iterator ppTask;
-    double epsilon = attSamplingPeriod/2;
     bool ok;
     for( ppTask = attTasks.begin(); ppTask != attTasks.end(); ppTask++)
         //detect that a task has to be planned now
-        if (((*ppTask)->startTime() >= inTime-epsilon) && ((*ppTask)->startTime() < inTime + epsilon))
+        if (((*ppTask)->startTime() >= inTime-attEps) && ((*ppTask)->startTime() < inTime + attEps))
         {
             ok = (*ppTask)->planMotion(attSamplingPeriod);
             if (!ok)

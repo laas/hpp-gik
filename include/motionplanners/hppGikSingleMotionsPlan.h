@@ -73,7 +73,7 @@ private:
     
     double attEndTime;
 
-    double attSamplingPeriod;
+    double attSamplingPeriod, attEps;
 
 };
 #endif

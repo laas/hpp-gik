@@ -8,18 +8,18 @@ ChppGikComConstraint::ChppGikComConstraint(CjrlDynamicRobot& inRobot, double inX
 {
     attRobot = &inRobot;
 
-    tempNumJoints = inRobot.numberDof()-6;
+    attNumberActuatedDofs = inRobot.numberDof()-6;
 
     attDimension = 2;
 
-    attJacobian.resize(attDimension,tempNumJoints,false);
+    attJacobian.resize(attDimension,attNumberActuatedDofs,false);
     attValue.resize(attDimension, false);
     attWorldTarget.resize(attDimension,false);
     attWorldTarget(0) = inX;
     attWorldTarget(1) = inY;
-    
+
     tempJacobian.resize(3,inRobot.numberDof(),false);
-    //tempJacobian.resize(3,tempNumJoints,false);
+    //tempJacobian.resize(3,attNumberActuatedDofs,false);
     tempRot.resize(3,3,false);
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
@@ -40,7 +40,7 @@ void ChppGikComConstraint::dimension(unsigned int inDim)
     {
 
         attDimension = inDim;
-        attJacobian.resize(attDimension,tempNumJoints,false);
+        attJacobian.resize(attDimension,attNumberActuatedDofs,false);
         attValue.resize(attDimension, false);
         attWorldTarget.resize(attDimension,false);
     }
@@ -85,6 +85,10 @@ void ChppGikComConstraint::computeValue()
     attValue = attWorldTarget - ublas::subrange(temp3DVec,0,attDimension);
 }
 
+void ChppGikComConstraint::computeInfluencingDofs()
+{}
+
+
 vectorN& ChppGikComConstraint::influencingDofs()
 {
     return attInfluencingDofs;
@@ -101,9 +105,9 @@ void ChppGikComConstraint::computeJacobian()
         std::cout << "ChppGikComConstraint::computeJacobian() expected a fixed joint on the robot.\n";
         return;
     }
-    
+
     attRobot->computeJacobianCenterOfMass();
-     
+
     tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
     tempEffectorJointJacobian = &(attRobot->jacobianCenterOfMass());
     if (!tempFixedJointJacobian || !tempEffectorJointJacobian)
@@ -123,19 +127,19 @@ void ChppGikComConstraint::computeJacobian()
     ChppGikTools::equivAsymMat(temp3DVec,tempRot);
     ublas::noalias(tempJacobian) += ublas::prod(tempRot,ublas::subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
 
-    attJacobian = ublas::subrange(tempJacobian,0,attDimension,0,tempNumJoints);
+    attJacobian = ublas::subrange(tempJacobian,0,attDimension,0,attNumberActuatedDofs);
     */
-    
-    
+
+
     ChppGikTools::equivAsymMat(temp3DVec,tempRot);
     for (unsigned int i = 0; i< attDimension;i++)
     {
-       noalias (row(tempJacobian,i)) = row(*tempEffectorJointJacobian,i) - row(*tempFixedJointJacobian,i);
+        noalias (row(tempJacobian,i)) = row(*tempEffectorJointJacobian,i) - row(*tempFixedJointJacobian,i);
         for (unsigned int j =0;j<3;j++)
             noalias (row(tempJacobian,i)) += tempRot(i,j) * row(*tempFixedJointJacobian,j+3);
     }
-    
-    noalias (subrange(attJacobian,0,attDimension,0, tempNumJoints) )= subrange(tempJacobian,0,attDimension,6,attRobot->numberDof());
+
+    noalias (subrange(attJacobian,0,attDimension,0, attNumberActuatedDofs) )= subrange(tempJacobian,0,attDimension,6,attRobot->numberDof());
 
 }
 

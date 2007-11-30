@@ -70,6 +70,8 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
 
     jobU = 'N';
     jobVt = 'A';
+    
+    FixedJoint = 0;
 
 }
 
@@ -189,6 +191,9 @@ void ChppGikSolver::accountForJointLimits()
 void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
                                        double inSRcoef, bool inComputeHatJacobian, bool inComputeNullspace)
 {
+
+    computeConstraintDofs(inConstraint);
+
     //determin task dimension
     xDim = inConstraint->dimension();
     resizeMatrices ( xDim );
@@ -203,7 +208,6 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
 
     //slightly faster product to obtain projected jacobian on previous tasks nullspace
     HatJacobian.clear();
-    vectorN& ElementMask = inConstraint->influencingDofs();
 
     if (inComputeHatJacobian)
         for ( unsigned int d = 0; d<xDim;d++ )
@@ -224,8 +228,8 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     //svd
     if (inSRcoef != 0)
     {
-        identity_matrix<double> I ( xDim );
-        JWJt = inSRcoef*I + JWJt;
+        for ( unsigned int i=0;i<xDim;i++ )
+            JWJt(i,i) += inSRcoef;
     }
 
     lapack::gesvd ( jobU, jobVt, JWJt, tempS, tempU, tempVt );
@@ -263,6 +267,17 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     return gradientStep(inSortedConstraints, SRcoefs);
 }
 
+void ChppGikSolver::computeConstraintDofs(CjrlGikStateConstraint* inConstraint)
+{
+    //Take into account support Leg dofs
+    if (attRobot->countFixedJoints()>0)
+    {
+        ElementMask = inConstraint->influencingDofs();
+        for(unsigned int em = 0; em < supportJointsRanks.size(); em++)
+            ElementMask(supportJointsRanks[em]) = 1;
+    }
+}
+
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs )
 {
 
@@ -273,17 +288,20 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
     subrange ( UsedIndexes,0,LongSize ) = subrange ( UsedIndexesBackup,0,LongSize );
 
-
-
-    std::vector<CjrlJoint*> supportJoints;
     if (attRobot->countFixedJoints()>0)
     {
-        //store the fixed foot's tranformation (Hif)
-        FixedJoint = & ( attRobot->fixedJoint ( 0 ) );
-        //joints from root to fixed joint (including both)
-        supportJoints = FixedJoint->jointsFromRootToThis();
-        ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),
-                                       Hif );
+        if (FixedJoint != & ( attRobot->fixedJoint ( 0 ) ))
+        {
+            //store the fixed foot's tranformation (Hif)
+            FixedJoint = & ( attRobot->fixedJoint ( 0 ) );
+
+            //joints from root to fixed joint (including both)
+            supportJoints = FixedJoint->jointsFromRootToThis();
+            ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(), Hif );
+            supportJointsRanks.clear();
+            for(unsigned int em = 0; em < supportJoints.size(); em++)
+                supportJointsRanks.push_back(supportJoints[em]->rankInConfiguration());
+        }
     }
     else
     {
@@ -297,7 +315,6 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     {
         NullSpace.resize ( LongSize, LongSize,false );
         NullSpace = subrange ( IdentityMat,0,LongSize,0,LongSize );
-
         DeltaQ.resize ( LongSize,false );
         DeltaQ.clear();
 
@@ -305,23 +322,18 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         iter = inSortedConstraints.begin();
         iter2 = inSRcoefs.begin();
         if (inSortedConstraints.size() == 1)
+        {
             solveOneConstraint(*iter, *iter2, false, false);
-            
+        }
         else
         {
             solveOneConstraint(*iter, *iter2, false, true);
-            
             iter++;
             iter2++;
-            
-            //for every constraint
             for ( iter, iter2; iter != inSortedConstraints.end()-1; iter++,iter2++ )
                 solveOneConstraint(*iter, *iter2, true, true);
-            
             solveOneConstraint(*iter, *iter2, true, false);
         }
-        
-
 
         //compute new dof vector & perform a basic check on joint limits
         CurFullConfig = attRobot->currentConfiguration();

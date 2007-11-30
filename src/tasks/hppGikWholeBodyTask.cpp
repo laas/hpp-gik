@@ -151,7 +151,7 @@ void ChppGikWholeBodyTask::defaultPlannerTaskMaker(double defaultStartTime,doubl
     std::vector<ChppGikPrioritizedStateConstraint*>::iterator iter;
     for( iter = attUserStateTasks.begin(); iter != attUserStateTasks.end(); iter++)
     {
-        ChppGikSingleMotionElementConstraint* taskconstraint= dynamic_cast<ChppGikSingleMotionElementConstraint*>((*iter)->stateConstraint());
+        ChppGikPlannableConstraint* taskconstraint= dynamic_cast<ChppGikPlannableConstraint*>((*iter)->stateConstraint());
 
         if (taskconstraint != 0)
         {
@@ -159,7 +159,7 @@ void ChppGikWholeBodyTask::defaultPlannerTaskMaker(double defaultStartTime,doubl
             attGenericTask->addElement(task);
         }
         else
-            std::cout << "An entered state constraint is ignored for not being of class ChppGikSingleMotionElementConstraint\n";
+            std::cout << "An entered state constraint is ignored for not being of class CjrlGikJointStateConstraint\n";
     }
 }
 

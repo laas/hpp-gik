@@ -5,13 +5,8 @@
 
 using namespace ublas;
 
-ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalOrigin, const vector3d& inLocalVector, const vector3d& inTargetWorldPoint)
+ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalOrigin, const vector3d& inLocalVector, const vector3d& inTargetWorldPoint):ChppGikJointStateConstraint(inRobot, inJoint)
 {
-    attJoint = &inJoint;
-    attRobot = &inRobot;
-
-    tempNumJoints = attRobot->numberDof()-6;
-
     attLocalOriginVector3 = inLocalOrigin;
     attLocalVectorVector3 = inLocalVector;
     attWorldTargetVector3 = inTargetWorldPoint;
@@ -24,11 +19,10 @@ ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, 
     ChppGikTools::Vector3toUblas( attLocalVectorVector3,attLocalVector);
     ChppGikTools::Vector3toUblas( attWorldTargetVector3,attWorldTarget);
 
-    attJacobian.resize(3,tempNumJoints,false);
+    attJacobian.resize(3,attNumberActuatedDofs,false);
     attValue.resize(3, false);
 
-
-    tempJacobian.resize(6,tempNumJoints,false);
+    tempJacobian.resize(6,attNumberActuatedDofs,false);
     tempJacobian0.resize(6,attRobot->numberDof(),false);
     tempJacobian0.clear();
     tempRot.resize(3,3,false);
@@ -44,8 +38,18 @@ ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, 
     vecFO.resize(3,false);
     vecOP.resize(3,false);
     vecOT.resize(3,false);
-
-    attInfluencingDofs = ublas::scalar_vector<double>(inRobot.numberDof(),0);
+   
+    computeValue();
+    double NvecOP = norm_2(vecOP);
+    if ( NvecOP < 1e-2 )
+    {
+        std::cout << "Warning ChppGikPointingConstraint: constructor: local vector must not be null. Recreate this object with appropriate input.\n";
+    }
+    
+    attVectorizedState.resize(9,false);
+    attVectorizedTarget.resize(3,false);
+    
+    attDimension = 3;
 }
 
 CjrlGikStateConstraint* ChppGikPointingConstraint::clone() const
@@ -54,27 +58,6 @@ CjrlGikStateConstraint* ChppGikPointingConstraint::clone() const
     return ret;
 }
 
-
-unsigned int ChppGikPointingConstraint::dimension() const
-{
-    return 3;
-}
-
-
-CjrlDynamicRobot& ChppGikPointingConstraint::robot()
-{
-    return *attRobot;
-}
-
-void  ChppGikPointingConstraint::joint(CjrlJoint* inJoint)
-{
-    attJoint = inJoint;
-}
-
-CjrlJoint* ChppGikPointingConstraint::joint()
-{
-    return attJoint;
-}
 
 void  ChppGikPointingConstraint::localOrigin(const vector3d& inPoint)
 {
@@ -151,7 +134,7 @@ void ChppGikPointingConstraint::computeJacobian()
 
     ChppGikTools::equivAsymMat(vecFO,matFO);
 
-    noalias(subrange(tempJacobian,0,3,0,tempNumJoints)) += prod(matFO,subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
+    noalias(subrange(tempJacobian,0,3,0,attNumberActuatedDofs)) += prod(matFO,subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
 
     //compute the jacobian of this constraint
     noalias(posP) =  prod(jointrot,attLocalVector);//second point in world
@@ -167,39 +150,18 @@ void ChppGikPointingConstraint::computeJacobian()
     //     std::cout << "tempRot\n";
     //     ChppGikTools::printBlasMat( tempRot );
 
-    noalias(attJacobian) = prod(tempRot,subrange(tempJacobian,3,6,0,tempNumJoints));
-    noalias(attJacobian) -= prod(matOP,subrange(tempJacobian,0,3,0,tempNumJoints));
+    noalias(attJacobian) = prod(tempRot,subrange(tempJacobian,3,6,0,attNumberActuatedDofs));
+    noalias(attJacobian) -= prod(matOP,subrange(tempJacobian,0,3,0,attNumberActuatedDofs));
 
     //     std::cout << "attJacobian\n";
     //     ChppGikTools::printBlasMat( attJacobian );
     //     std::cout << "Config of computations\n";
     //     std::cout << attRobot->currentConfiguration() << std::endl ;
 }
-vectorN& ChppGikPointingConstraint::influencingDofs()
-{
-    unsigned int i;
-    attInfluencingDofs.clear();
-    for( i=1; i< attRobot->fixedJoint(0).jointsFromRootToThis().size(); i++)
-        attInfluencingDofs(attRobot->fixedJoint(0).jointsFromRootToThis()[i]->rankInConfiguration()) = 1;
-    for(i=1; i< attJoint->jointsFromRootToThis().size(); i++)
-        attInfluencingDofs(attJoint->jointsFromRootToThis()[i]->rankInConfiguration()) = 1;
-    return attInfluencingDofs;
-}
-const vectorN& ChppGikPointingConstraint::value()
-{
-    return attValue;
-}
 
 
-const matrixNxP& ChppGikPointingConstraint::jacobian()
+const vectorN& ChppGikPointingConstraint::vectorizedState()
 {
-    return attJacobian;
-}
-
-bool ChppGikPointingConstraint::minimumJerkInterpolation(ChppGikMotionConstraint* outMotionConstraint, double inSamplingPeriod, double inTime)
-{
-    unsigned int nsamples = ChppGikTools::timetoRank(0,inTime,inSamplingPeriod)+1;
-
     vectorN curpos(3);
     vectorN curvel(3);
     vectorN curaccel(3);
@@ -216,12 +178,6 @@ bool ChppGikPointingConstraint::minimumJerkInterpolation(ChppGikMotionConstraint
     computeValue();
     double NvecOP = norm_2(vecOP);
     double NvecOT = norm_2(vecOT);
-    if ( NvecOP < 1e-2 || NvecOT < 1e-2)
-    {
-        std::cout << "ChppGikPointingConstraint::minimumJerkInterpolation() bad configuration found for involved points.\n";
-        return false;
-    }
-    //initial state:
 
     //constraint position
     curpos = (NvecOT/NvecOP)*vecOP + posO;
@@ -232,8 +188,6 @@ bool ChppGikPointingConstraint::minimumJerkInterpolation(ChppGikMotionConstraint
     ChppGikTools::CrossProduct(rotvel,lever,rotvelCrossLocal);
     curvel += rotvelCrossLocal;
 
-    //     std::cout << "curvel " << curvel << std::endl;
-
     //constraint acceleration
     ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().linearAcceleration(),curaccel);
     ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().rotationAcceleration(),rotaccel);
@@ -242,33 +196,11 @@ bool ChppGikPointingConstraint::minimumJerkInterpolation(ChppGikMotionConstraint
     ChppGikTools::CrossProduct(rotvel,rotvelCrossLocal,temp);
     curaccel += temp;
 
-    //     std::cout << "curaccel " << curaccel << std::endl;
-    //motion samples computation
-    matrixNxP data(3,nsamples);
-    vectorN result(nsamples);
-    for (unsigned int i=0; i<3;i++)
-    {
-        bool contn = ChppGikTools::minJerkCurve( inTime,inSamplingPeriod,curpos(i),curvel(i),curaccel(i),attWorldTarget(i),result);
-        if (!contn)
-            return false;
-        row(data,i) = result;
-        
-    }
+    subrange(attVectorizedState,0,3) = curpos;
+    subrange(attVectorizedState,3,6) = curvel;
+    subrange(attVectorizedState,6,9) = curaccel;
 
-    //     ChppGikTools::dumpMatrix("PlannedHead.txt", data, 0.0, inSamplingPeriod);
-
-
-    //filling in motion constraint with interpolation samples
-    ChppGikPointingConstraint* tempSC = new ChppGikPointingConstraint(*this);
-
-    for (unsigned int i=0; i<nsamples;i++)
-    {
-        tempSC->worldTargetU(column(data,i));
-        outMotionConstraint->pushbackStateConstraint((CjrlGikPointingConstraint*)tempSC);
-    }
-    delete tempSC;
-
-    return true;
+    return attVectorizedState;
 }
 
 void  ChppGikPointingConstraint::worldTargetU(const vectorN& inPoint)
@@ -287,6 +219,23 @@ const vectorN& ChppGikPointingConstraint::worldTargetU()
     return attWorldTarget;
 }
 
+
+bool ChppGikPointingConstraint::vectorizedTarget ( const vectorN& inVector )
+{
+    if ( inVector.size() !=3 )
+    {
+        std::cout <<"ChppGikPointingConstraint::vectorizedTarget(inVector) wrong size\n";
+        return false;
+    }
+
+    worldTargetU ( inVector );
+    return true;
+}
+
+const vectorN& ChppGikPointingConstraint::vectorizedTarget()
+{
+    return attWorldTarget;
+}
 
 
 ChppGikPointingConstraint::~ChppGikPointingConstraint()

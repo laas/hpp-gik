@@ -26,7 +26,7 @@ ChppGikLocomotionPlan::~ChppGikLocomotionPlan()
 {
     attFootMotionPlanRow->removeMotionConstraint( attFootMotion );
     attComMotionPlanRow->removeMotionConstraint( attComMotion );
-    
+
     delete attSupportPolygonMotion;
     delete attPreviewController;
     delete attComMotion;
@@ -90,18 +90,18 @@ bool ChppGikLocomotionPlan::reset(double inStartTime)
 const ChppGikLocomotionElement* ChppGikLocomotionPlan::activeTask(double inTime) const
 {
     double epsilon = attSamplingPeriod/2;
-    
+
     const ChppGikLocomotionElement* returnedPointer = 0;
-    
+
     std::vector<ChppGikLocomotionElement*>::const_iterator iter;
     for (iter = attTasks.begin(); iter != attTasks.end(); iter++)
-        if (((*iter)->startTime() - epsilon - attPreviewController->previewTime() < inTime) && (inTime < (*(iter))->endTime()) + 0.4)
+        if (((*iter)->startTime() + epsilon - attPreviewController->previewTime() < inTime) && (inTime < (*(iter))->endTime()) + 0.4)
         {
             returnedPointer = *iter;
             break;
         }
 
-        return returnedPointer;
+    return returnedPointer;
 }
 
 bool ChppGikLocomotionPlan::weightsAtTime(double inTime, vectorN& outWeights)
@@ -120,7 +120,7 @@ bool ChppGikLocomotionPlan::weightsAtTime(double inTime, vectorN& outWeights)
             else
                 outWeights = attStandingRobot->maskFactory()->weightsRightLegSupporting();
 
-        if (((*iter)->startTime() - epsilon < inTime) && (inTime < (*(iter))->endTime()))
+        if (((*iter)->startTime() + epsilon < inTime) && (inTime < (*(iter))->endTime()))
             break;
 
     }
@@ -185,7 +185,7 @@ ChppGikSupportPolygonMotion* ChppGikLocomotionPlan::supportPolygonMotion()
 CjrlJoint* ChppGikLocomotionPlan::supportFootJoint(double inTime)
 {
     double epsilon = attSamplingPeriod/2;
-    if ((inTime < attFootMotion->startTime()-epsilon) || (inTime > attFootMotion->endTime()+epsilon))
+    if ((inTime < attFootMotion->startTime()+epsilon) || (inTime > attFootMotion->endTime()+epsilon))
     {
         std::cout << "ChppGikLocomotionPlan::supportFootJoint() invalid time, return NULL pointer\n";
         return NULL;
@@ -196,6 +196,10 @@ CjrlJoint* ChppGikLocomotionPlan::supportFootJoint(double inTime)
 
     ChppGikTransformationConstraint* cstr = dynamic_cast<ChppGikTransformationConstraint*>(scstr);
 
+    if (!cstr)
+    {
+        std::cout << "bug detected from ChppGikLocomotionPlan::supportFootJoint(double inTime) \n";
+    }
     if (cstr->joint() == attStandingRobot->robot()->leftFoot())
         joint =  attStandingRobot->robot()->rightFoot();
     else
@@ -312,63 +316,6 @@ bool ChppGikLocomotionPlan::buildMotions()
     return retVal;
 }
 
-
-bool ChppGikLocomotionPlan::solveSecondStage(const matrixNxP& inObservedZMP)
-{
-
-    /*
-        //previewTime of planned motion
-        double prevT = attPreviewController->previewTime();
-     
-     
-        //Compute Delta ZMP
-        matrixNxP CorrectedZMP.resize(3,inObservedZMP.size2());
-        CorrectedZMP = 2*subrange(attPlannedZMP,0,3,0,inObservedZMP.size2()) - inObservedZMP;
-        
-        //extend zmp (beginning and end)
-        unsigned int newSize = inObservedZMP.size2()+2*attPreviewController->numberPreviewSamples();
-        attPlannedZMP.resize(3,newSize);
-        
-        for (unsigned int i=0; i<attPreviewController->numberPreviewSamples;i++)
-        {
-            column(attPlannedZMP,i) = column(CorrectedZMP,0);
-            column(attPlannedZMP,newSize-i-1) = column(CorrectedZMP,inObservedZMP.size2()-1);
-        }
-     
-        //compute new COM
-        matrixNxP resultTrajCOMXY;
-        bool retVal = attPreviewController->ZMPtoCOM(attPlannedZMP,resultTrajCOMXY);
-        if (!retVal)
-            return false;
-        
-        //reset com motion constraint
-        attComMotion->clear();
-        attComMotion->startTime(attStartTime-2*attPreviewController->previewTime());
-        
-        //store com constraints
-        ChppGikComConstraint* comC = new ChppGikComConstraint(*attRobot);
-        for (unsigned int i=0; i<attFootMotion->numberStateConstraints(); i++)
-        {
-            comC->targetXY(resultTrajCOMXY(0,i), resultTrajCOMXY(1,i));
-            attComMotion->pushbackStateConstraint(comC);
-        }
-        delete comC;
-     
-        //pad foot motion's beginning with start constraint
-        for (unsigned int i=0; i<attPreviewController->numberPreviewSamples;i++)
-        {
-            attFootMotion->pushfrontStateConstraint( );
-        }
-     
-     
-        ChppGikTools::dumpMatrix("debug.zmpref2",  attPlannedZMP, moddedStartTime, attSamplingPeriod);
-     
-        
-     
-        */
-
-    return false;
-}
 
 
 void ChppGikLocomotionPlan::addtoMotionPlan()

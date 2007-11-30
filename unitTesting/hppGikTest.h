@@ -1,6 +1,7 @@
 #ifndef HPP_GIKTEST_H
 #define HPP_GIKTEST_H
 
+#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "robotDynamics/jrlRobotDynamicsObjectConstructor.h"
 #include "dynamicsJRLJapan/HumanoidDynamicMultiBody.h"
 #include "gikTask/jrlGikObjectConstructor.h"

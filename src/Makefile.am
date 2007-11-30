@@ -7,8 +7,9 @@
 
 lib_LTLIBRARIES = libhppGik.la
 libhppGik_la_SOURCES = \
-	constraints/hppGikPointingConstraint.cpp \
+	constraints/hppGikJointStateConstraint.cpp \
 	constraints/hppGikPlaneConstraint.cpp \
+	constraints/hppGikPointingConstraint.cpp \
 	constraints/hppGikGazeConstraint.cpp \
 	constraints/hppGikParallelConstraint.cpp \
 	constraints/hppGikRotationConstraint.cpp \
@@ -35,8 +36,6 @@ libhppGik_la_SOURCES = \
 	tasks/hppGikReachTask.cpp \
 	tasks/hppGikConfigurationTask.cpp \
 	tasks/hppGikHalfSittingTask.cpp \
-	tasks/hppGikHalfSittingTaskBeta.cpp \
-	tasks/hppGikSnoopTask.cpp \
 	robot/hppGikFootprintRelated.cpp \
 	robot/hppGikMaskFactory.cpp \
 	robot/hppRobotMotion.cpp \

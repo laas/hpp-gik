@@ -5,19 +5,8 @@
 
 using namespace ublas;
 
-ChppGikPlaneConstraint::ChppGikPlaneConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inWorldPlanePoint, const vector3d& inWorldPlaneNormal)
+ChppGikPlaneConstraint::ChppGikPlaneConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inWorldPlanePoint, const vector3d& inWorldPlaneNormal):ChppGikJointStateConstraint(inRobot, inJoint)
 {
-
-
-    attJoint = &inJoint;
-    attRobot = &inRobot;
-
-    if (attRobot->countFixedJoints()>0){
-	tempNumJoints = attRobot->numberDof()-6;
-    }else{
-	tempNumJoints = 6;
-    }
-
     attLocalPoint.resize(3,false);
     attWorldPlanePoint.resize(3,false);
     attWorldPlaneNormal.resize(3,false);
@@ -28,42 +17,24 @@ ChppGikPlaneConstraint::ChppGikPlaneConstraint(CjrlDynamicRobot& inRobot, CjrlJo
     worldPlaneNormal(inWorldPlaneNormal);
 
     tempEffectorJointJacobian.resize(3,inRobot.numberDof(),false);
-    tempJointPositionJacobian.resize(3,tempNumJoints,false);
-    attJacobian.resize(1,tempNumJoints,false);
+    tempJointPositionJacobian.resize(3,attNumberActuatedDofs,false);
+    attJacobian.resize(1,attNumberActuatedDofs,false);
     attValue.resize(1, false);
 
     tempRot.resize(3,3,false);
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
+   
+    attVectorizedState.resize(9,false);
+    attVectorizedTarget.resize(3,false);
     
-    attInfluencingDofs = scalar_vector<double>(inRobot.numberDof(),0);
+    attDimension = 1;
 
 }
 CjrlGikStateConstraint* ChppGikPlaneConstraint::clone() const
 {
     CjrlGikPlaneConstraint* ret = new ChppGikPlaneConstraint(*this);
     return ret;
-}
-
-unsigned int ChppGikPlaneConstraint::dimension() const
-{
-    return 1;
-}
-
-
-CjrlDynamicRobot& ChppGikPlaneConstraint::robot()
-{
-    return *attRobot;
-}
-
-void  ChppGikPlaneConstraint::joint(CjrlJoint* inJoint)
-{
-    attJoint = inJoint;
-}
-
-CjrlJoint* ChppGikPlaneConstraint::joint()
-{
-    return attJoint;
 }
 
 void  ChppGikPlaneConstraint::localPoint(const vector3d& inPoint)
@@ -131,28 +102,6 @@ const vectorN& ChppGikPlaneConstraint::worldPlaneNormalU()
     return attWorldPlaneNormal;
 }
 
-vectorN& ChppGikPlaneConstraint::influencingDofs()
-{
-    unsigned int i;
-    attInfluencingDofs.clear();
-    std::vector<CjrlJoint *> joints;
-    if (attRobot->countFixedJoints()>0){
-	joints = attRobot->fixedJoint(0).jointsFromRootToThis();
-	for( i=1; i< joints.size(); i++)
-	    attInfluencingDofs(joints[i]->rankInConfiguration()) = 1;
-    }else{
-	CjrlJoint *root = attRobot->rootJoint();
-	unsigned int start = root->rankInConfiguration();
-	for (i=0; i<root->numberDof(); i++){
-	    attInfluencingDofs[start+i] = 1;
-	}
-    }
-    joints = attJoint->jointsFromRootToThis();
-    for(i=1; i< joints.size(); i++)
-        attInfluencingDofs(joints[i]->rankInConfiguration()) = 1;
-    return attInfluencingDofs;
-}
-
 void ChppGikPlaneConstraint::computeValue()
 {
 
@@ -168,7 +117,7 @@ void ChppGikPlaneConstraint::computeJacobian()
     attJoint->getJacobianPointWrtConfig(attLocalPointVector3, 
 					tempEffectorJointJacobian);
 
-    int start = attRobot->numberDof() - tempNumJoints;
+    int start = attRobot->numberDof() - attNumberActuatedDofs;
     tempJointPositionJacobian = subrange(tempEffectorJointJacobian,
 					 0,3,start,attRobot->numberDof());
 
@@ -199,22 +148,8 @@ void ChppGikPlaneConstraint::computeJacobian()
 				tempJointPositionJacobian);
 }
 
-
-const vectorN& ChppGikPlaneConstraint::value()
+const vectorN& ChppGikPlaneConstraint::vectorizedState()
 {
-    return attValue;
-}
-
-const matrixNxP& ChppGikPlaneConstraint::jacobian()
-{
-    return attJacobian;
-}
-
-
-bool ChppGikPlaneConstraint::minimumJerkInterpolation(ChppGikMotionConstraint* outMotionConstraint, double inSamplingPeriod, double inTime)
-{
-    unsigned int nsamples = ChppGikTools::timetoRank(0,inTime,inSamplingPeriod)+1;
-
     vectorN curpos(3);
     vectorN curvel = zero_vector<double>(3);
     vectorN curaccel = zero_vector<double>(3);
@@ -246,35 +181,29 @@ bool ChppGikPlaneConstraint::minimumJerkInterpolation(ChppGikMotionConstraint* o
     ChppGikTools::CrossProduct(rotvel,rotvelCrossLocal,temp);
     curaccel += temp;
 
-    //motion samples computation
-    matrixNxP data(3,nsamples);
-    vectorN result(nsamples);
-    
-    //projection of the effector point on the target plane
-    vectorN targetPoint(3);
-    vectorN OM(3);
-    vectorN OP(3);
-    OM = attWorldPlanePoint - curpos;
-    OP = OM - inner_prod(OM,attWorldPlaneNormal)*attWorldPlaneNormal;
-    targetPoint = attWorldPlanePoint + OP;
-    
-    for (unsigned int i=0; i<3;i++)
-    {
-        bool contn = ChppGikTools::minJerkCurve( inTime,inSamplingPeriod,curpos(i),curvel(i),curaccel(i),targetPoint(i),result);
-        if (!contn)
-            return false;
-        row(data,i) = result;
-        
-    }
-    //filling in motion constraint with interpolation samples
-    ChppGikPlaneConstraint* tempSC = new ChppGikPlaneConstraint(*this);
+    subrange(attVectorizedState,0,3) = curpos;
+    subrange(attVectorizedState,3,6) = curvel;
+    subrange(attVectorizedState,6,9) = curaccel;
 
-    for (unsigned int i=0; i<nsamples;i++)
+    return attVectorizedState;
+
+}
+
+
+bool ChppGikPlaneConstraint::vectorizedTarget ( const vectorN& inVector )
+{
+    if ( inVector.size() !=3 )
     {
-        tempSC->worldPlaneNormalU(attWorldPlaneNormal); tempSC->worldPlanePointU(column(data,i));
-        outMotionConstraint->pushbackStateConstraint((CjrlGikPlaneConstraint*)tempSC);
+        std::cout <<"ChppGikPlaneConstraint::vectorizedTarget(inVector) wrong size\n";
+        return false;
     }
-    delete tempSC;
+
+    worldPlanePointU ( inVector );
 
     return true;
+}
+
+const vectorN& ChppGikPlaneConstraint::vectorizedTarget()
+{
+    return attWorldPlanePoint;
 }

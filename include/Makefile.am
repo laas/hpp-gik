@@ -19,15 +19,16 @@ hppGik_HEADERS = \
 
 hppGikConstdir = $(includedir)/hpp/constraints
 hppGikConst_HEADERS = \
+	constraints/hppGikJointStateConstraint.h \
 	constraints/hppGikComConstraint.h	\
 	constraints/hppGikPlaneConstraint.h 	\
+	constraints/hppGikPlannableConstraint.h 	\
 	constraints/hppGikPointingConstraint.h \
 	constraints/hppGikGazeConstraint.h \
 	constraints/hppGikParallelConstraint.h \
 	constraints/hppGikRotationConstraint.h \
 	constraints/hppGikPositionConstraint.h \
 	constraints/hppGikTransformationConstraint.h \
-	constraints/hppGikSingleMotionElementConstraint.h \
 	constraints/hppGikMotionConstraint.h 
 
 hppGikCoredir = $(includedir)/hpp/core
@@ -46,12 +47,10 @@ hppGikTasks_HEADERS = \
 	tasks/hppGikRobotTask.h \
 	tasks/hppGikStepBackTask.h \
 	tasks/hppGikStepTask.h \
-	tasks/hppGikSnoopTask.h \
 	tasks/hppGikHandTask.h \
 	tasks/hppGikMetaTask.h \
 	tasks/hppGikReachTask.h \
 	tasks/hppGikConfigurationTask.h \
-	tasks/hppGikHalfSittingTaskBeta.h \
 	tasks/hppGikHalfSittingTask.h
 
 hppGikPlannersdir = $(includedir)/hpp/motionplanners

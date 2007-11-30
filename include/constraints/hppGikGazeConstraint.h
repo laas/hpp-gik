@@ -3,16 +3,13 @@
 
 #include <vector>
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "gikTask/jrlGikGazeConstraint.h"
 #include "constraints/hppGikPointingConstraint.h"
-
-
-
+#include "gikTask/jrlGikGazeConstraint.h"
 
 /**
 \brief Constraint on a line segment attached to a body to be aligned with a given point in the world frame. The line segment is defined by an origin point and a vector both given in the body's local frame.
  */
-class ChppGikGazeConstraint: public CjrlGikGazeConstraint, public ChppGikPointingConstraint
+class ChppGikGazeConstraint: public ChppGikPointingConstraint, public CjrlGikGazeConstraint
 {
 public:
     /**

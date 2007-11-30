@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_GENERICTASK_ELEMENTS_H
 #define HPP_GIK_GENERICTASK_ELEMENTS_H
 
-#include "constraints/hppGikSingleMotionElementConstraint.h"
+#include "constraints/hppGikPlannableConstraint.h"
 #include "constraints/hppGikTransformationConstraint.h"
 #include "constraints/hppGikMotionConstraint.h"
 #include "robot/hppGikFootprintRelated.h"
@@ -54,15 +54,6 @@ class ChppGikGenericTaskElement
 {
 public:
     /**
-    \brief Get the time when the solution motion to this task should start
-     */
-    virtual double startTime() = 0;
-    /**
-    \brief Get the time available to solve the task
-     */
-    virtual double duration() =0;
-
-    /**
     \brief Set the joint mask put to work
      */
     void workingJoints(vectorN& inJointsMask)
@@ -77,16 +68,10 @@ public:
         return attWorkingJoints;
     }
     /**
-    \brief Get the time available to solve the task
-     */
-    double endTime()
-    {
-        return startTime() + duration();
-    }
-    /**
     \brief Destructor
      */
-    virtual ~ChppGikGenericTaskElement() {}
+    virtual ~ChppGikGenericTaskElement()
+    {}
 
 protected:
     vectorN attWorkingJoints;
@@ -95,32 +80,41 @@ protected:
 /**
 \brief A single motion element is a motion planning task that produces a single motion constraint, based on a target state constraint, a priority of resolution, a start time and an end time.
  */
-class ChppGikSingleMotionElement: public ChppGikGenericTaskElement
+class ChppGikSingleMotionElement: public ChppGikGenericTaskElement, public CjrlGikMotionConstraint
 {
 public:
     /**
     \brief constructor
      */
-    ChppGikSingleMotionElement(ChppGikSingleMotionElementConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime=0.0, double inDuration=0.0);
+    ChppGikSingleMotionElement(ChppGikPlannableConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime=0.0, double inDuration=0.0);
+
+    /**
+    \brief Get state constraint at a given time.
+    \return null pointer if time out of bounds or if motion not planned yet
+     */
+    CjrlGikStateConstraint* stateConstraintAtTime ( double inTime );
+
+    /**
+    \brief reset the starting time.
+     */
+    virtual void startTime(double inStartTime);
+
     /**
     \brief Get the time when the solution motion to this task should start
      */
-    double startTime();
+    virtual double startTime();
+
     /**
     \brief Get the time available to solve the task
      */
-    virtual double duration();
-    
-    /**
-    \brief reset the starting time. This modifies the duration because the last endTime is kept.
-    */
-    void startTime(double inStartTime);
+    virtual double endTime();
+
 
     /**
-    \brief set the duration. This modifies the end time.
+    \brief Get the time available to solve the task
     */
-    void duration(double inDuration);
-            
+    virtual double duration();
+
     /**
     \brief Get the priority
      */
@@ -129,30 +123,30 @@ public:
     /**
     \brief Get the target constraint
     */
-    ChppGikSingleMotionElementConstraint* targetConstraint();
+    ChppGikPlannableConstraint* targetConstraint();
 
     /**
-    \brief plan the motion constraint for this task. This automatically calls derefer motion first.
+    \brief plan the motion constraint for this task. This automatically calls dereferMotion first.
     */
     virtual bool planMotion(double inSamplingPeriod);
-    
+
     /**
     \brief add a pointer to the planned motion in the given motion plan.
     \return false if motion is already referred in a motion plan (in that case you have call dereferMotion first)
     */
     bool referMotion(ChppGikMotionPlan* inMotionPlan);
-    
+
     /**
     \brief remove the pointer to the planned motion motion from the previously given motion plan if any.
     \return false if the motion is already dereferenced in the motion plan
     */
     bool dereferMotion();
-    
+
     /**
     \brief Get a pointer to this Element's motion
     */
-    ChppGikMotionConstraint* motion();
-    
+    CjrlGikMotionConstraint* motion();
+
     /**
     \brief Destructor
     */
@@ -161,19 +155,34 @@ public:
 
 protected:
 
-    ChppGikSingleMotionElementConstraint* attTargetConstraint;
+    virtual bool planningAlgorithm();
 
     double attStartTime;
-    
+
     double attEndTime;
 
     double attDuration;
 
     unsigned int attPriority;
-    
+
+    double attSamplingPeriod;
+
+    double attEps;
+
+    vectorN attTarget;
+
+    vectorN attSample;
+
     ChppGikMotionPlanRow* attMotionRow;
-    
-    ChppGikMotionConstraint* attPlannedMotion;
+
+    CjrlGikMotionConstraint* attPlannedMotion;
+
+    ChppGikPlannableConstraint* attConstraint;
+
+private:
+
+    ublas::matrix<double, ublas::column_major > attInterpolationData;
+    vectorN attInterpolationLine;
 
 };
 
@@ -194,6 +203,11 @@ public:
      */
     virtual double duration() =0 ;
 
+    virtual double endTime()
+    {
+        return startTime() + duration();
+    }
+
     /**
     \brief Plan stability-consistent motions for support polygon, zmp and non support foot.
     The planned motion chunks are assumed to start with a static state (null velocity, null acceleration). The final planned state is static.
@@ -203,8 +217,10 @@ public:
     /**
     \brief Destructor
      */
-    virtual ~ChppGikLocomotionElement() {}
-};
+    virtual ~ChppGikLocomotionElement()
+    {}
+}
+;
 
 
 /**
@@ -307,9 +323,9 @@ public:
      */
     virtual bool planMotions(ChppGikSupportPolygonMotion& outSupportPolygonMotion, ChppGikMotionConstraint& outFootMotion, matrixNxP& outZMPmotion, double inSamplingPeriod);
 
-     /**
+    /**
     \brief Get the start time
-      */
+     */
     virtual double startTime();
     /**
     \brief Get the time available to solve the task
@@ -334,7 +350,7 @@ protected:
     \brief The target of the moving foot defined by the configuration of its target footprint: X Y and Theta (yaw)
      */
     ChppGikFootprint* attTargetFootprint;
-    
+
     /**
     \brief the time when the solution motion to this task should start
     */
@@ -371,7 +387,7 @@ public:
     \brief Constructor. The minimum time for the step motion (i.e parameter inFlightTime) is 0.5. So if the user constructs a step with anything below, it gets automatically thresholded.
      */
     ChppGikStepElement(double inStartTime, ChppGikFootprint* inFootprint, bool isRightFoot, double inFinalZMPCoefficient=0.75, double inEndShiftTime=0.8, double inStartZMPShiftTime=0.6, double inFootMotionDuration=0.8, double inStepHeight=0.05);
-    
+
     /**
     \brief Constructor. The minimum time for the step motion (i.e parameter inFlightTime) is 0.5. So if the user constructs a step with anything below, it gets automatically thresholded.
      */
@@ -441,17 +457,17 @@ private:
     \brief The coefficient that defines the final position of the ZMP in the final support polygon. A value of 0 means the ZMP (and thus the COM when the body is still) stays under the support foot's ankle. A value of one makes the ZMP planner move the ZMP under the ankle of the moved foot.
      */
     double attFinalZMPCoef;
-    
+
     /**
     \brief 
     */
     bool attUseZMPcoefficient;
-            
+
     /**
     \brief
     */
     double attRfoot2TargetZMPX;
-    
+
     /**
     \brief
      */
@@ -473,12 +489,16 @@ public:
     \brief Get the time when the solution motion to this task should start
     */
     double startTime()
-    {return 0;}
+    {
+        return 0;
+    }
     /**
     \brief Get the time available to solve the task
      */
     virtual double duration()
-    {return 0;}
+    {
+        return 0;
+    }
 
     /**
     \brief (not implemented yet) Append a custom foot motion constraint computed by the user.
@@ -487,7 +507,9 @@ public:
     \return false if Prequisites not met
      */
     virtual bool planMotions(ChppGikSupportPolygonMotion* outSupportPolygonMotion, ChppGikMotionConstraint* outFootMotion, matrixNxP& outZMPmotion, double inSamplingPeriod)
-    {return false;}
+    {
+        return false;
+    }
     /**
     \brief Destructor
      */

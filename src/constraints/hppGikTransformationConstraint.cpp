@@ -5,13 +5,8 @@
 
 using namespace ublas;
 
-ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame, const matrix3d& inTargetOrientation)
+ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame, const matrix3d& inTargetOrientation):ChppGikJointStateConstraint(inRobot, inJoint)
 {
-    attJoint = &inJoint;
-    attRobot = &inRobot;
-
-    tempNumJoints = inRobot.numberDof()-6;
-
     attLocalPointVector3 =  inPointInBodyLocalFrame;
     attWorldTargetVector3 =  inPointInWorldFrame;
     attTargetOrientationMatrix3 = inTargetOrientation;
@@ -23,24 +18,23 @@ ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobo
     ChppGikTools::Vector3toUblas(attWorldTargetVector3, attWorldTarget);
     ChppGikTools::Matrix3toUblas(attTargetOrientationMatrix3, attTargetOrientation);
 
-
-    attJacobian.resize(6,tempNumJoints,false);
+    attJacobian.resize(6,attNumberActuatedDofs,false);
     tempJacobian.resize(6,inRobot.numberDof(),false);
     attValue.resize(6, false);
     tempRot.resize(3,3,false);
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
     tempGapRot.resize(3,3,false);
-    attInfluencingDofs.resize(inRobot.numberDof(),false);
+
+    attVectorizedState.resize(18,false);
+    attVectorizedTarget.resize(6,false);
+    
+    attDimension = 6;
+    
 }
 
-ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame,  const matrix4d& inTransformation)
+ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame,  const matrix4d& inTransformation):ChppGikJointStateConstraint(inRobot, inJoint)
 {
-    attJoint = &inJoint;
-    attRobot = &inRobot;
-
-    tempNumJoints = inRobot.numberDof()-6;
-
     attLocalPointVector3 =  inPointInBodyLocalFrame;
 
     attLocalPoint.resize(3,false);
@@ -52,15 +46,18 @@ ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobo
     ChppGikTools::UblastoVector3(attWorldTarget, attWorldTargetVector3);
     ChppGikTools::UblastoMatrix3(attTargetOrientation, attTargetOrientationMatrix3);
 
-    attJacobian.resize(6,tempNumJoints,false);
+    attJacobian.resize(6,attNumberActuatedDofs,false);
     attValue.resize(6, false);
-
 
     tempRot.resize(3,3,false);
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
     tempGapRot.resize(3,3,false);
-    attInfluencingDofs.resize(inRobot.numberDof(),false);
+   
+    attVectorizedState.resize(18,false);
+    attVectorizedTarget.resize(6,false);
+    
+    attDimension = 6;
 
 }
 
@@ -68,27 +65,6 @@ CjrlGikStateConstraint* ChppGikTransformationConstraint::clone() const
 {
     CjrlGikTransformationConstraint* ret = new ChppGikTransformationConstraint(*this);
     return ret;
-}
-
-unsigned int ChppGikTransformationConstraint::dimension() const
-{
-    return 6;
-}
-
-
-CjrlDynamicRobot& ChppGikTransformationConstraint::robot()
-{
-    return *attRobot;
-}
-
-void  ChppGikTransformationConstraint::joint(CjrlJoint* inJoint)
-{
-    attJoint = inJoint;
-}
-
-CjrlJoint* ChppGikTransformationConstraint::joint()
-{
-    return attJoint;
 }
 
 void  ChppGikTransformationConstraint::localPoint(const vector3d& inPoint)
@@ -149,20 +125,6 @@ const matrixNxP& ChppGikTransformationConstraint::targetOrientationU()
 }
 
 
-vectorN& ChppGikTransformationConstraint::influencingDofs()
-{
-    unsigned int i;
-    attInfluencingDofs.clear();
-
-    for( i=1; i< attRobot->fixedJoint(0).jointsFromRootToThis().size(); i++)
-        attInfluencingDofs(attRobot->fixedJoint(0).jointsFromRootToThis()[i]->rankInConfiguration()) = 1;
-    for(i=1; i< attJoint->jointsFromRootToThis().size(); i++)
-        attInfluencingDofs(attJoint->jointsFromRootToThis()[i]->rankInConfiguration()) = 1;
-
-    return attInfluencingDofs;
-}
-
-
 void ChppGikTransformationConstraint::computeValue()
 {
     ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
@@ -212,31 +174,13 @@ void ChppGikTransformationConstraint::computeJacobian()
 
     ChppGikTools::equivAsymMat(temp3DVec,tempRot);
 
-    noalias(subrange(attJacobian,0,3,0,tempNumJoints)) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
+    noalias(subrange(attJacobian,0,3,0,attNumberActuatedDofs)) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
 
-
-    //     std::cout << "attJacobian\n";
-    //     ChppGikTools::printBlasMat( attJacobian );
-    //     std::cout << "Config of computations\n";
-    //     std::cout << attRobot->currentConfiguration() << std::endl ;
 }
 
 
-
-const vectorN& ChppGikTransformationConstraint::value()
+const vectorN& ChppGikTransformationConstraint::vectorizedState()
 {
-    return attValue;
-}
-
-const matrixNxP& ChppGikTransformationConstraint::jacobian()
-{
-    return attJacobian;
-}
-
-bool ChppGikTransformationConstraint::minimumJerkInterpolation(ChppGikMotionConstraint* outMotionConstraint, double inSamplingPeriod, double inTime)
-{
-    unsigned int nsamples = ChppGikTools::timetoRank(0,inTime,inSamplingPeriod)+1;
-
     vectorN curpos(3);
     vectorN curvel(3);
     vectorN curaccel(3);
@@ -269,54 +213,38 @@ bool ChppGikTransformationConstraint::minimumJerkInterpolation(ChppGikMotionCons
     ChppGikTools::CrossProduct(rotvel,rotvelCrossLocal,temp3DVec);
     curaccel += temp3DVec;
     ChppGikTools::OmegatoEulerZYX(rotaccel,curEulerAccel);
-    //target quaternion
-    ChppGikTools::RottoEulerZYX(attTargetOrientation, targetEuler);
+    
+    subrange(attVectorizedState,0,3) = curpos;
+    subrange(attVectorizedState,3,6) = curEuler;
+    subrange(attVectorizedState,6,9) = curvel;
+    subrange(attVectorizedState,9,12) = curEulerVel;
+    subrange(attVectorizedState,12,15) = curaccel;
+    subrange(attVectorizedState,15,18) = curEulerAccel;
+    
+    return attVectorizedState;
+}
 
-    //motion samples computation
-    matrixNxP dataPos(3,nsamples);
-    vectorN result(nsamples);
-    for (unsigned int i=0; i<3;i++)
+const vectorN& ChppGikTransformationConstraint::vectorizedTarget()
+{
+    subrange(attVectorizedTarget,0,3) = attWorldTarget;
+    ChppGikTools::RottoEulerZYX(attTargetOrientation, temp3DVec1);
+    subrange(attVectorizedTarget,3,6) = temp3DVec1;
+    return attVectorizedTarget;
+}
+
+bool ChppGikTransformationConstraint::vectorizedTarget(const vectorN& inVector )
+{
+    if ( inVector.size() !=6 )
     {
-        bool contn = ChppGikTools::minJerkCurve( inTime,inSamplingPeriod,curpos(i),curvel(i),curaccel(i),attWorldTarget(i),result);
-        row(dataPos,i) = result;
-
-        if (!contn)
-            return false;
+        std::cout <<"ChppGikTransformationConstraint::vectorizedTarget(inVector) incorrect input size\n";
+        return false;
     }
 
-    //ChppGikTools::dumpMatrix("Plannedpos.txt", dataPos, 0.0, inSamplingPeriod);
+    temp3DVec = subrange(inVector,0,3);
+    temp3DVec1 = subrange(inVector,3,6);
+    ChppGikTools::EulerZYXtoRot ( temp3DVec1,tempRot );
+    worldTargetU ( temp3DVec );
+    targetOrientationU ( tempRot );
 
-//     std::cout << "curpos "<< curpos << "\n";
-//     std::cout << "curvel "<< curvel << "\n";
-//     std::cout << "curaccel "<< curaccel << "\n";
-//     
-//     std::cout << "curEuler "<< curEuler << "\n";
-//     std::cout << "curEulerVel "<< curEulerVel << "\n";
-//     std::cout << "curEulerAccel "<< curEulerAccel << "\n";
-//     std::cout << "targetEuler "<< targetEuler << "\n";
-
-    matrixNxP dataEuler(3,nsamples);
-    for (unsigned int i=0; i<3;i++)
-    {
-        bool contn = ChppGikTools::minJerkCurve( inTime,inSamplingPeriod,curEuler(i),curEulerVel(i),curEulerAccel(i),targetEuler(i),result);
-        if (!contn)
-            return false;
-        row(dataEuler,i) = result;
-
-    }
-
-    //ChppGikTools::dumpMatrix("PlannedEuler.txt", dataEuler, 0.0, inSamplingPeriod);
-
-    //filling in motion constraint with interpolation samples
-    ChppGikTransformationConstraint* tempSC = new ChppGikTransformationConstraint(*this);
-
-    for (unsigned int i=0; i<nsamples;i++)
-    {
-        tempSC->worldTargetU(column(dataPos,i));
-        ChppGikTools::EulerZYXtoRot(column(dataEuler,i),tempRot);
-        tempSC->targetOrientationU(tempRot);
-        outMotionConstraint->pushbackStateConstraint((CjrlGikTransformationConstraint*)tempSC);
-    }
-    delete tempSC;
     return true;
 }

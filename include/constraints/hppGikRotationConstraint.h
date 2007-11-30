@@ -3,20 +3,15 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikRotationConstraint.h"
-#include "constraints/hppGikSingleMotionElementConstraint.h"
+#include "constraints/hppGikJointStateConstraint.h"
 
 /**
 \brief Specify a 3D orientation constraint on a body of the robot.
  */
 
-class ChppGikRotationConstraint:public CjrlGikRotationConstraint, public ChppGikSingleMotionElementConstraint
+class ChppGikRotationConstraint:public CjrlGikRotationConstraint, public ChppGikJointStateConstraint
 {
 public:
-    /**
-    \name Definition of the constraint
-    @{
-     */
-
     /**
     \brief Constructor
      */
@@ -27,25 +22,6 @@ public:
      */
     virtual CjrlGikStateConstraint* clone() const;
 
-
-    /**
-    \brief Get the dimension of the constraint.
-     */
-    virtual unsigned int dimension() const;
-
-    /**
-    \brief Get robot associated to the constraint.
-     */
-    virtual CjrlDynamicRobot& robot();
-
-    /**
-    \brief Set the joint associated to the constraint.
-     */
-    virtual void  joint(CjrlJoint* inJoint);
-    /**
-    \brief Get the joint associated to the constraint.
-     */
-    virtual  CjrlJoint* joint();
     /**
     \brief Set the target orientation for this constraint.
      */
@@ -54,33 +30,28 @@ public:
     \brief Get the point associated to the constraint (in joint's local frame).
      */
     virtual const matrix3d& targetOrientation();
-    
+
     /**
     \brief Same as targetorientation but take/return ublas matrix
      */
     virtual void  targetOrientationU(const matrixNxP& inRot);
     virtual const matrixNxP& targetOrientationU();
 
+    /**
+    \brief Get the full state of the constraint (constraint plus it's 2 first derivatives) expressed as a vectorN. Dimenstion of returned vector is 3xdimension of the implementing constraint
+     */
+    virtual const vectorN& vectorizedState();
 
     /**
-    @}
+    \brief Set the target of the constraint expressed as a vectorN.
+    \return false if the vectorizedTarget is not of the correct dimension
      */
-
+    virtual bool vectorizedTarget ( const vectorN& inTarget );
+    
     /**
-    \name Computations
-    @{
+    \brief Get the target of the constraint expressed as a vectorN. Each constraint knows how to compute its own vectorizedTarget
      */
-    /**
-    \brief Get a binary vector which size matches the robot cnfiguration's, where an element with value 1 indicates that the corresponding degree of freedom can modify the value of this constraint, and an element with value 0 cannot.
-    */
-    virtual vectorN& influencingDofs();
-    /**
-    \brief This method computes a minimum jerk motion constraint for the given motion time and sampling rate.
-    First the current position velocity and acceleration of the constraint are computed using outputs from the CjrlDynamicRobot.
-    inStateConstraint must have a target position, velocity and acceleration.
-    This implementation assumes the target velocity and accelerations to be constantly 0.
-     */
-    virtual bool minimumJerkInterpolation(ChppGikMotionConstraint* outMotionConstraint, double inSamplingPeriod, double inTime);
+    virtual const vectorN& vectorizedTarget();
 
     /**
     \brief Compute the value of the constraint.
@@ -92,33 +63,10 @@ public:
     This method supposes that:
      * the robot has at least one fixed joint.
      * the jacobian for this fixed joint has been computed for the current configuration
-    
+
     Only the first fixed joint of the robot affects the computation of the jacobian. (closed kinematic chains are not handeled)
      */
     virtual void computeJacobian();
-
-    /**
-    @}
-     */
-
-    /**
-    \name Getting result of computations
-    @{
-     */
-
-    /**
-    \brief Get the constraint value.
-     */
-    virtual const vectorN& value();
-
-    /**
-    \brief Get the constraint jacobian.
-     */
-    virtual const matrixNxP& jacobian();
-
-    /**
-    @}
-     */
 
     /**
     \brief Destructor
@@ -127,11 +75,6 @@ public:
     {}
 
 private:
-
-    CjrlDynamicRobot* attRobot;
-
-    CjrlJoint* attJoint;
-
 
     matrix3d attTargetOrientationMatrix3;
 
@@ -142,11 +85,6 @@ private:
     /** \name Computation temporary variables (to avoid dynamic allocation)
     {@
      */
-    vectorN attInfluencingDofs;
-    vectorN attValue;
-    matrixNxP attJacobian;
-    
-    unsigned int tempNumJoints;
     matrixNxP tempRot;
     matrixNxP tempGapRot;
     vectorN temp3DVec;
