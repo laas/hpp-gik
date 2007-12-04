@@ -157,6 +157,20 @@ public:
     \return 0 if the end of the list is met.
      */
     const ChppRobotMotionSample* nextSample();
+    
+    /**
+    \brief Get a pointer to the last sample stored. The returned pointer is null in case the motion is empty.
+    */
+    const ChppRobotMotionSample* lastSample();
+    
+    /**
+    \brief Get the number of samples
+     */
+    unsigned int numberSamples();
+    
+    
+    
+    
 
 
 
@@ -175,6 +189,11 @@ private:
     std::list<ChppRobotMotionSample> attSamples;
     
     std::list<ChppRobotMotionSample>::iterator attAccessedSample;
+    
+    unsigned int attNumerSamples;
+    
+    const ChppRobotMotionSample* attLastSample;
+    
 
 };
 
