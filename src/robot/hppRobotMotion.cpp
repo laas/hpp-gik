@@ -313,7 +313,7 @@ const ChppRobotMotionSample* ChppRobotMotion::lastSample()
     return attLastSample;
 }
 
-unsigned int ChppRobotMotion::numberSamples()
+unsigned int ChppRobotMotion::numberSamples() const
 {
     return attNumerSamples;
 }

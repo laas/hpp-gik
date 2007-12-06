@@ -166,7 +166,7 @@ public:
     /**
     \brief Get the number of samples
      */
-    unsigned int numberSamples();
+    unsigned int numberSamples() const;
     
     
     
