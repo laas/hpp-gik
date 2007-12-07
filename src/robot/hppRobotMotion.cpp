@@ -26,8 +26,6 @@ ChppRobotMotion::ChppRobotMotion(CjrlHumanoidDynamicRobot* inRobot, double inSta
     attSamplingPeriod = inSamplingPeriod;
     attAccessedSample = attSamples.begin();
     attNumerSamples = 0;
-    attLastSample = 0;
-
 }
 
 
@@ -143,7 +141,6 @@ void ChppRobotMotion::appendSample(const ChppRobotMotionSample& inSample)
     attSamples.push_back(inSample);
     attEndTime += attSamplingPeriod;
     attNumerSamples++;
-    attLastSample = &inSample;
 }
 
 bool ChppRobotMotion::appendSample(const CjrlRobotConfiguration& inConfig, const vector3d& inZMPwstPla, const vector3d& inZMPwstObs,const vector3d& inZMPworPla, const vector3d& inZMPworObs)
@@ -160,7 +157,6 @@ bool ChppRobotMotion::appendSample(const CjrlRobotConfiguration& inConfig, const
 
     attEndTime += attSamplingPeriod;
     attNumerSamples++;
-    attLastSample = nS;
     return true;
 }
 
@@ -194,7 +190,6 @@ void ChppRobotMotion::clear()
     attEndTime = attStartTime;
     attAccessedSample = attSamples.begin();
     attNumerSamples = 0;
-    attLastSample = 0;
 }
 
 void  ChppRobotMotion::dumpTo(const char* inFilename, const char* option) const
@@ -310,7 +305,11 @@ const ChppRobotMotionSample* ChppRobotMotion::nextSample()
 
 const ChppRobotMotionSample* ChppRobotMotion::lastSample()
 {
-    return attLastSample;
+    if (empty())
+        return NULL;
+    attLastSample = attSamples.end();
+    attLastSample--;
+    return (&(*attLastSample));
 }
 
 unsigned int ChppRobotMotion::numberSamples() const

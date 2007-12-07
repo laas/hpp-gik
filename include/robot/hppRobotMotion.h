@@ -192,7 +192,7 @@ private:
     
     unsigned int attNumerSamples;
     
-    const ChppRobotMotionSample* attLastSample;
+    std::list<ChppRobotMotionSample>::iterator attLastSample;
     
 
 };
