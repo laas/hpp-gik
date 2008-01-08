@@ -11,6 +11,11 @@ ChppGikHalfSittingTask::ChppGikHalfSittingTask(ChppGikStandingRobot* inStandingR
     attGenericTask = new ChppGikGenericTask(inStandingRobot, inSamplingPeriod);
 }
 
+void ChppGikHalfSittingTask::automaticFoot(bool inAutomatic, bool inSelectedFootIsRight  )
+{
+    attStepBackTask->automaticFoot( inAutomatic, inSelectedFootIsRight);
+}
+    
 bool ChppGikHalfSittingTask::algorithmSolve()
 {
     matrix4d &waistH = attStandingRobot->halfsittingWaistTransformation();

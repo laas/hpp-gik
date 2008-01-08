@@ -15,6 +15,11 @@ public:
     ChppGikStepBackTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod);
 
     /**
+        \brief Manual mode
+    */
+    void automaticFoot(bool mode = true, bool footIsRight = true );
+    
+    /**
         \brief get the target feet fistance between the feet
      */
     double targetFeetDistance();
@@ -51,6 +56,17 @@ private:
         \brief The solution task plan
      */
     ChppGikGenericTask* attGenericTask;
+    
+    /**
+        \brief Says how the moved foot is selected
+    */
+    bool attAutomaticFoot;
+    
+    /**
+        \brief Says which foot to move if in manual mode. true = right foot
+     */
+    bool attSelectedFootisRight;
+    
 
 
 };

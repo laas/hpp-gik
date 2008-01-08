@@ -16,6 +16,11 @@ public:
     \brief constructor
      */
     ChppGikHalfSittingTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod);
+    
+    /**
+    \brief Manual mode
+     */
+    void automaticFoot(bool mode = true, bool footIsRight = true );
 
     /**
     \brief Destructor

@@ -8,8 +8,15 @@ ChppGikStepBackTask::ChppGikStepBackTask(ChppGikStandingRobot* inStandingRobot, 
     attGenericTask = new ChppGikGenericTask(inStandingRobot, inSamplingPeriod);
     attTargetFeetDistance = inStandingRobot->halfsittingFeetDistance();
     attAverageHeight = inStandingRobot->halfsittingWaistHeight()-0.05;
+
+    automaticFoot(true);
 }
 
+void ChppGikStepBackTask::automaticFoot(bool inAutomatic, bool inSelectedFootIsRight  )
+{
+    attAutomaticFoot = inAutomatic;
+    attSelectedFootisRight = inSelectedFootIsRight;
+}
 
 double ChppGikStepBackTask::targetFeetDistance()
 {
@@ -39,7 +46,21 @@ bool ChppGikStepBackTask::algorithmSolve()
     double relativeTargetY,relativeTargetX =0.0;
     std::string message;
 
-    if (attStandingRobot->rightFootAhead())
+    if (attAutomaticFoot)
+    {
+        if (attStandingRobot->rightFootAhead())
+            attSelectedFootisRight = true;
+        else
+            if (attStandingRobot->leftFootAhead())
+                attSelectedFootisRight = false;
+            else
+            {
+                std::cout << "No need to make a step back.\n";
+                return true;
+            }
+    }
+
+    if (attSelectedFootisRight)
     {
         nonsupportFootprint = attStandingRobot->supportPolygon()->rightFootprint();
         supportFootprint = attStandingRobot->supportPolygon()->leftFootprint();
@@ -48,19 +69,13 @@ bool ChppGikStepBackTask::algorithmSolve()
         message = "Stepping back with the right foot\n";
     }
     else
-        if (attStandingRobot->leftFootAhead())
-        {
-            supportFootprint = attStandingRobot->supportPolygon()->rightFootprint();
-            nonsupportFootprint = attStandingRobot->supportPolygon()->leftFootprint();
-            FootisRight = false;
-            relativeTargetY = attTargetFeetDistance;
-            message = "Stepping back with the left foot\n";
-        }
-        else
-        {
-            std::cout << "ChppGikStepBackTask::solve() No need to make a step back.\n";
-            return true;
-        }
+    {
+        supportFootprint = attStandingRobot->supportPolygon()->rightFootprint();
+        nonsupportFootprint = attStandingRobot->supportPolygon()->leftFootprint();
+        FootisRight = false;
+        relativeTargetY = attTargetFeetDistance;
+        message = "Stepping back with the left foot\n";
+    }
 
     std::cout << message.c_str();
 
@@ -73,7 +88,7 @@ bool ChppGikStepBackTask::algorithmSolve()
     double shiftDuration = 0.6;
     attStandingRobot->supportPolygon()->center( middleX, middleY );
     ChppGikZMPshiftElement* zmpshiftElement = new ChppGikZMPshiftElement(middleX, middleY, shiftStartTime, shiftDuration);
-    
+
     /*waist normal height recovery (element)*/
     double whStartTime = 0.0;
     double whDuration = 3.0;
@@ -90,7 +105,7 @@ bool ChppGikStepBackTask::algorithmSolve()
     planeNormal[2] = 1;
     ChppGikPlaneConstraint* waistheightConstraint = new ChppGikPlaneConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->waist()),lposition,planePosition,planeNormal);
     waistheightElement = new ChppGikSingleMotionElement(waistheightConstraint, 3, whStartTime, whDuration);
-        
+
     /* step back element*/
     double stepStartTime = whStartTime+whDuration;
     double zmpstartshifttime = 0.4;
@@ -99,7 +114,7 @@ bool ChppGikStepBackTask::algorithmSolve()
     vector3d& relGap= attStandingRobot->halfsittingRelativeCOM();
     ChppGikStepElement* stepElement = new ChppGikStepElement( targetFootprint,stepStartTime, FootisRight, V3_I(relGap,0), V3_I(relGap,1), zmpendshifttime, zmpstartshifttime, footflighttime);
     //ChppGikStepElement* stepElement = new ChppGikStepElement(stepStartTime, targetFootprint, FootisRight, 0.5, zmpendshifttime, zmpstartshifttime, footflighttime);
-    
+
     /*waist is always vertical (element)*/
     ChppGikSingleMotionElement* waistverticalElement = 0;
     vector3d targetOrientation,laxis;
@@ -109,7 +124,7 @@ bool ChppGikStepBackTask::algorithmSolve()
     targetOrientation = laxis;
     ChppGikParallelConstraint* waistverticalConstraint = new ChppGikParallelConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->waist()),laxis,targetOrientation);
     waistverticalElement = new ChppGikSingleMotionElement(waistverticalConstraint, 2, 0.0, stepStartTime+stepElement->duration()+1.0);
-    
+
     /*element stack*/
     attGenericTask->clearElements();
     attGenericTask->addElement(waistverticalElement);
@@ -120,11 +135,11 @@ bool ChppGikStepBackTask::algorithmSolve()
     delete targetFootprint;
     delete waistverticalConstraint;
     delete waistheightConstraint;
-    
+
     bool isSolved = attGenericTask->solve();
 
     cropMotion( attGenericTask );
-        
+
     return isSolved;
 }
 
