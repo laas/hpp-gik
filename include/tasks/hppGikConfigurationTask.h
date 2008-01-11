@@ -19,6 +19,11 @@ public:
     \brief Set the motion duration
     */
     void motionDuration(double inMotionDuration);
+    
+    /**
+    \brief Set the duration of motion extension (after the interpolation is finished, the motion duration is extended by this value)
+    */
+    void epilogueDuration(double inDuration);
 
     /**
     \brief Get the motion duration
@@ -53,9 +58,9 @@ private :
     CjrlRobotConfiguration attTargetConfiguration;
 
     /**
-    \brief Motion duration
+    \brief Motion duration and epilogue
     */
-    double attMotionDuration;
+    double attMotionDuration, attEpilogueDuration;
 
 
 

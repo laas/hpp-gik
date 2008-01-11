@@ -7,7 +7,7 @@ ChppGikHalfSittingTask::ChppGikHalfSittingTask(ChppGikStandingRobot* inStandingR
     attUpperBodyTask = new ChppGikConfigurationTask(inStandingRobot,inSamplingPeriod,inStandingRobot->halfsittingConfiguration());
 
     attStepBackTask = new ChppGikStepBackTask(inStandingRobot,attSamplingPeriod);
-    
+
     attGenericTask = new ChppGikGenericTask(inStandingRobot, inSamplingPeriod);
 }
 
@@ -15,7 +15,7 @@ void ChppGikHalfSittingTask::automaticFoot(bool inAutomatic, bool inSelectedFoot
 {
     attStepBackTask->automaticFoot( inAutomatic, inSelectedFootIsRight);
 }
-    
+
 bool ChppGikHalfSittingTask::algorithmSolve()
 {
     matrix4d &waistH = attStandingRobot->halfsittingWaistTransformation();
@@ -26,9 +26,9 @@ bool ChppGikHalfSittingTask::algorithmSolve()
     attStepBackTask->targetFeetDistance(attStandingRobot->halfsittingFeetDistance());
 
     bool isSolved = attStepBackTask->solve();
-    
+
     cropMotion( attStepBackTask );
-    
+
     if (!isSolved)
     {
         std::cout << "ChppGikHalfSittingTask::solve(): failure on phase 1.\n";
@@ -41,28 +41,43 @@ bool ChppGikHalfSittingTask::algorithmSolve()
     double waistMotionDuration = 3.0;
     ChppGikSingleMotionElement* waisttask = extractTransformationTask(lfootH,waistH,nowlFootH,attStandingRobot->robot()->waist(),waistMotionStart,waistMotionDuration,2);
     waisttask->workingJoints(attStandingRobot->maskFactory()->wholeBodyMask());
-    
+
     attGenericTask->clearElements();
     attGenericTask->addElement( waisttask );
 
     isSolved = attGenericTask->solve();
 
     cropMotion( attGenericTask );
-    
+
     if (!isSolved)
     {
         std::cout << "ChppGikHalfSittingTask::solve(): failing on phase 2.\n";
         return false;
     }
 
-    //Upper body
+    //Chest reset (//hard code to reset HRP2's chest degree of freedom no.1)
+    vectorN targetconfig = attStandingRobot->robot()->currentConfiguration();
+    targetconfig(18) = attStandingRobot->halfsittingConfiguration()(18);
+    attUpperBodyTask->targetConfiguration( targetconfig );
+
+    attUpperBodyTask->epilogueDuration(0.0);
     isSolved = attUpperBodyTask->solve();
 
     cropMotion( attUpperBodyTask );
-    
+
     if (!isSolved)
         std::cout << "ChppGikHalfSittingTask::solve(): failing on phase 3.\n";
-    
+
+    //Upper body
+    attUpperBodyTask->targetConfiguration( attStandingRobot->halfsittingConfiguration() );
+    isSolved = attUpperBodyTask->solve();
+
+    attUpperBodyTask->epilogueDuration(1.0);
+    cropMotion( attUpperBodyTask );
+
+    if (!isSolved)
+        std::cout << "ChppGikHalfSittingTask::solve(): failing on phase 4.\n";
+
     return isSolved;
 }
 

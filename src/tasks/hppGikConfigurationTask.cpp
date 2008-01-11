@@ -8,6 +8,7 @@ ChppGikConfigurationTask::ChppGikConfigurationTask(ChppGikStandingRobot* inStand
 {
     attTargetConfiguration = inTargetConfiguration;
     attMotionDuration = 4.0;
+    attEpilogueDuration = 1.0;
 }
 
 CjrlRobotConfiguration& ChppGikConfigurationTask::targetConfiguration()
@@ -19,6 +20,12 @@ void ChppGikConfigurationTask::motionDuration(double inMotionDuration)
 {
 
     attMotionDuration = inMotionDuration;
+}
+
+void ChppGikConfigurationTask::epilogueDuration(double inDuration)
+{
+
+    attEpilogueDuration = inDuration;
 }
 
 void ChppGikConfigurationTask::targetConfiguration(const CjrlRobotConfiguration& inTargetConfiguration)
@@ -50,8 +57,7 @@ bool ChppGikConfigurationTask::algorithmSolve()
         }
     }
 
-    double extraTime = 1.0;
-    unsigned int extraSamples = ChppGikTools::timetoRank(0.0,extraTime, attSamplingPeriod);
+    unsigned int extraSamples = ChppGikTools::timetoRank(0.0,attEpilogueDuration, attSamplingPeriod);
     unsigned int nSamples = ChppGikTools::timetoRank(0.0,attMotionDuration, attSamplingPeriod)+1;
     matrixNxP interpolationMatrix(attStandingRobot->robot()->numberDof(), nSamples);
     vectorN interpolationVector(nSamples);

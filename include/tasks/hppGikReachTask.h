@@ -2,8 +2,6 @@
 #define HPP_GIK_REACH_TASK_H
 
 #include "tasks/hppGikWholeBodyTask.h"
-#include "tasks/hppGikHandTask.h"
-#include "tasks/hppGikHalfSittingTask.h"
 
 /**
 \brief Use this task to make the robot reach for a target
