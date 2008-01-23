@@ -27,6 +27,8 @@ hppGikConst_HEADERS = \
 	constraints/hppGikGazeConstraint.h \
 	constraints/hppGikParallelConstraint.h \
 	constraints/hppGikRotationConstraint.h \
+	constraints/hppGikLPConstraint.h \
+	constraints/hppGikLP2Constraint.h \
 	constraints/hppGikPositionConstraint.h \
 	constraints/hppGikTransformationConstraint.h \
 	constraints/hppGikMotionConstraint.h 
@@ -56,6 +58,7 @@ hppGikTasks_HEADERS = \
 hppGikPlannersdir = $(includedir)/hpp/motionplanners
 hppGikPlanners_HEADERS = \
 	motionplanners/hppGikLocomotionPlan.h \
+	motionplanners/hppGikLocomotionPlanner.h \
 	motionplanners/hppGikPreviewController.h \
 	motionplanners/hppGikSingleMotionsPlan.h
 
@@ -64,4 +67,6 @@ hppGikRobot_HEADERS = \
 	robot/hppGikFootprintRelated.h \
 	robot/hppGikMaskFactory.h \
 	robot/hppRobotMotion.h \
-	robot/hppGikStandingRobot.h
+	robot/hppGikStandingRobot.h \
+	robot/hppGik2DShape.h
+

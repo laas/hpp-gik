@@ -27,9 +27,65 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
     for (unsigned int i=0; i < 3; i++)
         V3_I(attRelativeCOM,i) = V3_I(attRelativeCOM,i) - M4_IJ(attRFoot,i,3);
 
-    if (attRobot->countFixedJoints()==0){
-	attRobot->addFixedJoint(attRobot->rightFoot());
+    if (attRobot->countFixedJoints()==0)
+    {
+        attRobot->addFixedJoint(attRobot->rightFoot());
     }
+
+    //hard coding for robot shapes
+    ChppGik2DVertex vert;
+    vert.x = 0.05;
+    vert.y = 0.05;
+    attWaistShape.vertices.push_back(vert);
+    vert.x = -0.05;
+    vert.y = 0.07;
+    attWaistShape.vertices.push_back(vert);
+    vert.y = -0.07;
+    attWaistShape.vertices.push_back(vert);
+    vert.x = 0.05;
+    vert.y = -0.05;
+    attWaistShape.vertices.push_back(vert);
+
+
+    vert.x = 0.105;
+    vert.y = 0.079;
+    attLeftFootShape.vertices.push_back(vert);
+    vert.x = -0.105;
+    attLeftFootShape.vertices.push_back(vert);
+    vert.y = -0.059;
+    attLeftFootShape.vertices.push_back(vert);
+    vert.x = 0.135;
+    attLeftFootShape.vertices.push_back(vert);
+
+
+    vert.x = 0.135;
+    vert.y = 0.059;
+    attRightFootShape.vertices.push_back(vert);
+    vert.x = -0.105;
+    attRightFootShape.vertices.push_back(vert);
+    vert.y = -0.079;
+    attRightFootShape.vertices.push_back(vert);
+    vert.x = 0.105;
+    attRightFootShape.vertices.push_back(vert);
+
+}
+
+
+const ChppGik2DShape& ChppGikStandingRobot::waistShape() const
+{
+    return attWaistShape;
+}
+
+
+const ChppGik2DShape& ChppGikStandingRobot::leftFootShape()const
+{
+    return attLeftFootShape;
+}
+
+
+const ChppGik2DShape& ChppGikStandingRobot::rightFootShape()const
+{
+    return attRightFootShape;
 }
 
 void ChppGikStandingRobot::updateDynamics(double inSamplingPeriod, const vector3d& inZMPworPla, vector3d& outZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
@@ -68,7 +124,7 @@ vectorN ChppGikStandingRobot::computeConfigurationWrtFreeFlyer(CjrlJoint* inJoin
     ChppGikTools::RottoEulerZYX( rot, euler);
     ublas::subrange(config,0,3) = vec;
     ublas::subrange(config,3,6) = euler;
-    
+
     return config;
 }
 

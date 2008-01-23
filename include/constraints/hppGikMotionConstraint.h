@@ -19,6 +19,12 @@ public:
     \brief Constructor
      */
     ChppGikMotionConstraint(double inSamplingPeriod, double inStartTime = 0.0);
+    
+    /**
+    \brief Clone Constructor
+     */
+    CjrlGikMotionConstraint* clone() const;
+    
     /**
     \brief Append a state constraint at the end of the motion and update the end time (A copy of the given state constraint object is made).
      */
@@ -34,7 +40,7 @@ public:
     /**
     \brief Get state constraint at a given rank.
      */
-    CjrlGikStateConstraint* stateConstraintAtRank(unsigned int inRank);
+    CjrlGikStateConstraint* stateConstraintAtRank(unsigned int inRank) const;
     /**
     \brief Get the number of state constraints contained in this motion constraint
      */

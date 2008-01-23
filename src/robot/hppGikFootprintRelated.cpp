@@ -43,7 +43,7 @@ void ChppGikFootprint::makeAbsolute ( const ChppGikFootprint* inReferenceFootpri
     outFootprint->th ( outFootprint->th() + inReferenceFootprint->th() );
 }
 
-double ChppGikFootprint::distanceTo ( ChppGikFootprint* inFootprint ) const
+double ChppGikFootprint::distanceTo ( const ChppGikFootprint* inFootprint ) const
 {
     return sqrt ( pow ( inFootprint->x()-attX,2 ) +pow ( inFootprint->y()-attY,2 ) );
 }
@@ -97,6 +97,34 @@ ChppGikFootprint*  ChppGikFootprint::cookFootprint ( const matrix4d& inTransform
 ChppGikFootprint::~ChppGikFootprint()
 {}
 
+
+ChppGikFoot::ChppGikFoot(const ChppGikFootprint&  inFootprint, bool isRight)
+{
+    attIsRight = isRight;
+    attFootprint = new ChppGikFootprint(inFootprint);
+}
+
+
+ChppGikFoot::ChppGikFoot(const ChppGikFoot&  sourceObject)
+{
+    attIsRight = sourceObject.isRight();
+    attFootprint = new ChppGikFootprint ( sourceObject.footprint() );
+}
+
+const ChppGikFootprint& ChppGikFoot::footprint() const
+{
+    return *attFootprint;
+}
+
+bool ChppGikFoot::isRight() const
+{
+    return attIsRight;
+}
+
+ChppGikFoot::~ChppGikFoot()
+{
+    delete attFootprint;
+}
 
 
 

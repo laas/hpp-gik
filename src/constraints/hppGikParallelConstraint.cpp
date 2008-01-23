@@ -28,10 +28,10 @@ ChppGikParallelConstraint::ChppGikParallelConstraint(CjrlDynamicRobot& inRobot, 
     tempRot3.resize(3,3,false);
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
-   
+
     attVectorizedState.resize(9,false);
     attVectorizedTarget.resize(3,false);
-    
+
     attDimension = 3;
 }
 
@@ -63,19 +63,6 @@ void  ChppGikParallelConstraint::targetVector (const vector3d& inVector)
 const vector3d& ChppGikParallelConstraint::targetVector()
 {
     return attTargetVectorVector3;
-}
-
-
-void  ChppGikParallelConstraint::targetVectorU(const vectorN& inVector)
-{
-    attTargetVector =  inVector;
-    ChppGikTools::UblastoVector3(attTargetVector, attTargetVectorVector3);
-    attTargetVector =  attTargetVector/ublas::norm_2(attTargetVector);
-}
-
-const vectorN& ChppGikParallelConstraint::targetVectorU()
-{
-    return attTargetVector;
 }
 
 
@@ -129,7 +116,8 @@ void ChppGikParallelConstraint::computeJacobian()
 }
 
 
-const vectorN& ChppGikParallelConstraint::vectorizedState()
+
+void ChppGikParallelConstraint::computeVectorizedState()
 {
     vectorN curpos(3);
     vectorN curvel(3);
@@ -147,7 +135,7 @@ const vectorN& ChppGikParallelConstraint::vectorizedState()
     //constraint position
     ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
     curpos =  ublas::prod(tempRot,attLocalVector);
-    
+
     //std::cout << "curpos " << curpos << std::endl;
 
     //constraint velocity
@@ -162,15 +150,14 @@ const vectorN& ChppGikParallelConstraint::vectorizedState()
     ChppGikTools::CrossProduct(rotaccel,curpos,curaccel);
     ChppGikTools::CrossProduct(rotvel,curvel,temp);
     curaccel.plus_assign(temp);
-    
+
     subrange(attVectorizedState,0,3) = curpos;
     subrange(attVectorizedState,3,6) = curvel;
     subrange(attVectorizedState,6,9) = curaccel;
 
-    return attVectorizedState;
+
 
 }
-
 
 
 bool ChppGikParallelConstraint::vectorizedTarget ( const vectorN& inVector )
@@ -181,12 +168,19 @@ bool ChppGikParallelConstraint::vectorizedTarget ( const vectorN& inVector )
         return false;
     }
 
-    targetVectorU ( inVector );
-
+    double n = norm_2(inVector);
+    if (n==0)
+    {
+        std::cout << "ChppGikParallelConstraint::vectorizedTarget(inVector) given target vector is null. Aborting target assignement \n";
+        return false;
+    }
+    ChppGikTools::UblastoVector3(inVector, attTargetVectorVector3);
+    attTargetVector =  inVector/n;
+    attVectorizedTarget = inVector;
     return true;
 }
 
-const vectorN& ChppGikParallelConstraint::vectorizedTarget()
+void ChppGikParallelConstraint::computeVectorizedTarget()
 {
-    return attTargetVector;
+    attVectorizedTarget = attTargetVector;
 }

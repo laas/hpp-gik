@@ -3,6 +3,8 @@
 #include "constraints/hppGikTransformationConstraint.h"
 #include "hppGikTools.h"
 
+#define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
+
 using namespace ublas;
 
 ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame, const matrix3d& inTargetOrientation):ChppGikJointStateConstraint(inRobot, inJoint)
@@ -10,7 +12,6 @@ ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobo
     attLocalPointVector3 =  inPointInBodyLocalFrame;
     attWorldTargetVector3 =  inPointInWorldFrame;
     attTargetOrientationMatrix3 = inTargetOrientation;
-
     attLocalPoint.resize(3,false);
     attWorldTarget.resize(3,false);
     attTargetOrientation.resize(3,3,false);
@@ -28,9 +29,9 @@ ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobo
 
     attVectorizedState.resize(18,false);
     attVectorizedTarget.resize(6,false);
-    
+
     attDimension = 6;
-    
+
 }
 
 ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame,  const matrix4d& inTransformation):ChppGikJointStateConstraint(inRobot, inJoint)
@@ -53,10 +54,10 @@ ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobo
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
     tempGapRot.resize(3,3,false);
-   
+
     attVectorizedState.resize(18,false);
     attVectorizedTarget.resize(6,false);
-    
+
     attDimension = 6;
 
 }
@@ -101,27 +102,23 @@ const matrix3d& ChppGikTransformationConstraint::targetOrientation()
 }
 
 
-
-void  ChppGikTransformationConstraint::worldTargetU(const vectorN& inPoint)
+void  ChppGikTransformationConstraint::targetTransformation(const matrix4d& inTransformation)
 {
-    attWorldTarget = inPoint;
+    ChppGikTools::HtoRT(inTransformation,attTargetOrientation,attWorldTarget);
     ChppGikTools::UblastoVector3(attWorldTarget, attWorldTargetVector3);
-}
-
-const vectorN& ChppGikTransformationConstraint::worldTargetU()
-{
-    return attWorldTarget;
-}
-
-void  ChppGikTransformationConstraint::targetOrientationU(const matrixNxP& inTargetOrientation)
-{
-    attTargetOrientation = inTargetOrientation;
     ChppGikTools::UblastoMatrix3(attTargetOrientation, attTargetOrientationMatrix3);
 }
 
-const matrixNxP& ChppGikTransformationConstraint::targetOrientationU()
+const matrix4d& ChppGikTransformationConstraint::targetTransformation()
 {
-    return attTargetOrientation;
+    for (unsigned int i=0; i< 3; i++)
+        for (unsigned int j=0; j< 3; j++)
+            M4_IJ(attTargetTransformation4, i, j) = attTargetOrientation(i,j);
+    
+    for (unsigned int i=0; i< 3; i++)
+        M4_IJ(attTargetTransformation4, i, 3) = attWorldTarget(i);
+    
+    return attTargetTransformation4;
 }
 
 
@@ -179,7 +176,7 @@ void ChppGikTransformationConstraint::computeJacobian()
 }
 
 
-const vectorN& ChppGikTransformationConstraint::vectorizedState()
+void ChppGikTransformationConstraint::computeVectorizedState()
 {
     vectorN curpos(3);
     vectorN curvel(3);
@@ -213,23 +210,23 @@ const vectorN& ChppGikTransformationConstraint::vectorizedState()
     ChppGikTools::CrossProduct(rotvel,rotvelCrossLocal,temp3DVec);
     curaccel += temp3DVec;
     ChppGikTools::OmegatoEulerZYX(rotaccel,curEulerAccel);
-    
+
     subrange(attVectorizedState,0,3) = curpos;
     subrange(attVectorizedState,3,6) = curEuler;
     subrange(attVectorizedState,6,9) = curvel;
     subrange(attVectorizedState,9,12) = curEulerVel;
     subrange(attVectorizedState,12,15) = curaccel;
     subrange(attVectorizedState,15,18) = curEulerAccel;
-    
-    return attVectorizedState;
+
+
 }
 
-const vectorN& ChppGikTransformationConstraint::vectorizedTarget()
+
+void ChppGikTransformationConstraint::computeVectorizedTarget()
 {
     subrange(attVectorizedTarget,0,3) = attWorldTarget;
     ChppGikTools::RottoEulerZYX(attTargetOrientation, temp3DVec1);
     subrange(attVectorizedTarget,3,6) = temp3DVec1;
-    return attVectorizedTarget;
 }
 
 bool ChppGikTransformationConstraint::vectorizedTarget(const vectorN& inVector )
@@ -240,11 +237,14 @@ bool ChppGikTransformationConstraint::vectorizedTarget(const vectorN& inVector )
         return false;
     }
 
-    temp3DVec = subrange(inVector,0,3);
+    attVectorizedTarget = inVector;
+    
+    attWorldTarget = subrange(inVector,0,3);
+    ChppGikTools::UblastoVector3(attWorldTarget, attWorldTargetVector3);
+    
     temp3DVec1 = subrange(inVector,3,6);
-    ChppGikTools::EulerZYXtoRot ( temp3DVec1,tempRot );
-    worldTargetU ( temp3DVec );
-    targetOrientationU ( tempRot );
+    ChppGikTools::EulerZYXtoRot ( temp3DVec1,attTargetOrientation );
+    ChppGikTools::UblastoMatrix3(attTargetOrientation, attTargetOrientationMatrix3);
 
     return true;
 }

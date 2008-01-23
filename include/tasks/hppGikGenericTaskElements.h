@@ -89,6 +89,11 @@ public:
     ChppGikSingleMotionElement(ChppGikPlannableConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime=0.0, double inDuration=0.0);
 
     /**
+    \brief clone constructor
+    */
+    CjrlGikMotionConstraint* clone() const;
+    
+    /**
     \brief Get state constraint at a given time.
     \return null pointer if time out of bounds or if motion not planned yet
      */
@@ -361,12 +366,6 @@ protected:
     double attDuration;
 
 private:
-
-    /**
-    \brief Convenience function that fills a ChppGikTransformationConstraint from a given 4d vector
-     */
-    void fillFootConstraint( ChppGikTransformationConstraint* inConstraint, vectorN& inVectorX_Y_YAW_Z);
-
 
     matrixNxP tempRot;
 

@@ -24,10 +24,10 @@ ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, 
     tempRot.resize(3,3,false);
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
-    
+
     attVectorizedState.resize(9,false);
     attVectorizedTarget.resize(3,false);
-    
+
     attDimension = 3;
 }
 
@@ -59,22 +59,6 @@ const vector3d& ChppGikPositionConstraint::worldTarget()
     return attWorldTargetVector3;
 }
 
-void  ChppGikPositionConstraint::worldTargetU(const vectorN& inPoint)
-{
-    if (inPoint.size() !=3)
-    {
-        std::cout << "ChppGikPositionConstraint::worldTargetU() received a vector of incorrect size\n";
-        return;
-    }
-    attWorldTarget = inPoint;
-    ChppGikTools::UblastoVector3(attWorldTarget, attWorldTargetVector3);
-}
-
-const vectorN& ChppGikPositionConstraint::worldTargetU()
-{
-    return attWorldTarget;
-}
-
 
 void ChppGikPositionConstraint::computeValue()
 {
@@ -92,34 +76,35 @@ void ChppGikPositionConstraint::computeJacobian()
 
     int start = attRobot->numberDof() - attNumberActuatedDofs;
     attJacobian = subrange(tempJacobian,0,3,start,attRobot->numberDof());
-    
 
-    if (attRobot->countFixedJoints()>0){
-	tempFixedJoint = &(attRobot->fixedJoint(0));
-	tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-	if (!tempFixedJointJacobian)
-	{
-	    std::cout << "ChppGikPositionConstraint::computeJacobian() could not retrieve partial jacobians.\n";
-	    return;
-	}
-	attJacobian.minus_assign(subrange(*tempFixedJointJacobian,
-					  0,3,start,attRobot->numberDof()));
-    
-	ChppGikTools::HtoRT(attJoint->currentTransformation(),
-			    tempRot,temp3DVec);
-	noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
-	temp3DVec.plus_assign(temp3DVec1);//joint point in world
 
-	ChppGikTools::HtoT(tempFixedJoint->currentTransformation(),temp3DVec1);
-	temp3DVec.minus_assign(temp3DVec1);//joint point in world - ankle joint center in world
-    
-	ChppGikTools::equivAsymMat(temp3DVec,tempRot);
-	noalias(attJacobian) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,start,attRobot->numberDof()));
+    if (attRobot->countFixedJoints()>0)
+    {
+        tempFixedJoint = &(attRobot->fixedJoint(0));
+        tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
+        if (!tempFixedJointJacobian)
+        {
+            std::cout << "ChppGikPositionConstraint::computeJacobian() could not retrieve partial jacobians.\n";
+            return;
+        }
+        attJacobian.minus_assign(subrange(*tempFixedJointJacobian,
+                                          0,3,start,attRobot->numberDof()));
+
+        ChppGikTools::HtoRT(attJoint->currentTransformation(),
+                            tempRot,temp3DVec);
+        noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
+        temp3DVec.plus_assign(temp3DVec1);//joint point in world
+
+        ChppGikTools::HtoT(tempFixedJoint->currentTransformation(),temp3DVec1);
+        temp3DVec.minus_assign(temp3DVec1);//joint point in world - ankle joint center in world
+
+        ChppGikTools::equivAsymMat(temp3DVec,tempRot);
+        noalias(attJacobian) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,start,attRobot->numberDof()));
     }
 }
 
 
-const vectorN& ChppGikPositionConstraint::vectorizedState()
+void ChppGikPositionConstraint::computeVectorizedState()
 {
     vectorN curpos(3);
     vectorN curvel = zero_vector<double>(3);
@@ -147,7 +132,7 @@ const vectorN& ChppGikPositionConstraint::vectorizedState()
     //constraint acceleration
     ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().linearAcceleration(),curaccel);
     //std::cout << "curaccel " << curaccel << "\n";
-     ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().rotationAcceleration(),rotaccel);
+    ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().rotationAcceleration(),rotaccel);
     ChppGikTools::CrossProduct(rotaccel,worldLocalPoint,temp);
     curaccel += temp;
     //std::cout << "curaccel " << curaccel << "\n";
@@ -155,15 +140,12 @@ const vectorN& ChppGikPositionConstraint::vectorizedState()
     curaccel += temp;
 
     //std::cout << "curaccel " << curaccel << "\n";
-    
+
     subrange(attVectorizedState,0,3) = curpos;
     subrange(attVectorizedState,3,6) = curvel;
     subrange(attVectorizedState,6,9) = curaccel;
 
-    return attVectorizedState;
 }
-
-
 
 bool ChppGikPositionConstraint::vectorizedTarget ( const vectorN& inVector )
 {
@@ -173,11 +155,13 @@ bool ChppGikPositionConstraint::vectorizedTarget ( const vectorN& inVector )
         return false;
     }
 
-    worldTargetU ( inVector );
+    attWorldTarget = inVector;
+    ChppGikTools::UblastoVector3(attWorldTarget, attWorldTargetVector3);
+    attVectorizedTarget = inVector;
     return true;
 }
 
-const vectorN& ChppGikPositionConstraint::vectorizedTarget()
+void ChppGikPositionConstraint::computeVectorizedTarget()
 {
-    return attWorldTarget;
+    attVectorizedTarget = attWorldTarget;
 }

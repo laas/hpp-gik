@@ -78,7 +78,7 @@ private:
     /**
     \brief Remember the pointers to the entered ready motion constraints
     */
-    std::vector<ChppGikMotionConstraint*> attReadyMotionConstraints;
+    std::vector<CjrlGikMotionConstraint*> attReadyMotionConstraints;
     /**
     \brief Remember the pointers to the motions plan rows holding the references to the entered ready motion constraints
     */

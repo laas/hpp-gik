@@ -70,7 +70,7 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
 
     jobU = 'N';
     jobVt = 'A';
-    
+
     FixedJoint = 0;
 
 }

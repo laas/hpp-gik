@@ -5,6 +5,10 @@
 #include "robotDynamics/jrlHumanoidDynamicRobot.h"
 #include "robot/hppGikFootprintRelated.h"
 #include "robot/hppGikMaskFactory.h"
+#include "robot/hppGik2DShape.h"
+
+
+
 /**
 \brief This is a wrapper for a jrlHumanoidDynamicRobot, its support polygon and related information
 */
@@ -37,10 +41,25 @@ public:
     bool leftFootAhead();
 
     /**
+    \brief get the 2DShape representing the robot's waist seen from above
+    */
+    const ChppGik2DShape& waistShape()const;
+
+    /**
+    \brief get the 2DShape representing the robot's left foot seen from above
+     */
+    const ChppGik2DShape& leftFootShape()const;
+
+    /**
+    \brief get the 2DShape representing the robot's right foot seen from above
+     */
+    const ChppGik2DShape& rightFootShape()const;
+
+    /**
     \name HalfSitting configuration related
     {@
     */
-    
+
     /**
     \brief Get (dx, dy, dz) defined by (dy = YCOM - Yrfoot) and (dx = XCOM - Xrfoot) in world frame when the robot is in half sitting stance
     */
@@ -95,7 +114,7 @@ public:
     \brief apply the static half sitting configuration to the robot
     */
     void staticHalfsitting();
-    
+
     /**
     @}
      */
@@ -112,12 +131,12 @@ public:
     */
     void updateDynamics(double inSamplingPeriod, const vector3d& inZMPworPla, vector3d& outZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla);
 
-    
+
     /**
     \brief compute the transformation of the root body based on the desired transformation of a body in the world and return the corresponding robot configuration.
     */
     vectorN computeConfigurationWrtFreeFlyer(CjrlJoint* inJoint, matrix4d& inFreeFlyerInWorld);
-    
+
     /**
     \brief Destructor
     */
@@ -152,11 +171,16 @@ private:
     \brief Half sitting configuration
     */
     vectorN attHalfSittingConfig;
-    
+
     /**
     \brief transformation of end bodies in half sitting stance
     */
     matrix4d attLWrist, attRWrist, attHead, attWaist, attLFoot, attRFoot;
+
+    /**
+    \brief Shapes 
+    */
+    ChppGik2DShape attWaistShape,attLeftFootShape, attRightFootShape;
 
     /**
     {@

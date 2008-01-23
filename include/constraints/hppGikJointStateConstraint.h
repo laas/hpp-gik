@@ -28,7 +28,7 @@ public:
     virtual CjrlDynamicRobot& robot();
 
     /**
-        \brief Set the joint associated to the constraint.
+        \brief Set the joint associated to the constraint. This also calls computeInfluencingDofs().
      */
     virtual void  joint(CjrlJoint* inJoint);
     /**
@@ -55,6 +55,26 @@ public:
         \brief Get the influencing dofs
      */
     virtual vectorN& influencingDofs();
+    
+    /**
+    \brief Implementation of computeInterpolatedTarget() from ChppGikPlannable
+     */
+    virtual void computeInterpolatedTarget(double inLambda);
+    
+    /**
+        \brief Implementation of interpolatedTarget()  from ChppGikPlannable
+    */
+    virtual const vectorN& interpolatedTarget();
+    
+    /**
+    \brief Get the full state (this constraint and its first two derivatives) of the constraint expressed as a vectorN.
+     */
+    virtual const vectorN& vectorizedState() const;
+    
+    /**
+    \brief Get the vectorized target for this constraint
+    */
+    virtual const vectorN& vectorizedTarget() const;
 
 protected:
 

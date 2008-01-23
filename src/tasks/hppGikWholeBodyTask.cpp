@@ -271,7 +271,7 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
     outY = centerY;
     
     double maxDist = 0;
-    vectorN target(3);
+    vectorN target(3), vectorizedTarget(6);
     bool check = false;
     double temp;
 
@@ -283,7 +283,8 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
         check = (posConstr != 0);
         if (check)
         {
-            target = posConstr->worldTargetU();
+            posConstr->computeVectorizedTarget();
+            target = ((ChppGikPlannableConstraint*)posConstr)->vectorizedTarget();
         }
         else
         {
@@ -291,7 +292,9 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
             check = (transConstr != 0);
             if (check)
             {
-                target = transConstr->worldTargetU();
+                transConstr->computeVectorizedTarget();
+                vectorizedTarget = ((ChppGikPlannableConstraint*)transConstr)->vectorizedTarget();
+                target = subrange(vectorizedTarget,0,3);
             }
         }
         if (check)

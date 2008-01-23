@@ -37,7 +37,7 @@ public:
 
      */
     static void makeRelative(const ChppGikFootprint* inReferenceFootprint,  ChppGikFootprint* outSubjectFootprint);
-    
+
     /**
     \brief Reverse method of makeRelative (express outSubjectFootprint (supposed initially relative to inReferenceFootprint) in the frame in which inReferenceFootprint is expressed)
      */
@@ -46,8 +46,8 @@ public:
     /**
     \brief Distance to the given footprint
      */
-    double distanceTo(ChppGikFootprint* inFootprint) const;
-    
+    double distanceTo(const ChppGikFootprint* inFootprint) const;
+
     /**
     \brief make a footprint from a transformation. Return 0 if the foot transformation did not turn flat on the ground
      */
@@ -78,6 +78,42 @@ private:
 };
 
 /**
+\brief This is a foot ! A footprint with the information right or left
+ */
+class ChppGikFoot
+{
+public:
+    /**
+    \constructor
+    */
+    ChppGikFoot(const ChppGikFootprint&  inFootprint, bool isRight);
+
+    /**
+    \copy constructor
+     */
+    ChppGikFoot(const ChppGikFoot&  sourceObject);
+
+    /**
+    \brief Get the associated footprint
+    */
+    const ChppGikFootprint& footprint() const;
+
+    /**
+    \brief Is this the right foot
+    */
+    bool isRight() const;
+    
+    /**
+    \brief destructor
+    */
+    ~ChppGikFoot();
+
+private:
+    bool attIsRight;
+    ChppGikFootprint* attFootprint;
+};
+
+/**
 \brief This is a support polygon class. A support polygon is defined by at least one foot print.
  */
 class ChppGikSupportPolygon
@@ -95,7 +131,7 @@ public:
     \brief Deep copy constructor
      */
     ChppGikSupportPolygon(const ChppGikSupportPolygon&  sourceObject);
-    
+
     /**
     \brief Apply step
      */
@@ -127,23 +163,23 @@ public:
     \brief print the current support polygon
     */
     void print() const;
-     
+
     /**
     \brief try to construct the support polygon from the given transformation.
     \return 0 if no foot is found on ground
      */
     static ChppGikSupportPolygon* makeSupportPolygon(const matrix4d& leftFootH, const matrix4d& rightFootH, double normalAnkleHeight);
-            
+
     /**
     \brief Get the center of the support polygon: single support: ankle projection, double support: middle point of ankle projections
     */
     void center(double& outX, double& outY);
-    
+
     /**
     \brief Get the "mean orientation vector" defined by (xf1 (+ xf2) )/2 where xfi is the x axis of foot i
      */
     vector3d meanOrientation();
-    
+
     /**
     \brief Tell if the given 2D point is inside this support polygon. A weak version is implemented: if the support polygon is simple, check wether the given point is in the disc centered on the orthogonal projection of the foot ankle on the ground. The radius is arbitrarily set to 4 cm. If the support is double, see if the point is in the area covered by the continuous translation of the same disc from one ankle projection to the other.
      */
@@ -154,26 +190,26 @@ public:
     \return 0 if nothing stored
     */
     const matrix4d* rfootTransformation() const;
-    
+
     /**
     \brief Get a pointer to a stored transformation matrix for the left foot. Temporary method (until new version is ready):
     \return 0 if nothing stored
      */
     const matrix4d* lfootTransformation() const;
-    
+
     /**
     \brief store a transformation matrix for the right foot. Temporary method (until new version is ready):
     \return 0 if nothing stored
     */
     void rfootTransformation( const matrix4d& inMatrix);
-    
+
     /**
     \brief store matrix for the left foot. Temporary method (until new version is ready):
     \return 0 if nothing stored
      */
     void lfootTransformation( const matrix4d& inMatrix);
-    
-    
+
+
     ~ChppGikSupportPolygon();
 
 private:

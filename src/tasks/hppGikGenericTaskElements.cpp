@@ -57,6 +57,7 @@ ChppGikSingleMotionElement::ChppGikSingleMotionElement(ChppGikPlannableConstrain
     attEndTime = inDuration + inStartTime;
     
     attConstraint = dynamic_cast<ChppGikPlannableConstraint*>(inTargetConstraint->clone());
+    attConstraint->computeVectorizedTarget();
     attTarget = attConstraint->vectorizedTarget();
     attSample = attTarget;
 
@@ -67,6 +68,12 @@ ChppGikSingleMotionElement::ChppGikSingleMotionElement(ChppGikPlannableConstrain
 
     if (attStartTime < 0.0)
         startTime( 0.0 );
+}
+
+CjrlGikMotionConstraint* ChppGikSingleMotionElement::clone() const
+{
+    ChppGikSingleMotionElement* sm = new ChppGikSingleMotionElement(attConstraint, attPriority, attStartTime, attDuration);
+    return sm;
 }
 
 unsigned int ChppGikSingleMotionElement::priority ()
@@ -81,7 +88,7 @@ double ChppGikSingleMotionElement::startTime()
 
 void ChppGikSingleMotionElement::startTime(double inStartTime)
 {
-    attEndTime = attStartTime + inStartTime;
+    attEndTime = attDuration + inStartTime;
     attStartTime = inStartTime;
 }
 
@@ -141,7 +148,8 @@ bool ChppGikSingleMotionElement::planningAlgorithm()
     attInterpolationData.resize(stateSize, nsamples,false);
     attInterpolationLine.resize(nsamples,false);
     
-    vectorN currentState = attConstraint->vectorizedState();
+    attConstraint->computeVectorizedState();
+    const vectorN& currentState = attConstraint->vectorizedState();
     
     for ( unsigned int i=0; i<stateSize;i++ )
     {
@@ -535,7 +543,7 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
     for (unsigned int i = 1; i< nsamples; i++)
     {
         vecXYZRPY = column(data,i);
-        fillFootConstraint(footConstraint, vecXYZRPY);
+        footConstraint->vectorizedTarget( vecXYZRPY );
         outFootMotion.pushbackStateConstraint((CjrlGikTransformationConstraint*)footConstraint);
     }
     delete footConstraint;
@@ -551,19 +559,6 @@ bool ChppGikFootDisplaceElement::planMotions(ChppGikSupportPolygonMotion& outSup
     return true;
 }
 
-void ChppGikFootDisplaceElement::fillFootConstraint( ChppGikTransformationConstraint* inConstraint, vectorN& inVectorXYZRPY)
-{
-    if (inVectorXYZRPY.size() !=6)
-        std::cout << "ChppGikLocomotionPlan::fillFootConstraint(): Shouldn't happen\n";
-
-    vectorN rpy = ublas::subrange(inVectorXYZRPY,3,6);
-    ChppGikTools::EulerZYXtoRot(rpy, tempRot);
-
-    vectorN xyz = ublas::subrange(inVectorXYZRPY,0,3);
-
-    inConstraint->worldTargetU(xyz);
-    inConstraint->targetOrientationU(tempRot);
-}
 
 ChppGikFootDisplaceElement::~ChppGikFootDisplaceElement()
 {

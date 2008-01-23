@@ -20,7 +20,7 @@ PKG_CHECK_MODULES(ABS_GIKTASK, abstractgiktask_reqd)
 ABS_GIKTASK_PREFIX=`$PKG_CONFIG abstractGikTask --variable=prefix`
 AC_SUBST(ABS_GIKTASK_PREFIX)
 
-define(dynamicsjrljapan_reqd, [dynamicsJRLJapan >= 1.6])
+define(dynamicsjrljapan_reqd, [dynamicsJRLJapan >= 1.6.99])
 AC_SUBST(DYNAMICSJRLJAPAN_REQD, "dynamicsjrljapan_reqd")
 PKG_CHECK_MODULES(DYNAMICSJRLJAPAN, dynamicsjrljapan_reqd)
 

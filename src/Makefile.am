@@ -14,6 +14,8 @@ libhppGik_la_SOURCES = \
 	constraints/hppGikParallelConstraint.cpp \
 	constraints/hppGikRotationConstraint.cpp \
 	constraints/hppGikPositionConstraint.cpp \
+	constraints/hppGikLPConstraint.cpp \
+	constraints/hppGikLP2Constraint.cpp \
 	constraints/hppGikComConstraint.cpp \
 	constraints/hppGikTransformationConstraint.cpp \
 	constraints/hppGikMotionConstraint.cpp \
@@ -23,6 +25,7 @@ libhppGik_la_SOURCES = \
 	core/hppGikMotionPlan.cpp \
 	core/hppGikMotionPlanRow.cpp \
 	motionplanners/hppGikLocomotionPlan.cpp \
+	motionplanners/hppGikLocomotionPlanner.cpp \
 	motionplanners/hppGikPreviewController.cpp \
 	motionplanners/hppGikSingleMotionsPlan.cpp \
 	tasks/hppGikGenericTask.cpp \

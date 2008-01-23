@@ -8,8 +8,10 @@
 SUBDIRS = \
 	src 		\
 	include 	\
-	unitTesting	\
-	doc
+	unitTesting
+
+	
+#	doc
 
 hppGikdir = $(libdir)/pkgconfig
 hppGik_DATA = \

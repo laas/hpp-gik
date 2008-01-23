@@ -19,6 +19,8 @@
 #include "tasks/hppGikHandTask.h"
 #include "tasks/hppGikHalfSittingTask.h"
 
+#include "hppGikViewer.h"
+
 /**
  \brief UnitTesting class of class ChppGik
 */
@@ -44,6 +46,16 @@ public:
     \brief a method serving as an example on gikSolver usage
     */
     void basicExample();
+    
+    /**
+    \brief
+    */
+    void locoPlannerTest();
+    
+    /**
+    \brief
+    */
+    void locoPlannerTestInteractive();
 
 
 private:
@@ -90,6 +102,8 @@ private:
     void dumpMotion();
     
     void clearMotion();
+    
+    void draw2DRobot();
 
     void customSave(std::istringstream& stream);
 
@@ -112,6 +126,10 @@ private:
     ChppRobotMotion* attMotion;
     
     char attMotionName[256];
+    
+    ChppGikViewer* attViewer;
+    
+    bool attViewerHealthy;
 
 };
 

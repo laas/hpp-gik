@@ -18,10 +18,10 @@ ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, 
     temp3DVec.resize(3,false);
     tempRot.resize(3,3,false);
     tempGapRot.resize(3,3,false);
-    
+
     attVectorizedState.resize(9,false);
     attVectorizedTarget.resize(3,false);
-    
+
     attDimension = 3;
 }
 
@@ -42,16 +42,6 @@ const matrix3d& ChppGikRotationConstraint::targetOrientation()
     return attTargetOrientationMatrix3;
 }
 
-void  ChppGikRotationConstraint::targetOrientationU(const matrixNxP& inTargetOrientation)
-{
-    attTargetOrientation = inTargetOrientation;
-    ChppGikTools::UblastoMatrix3(attTargetOrientation, attTargetOrientationMatrix3);
-}
-
-const matrixNxP& ChppGikRotationConstraint::targetOrientationU()
-{
-    return attTargetOrientation;
-}
 
 void ChppGikRotationConstraint::computeValue()
 {
@@ -88,8 +78,7 @@ void ChppGikRotationConstraint::computeJacobian()
     noalias(attJacobian) = subrange(*tempEffectorJointJacobian,3,6,6,attRobot->numberDof()) - subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof());
 }
 
-
-const vectorN& ChppGikRotationConstraint::vectorizedState()
+void ChppGikRotationConstraint::computeVectorizedState()
 {
     vectorN curEuler(3);
     vectorN curEulerVel(3);
@@ -115,10 +104,8 @@ const vectorN& ChppGikRotationConstraint::vectorizedState()
     subrange(attVectorizedState,3,6) = curEulerVel;
     subrange(attVectorizedState,6,9) = curEulerAccel;
 
-    return attVectorizedState;
+    
 }
-
-
 
 bool ChppGikRotationConstraint::vectorizedTarget ( const vectorN& inVector )
 {
@@ -128,15 +115,15 @@ bool ChppGikRotationConstraint::vectorizedTarget ( const vectorN& inVector )
         return false;
     }
 
-    ChppGikTools::EulerZYXtoRot ( inVector,tempRot );
-    targetOrientationU ( tempRot );
-
+    ChppGikTools::EulerZYXtoRot ( inVector,attTargetOrientation );
+    ChppGikTools::UblastoMatrix3(attTargetOrientation, attTargetOrientationMatrix3);
+    attVectorizedTarget = inVector;
     return true;
 }
 
-const vectorN& ChppGikRotationConstraint::vectorizedTarget()
+void ChppGikRotationConstraint::computeVectorizedTarget()
 {
     ChppGikTools::RottoEulerZYX ( attTargetOrientation, temp3DVec );
     attVectorizedTarget = temp3DVec;
-    return attVectorizedTarget;
+
 }

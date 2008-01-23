@@ -41,28 +41,22 @@ public:
      */
     virtual const vector3d& worldTarget();
 
+    /**
+    \brief Get the full state (this constraint and its first two derivatives) of the constraint expressed as a vectorN.
+     */
+    virtual void computeVectorizedState();
+
 
     /**
-    \brief Same as worldTarget but take/return ublas vector
+    \brief Compute the target of the constraint as a vectorN.
      */
-    virtual void  worldTargetU(const vectorN& inPoint);
-    virtual const vectorN& worldTargetU();
+    virtual void computeVectorizedTarget();
 
     /**
-    \brief Get the full state of the constraint (constraint plus it's 2 first derivatives) expressed as a vectorN. Dimenstion of returned vector is 3xdimension of the implementing constraint
+    \brief A unified method to change the target of the constraint with a vectorN.
+    \return false if the argument's size does not match the one expected for this constraint type
      */
-    virtual const vectorN& vectorizedState();
-
-    /**
-    \brief Set the target of the constraint expressed as a vectorN.
-    \return false if the vectorizedTarget is not of the correct dimension
-     */
-    virtual bool vectorizedTarget ( const vectorN& inTarget );
-    
-    /**
-    \brief Get the target of the constraint expressed as a vectorN. Each constraint knows how to compute its own vectorizedTarget
-     */
-    virtual const vectorN& vectorizedTarget();
+    virtual bool vectorizedTarget( const vectorN& inTarget );
 
 
     /**

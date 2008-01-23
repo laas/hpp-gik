@@ -50,30 +50,30 @@ public:
      */
     virtual const matrix3d& targetOrientation();
 
+    /**
+    \brief Set the target transformation for this constraint.
+     */
+    virtual void  targetTransformation(const matrix4d& inTransform);
+    /**
+    \brief Get the target transformation
+     */
+    virtual const matrix4d& targetTransformation();
 
     /**
-    \brief Same as above methos but take/return ublas vectors/matrices.
+    \brief Get the full state (this constraint and its first two derivatives) of the constraint expressed as a vectorN.
      */
-    virtual void  worldTargetU(const vectorN& inPoint);
-    virtual const vectorN& worldTargetU();
-    virtual void  targetOrientationU(const matrixNxP& inRot);
-    virtual const matrixNxP& targetOrientationU();
+    virtual void computeVectorizedState();
 
     /**
-    \brief Get the full state of the constraint (constraint plus it's 2 first derivatives) expressed as a vectorN. Dimenstion of returned vector is 3xdimension of the implementing constraint
+    \brief Compute the target of the constraint as a vectorN.
      */
-    virtual const vectorN& vectorizedState();
+    virtual void computeVectorizedTarget();
 
     /**
-    \brief Set the target of the constraint expressed as a vectorN.
-    \return false if the vectorizedTarget is not of the correct dimension
+    \brief A unified method to change the target of the constraint with a vectorN.
+    \return false if the argument's size does not match the one expected for this constraint type
      */
-    virtual bool vectorizedTarget ( const vectorN& inTarget );
-    
-    /**
-    \brief Get the target of the constraint expressed as a vectorN. Each constraint knows how to compute its own vectorizedTarget
-     */
-    virtual const vectorN& vectorizedTarget();
+    virtual bool vectorizedTarget( const vectorN& inTarget );
 
     /**
     \brief Compute the value of the constraint.
@@ -103,6 +103,8 @@ private:
     vector3d attWorldTargetVector3;
 
     matrix3d attTargetOrientationMatrix3;
+    
+    matrix4d attTargetTransformation4;
 
 
     vectorN attLocalPoint;

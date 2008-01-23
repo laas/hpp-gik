@@ -5,6 +5,16 @@
 #include "hppGikTools.h"
 #include <time.h>
 #include <sys/time.h>
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
+#include <unistd.h>
+
+#include "motionplanners/hppGikLocomotionPlanner.h"
+
+#define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
+
 //#include "tasks/hppGikCmpTask.h"
 using namespace std;
 
@@ -16,7 +26,7 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(10e-3)
     strcpy(attMotionName,"usermotion");
 
     createHumanoidRobot();
-    
+
     attWholeBodyTask = new ChppGikWholeBodyTask(attStandingRobot,attSamplingPeriod);
 
     attHalfSittingTask = new ChppGikHalfSittingTask(attStandingRobot, attSamplingPeriod);
@@ -26,7 +36,10 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(10e-3)
     attStepBackTask = new ChppGikStepBackTask(attStandingRobot, attSamplingPeriod);
 
     attMotion = new ChppRobotMotion(attRobot, 0.0, attSamplingPeriod);
-    
+
+    attViewerHealthy = false;
+    attViewer = new ChppGikViewer(attViewerHealthy);
+
 }
 
 ChppGikTest::~ChppGikTest()
@@ -37,6 +50,7 @@ ChppGikTest::~ChppGikTest()
     delete attStepBackTask;
     delete attHandTask;
     delete attMotion;
+    delete attViewer;
 }
 
 void ChppGikTest::createHumanoidRobot()
@@ -758,7 +772,7 @@ void ChppGikTest::goDownTree(const CjrlJoint* startJoint)
 
 void ChppGikTest::basicExample()
 {
-    
+
     //We have a robot at some initial configuration
 
     //all coordinates are in world frame (when the robot is in half sitting configuration, the world frame is located at the projection of the waist center on the ground, x axis pointing forwards, z axis upwards)
@@ -767,13 +781,13 @@ void ChppGikTest::basicExample()
 
     //Note that the following constrants are being created and stacked in decreasing priority
 
-    
+
     //Select the support foot
     CjrlJoint* fixedFoot = attRobot->rightFoot(); //arbitrary
     //Record the fixed foot in the robot object:
     attRobot->clearFixedJoints();
     attRobot->addFixedJoint( fixedFoot );
-    
+
     //Create a Gik solver
     ChppGikSolver* gikSolver = new ChppGikSolver(attRobot);
 
@@ -827,17 +841,17 @@ void ChppGikTest::basicExample()
         combined(i) *= activated(i);
     gikSolver->weights(combined);
 
-    
+
     vector3d p;
     ChppRobotMotion attSolutionMotion(attRobot, 0.0 , attSamplingPeriod);
-    
+
     struct timeval *Tps, *Tpf;
     struct timezone *Tzp;
     Tps = (struct timeval*) malloc(sizeof(struct timeval));
     Tpf = (struct timeval*) malloc(sizeof(struct timeval));
     Tzp = 0;
     gettimeofday (Tps, Tzp);
-    
+
     for (unsigned int j = 0; j< 500;j++)
     {
         p = pc->worldTarget();
@@ -876,12 +890,287 @@ void ChppGikTest::basicExample()
     printf("Basic example solved in: %ld ms\n", (Tpf->tv_sec-Tps->tv_sec)*1000 + (Tpf->tv_usec-Tps->tv_usec)/1000);
     free(Tps);
     free(Tpf);
-    
+
     attSolutionMotion.dumpTo( "test" );
 
     //clean the mess
     delete gikSolver;
     for (unsigned int i = 0; i<stack.size();i++)
         delete stack[i];
-    
+
 }
+
+void ChppGikTest::locoPlannerTest()
+{
+
+    ChppGikLocomotionPlanner lplanner(attStandingRobot);
+    std::vector<ChppGikPlannableConstraint*> constraints;
+    vector3d targetPoint, localPoint, normalVec;
+
+    ///*
+    //create the non support foot constraint
+    targetPoint[0] = -2;
+    targetPoint[1] = 1;
+    targetPoint[2] = 1.4;
+    ChppGikGazeConstraint gc( *(attStandingRobot->robot()), targetPoint);
+    constraints.push_back(&gc);
+    //*/
+
+    //ChppGikParallelConstraint wvert(*attRobot, *(attRobot->waist()), normalVec, normalVec);
+    //constraints.push_back(&wvert);
+
+    /*
+    //create the non support foot constraint
+    localPoint[0] =localPoint[1] = localPoint[2] = 0.0;
+    targetPoint[0] = 2.0;
+    targetPoint[1] = 0.0;
+    targetPoint[2] = 0.7;
+    ChppGikPositionConstraint posc( *(attStandingRobot->robot()), *(attStandingRobot->robot()->waist()), localPoint, targetPoint);
+    constraints.push_back(&posc);
+    */
+    /*
+    localPoint = attStandingRobot->robot()->rightHand()->centerInWristFrame();
+    targetPoint[0] = 1.5;
+    targetPoint[1] =  1;
+    targetPoint[2] =  0.8;
+    ChppGikPositionConstraint posc2( *(attStandingRobot->robot()), *(attStandingRobot->robot()->rightWrist()), localPoint, targetPoint);
+    constraints.push_back(&posc2);
+    */
+
+
+    /*
+        //-- gaze at [-1 1 1.7] --//
+        //-----------------------------------//
+        vector3d lp, pp, pn;
+        lp[0] = 0;
+        lp[1] = 0;
+        lp[2] = 0;
+        pp = lp;
+        pn = pp;
+        pn[0] = 1;
+        ChppGikPlaneConstraint gazeplanelat(*attRobot, *(attRobot->gazeJoint()), lp, pp, pn);
+        pn[0] = 0;
+        pn[1] = 1;
+        ChppGikPlaneConstraint gazeplanesag(*attRobot, *(attRobot->gazeJoint()), lp, pp, pn);
+     
+     
+            
+    //     constraints.push_back(&gazeplanelat);
+    //     constraints.push_back(&gazeplanesag);
+        */
+    /*
+        lplanner.constraints( constraints );
+        bool ok = lplanner.bigSolve( 40 );
+     
+        if (attViewerHealthy)
+        {
+            attViewer->showframe();
+            while(1)
+            {
+                bool littleSolved = lplanner.littleSolve();
+                if (littleSolved)
+                {
+                    attViewer->erase();
+                    draw2DRobot();
+                    attViewer->flush();
+                }
+                else
+                    break;
+            }
+        }
+    */
+    lplanner.constraints( constraints );
+    bool ok = lplanner.bigSolve( 40 );
+    lplanner.dumpBigSolutionTo( "ankleprints" );
+
+}
+
+void ChppGikTest::locoPlannerTestInteractive()
+{
+    /* perform an events loop */
+
+    int done = 0;
+    double Xincr = 0.1;
+    double Yincr = 0.1;
+    double Tincr = 0.1;
+
+    vector3d waistTarget, localPoint, localVector, waistPointer, gazeTarget;
+    waistTarget[0] = 0.0;
+    waistTarget[1] = 0.0;
+    waistTarget[2] = 0.6487;
+    waistPointer[0] = 1;
+    waistPointer[1] = 0;
+    waistPointer[2] = 0.6487;
+    localVector[0] = 1;
+    localVector[1] = 0;
+    localVector[2] = 0;
+    gazeTarget[0] = 0.0;
+    gazeTarget[1] = 0.0;
+    gazeTarget[2] = 1.4;
+
+    double curTheta;
+
+    /**the constraint*/
+    ChppGikLocomotionPlanner lplanner(attStandingRobot);
+    std::vector<ChppGikPlannableConstraint*> constraints;
+
+    localPoint[0] =localPoint[1] = localPoint[2] = 0.0;
+    ChppGikPositionConstraint posw( *(attStandingRobot->robot()), *(attStandingRobot->robot()->waist()), localPoint, waistTarget);
+    constraints.push_back(&posw);
+    matrix3d rot;
+    for (unsigned int i=0;i<3;i++)
+        for (unsigned int j=0;j<3;j++)
+            M3_IJ(rot,i,j) = 0.0;
+    M3_IJ(rot,2,2) = 1;
+    ChppGikRotationConstraint oriow( *(attStandingRobot->robot()), *(attStandingRobot->robot()->waist()), rot);
+
+    ChppGikGazeConstraint gazec( *(attStandingRobot->robot()), gazeTarget);
+
+
+    if (!attViewerHealthy)
+        return;
+
+    attViewer->showframe();
+    draw2DRobot();
+    attViewer->flush();
+    usleep(100);
+
+    while (!done)
+    {
+        KeySym* key = attViewer->nextKey();
+        //std::cout << "here \n";
+        if (key)
+        {
+
+            switch (*key)
+            {
+            case XK_c:
+                constraints.clear();
+                lplanner.constraints( constraints );
+                break;
+            case XK_q:
+                done = 1;
+                break;
+
+            case XK_p:
+                std::cout << attRobot->currentConfiguration() << "\n";
+                break;
+
+            case XK_Up:
+                waistTarget[0] = attRobot->currentConfiguration()(0) + Xincr;
+                waistTarget[1] = attRobot->currentConfiguration()(1);
+                posw.worldTarget(waistTarget);
+                std::cout << "Up\n";
+                constraints.clear();
+                constraints.push_back(&posw);
+                lplanner.constraints( constraints );
+                break;
+
+            case XK_Left:
+                waistTarget[0] = attRobot->currentConfiguration()(0);
+                waistTarget[1] = attRobot->currentConfiguration()(1) + Yincr;
+                posw.worldTarget(waistTarget);
+                std::cout << "Left\n";
+                constraints.clear();
+                constraints.push_back(&posw);
+                lplanner.constraints( constraints );
+                break;
+
+            case XK_Right:
+                waistTarget[0] = attRobot->currentConfiguration()(0);
+                waistTarget[1] = attRobot->currentConfiguration()(1) - Yincr;
+                posw.worldTarget(waistTarget);
+                std::cout << "Right\n";
+                constraints.clear();
+                constraints.push_back(&posw);
+                lplanner.constraints( constraints );
+                break;
+
+            case XK_Down:
+                waistTarget[0] = attRobot->currentConfiguration()(0) - Xincr;
+                waistTarget[1] = attRobot->currentConfiguration()(1);
+                posw.worldTarget(waistTarget);
+                std::cout << "Down\n";
+                constraints.clear();
+                constraints.push_back(&posw);
+                lplanner.constraints( constraints );
+                break;
+
+            case XK_s:
+                curTheta = attRobot->currentConfiguration()(5) + Tincr;
+                M3_IJ(rot,0,0) = M3_IJ(rot,1,1) = cos(curTheta);
+                M3_IJ(rot,1,0) = sin(curTheta);
+                M3_IJ(rot,0,1) = -M3_IJ(rot,0,1);
+                oriow.targetOrientation( rot);
+                std::cout << "Turn left\n";
+                constraints.clear();
+                constraints.push_back(&oriow);
+                lplanner.constraints( constraints );
+                break;
+
+            case XK_d:
+                curTheta = attRobot->currentConfiguration()(5) - Tincr;
+                M3_IJ(rot,0,0) = M3_IJ(rot,1,1) = cos(curTheta);
+                M3_IJ(rot,1,0) = sin(curTheta);
+                M3_IJ(rot,0,1) = -M3_IJ(rot,0,1);
+                oriow.targetOrientation( rot);
+                std::cout << "Turn right\n";
+                constraints.clear();
+                constraints.push_back(&oriow);
+                lplanner.constraints( constraints );
+                break;
+
+
+            case XK_e:
+                curTheta = attRobot->currentConfiguration()(5) - Tincr;
+                gazeTarget[0] = attRobot->currentConfiguration()(0) + cos(curTheta);
+                gazeTarget[1] = attRobot->currentConfiguration()(1) - sin(curTheta);
+                gazec.worldTarget( gazeTarget );
+                std::cout << "look right\n";
+                constraints.clear();
+                constraints.push_back(&gazec);
+                lplanner.constraints( constraints );
+                break;
+
+            case XK_w:
+                curTheta = attRobot->currentConfiguration()(5) + Tincr;
+                gazeTarget[0] = attRobot->currentConfiguration()(0) + cos(curTheta);
+                gazeTarget[1] = attRobot->currentConfiguration()(1) - sin(curTheta);
+                gazec.worldTarget( gazeTarget );
+                std::cout << "look right\n";
+                constraints.clear();
+                constraints.push_back(&gazec);
+                lplanner.constraints( constraints );
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        while (lplanner.littleSolve())
+        {
+            attViewer->erase();
+            draw2DRobot();
+            attViewer->flush();
+        }
+        //usleep(10000);
+
+    }
+
+
+}
+
+void ChppGikTest::draw2DRobot()
+{
+    ChppGikSupportPolygon* curSup = attStandingRobot->supportPolygon();
+
+    attViewer->draw2DShape(attStandingRobot->waistShape(), attRobot->currentConfiguration()(0),attRobot->currentConfiguration()(1),attRobot->currentConfiguration()(5));
+
+    attViewer->draw2DShape(attStandingRobot->rightFootShape(), curSup->rightFootprint()->x(),curSup->rightFootprint()->y(),curSup->rightFootprint()->th());
+
+    attViewer->draw2DShape(attStandingRobot->leftFootShape(), curSup->leftFootprint()->x(),curSup->leftFootprint()->y(), curSup->leftFootprint()->th());
+
+}
+
+

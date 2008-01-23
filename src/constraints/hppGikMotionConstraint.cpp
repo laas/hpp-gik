@@ -12,6 +12,21 @@ ChppGikMotionConstraint::ChppGikMotionConstraint(double inSamplingPeriod, double
     attEps = attSamplingPeriod/2;
 }
 
+CjrlGikMotionConstraint* ChppGikMotionConstraint::clone() const
+{
+    ChppGikMotionConstraint* ret =  new ChppGikMotionConstraint(attSamplingPeriod, attStartTime);
+    CjrlGikStateConstraint *cstr = 0;
+    unsigned int i = 0;
+    cstr = stateConstraintAtRank( i);
+    while (cstr)
+    {
+        ret->pushbackStateConstraint( cstr );
+        i++;
+        cstr = stateConstraintAtRank( i );
+    }
+    return ret;
+}
+
 double ChppGikMotionConstraint::samplingPeriod()
 {
     return attSamplingPeriod;
@@ -45,7 +60,7 @@ CjrlGikStateConstraint* ChppGikMotionConstraint::stateConstraintAtTime(double in
     return stateConstraintAtRank(i);
 }
 
-CjrlGikStateConstraint* ChppGikMotionConstraint::stateConstraintAtRank(unsigned int inRank)
+CjrlGikStateConstraint* ChppGikMotionConstraint::stateConstraintAtRank(unsigned int inRank) const
 {
     if (inRank > (attVectorStateConstraint.size() -1))
         return 0;

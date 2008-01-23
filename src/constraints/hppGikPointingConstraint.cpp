@@ -38,17 +38,17 @@ ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, 
     vecFO.resize(3,false);
     vecOP.resize(3,false);
     vecOT.resize(3,false);
-   
+
     computeValue();
     double NvecOP = norm_2(vecOP);
     if ( NvecOP < 1e-2 )
     {
         std::cout << "Warning ChppGikPointingConstraint: constructor: local vector must not be null. Recreate this object with appropriate input.\n";
     }
-    
+
     attVectorizedState.resize(9,false);
     attVectorizedTarget.resize(3,false);
-    
+
     attDimension = 3;
 }
 
@@ -101,6 +101,13 @@ void ChppGikPointingConstraint::computeValue()
     posP.plus_assign(posO);
     vecOP = posP - posO;
     vecOT = attWorldTarget - posO;
+    double normOP = norm_2(vecOP);
+    double normOT = norm_2(vecOT);
+
+    if (normOP != 0)
+        vecOP /= normOP;
+    if (normOT != 0)
+        vecOT /= normOT;
     ChppGikTools::CrossProduct(vecOT,vecOP,attValue);
 }
 
@@ -113,7 +120,7 @@ void ChppGikPointingConstraint::computeJacobian()
         std::cout << "ChppGikPointingConstraint::computeJacobian() expected a fixed joint on the robot.\n";
         return;
     }
-    
+
     tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
     if (!tempFixedJointJacobian)
     {
@@ -142,6 +149,14 @@ void ChppGikPointingConstraint::computeJacobian()
     vecOP = posP - posO;
     vecOT = attWorldTarget - posO;
 
+    double normOP = norm_2(vecOP);
+    double normOT = norm_2(vecOT);
+
+    if (normOP != 0)
+        vecOP /= normOP;
+    if (normOT != 0)
+        vecOT /= normOT;
+    
     ChppGikTools::equivAsymMat(vecOT,matOT);
     ChppGikTools::equivAsymMat(vecOP,matOP);
 
@@ -159,8 +174,7 @@ void ChppGikPointingConstraint::computeJacobian()
     //     std::cout << attRobot->currentConfiguration() << std::endl ;
 }
 
-
-const vectorN& ChppGikPointingConstraint::vectorizedState()
+void ChppGikPointingConstraint::computeVectorizedState()
 {
     vectorN curpos(3);
     vectorN curvel(3);
@@ -173,14 +187,13 @@ const vectorN& ChppGikPointingConstraint::vectorizedState()
     vectorN rotaccel(3);
     vectorN temp(3);
 
-
     //Check for bad configurations
     computeValue();
-    double NvecOP = norm_2(vecOP);
-    double NvecOT = norm_2(vecOT);
+    //double NvecOP = norm_2(vecOP);
+    //double NvecOT = norm_2(vecOT);
 
     //constraint position
-    curpos = (NvecOT/NvecOP)*vecOP + posO;
+    curpos = posP;//(NvecOT/NvecOP)*vecOP + posO;
     lever = curpos - jointpos;
     //constraint velocity
     ChppGikTools::Vector3toUblas(attJoint->jointVelocity().linearVelocity(),curvel);
@@ -200,25 +213,8 @@ const vectorN& ChppGikPointingConstraint::vectorizedState()
     subrange(attVectorizedState,3,6) = curvel;
     subrange(attVectorizedState,6,9) = curaccel;
 
-    return attVectorizedState;
-}
 
-void  ChppGikPointingConstraint::worldTargetU(const vectorN& inPoint)
-{
-    if (inPoint.size() !=3)
-    {
-        std::cout << "ChppGikPointingConstraint::worldTargetU() received a vector of incorrect size\n";
-        return;
-    }
-    attWorldTarget = inPoint;
-    ChppGikTools::UblastoVector3(attWorldTarget, attWorldTargetVector3);
 }
-
-const vectorN& ChppGikPointingConstraint::worldTargetU()
-{
-    return attWorldTarget;
-}
-
 
 bool ChppGikPointingConstraint::vectorizedTarget ( const vectorN& inVector )
 {
@@ -228,14 +224,17 @@ bool ChppGikPointingConstraint::vectorizedTarget ( const vectorN& inVector )
         return false;
     }
 
-    worldTargetU ( inVector );
+    attWorldTarget = inVector;
+    ChppGikTools::UblastoVector3(attWorldTarget, attWorldTargetVector3);
+    attVectorizedTarget = inVector;
     return true;
 }
 
-const vectorN& ChppGikPointingConstraint::vectorizedTarget()
+void ChppGikPointingConstraint::computeVectorizedTarget()
 {
-    return attWorldTarget;
+    attVectorizedTarget = attWorldTarget;
 }
+
 
 
 ChppGikPointingConstraint::~ChppGikPointingConstraint()

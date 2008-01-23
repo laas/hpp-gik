@@ -71,8 +71,10 @@ bool ChppGikGenericTask::addReadyMotionElement( ChppGikPrioritizedMotionConstrai
         std::cout <<"ChppGikGenericTask::addReadyMotionElement(): Entered ready motion had an invalid start time\n";
         return false;
     }
-    ChppGikMotionPlanRow* motionRow = attMotionPlan->addMotionConstraint(inTask->motionConstraint(),inTask->priority());
+    CjrlGikMotionConstraint* newMotion =  inTask->motionConstraint()->clone();
+    ChppGikMotionPlanRow* motionRow = attMotionPlan->addMotionConstraint(newMotion,inTask->priority());
     attReadyMotionConstraintsRows.push_back(motionRow);
+    attReadyMotionConstraints.push_back(newMotion);
 }
 
 void ChppGikGenericTask::dynamicWeights(bool inSwitch)
@@ -101,6 +103,10 @@ void ChppGikGenericTask::clearElements()
     for( unsigned int i=0; i< attReadyMotionConstraints.size();i++)
         attReadyMotionConstraintsRows[i]->removeMotionConstraint(attReadyMotionConstraints[i]);
     attReadyMotionConstraintsRows.clear();
+    //delete ready motions
+    std::vector<CjrlGikMotionConstraint*>::iterator iterM;
+    for( iterM = attReadyMotionConstraints.begin(); iterM != attReadyMotionConstraints.end(); iterM++)
+        delete *iterM;
     attReadyMotionConstraints.clear();
 
 }
