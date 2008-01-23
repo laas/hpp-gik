@@ -126,7 +126,7 @@ protected:
     /**
     \brief Motion constraints and priorities entered by the user
      */
-    std::vector<ChppGikPrioritizedMotionConstraint*> attUserMotionTasks;
+    std::vector<ChppGikReadyMotionElement*> attUserMotionTasks;
 
     /**
     \brief maximum number of iterations for the embedded algorithm

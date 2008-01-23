@@ -64,17 +64,19 @@ bool ChppGikGenericTask::addElement(ChppGikGenericTaskElement* inTask)
     return false;
 }
 
-bool ChppGikGenericTask::addReadyMotionElement( ChppGikPrioritizedMotionConstraint* inTask)
+bool ChppGikGenericTask::addReadyMotionElement( ChppGikReadyMotionElement* inTask)
 {
     if (inTask->motionConstraint()->startTime() < attStartTime-attSamplingPeriod/2)
     {
         std::cout <<"ChppGikGenericTask::addReadyMotionElement(): Entered ready motion had an invalid start time\n";
         return false;
     }
-    CjrlGikMotionConstraint* newMotion =  inTask->motionConstraint()->clone();
-    ChppGikMotionPlanRow* motionRow = attMotionPlan->addMotionConstraint(newMotion,inTask->priority());
-    attReadyMotionConstraintsRows.push_back(motionRow);
-    attReadyMotionConstraints.push_back(newMotion);
+
+    attReadyMotionElements.push_back(inTask);
+
+    ChppGikMotionPlanRow* motionRow = attMotionPlan->addMotionConstraint(inTask->motionConstraint(),inTask->priority());
+
+    attReadyMotionElementsRows.push_back(motionRow);
 }
 
 void ChppGikGenericTask::dynamicWeights(bool inSwitch)
@@ -100,14 +102,15 @@ void ChppGikGenericTask::clearElements()
     attPlanningTasks.clear();
 
     //Clear ready motions
-    for( unsigned int i=0; i< attReadyMotionConstraints.size();i++)
-        attReadyMotionConstraintsRows[i]->removeMotionConstraint(attReadyMotionConstraints[i]);
-    attReadyMotionConstraintsRows.clear();
+    for( unsigned int i=0; i< attReadyMotionElementsRows.size();i++)
+        attReadyMotionElementsRows[i]->removeMotionConstraint(attReadyMotionElements[i]->motionConstraint());
+    attReadyMotionElementsRows.clear();
+
     //delete ready motions
-    std::vector<CjrlGikMotionConstraint*>::iterator iterM;
-    for( iterM = attReadyMotionConstraints.begin(); iterM != attReadyMotionConstraints.end(); iterM++)
+    std::vector<ChppGikReadyMotionElement*>::iterator iterM;
+    for( iterM = attReadyMotionElements.begin(); iterM != attReadyMotionElements.end(); iterM++)
         delete *iterM;
-    attReadyMotionConstraints.clear();
+    attReadyMotionElements.clear();
 
 }
 
@@ -261,22 +264,27 @@ void ChppGikGenericTask::computeGikWeights(double inTime, vectorN& outGikWeights
         outGikWeights = attStandingRobot->maskFactory()->weightsDoubleSupport();
 
     //Joints mask
-    if (!attReadyMotionConstraintsRows.empty())
-        jointsMask = attStandingRobot->maskFactory()->wholeBodyMask();
+
+    const ChppGikLocomotionElement* currentLoco = attLocomotionPlan->activeTask(inTime);
+    std::vector<const ChppGikSingleMotionElement*> activeTasks = attSingleMotionsPlan->activeTasks(inTime);
+
+    if (currentLoco)
+        jointsMask = currentLoco->workingJoints();
     else
+        jointsMask = attStandingRobot->maskFactory()->legsMask();
+
+    // Union set of all active tasks' working joints
+    for (unsigned int i = 0; i<activeTasks.size();i++)
+        attStandingRobot->maskFactory()->combineMasks(jointsMask,activeTasks[i]->workingJoints(), jointsMask);
+    
+    // working joints from ready motion elements
+    for (unsigned int i = 0; i<attReadyMotionElements.size();i++)
     {
-        const ChppGikLocomotionElement* currentLoco = attLocomotionPlan->activeTask(inTime);
-        std::vector<const ChppGikSingleMotionElement*> activeTasks = attSingleMotionsPlan->activeTasks(inTime);
-
-        if (currentLoco)
-            jointsMask = currentLoco->workingJoints();
-        else
-            jointsMask = attStandingRobot->maskFactory()->legsMask();
-
-        // Union set of all active tasks' working joints
-        for (unsigned int i = 0; i<activeTasks.size();i++)
-            attStandingRobot->maskFactory()->combineMasks(jointsMask,activeTasks[i]->workingJoints(), jointsMask);
+        CjrlGikMotionConstraint *mc = attReadyMotionElements[i]->motionConstraint();
+        if ( ( mc->startTime() < inTime - attEps ) && ( mc->endTime() >= inTime - attEps ) )
+            attStandingRobot->maskFactory()->combineMasks(jointsMask,attReadyMotionElements[i]->workingJoints(), jointsMask);
     }
+
     for (unsigned int i=0;i<jointsMask.size();i++)
         outGikWeights(i) *= jointsMask(i);
 }

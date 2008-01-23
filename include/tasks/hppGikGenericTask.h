@@ -20,12 +20,12 @@ public :
     /**
     \brief add a motion planning task: single motion task or locomotion task expected, and the start time of the task must be greater than the start time passed to the constructor of this task plan.
      */
-    bool addElement(ChppGikGenericTaskElement* inTask);
+    bool addElement(ChppGikGenericTaskElement* inElement);
 
     /**
     \brief add a ready motion constraint
      */
-    bool addReadyMotionElement(ChppGikPrioritizedMotionConstraint* inTask);
+    bool addReadyMotionElement(ChppGikReadyMotionElement* inElement);
 
     /**
     \brief Activate/disactivate different inverse kinematics weights according to support polygon type (single or double). Default is Enabled.
@@ -78,11 +78,11 @@ private:
     /**
     \brief Remember the pointers to the entered ready motion constraints
     */
-    std::vector<CjrlGikMotionConstraint*> attReadyMotionConstraints;
+    std::vector<ChppGikReadyMotionElement*> attReadyMotionElements;
     /**
     \brief Remember the pointers to the motions plan rows holding the references to the entered ready motion constraints
     */
-    std::vector<ChppGikMotionPlanRow*> attReadyMotionConstraintsRows;
+    std::vector<ChppGikMotionPlanRow*> attReadyMotionElementsRows;
     
     /**
     \brief Vector of pointers to the generic task elements.

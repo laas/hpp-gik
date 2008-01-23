@@ -70,9 +70,9 @@ protected:
     ChppGikStandingRobot* attStandingRobot;
 
     /**
-    \brief Motion sampling period
+    \brief Motion sampling period and its half
     */
-    double attSamplingPeriod;
+    double attSamplingPeriod, attEps;
 
     /**
     \brief Start time

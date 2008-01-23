@@ -28,24 +28,32 @@ ChppGikPrioritizedStateConstraint::~ChppGikPrioritizedStateConstraint()
 
 /****************************************************************/
 
-ChppGikPrioritizedMotionConstraint::ChppGikPrioritizedMotionConstraint(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority)
+ChppGikReadyMotionElement::ChppGikReadyMotionElement(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority, vectorN& inWorkingJoints)
 {
-    attMotionConstraint = inMotionConstraint;
+    attMotionConstraint =  inMotionConstraint->clone();
     attPriority = inPriority;
+    attWorkingJoints = inWorkingJoints;
 }
 
-CjrlGikMotionConstraint* ChppGikPrioritizedMotionConstraint::motionConstraint()
+const vectorN& ChppGikReadyMotionElement::workingJoints() const
+{
+    return attWorkingJoints;
+}
+
+CjrlGikMotionConstraint* ChppGikReadyMotionElement::motionConstraint()
 {
     return attMotionConstraint;
 }
 
-unsigned int ChppGikPrioritizedMotionConstraint::priority()
+unsigned int ChppGikReadyMotionElement::priority()
 {
     return attPriority;
 }
 
-ChppGikPrioritizedMotionConstraint::~ChppGikPrioritizedMotionConstraint()
-{}
+ChppGikReadyMotionElement::~ChppGikReadyMotionElement()
+{
+    delete attMotionConstraint;
+}
 
 /****************************************************************/
 

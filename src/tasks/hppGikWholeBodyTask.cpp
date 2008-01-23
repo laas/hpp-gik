@@ -40,7 +40,7 @@ void ChppGikWholeBodyTask::reset()
         delete *iter;
     attUserStateTasks.clear();
     //delete user motion constraint stack
-    std::vector<ChppGikPrioritizedMotionConstraint*>::iterator iterM;
+    std::vector<ChppGikReadyMotionElement*>::iterator iterM;
     for( iterM = attUserMotionTasks.begin(); iterM != attUserMotionTasks.end(); iterM++)
         delete *iterM;
     attUserMotionTasks.clear();
@@ -62,7 +62,7 @@ void ChppGikWholeBodyTask::addStateConstraint(CjrlGikStateConstraint* inStateCon
 
 void ChppGikWholeBodyTask::addMotionConstraint(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority)
 {
-    ChppGikPrioritizedMotionConstraint* readyMo = new ChppGikPrioritizedMotionConstraint(inMotionConstraint, inPriority);
+    ChppGikReadyMotionElement* readyMo = new ChppGikReadyMotionElement(inMotionConstraint, inPriority, attStandingRobot->maskFactory()->wholeBodyMask());
     attUserMotionTasks.push_back(readyMo);
 }
 
@@ -358,7 +358,7 @@ void ChppGikWholeBodyTask::deleteFootprintCandidates(std::vector<ChppGikFootprin
 bool ChppGikWholeBodyTask::executeResolutionPlan()
 {
     //Add ready motions
-    std::vector<ChppGikPrioritizedMotionConstraint*>::iterator iterM;
+    std::vector<ChppGikReadyMotionElement*>::iterator iterM;
     for( iterM = attUserMotionTasks.begin(); iterM != attUserMotionTasks.end(); iterM++)
         attGenericTask->addReadyMotionElement(*iterM);
 

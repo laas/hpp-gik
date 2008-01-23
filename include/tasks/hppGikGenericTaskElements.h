@@ -25,26 +25,30 @@ public:
 private:
     CjrlGikStateConstraint* attStateConstraint;
     unsigned int attPriority;
+    
 };
 
 /**
-\brief 
+\brief CjrlMotionConstraint + priority + working joints
  */
-class ChppGikPrioritizedMotionConstraint
+class ChppGikReadyMotionElement
 {
 public:
 
-    ChppGikPrioritizedMotionConstraint(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority);
+    ChppGikReadyMotionElement(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority, vectorN& inWorkingJoints);
+    
+    const vectorN& workingJoints() const;
 
     CjrlGikMotionConstraint* motionConstraint();
 
     unsigned int priority();
 
-    ~ChppGikPrioritizedMotionConstraint();
+    ~ChppGikReadyMotionElement();
 
 private:
     CjrlGikMotionConstraint* attMotionConstraint;
     unsigned int attPriority;
+    vectorN attWorkingJoints;
 };
 
 /**

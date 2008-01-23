@@ -9,6 +9,8 @@ ChppGikRobotTask::ChppGikRobotTask(ChppGikStandingRobot* inStandingRobot, double
     attTaskName = inTaskName;
              
     attSamplingPeriod = inSamplingPeriod;
+    
+    attEps = attSamplingPeriod/2;
 
     attStandingRobot = inStandingRobot;
     
