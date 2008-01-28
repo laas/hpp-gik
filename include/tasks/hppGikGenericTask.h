@@ -33,6 +33,12 @@ public :
     void dynamicWeights(bool inSwitch);
     
     /**
+    \brief True = privelege to lighter joints in upper body. False = no privelege. Default is False
+     */
+    void neutralUpperBody(bool inSwitch);
+    
+    
+    /**
     \brief Activate/disactivate motion replanning when a time sample cannot be solved. Default is Disabled.
      */
     void motionReplanning(bool inSwitch);
@@ -93,6 +99,11 @@ private:
     \brief Dynamic weights option
     */
     bool attUseDynamicWeights;
+    
+    /**
+    \brief Neutral body option
+     */
+    bool attNeutralBodyOption;
     
     /**
     \brief Motion replanning option

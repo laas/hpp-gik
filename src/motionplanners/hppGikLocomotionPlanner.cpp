@@ -28,7 +28,7 @@ ChppGikLocomotionPlanner::ChppGikLocomotionPlanner(ChppGikStandingRobot* inStand
     attMinWaistProgress = 1e-3;
 
     attMinRelTheta = -M_PI/24;
-    attMaxRelTheta = M_PI/3;//M_PI/3;
+    attMaxRelTheta = M_PI/4;//M_PI/3;
 
     attMinPosTheta = M_PI/4;
     attMaxPosTheta = 3*M_PI/4;
@@ -193,9 +193,6 @@ void ChppGikLocomotionPlanner::updateSupportFootRelated()
 
 void ChppGikLocomotionPlanner::switchFeetRoles()
 {
-    //modifies attSupportFoot, attNonSupportFoot and all depending constraints
-    attRobot->applyConfiguration( attPreviousConfiguration );
-
     //exchange feet roles and try again
     attDummyFoot = attSupportFoot;
     attSupportFoot = attNonSupportFoot;
@@ -228,7 +225,6 @@ void ChppGikLocomotionPlanner::recordCurrentValues()
         attConstraints[wc]->computeValue();
         attLastValues.push_back( norm_2(attConstraints[wc]->value()) );
     }
-
 }
 
 void ChppGikLocomotionPlanner::computeProgress()
@@ -280,9 +276,7 @@ bool ChppGikLocomotionPlanner::littleSolve(bool allowFootChange)
                 if (1/*comMovable()*/)
                 {
                     computeProgress();
-                    
-                    attPreviousConfiguration = attRobot->currentConfiguration();
-                    
+
                     if (anyProgress())
                         result = true;
                     else
@@ -311,6 +305,7 @@ bool ChppGikLocomotionPlanner::littleSolve(bool allowFootChange)
 
         if (changeFoot)
         {
+            attRobot->applyConfiguration( attPreviousConfiguration );
             switchFeetRoles();
             if (allowFootChange)
                 footChanges++;
@@ -319,6 +314,8 @@ bool ChppGikLocomotionPlanner::littleSolve(bool allowFootChange)
         }
     }
 
+    if (!result)
+        attRobot->applyConfiguration( attPreviousConfiguration );
     return result;
 }
 

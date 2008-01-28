@@ -14,8 +14,8 @@ int main(int argc, char *argv[])
     
     //gikTest.locoPlannerTest();
     
-    //gikTest.locoPlannerTestInteractive();
+    gikTest.locoPlannerTestInteractive();
     
-    gikTest.interprete();
+    //gikTest.interprete();
 }
 

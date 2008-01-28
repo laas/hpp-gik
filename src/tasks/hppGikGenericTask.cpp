@@ -25,6 +25,7 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
 
     attUseDynamicWeights = true;
     attEnableReplanning = false;
+    attNeutralBodyOption = false;
 
 }
 
@@ -82,6 +83,11 @@ bool ChppGikGenericTask::addReadyMotionElement( ChppGikReadyMotionElement* inTas
 void ChppGikGenericTask::dynamicWeights(bool inSwitch)
 {
     attUseDynamicWeights = inSwitch;
+}
+
+void ChppGikGenericTask::neutralUpperBody(bool inSwitch)
+{
+    attNeutralBodyOption = inSwitch;
 }
 
 void ChppGikGenericTask::motionReplanning(bool inSwitch)
@@ -263,8 +269,15 @@ void ChppGikGenericTask::computeGikWeights(double inTime, vectorN& outGikWeights
     else
         outGikWeights = attStandingRobot->maskFactory()->weightsDoubleSupport();
 
+    if (attNeutralBodyOption)
+    {
+        for (unsigned int i=0; i< outGikWeights.size();i++)
+        {
+            if (attStandingRobot->maskFactory()->legsMask()(i) == 0)
+                outGikWeights(i) = 1;
+        }
+    }
     //Joints mask
-
     const ChppGikLocomotionElement* currentLoco = attLocomotionPlan->activeTask(inTime);
     std::vector<const ChppGikSingleMotionElement*> activeTasks = attSingleMotionsPlan->activeTasks(inTime);
 

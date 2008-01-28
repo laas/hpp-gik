@@ -14,6 +14,7 @@
 #include "motionplanners/hppGikLocomotionPlanner.h"
 
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
+#define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 
 //#include "tasks/hppGikCmpTask.h"
 using namespace std;
@@ -21,6 +22,7 @@ using namespace std;
 
 ChppGikTest::ChppGikTest() : attSamplingPeriod(10e-3)
 {
+        
     attLastRobotTask = 0;
 
     strcpy(attMotionName,"usermotion");
@@ -1148,17 +1150,16 @@ void ChppGikTest::locoPlannerTestInteractive()
             }
         }
 
+        
         while (lplanner.littleSolve())
         {
             attViewer->erase();
             draw2DRobot();
             attViewer->flush();
+//             std::cout << "After little solve:\n";
+//             attStandingRobot->supportPolygon()->print();
         }
-        //usleep(10000);
-
     }
-
-
 }
 
 void ChppGikTest::draw2DRobot()

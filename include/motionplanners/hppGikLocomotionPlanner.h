@@ -280,7 +280,7 @@ private:
     /**
     \brief
      */
-    double attMinRelTheta, attMinPosTheta, attGikValueStep;
+    double attMinRelTheta, attMinPosTheta, attGikValueStep, attSPUpdate;
 
 
     ChppGikComConstraint* attComConstraint;
@@ -300,6 +300,8 @@ private:
     vector3d attDummyVec;
     
     bool attCheckForPos, attCheckForRot, attCheckForDist;
+    
+    ChppGikSupportPolygon* attLastSP;
 
 };
 

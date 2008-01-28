@@ -86,7 +86,7 @@ vectorN& ChppGikLP2Constraint::influencingDofs()
 
 void ChppGikLP2Constraint::computeValue()
 {
-    ///*
+    /*
     const matrix4d& mw = attRobot->waist()->currentTransformation();
     const matrix4d& mf = attMovingFoot->currentTransformation();
     const matrix4d& nmf = attFixedFoot->currentTransformation();
@@ -101,9 +101,9 @@ void ChppGikLP2Constraint::computeValue()
     double nfxy = M4_IJ(nmf,1,0);
     
     attValue(0) = nmx*nwy - nmy*nwx;
-    //*/
+    */
     
-    /*
+    ///*
     const matrix4d& mw = attRobot->waist()->currentTransformation();
     const matrix4d& mf = attMovingFoot->currentTransformation();
     const matrix4d& nmf = attFixedFoot->currentTransformation();
@@ -124,7 +124,7 @@ void ChppGikLP2Constraint::computeValue()
     nmidy/=normmid;
     
     attValue(0) = nmidx*nwy - nmidy*nwx;
-    */
+    //*/
 }
 
 void ChppGikLP2Constraint::computeJacobian()
@@ -139,7 +139,7 @@ void ChppGikLP2Constraint::computeJacobian()
     const matrix4d& mw = attRobot->waist()->currentTransformation();
     const matrix4d& mf = attMovingFoot->currentTransformation();
     const matrix4d& nmf = attFixedFoot->currentTransformation();
-    ///*
+    /*
     double nwxx = M4_IJ(mw,0,0);
     double nwxy = M4_IJ(mw,1,0);
 
@@ -154,8 +154,8 @@ void ChppGikLP2Constraint::computeJacobian()
     
     double sin1 = nwyx*nmxy-nwyy*nmxx;
     double sin2 = nwxx*nmyy-nwxy*nmyx;
-    //*/
-    /*
+    */
+    ///*
     double nwxx = M4_IJ(mw,0,0);
     double nwxy = M4_IJ(mw,1,0);
 
@@ -179,7 +179,7 @@ void ChppGikLP2Constraint::computeJacobian()
     
     double sin1 = nwyx*nmidxy-nwyy*nmidxx;
     double sin2 = 0.5*(nwxx*nmyy-nwxy*nmyx);
-    */
+    //*/
     
     noalias(attJacobian) -= subrange(fixedFootJacobian,5,6,6,attRobot->numberDof());
     attJacobian *= sin1 + sin2;
