@@ -98,7 +98,7 @@ void ChppGikGenericTask::motionReplanning(bool inSwitch)
 
 void ChppGikGenericTask::automaticJointsMask(bool inSwitch, const  vectorN* inMask)
 {
-    attUserDefinedMask = inSwitch;
+    attUserDefinedMask = !inSwitch;
     if (attUserDefinedMask)
     {
         if (!inMask)
