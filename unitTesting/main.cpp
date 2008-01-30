@@ -12,9 +12,9 @@ int main(int argc, char *argv[])
 
     //gikTest.basicExample();
     
-    //gikTest.locoPlannerTest();
+    gikTest.locoPlannerTest();
     
-    gikTest.locoPlannerTestInteractive();
+    //gikTest.locoPlannerTestInteractive();
     
     //gikTest.interprete();
 }

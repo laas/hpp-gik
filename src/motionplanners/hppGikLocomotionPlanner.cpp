@@ -42,13 +42,13 @@ ChppGikLocomotionPlanner::ChppGikLocomotionPlanner(ChppGikStandingRobot* inStand
 
     vectorN activated =  attStandingRobot->maskFactory()->wholeBodyMask();
     vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
-    vectorN attWeightedWholeBody = weights;
+    attWeightedWholeBody = weights;
 
     for (unsigned int i=0;i<attWeightedWholeBody.size();i++)
         attWeightedWholeBody(i) *= activated(i);
 
     attWeights = attStandingRobot->maskFactory()->legsMask();
-    //attWeights =  attStandingRobot->maskFactory()->wholeBodyMask();
+    //attWeights =  attWeightedWholeBody;
 
     matrix4d m;
     vector3d lp, pn, pp;
@@ -281,25 +281,25 @@ bool ChppGikLocomotionPlanner::littleSolve(bool allowFootChange)
                         result = true;
                     else
                     {
-                        std::cout << "No progress\n";
+                        //std::cout << "No progress\n";
                         changeFoot = true;
                     }
                 }
                 else
                 {
-                    std::cout << "COM not reaching\n";
+                    //std::cout << "COM not reaching\n";
                     changeFoot = true;
                 }
             }
             else
             {
-                std::cout << "Could not enforce feet boundaries\n";
+                //std::cout << "Could not enforce feet boundaries\n";
                 changeFoot = true;
             }
         }
         else
         {
-            std::cout << "Could not ensure waist and foot constraints\n";
+            //std::cout << "Could not ensure waist and foot constraints\n";
             changeFoot = true;
         }
 
@@ -355,7 +355,7 @@ bool ChppGikLocomotionPlanner::bigSolve(unsigned int inMaxIter)
         littleSolved = littleSolve();
         if (littleSolved == false)
         {
-            std::cout << "The feet are not contributing anymore to the constraints \n";
+            std::cout << "End. Reason: no more progress \n";
             break;
         }
 
@@ -581,21 +581,21 @@ bool ChppGikLocomotionPlanner::enforceFeetDomain()
 
     }
 
-    ///*
+    /*
     if (modifyPosition)
         std::cout << "modifyPosition \n";
     if (projectTarget)
         std::cout << "projectTarget \n";
     if (modifyRotation)
         std::cout << "modifyRotation \n";
-    //*/
+    */
 
     return gik2Solved;
 }
 
 bool ChppGikLocomotionPlanner::defaultStopConditionMet()
 {
-    bool result = false;
+    bool result;
 
     vectorN backupConfig = attRobot->currentConfiguration();
 
@@ -610,20 +610,17 @@ bool ChppGikLocomotionPlanner::defaultStopConditionMet()
     attStandingRobot->supportPolygon()->center( cx, cy);
     attComConstraint->targetXY( cx, cy);
 
-    double itermaxval = 0.2;
-    bool doSolve = true;
-    double iters  = 2;
-    std::vector<ChppGikPlannableConstraint*> planConstraints;
-    std::vector<CjrlGikStateConstraint*> jrlConstraints;
+    double iterMaxNorm = 0.2;
+    double iters  = 3;
 
     for (unsigned int iter= 0; iter< iters;iter++)
     {
         constraints.clear();
         constraints.push_back(attFootTransformation);
-        //constraints.push_back(attWaistParallel);
+        constraints.push_back(attWaistParallel);
         constraints.push_back(attComConstraint);
 
-        appendClampedTargets(constraints, itermaxval);
+        appendClampedTargets(constraints, iterMaxNorm);
 
         result = solveGik( constraints, constraints );
     }
@@ -632,9 +629,11 @@ bool ChppGikLocomotionPlanner::defaultStopConditionMet()
     for (unsigned int wc =0; wc<attConstraints.size();wc++)
     {
         attUserConstraints[wc]->computeVectorizedTarget();
-        attConstraints[wc]->vectorizedTarget(attUserConstraints[wc]->vectorizedTarget());
-        attConstraints[wc]->computeValue();
-        if ((norm_2(attConstraints[wc]->value()) > attNvalthresh))
+        attUserConstraints[wc]->computeValue();
+//         attUserConstraints[wc]->computeVectorizedTarget();
+//         attConstraints[wc]->vectorizedTarget(attUserConstraints[wc]->vectorizedTarget());
+//         attConstraints[wc]->computeValue();
+        if ((norm_2(attUserConstraints[wc]->value()) > attNvalthresh))
             result = false;
     }
 

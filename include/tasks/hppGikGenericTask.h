@@ -37,6 +37,11 @@ public :
      */
     void neutralUpperBody(bool inSwitch);
     
+    /**
+    \brief True = use the given joints mask. False = automatically computed joints mask. Default is False
+     */
+    void automaticJointsMask(bool inSwitch, const  vectorN* inMask = 0);
+    
     
     /**
     \brief Activate/disactivate motion replanning when a time sample cannot be solved. Default is Disabled.
@@ -114,5 +119,15 @@ private:
     \brief computation vector
     */
     vectorN jointsMask;
+    
+    /**
+    \brief user joint mask option
+     */
+    bool attUserDefinedMask;
+    
+    /**
+    \brief User-imposed joints mask
+     */
+    vectorN attUserJointsMask;
 };
 #endif

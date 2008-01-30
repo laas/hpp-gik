@@ -909,35 +909,37 @@ void ChppGikTest::locoPlannerTest()
     std::vector<ChppGikPlannableConstraint*> constraints;
     vector3d targetPoint, localPoint, normalVec;
 
-    ///*
+    /*
     //create the non support foot constraint
-    targetPoint[0] = -2;
-    targetPoint[1] = 1;
-    targetPoint[2] = 1.4;
+    targetPoint[0] = 1;
+    targetPoint[1] = 2;
+    targetPoint[2] = 0.9;
     ChppGikGazeConstraint gc( *(attStandingRobot->robot()), targetPoint);
     constraints.push_back(&gc);
-    //*/
+    */
 
+    ///*
+    localPoint = attStandingRobot->robot()->leftHand()->centerInWristFrame();
+    targetPoint[0] = 1;
+    targetPoint[1] = 2;
+    targetPoint[2] = 0.9;
+    ChppGikPositionConstraint posc2( *(attStandingRobot->robot()), *(attStandingRobot->robot()->leftWrist()), localPoint, targetPoint);
+    constraints.push_back(&posc2);
+    //*/
+    
     //ChppGikParallelConstraint wvert(*attRobot, *(attRobot->waist()), normalVec, normalVec);
     //constraints.push_back(&wvert);
 
     /*
     //create the non support foot constraint
     localPoint[0] =localPoint[1] = localPoint[2] = 0.0;
-    targetPoint[0] = 2.0;
-    targetPoint[1] = 0.0;
+    targetPoint[0] = 1.7;
+    targetPoint[1] = 1.0;
     targetPoint[2] = 0.7;
     ChppGikPositionConstraint posc( *(attStandingRobot->robot()), *(attStandingRobot->robot()->waist()), localPoint, targetPoint);
     constraints.push_back(&posc);
     */
-    /*
-    localPoint = attStandingRobot->robot()->rightHand()->centerInWristFrame();
-    targetPoint[0] = 1.5;
-    targetPoint[1] =  1;
-    targetPoint[2] =  0.8;
-    ChppGikPositionConstraint posc2( *(attStandingRobot->robot()), *(attStandingRobot->robot()->rightWrist()), localPoint, targetPoint);
-    constraints.push_back(&posc2);
-    */
+    
 
 
     /*
@@ -960,27 +962,7 @@ void ChppGikTest::locoPlannerTest()
     //     constraints.push_back(&gazeplanelat);
     //     constraints.push_back(&gazeplanesag);
         */
-    /*
-        lplanner.constraints( constraints );
-        bool ok = lplanner.bigSolve( 40 );
-     
-        if (attViewerHealthy)
-        {
-            attViewer->showframe();
-            while(1)
-            {
-                bool littleSolved = lplanner.littleSolve();
-                if (littleSolved)
-                {
-                    attViewer->erase();
-                    draw2DRobot();
-                    attViewer->flush();
-                }
-                else
-                    break;
-            }
-        }
-    */
+    
     lplanner.constraints( constraints );
     bool ok = lplanner.bigSolve( 40 );
     lplanner.dumpBigSolutionTo( "ankleprints" );

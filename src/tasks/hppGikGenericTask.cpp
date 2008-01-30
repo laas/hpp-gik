@@ -26,6 +26,7 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
     attUseDynamicWeights = true;
     attEnableReplanning = false;
     attNeutralBodyOption = false;
+    attUserDefinedMask = false;
 
 }
 
@@ -93,6 +94,27 @@ void ChppGikGenericTask::neutralUpperBody(bool inSwitch)
 void ChppGikGenericTask::motionReplanning(bool inSwitch)
 {
     attEnableReplanning = inSwitch;
+}
+
+void ChppGikGenericTask::automaticJointsMask(bool inSwitch, const  vectorN* inMask)
+{
+    attUserDefinedMask = inSwitch;
+    if (attUserDefinedMask)
+    {
+        if (!inMask)
+        {
+            std::cout << "ChppGikGenericTask::automaticJointsMask() second argument was a null pointer \n";
+            attUserDefinedMask = false;
+            return;
+        }
+        if (inMask->size() != (attRobot->numberDof()-6))
+        {
+            std::cout << "ChppGikGenericTask::automaticJointsMask() invalid joints mask  \n";
+            attUserDefinedMask = false;
+            return;
+        }
+        attUserJointsMask = *inMask;
+    }
 }
 
 void ChppGikGenericTask::clearElements()
@@ -278,24 +300,31 @@ void ChppGikGenericTask::computeGikWeights(double inTime, vectorN& outGikWeights
         }
     }
     //Joints mask
-    const ChppGikLocomotionElement* currentLoco = attLocomotionPlan->activeTask(inTime);
-    std::vector<const ChppGikSingleMotionElement*> activeTasks = attSingleMotionsPlan->activeTasks(inTime);
-
-    if (currentLoco)
-        jointsMask = currentLoco->workingJoints();
-    else
-        jointsMask = attStandingRobot->maskFactory()->legsMask();
-
-    // Union set of all active tasks' working joints
-    for (unsigned int i = 0; i<activeTasks.size();i++)
-        attStandingRobot->maskFactory()->combineMasks(jointsMask,activeTasks[i]->workingJoints(), jointsMask);
-    
-    // working joints from ready motion elements
-    for (unsigned int i = 0; i<attReadyMotionElements.size();i++)
+    if (attUserDefinedMask)
     {
-        CjrlGikMotionConstraint *mc = attReadyMotionElements[i]->motionConstraint();
-        if ( ( mc->startTime() < inTime - attEps ) && ( mc->endTime() >= inTime - attEps ) )
-            attStandingRobot->maskFactory()->combineMasks(jointsMask,attReadyMotionElements[i]->workingJoints(), jointsMask);
+        jointsMask = attUserJointsMask;
+    }
+    else
+    {
+        const ChppGikLocomotionElement* currentLoco = attLocomotionPlan->activeTask(inTime);
+        std::vector<const ChppGikSingleMotionElement*> activeTasks = attSingleMotionsPlan->activeTasks(inTime);
+
+        if (currentLoco)
+            jointsMask = currentLoco->workingJoints();
+        else
+            jointsMask = attStandingRobot->maskFactory()->legsMask();
+
+        // Union set of all active tasks' working joints
+        for (unsigned int i = 0; i<activeTasks.size();i++)
+            attStandingRobot->maskFactory()->combineMasks(jointsMask,activeTasks[i]->workingJoints(), jointsMask);
+
+        // working joints from ready motion elements
+        for (unsigned int i = 0; i<attReadyMotionElements.size();i++)
+        {
+            CjrlGikMotionConstraint *mc = attReadyMotionElements[i]->motionConstraint();
+            if ( ( mc->startTime() < inTime - attEps ) && ( mc->endTime() >= inTime - attEps ) )
+                attStandingRobot->maskFactory()->combineMasks(jointsMask,attReadyMotionElements[i]->workingJoints(), jointsMask);
+        }
     }
 
     for (unsigned int i=0;i<jointsMask.size();i++)
