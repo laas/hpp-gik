@@ -146,7 +146,7 @@ private:
     CjrlJoint* tempFixedJoint;
     const matrixNxP* tempFixedJointJacobian;
     const matrixNxP* tempEffectorJointJacobian;
-    matrixNxP tempJacobian;
+    matrixNxP tempJacobian,tempJointJacobian;
     /**
     @}
      */
