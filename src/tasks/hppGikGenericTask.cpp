@@ -155,6 +155,11 @@ ChppGikGenericTaskElement* ChppGikGenericTask::elementAtRank(unsigned int inRank
         return NULL;
 }
 
+void ChppGikGenericTask::extraEndTime(double inDuration)
+{
+    attLocomotionPlan->extraEndTime( inDuration );
+}
+
 bool ChppGikGenericTask::algorithmSolve()
 {
     vectorN gikWeights(attRobot->numberDof()-6);

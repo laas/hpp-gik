@@ -47,6 +47,10 @@ public:
     void extendEnd(double inDuration);
     
     /**
+    \brief Extend the planned Com/foot constraint by the given positive duration
+    */
+    void extraEndTime(double inDuration);
+    /**
     @}
     */
 

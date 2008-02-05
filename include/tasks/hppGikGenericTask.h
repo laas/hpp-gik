@@ -28,6 +28,11 @@ public :
     bool addReadyMotionElement(ChppGikReadyMotionElement* inElement);
 
     /**
+    \brief modify extra end time (use with caution, make sure there is at least one second of planned motion after the endtime of the last planned stepElement)
+    */
+    void extraEndTime(double inDuration);
+    
+    /**
     \brief Activate/disactivate different inverse kinematics weights according to support polygon type (single or double). Default is Enabled.
      */
     void dynamicWeights(bool inSwitch);

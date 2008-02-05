@@ -104,44 +104,6 @@ vectorN& ChppGikComConstraint::influencingDofs()
 //certainly not optimal here. should be moved to Humanoid robot.
 void ChppGikComConstraint::computeJacobian()
 {
-/*
-    tempFixedJoint = &(attRobot->fixedJoint(0));
-
-    if (!tempFixedJoint)
-    {
-        std::cout << "ChppGikComConstraint::computeJacobian() expected a fixed joint on the robot.\n";
-        return;
-    }
-
-    attRobot->computeJacobianCenterOfMass();
-
-    tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-    tempEffectorJointJacobian = &(attRobot->jacobianCenterOfMass());
-    if (!tempFixedJointJacobian || !tempEffectorJointJacobian)
-    {
-        std::cout << "ChppGikComConstraint::computeJacobian() could not retrieve partial jacobians.\n";
-        return;
-    }
-
-    ChppGikTools::Vector3toUblas( attRobot->positionCenterOfMass(), temp3DVec);
-
-    ChppGikTools::HtoRT(tempFixedJoint->currentTransformation(),tempRot,temp3DVec1);
-    temp3DVec.minus_assign(temp3DVec1);//COM in world - ankle joint center in world
-    
-    ChppGikTools::equivAsymMat(temp3DVec,tempRot);
-    for (unsigned int i = 0; i< attDimension;i++)
-    {
-    noalias (row(tempJacobian,i)) = row(*tempEffectorJointJacobian,i) - row(*tempFixedJointJacobian,i);
-    for (unsigned int j =0;j<3;j++)
-    noalias (row(tempJacobian,i)) += tempRot(i,j) * row(*tempFixedJointJacobian,j+3);
-    }
-
-    noalias (subrange(attJacobian,0,attDimension,0, attNumberActuatedDofs) )= subrange(tempJacobian,0,attDimension,6,attRobot->numberDof());
-    
-
-*/
-    ///*
-    
     tempFixedJoint = &(attRobot->fixedJoint(0));
 
     if (!tempFixedJoint)
@@ -171,7 +133,6 @@ void ChppGikComConstraint::computeJacobian()
         for (unsigned int l=0; l<3;l++)
             tempJacobian(l,rank-6) -= (*tempFixedJointJacobian)(l,rank);
     }
-    
 
     ChppGikTools::Vector3toUblas( attRobot->positionCenterOfMass(), temp3DVec);
     ChppGikTools::HtoRT(tempFixedJoint->currentTransformation(),tempRot,temp3DVec1);
@@ -181,10 +142,6 @@ void ChppGikComConstraint::computeJacobian()
     ublas::noalias(tempJacobian) += ublas::prod(tempRot, ublas::subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
 
     attJacobian = ublas::subrange(tempJacobian,0,attDimension,0,attNumberActuatedDofs);
-
-    //*/
-
-
 }
 
 

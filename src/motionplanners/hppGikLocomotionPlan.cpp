@@ -40,6 +40,11 @@ void ChppGikLocomotionPlan::clearTasks()
     attExtraEndTime = 1.0;
 }
 
+void ChppGikLocomotionPlan::extraEndTime(double inDuration)
+{
+    attExtraEndTime = (inDuration<0.0)?0.0:inDuration;
+}
+
 void ChppGikLocomotionPlan::extendEnd(double inDuration)
 {
     attExtraEndTime += inDuration;
