@@ -1,4 +1,26 @@
-$Id: ChangeLog 2007/11/28 15:01:33 mallet $
+$Id: ChangeLog 2008/02/18 18:26:39 mallet $
+
+hppGik 1.6 released Mon 18 Feb 2008
+
+	37. Extra method in GenericTask to enable the user to change the
+	    previously-imposed extra time at the end of planned motions.
+	36. updated ComConstraint according to changes in
+	    DynamicMultiBody.
+	35. Extra method in GenericTask to enable the user to set the same
+	    joints mask for all entered elements. 
+	34. Added the possibility to use neutral weights for upper body
+	    joints in GenericTask.
+	33. Added the possibility to select working joints when entering
+	    ReadyMotions.
+	32. Work In Progress on local locomotion planning.
+	31. Split final phase in HalfSittingTask to reset chest prior to
+	    other bodies.
+	30. Added a foot selection method in HalfSittingTask and
+	    StepBackTask.
+	29. Bug fix in ChppRobotMotion.
+	28. Added const qualifier to numberSamples() in hppRobotMotion.
+	27. Two new methods in RobotMotion + imprecision fix.
+	26. Many changes resulting in improved memory usage and speed.
 	
 hppGik 1.5 released Wed 28 Nov 2007
 
