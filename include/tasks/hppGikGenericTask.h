@@ -2,9 +2,9 @@
 #define HPP_GIK_GENERICTASK_H
 
 #include "motionplanners/hppGikLocomotionPlan.h"
-#include "motionplanners/hppGikSingleMotionsPlan.h"
 #include "tasks/hppGikRobotTask.h"
 #include "core/hppGikSolver.h"
+#include "core/hppGikPrioritizedMotion.h"
 
 /**
 \brief The ChppGikGenericTask is a robot task composed of generic task elements and ready motions.
@@ -18,57 +18,44 @@ public :
     ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  double inSamplingPeriod);
 
     /**
-    \brief add a motion planning task: single motion task or locomotion task expected, and the start time of the task must be greater than the start time passed to the constructor of this task plan.
+    \brief add a prioritized motion (like ChppGikInterpolatedElement or ChppGikReadyElement)
      */
-    bool addElement(ChppGikGenericTaskElement* inElement);
+    bool addElement(ChppGikPrioritizedMotion* inElement);
+    
+    /**
+    \brief add a locomotion
+     */
+    bool addElement(ChppGikLocomotionElement* inElement);
 
-    /**
-    \brief add a ready motion constraint
-     */
-    bool addReadyMotionElement(ChppGikReadyMotionElement* inElement);
-
-    /**
-    \brief modify extra end time (use with caution, make sure there is at least one second of planned motion after the endtime of the last planned stepElement)
-    */
-    void extraEndTime(double inDuration);
-    
-    /**
-    \brief Activate/disactivate different inverse kinematics weights according to support polygon type (single or double). Default is Enabled.
-     */
-    void dynamicWeights(bool inSwitch);
-    
-    /**
-    \brief True = privelege to lighter joints in upper body. False = no privelege. Default is False
-     */
-    void neutralUpperBody(bool inSwitch);
-    
-    /**
-    \brief True = use the given joints mask. False = automatically computed joints mask. Default is False
-     */
-    void automaticJointsMask(bool inSwitch, const  vectorN* inMask = 0);
-    
-    
-    /**
-    \brief Activate/disactivate motion replanning when a time sample cannot be solved. Default is Disabled.
-     */
-    void motionReplanning(bool inSwitch);
-    
-    
-    /**
-    \brief Return the number of stored elements
-     */
-    unsigned int numberElements();
-    
-    /**
-    \brief Return a pointer to the element at the requested rank. Null pointer is returned in case rank is out of bounds
-     */
-    ChppGikGenericTaskElement* elementAtRank(unsigned int inRank);
-    
     /**
     \brief Clear all the entered elements
      */
     void clearElements();
-  
+
+
+    /**
+    \brief modify extra end time (use with caution, make sure there is at least one second of planned motion after the endtime of the last planned stepElement)
+     */
+    void extraEndTime(double inDuration);
+
+    /**
+    \brief Activate/disactivate different inverse kinematics weights according to support polygon type (single or double). Default is Enabled.
+     */
+    void dynamicWeights(bool inSwitch);
+
+    /**
+    \brief True = privelege to lighter joints in upper body. False = no privelege.
+    \note Default value is False
+     */
+    void neutralUpperBody(bool inSwitch);
+
+    /**
+    \brief True = use the given joints mask. False = automatically computed joints mask.
+    \note Default is False
+     */
+    void automaticJointsMask(bool inSwitch, const  vectorN* inMask = 0);
+
+
     /**
     \brief Destructor
      */
@@ -76,63 +63,19 @@ public :
 
 protected:
     CjrlHumanoidDynamicRobot* attRobot;
-
     ChppGikMotionPlan* attMotionPlan;
-
     ChppGikLocomotionPlan* attLocomotionPlan;
-
-    ChppGikSingleMotionsPlan* attSingleMotionsPlan;
-    
     ChppGikSolver* attGikSolver;
+    void computeGikWeights(double inTime, const vectorN& inActiveJoints, vectorN& outGikWeights);
 
-    void computeGikWeights(double inTime, vectorN& outGikWeights);
-    
 private:
-
     virtual bool algorithmSolve();
-    
-    /**
-    \brief Remember the pointers to the entered ready motion constraints
-    */
-    std::vector<ChppGikReadyMotionElement*> attReadyMotionElements;
-    /**
-    \brief Remember the pointers to the motions plan rows holding the references to the entered ready motion constraints
-    */
-    std::vector<ChppGikMotionPlanRow*> attReadyMotionElementsRows;
-    
-    /**
-    \brief Vector of pointers to the generic task elements.
-     */
-    std::vector<ChppGikGenericTaskElement*> attPlanningTasks;
-    
-    /**
-    \brief Dynamic weights option
-    */
+    std::vector<ChppGikMotionPlanRow*> attPrioritizedMotionRows;
+    std::vector<ChppGikPrioritizedMotion*> attPrioritizedMotions;
     bool attUseDynamicWeights;
-    
-    /**
-    \brief Neutral body option
-     */
     bool attNeutralBodyOption;
-    
-    /**
-    \brief Motion replanning option
-     */
-    bool attEnableReplanning;
-    
-    /**
-    \brief computation vector
-    */
     vectorN jointsMask;
-    
-    /**
-    \brief user joint mask option
-     */
     bool attUserDefinedMask;
-    
-    /**
-    \brief User-imposed joints mask
-     */
     vectorN attUserJointsMask;
 };
 #endif

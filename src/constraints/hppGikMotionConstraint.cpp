@@ -4,17 +4,23 @@
 #include "hppGikTools.h"
 
 
-ChppGikMotionConstraint::ChppGikMotionConstraint(double inSamplingPeriod, double inStartTime)
+ChppGikMotionConstraint::ChppGikMotionConstraint(CjrlDynamicRobot* inRobot, double inSamplingPeriod, double inStartTime)
 {
     attSamplingPeriod = inSamplingPeriod;
     attStartTime = inStartTime;
     attEndTime = attStartTime;
     attEps = attSamplingPeriod/2;
+    attRobot = inRobot;
+}
+
+CjrlDynamicRobot* ChppGikMotionConstraint::robot() 
+{
+    return attRobot;
 }
 
 CjrlGikMotionConstraint* ChppGikMotionConstraint::clone() const
 {
-    ChppGikMotionConstraint* ret =  new ChppGikMotionConstraint(attSamplingPeriod, attStartTime);
+    ChppGikMotionConstraint* ret =  new ChppGikMotionConstraint(attRobot, attSamplingPeriod, attStartTime);
     CjrlGikStateConstraint *cstr = 0;
     unsigned int i = 0;
     cstr = stateConstraintAtRank( i);

@@ -18,7 +18,12 @@ public:
     /**
     \brief Constructor
      */
-    ChppGikMotionConstraint(double inSamplingPeriod, double inStartTime = 0.0);
+    ChppGikMotionConstraint(CjrlDynamicRobot* inRobot, double inSamplingPeriod, double inStartTime = 0.0);
+    
+    /**
+    \brief get the associated robot
+    */
+    CjrlDynamicRobot* robot();
     
     /**
     \brief Clone Constructor
@@ -83,6 +88,7 @@ private:
     double attStartTime;
 
     double attEndTime;
+    CjrlDynamicRobot* attRobot;
     
 };
 

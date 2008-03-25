@@ -3,12 +3,11 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikJointStateConstraint.h"
-#include "constraints/hppGikPlannableConstraint.h"
 
 /**
 \brief Implementation of some commom functions in CjrlGikJointStateConstraint
  */
-class ChppGikJointStateConstraint: public ChppGikPlannableConstraint
+class ChppGikJointStateConstraint: virtual public CjrlGikJointStateConstraint
 {
 public:
 
@@ -56,25 +55,6 @@ public:
      */
     virtual vectorN& influencingDofs();
     
-    /**
-    \brief Implementation of computeInterpolatedTarget() from ChppGikPlannable
-     */
-    virtual void computeInterpolatedTarget(double inLambda);
-    
-    /**
-        \brief Implementation of interpolatedTarget()  from ChppGikPlannable
-    */
-    virtual const vectorN& interpolatedTarget();
-    
-    /**
-    \brief Get the full state (this constraint and its first two derivatives) of the constraint expressed as a vectorN.
-     */
-    virtual const vectorN& vectorizedState() const;
-    
-    /**
-    \brief Get the vectorized target for this constraint
-    */
-    virtual const vectorN& vectorizedTarget() const;
 
 protected:
 

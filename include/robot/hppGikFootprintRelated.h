@@ -49,6 +49,11 @@ public:
     double distanceTo(const ChppGikFootprint* inFootprint) const;
 
     /**
+    \brief Determine wether the given point is inside the footprint
+    */
+    bool isPointInside(double inX, double inY)const;
+    
+    /**
     \brief make a footprint from a transformation. Return 0 if the foot transformation did not turn flat on the ground
      */
     static ChppGikFootprint*  cookFootprint(const matrix4d& inTransformation, double inNormalFootHeight);

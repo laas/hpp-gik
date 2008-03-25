@@ -73,36 +73,3 @@ CjrlDynamicRobot& ChppGikJointStateConstraint::robot()
     return *attRobot;
 }
 
-const vectorN& ChppGikJointStateConstraint::interpolatedTarget()
-{
-    return attInterpolatedTarget;
-}
-        
-const vectorN& ChppGikJointStateConstraint::vectorizedState() const
-{
-    return attVectorizedState;
-}
-const vectorN& ChppGikJointStateConstraint::vectorizedTarget() const
-{
-    return attVectorizedTarget;
-}
-void ChppGikJointStateConstraint::computeInterpolatedTarget(double inLambda)
-{
-    if (attInterpolatedTarget.size() != attVectorizedTarget.size())
-        attInterpolatedTarget.resize(attVectorizedTarget.size(), false);
-
-    if (inLambda < 0)
-    {
-        attInterpolatedTarget = ublas::subrange (attVectorizedState, 0,  attVectorizedState.size());
-    }
-    else
-    if (inLambda > 1)
-    {
-        attInterpolatedTarget =  attVectorizedTarget;
-    }
-    else
-    {
-    ublas::noalias (attInterpolatedTarget )=  (1-inLambda)* ublas::subrange (attVectorizedState, 0,  attInterpolatedTarget.size());
-    ublas::noalias (attInterpolatedTarget ) += inLambda*attVectorizedTarget;
-    }
-}

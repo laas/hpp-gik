@@ -47,6 +47,11 @@ public:
     \return false if a fixed joint is not set in the robot.
      */
     bool gradientStep(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs );
+    
+    /**
+    \brief get the solution to last call of gradientStep
+    */
+    const vectorN& solution();
 
     /**
        \brief variant of above gradientStep(). Zero-vector is passed to inSRcoefs.
@@ -76,25 +81,10 @@ public:
 
 private:
 
-    /**
-        \brief Pointer to the relevant robot.
-     */
+
     CjrlDynamicRobot* attRobot;
-
-    /**
-        \brief Resize matrices used in solve().
-        Default maximum size of subtask is assumed to be 6. If a subtask has a bigger dimension, matrices get resized internally by this method in order to match the subtask. They keep the latest allocated size. For now there is no mecanism to shrink the matrices back when subtasks are smaller.
-     */
     void resizeMatrices(unsigned int inSubtaskDefaultSize);
-
-    /**
-        \brief Prepare smooth braking window for joint limits enforcement
-     */
     void prepareBrakeWindow();
-
-    /**
-        \brief get dof braking coefficient to be applied in avoiding a joint limit
-     */
     double brakeCoefForJoint(const double& qVal,const double& lowerLimit, const double& upperLimit, const double& dq);
 
 
@@ -118,11 +108,7 @@ private:
     \brief add supporting leg's dofs to constraint's dofs
     */
     void computeConstraintDofs(CjrlGikStateConstraint* inConstraint);
-            
-    /**
-        \name Variables used by solve() and allocated in the constructor to avoid dynamic allocation
-        @{
-     */
+
 
     unsigned int LongSize;
     unsigned int LongSizeBackup;
@@ -183,9 +169,6 @@ private:
     char jobVt;
     
     unsigned int Offset;
-    /**
-        @}
-     */
 };
 
 #endif

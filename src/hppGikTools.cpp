@@ -32,7 +32,7 @@ void ChppGikTools::EulerZYXtoRot(const vectorN& inEuler, matrixNxP& outRot)
 }
 
 void ChppGikTools::EulerZYXtoRot(double inThetaX, double inThetaY,
-				 double inThetaZ, matrixNxP& outRot)
+                                 double inThetaZ, matrixNxP& outRot)
 {
 
     double cx = cos(inThetaX);
@@ -263,7 +263,7 @@ bool ChppGikTools::sinFilter(vectorN& inSignal, double inSamplingPeriod, vectorN
     vectorN extendedSignal(inSignal.size()+2*filter_n);
     vectorN result(inSignal.size()+2*filter_n);
 
-    
+
 
     for (unsigned int i= 0; i<filter_n; i++)
     {
@@ -272,7 +272,7 @@ bool ChppGikTools::sinFilter(vectorN& inSignal, double inSamplingPeriod, vectorN
     }
     ublas::subrange(extendedSignal,filter_n,filter_n+inSignal.size()) = inSignal;
 
-    
+
     result.clear();
     for (unsigned int i= filter_n; i<extendedSignal.size(); i++)
         for (unsigned int j= 0; j<filter_n; j++)
@@ -425,6 +425,8 @@ void ChppGikTools::RotFromYaw(double inYaw, matrixNxP& outM)
 
 unsigned int ChppGikTools::timetoRank( double inStartTime, double inTime, double inSamplingPeriod)
 {
+    if (inStartTime>inTime)
+        return 0;
     return (unsigned int)round((inTime-inStartTime)/inSamplingPeriod);
 }
 
@@ -501,4 +503,69 @@ void ChppGikTools::dumpMatrix(const char* inFilename, const matrixNxP& inData, d
     fclose (dumpFile);
 }
 
+void ChppGikTools::m4dFromXyzt(double inX, double inY, double inZ, double inTh, matrix4d& outMat)
+{
+    M4_IJ(outMat,0,0) = M4_IJ(outMat,1,1) = cos(inTh);
+    M4_IJ(outMat,1,0) = sin(inTh);
+    M4_IJ(outMat,0,1) = -M4_IJ(outMat,1,0);
+    M4_IJ(outMat,0,3) = inX;
+    M4_IJ(outMat,1,3) = inY;
+    M4_IJ(outMat,2,3) = inZ;
+}
 
+void ChppGikTools::prolongateSizeBased(unsigned int size1, unsigned int size2, const matrixNxP& inData, matrixNxP& outData)
+{
+    unsigned int sizeM = size1+size2+inData.size2();
+    outData.resize(inData.size1(),sizeM);
+
+    unsigned int i;
+    for (i=0; i<size1;i++)
+        column(outData,i) = column(inData,0);
+
+    for (i=0; i<inData.size2();i++)
+        column(outData,i+size1) = column(inData,i);
+
+    for (i=0; i<size2;i++)
+        column(outData,i+size1+inData.size2()) = column(inData,inData.size2()-1);
+}
+
+void ChppGikTools::prolongateTimeBased(double timePre, double timePost, double samplingPeriod, const matrixNxP& inData, matrixNxP& outData)
+{
+    unsigned int sizePre = (unsigned int)round(timePre/samplingPeriod);
+    unsigned int sizePost = (unsigned int)round(timePost/samplingPeriod);
+    prolongateSizeBased(sizePre, sizePost, inData, outData);
+}
+
+bool ChppGikTools::overlapConcat(matrixNxP& data, const matrixNxP& addedData, unsigned int overlap)
+{
+    if (overlap > data.size2())
+        return false;
+    if (data.size1() != addedData.size1())
+        return false;
+
+    
+    
+    data.resize(data.size1(), data.size2() + addedData.size2()- overlap, true);
+    subrange(data, 0, data.size1(), data.size2()-addedData.size2(),data.size2()) = addedData;
+    return true;
+}
+
+bool ChppGikTools::combineMasks(const vectorN& inMask1, const vectorN& inMask2, vectorN& outMask)
+{
+    unsigned int sz1 = inMask1.size();
+    unsigned int sz2 = inMask2.size();
+
+    if (sz1 != sz2)
+        return false;
+    if (sz1 != outMask.size())
+        return false;
+
+    for (unsigned int i=0; i<sz1; i++)
+        if ((inMask1(i) > 0) || (inMask2(i) > 0))
+            outMask(i) = 1;
+        else
+            outMask(i) = 0;
+
+    return true;
+
+}

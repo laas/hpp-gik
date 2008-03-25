@@ -46,11 +46,8 @@ const matrix3d& ChppGikRotationConstraint::targetOrientation()
 void ChppGikRotationConstraint::computeValue()
 {
     ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
-
     noalias(tempGapRot) =  prod(trans(tempRot),attTargetOrientation);
-
     ChppGikTools::RottoOmega(tempGapRot,temp3DVec);
-
     noalias(attValue) = prod(tempRot,temp3DVec);
 }
 
@@ -104,7 +101,7 @@ void ChppGikRotationConstraint::computeVectorizedState()
     subrange(attVectorizedState,3,6) = curEulerVel;
     subrange(attVectorizedState,6,9) = curEulerAccel;
 
-    
+
 }
 
 bool ChppGikRotationConstraint::vectorizedTarget ( const vectorN& inVector )
@@ -125,17 +122,20 @@ void ChppGikRotationConstraint::computeVectorizedTarget()
 {
     ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
     ChppGikTools::RottoEulerZYX(tempRot, temp3DVec);
-    
     ChppGikTools::RottoEulerZYX ( attTargetOrientation, attVectorizedTarget );
-    
+
     for (unsigned int i=0; i<3;i++)
     {
-        if (attVectorizedTarget(i) < 0)
-            if (attVectorizedTarget(i) + M_PI > temp3DVec(i))
-                attVectorizedTarget(i) += 2 * M_PI; 
-        if (attVectorizedTarget(i) > 0)
-            if (attVectorizedTarget(i) - M_PI > temp3DVec(i))
-                attVectorizedTarget(i) -= 2 * M_PI; 
+        if (temp3DVec(i) > 0)
+        {
+            if (attVectorizedTarget(i) < temp3DVec(i) - M_PI)
+                attVectorizedTarget(i) += 2*M_PI; 
+        }
+        else
+        {
+            if (attVectorizedTarget(i) > temp3DVec(i) + M_PI)
+                attVectorizedTarget(i) -= 2*M_PI; 
+        }
     }
-
 }
+

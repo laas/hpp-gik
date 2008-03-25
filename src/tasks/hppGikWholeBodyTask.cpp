@@ -4,8 +4,10 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 
 #include "tasks/hppGikWholeBodyTask.h"
+#include "motionplanners/elements/hppGikInterpolatedElement.h"
+#include "motionplanners/elements/hppGikStepElement.h"
 #include "constraints/hppGikPositionConstraint.h"
-#include "constraints/hppGikParallelConstraint.h" 
+#include "constraints/hppGikParallelConstraint.h"
 #include "constraints/hppGikTransformationConstraint.h"
 #include "hppGikTools.h"
 
@@ -13,16 +15,18 @@
 ChppGikWholeBodyTask::ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, unsigned int inMaxIterations, ChppGikGenericTask *inGenericTask):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"WholebodyTask")
 {
     attMaxIterations = inMaxIterations;
-    
+
     attEnableStep = true;
-    
+
     attHadToStep = false;
-    
-    if (inGenericTask){
-	attGenericTask = inGenericTask;
-    }else{
-	attGenericTask = new ChppGikGenericTask(inStandingRobot, 
-						inSamplingPeriod);
+
+    if (inGenericTask)
+    {
+        attGenericTask = inGenericTask;
+    }
+    else
+    {
+        attGenericTask = new ChppGikGenericTask(inStandingRobot, inSamplingPeriod);
     }
 }
 
@@ -39,17 +43,12 @@ void ChppGikWholeBodyTask::reset()
     for( iter = attUserStateTasks.begin(); iter != attUserStateTasks.end(); iter++)
         delete *iter;
     attUserStateTasks.clear();
-    //delete user motion constraint stack
-    std::vector<ChppGikReadyMotionElement*>::iterator iterM;
-    for( iterM = attUserMotionTasks.begin(); iterM != attUserMotionTasks.end(); iterM++)
-        delete *iterM;
     attUserMotionTasks.clear();
 }
 
 void ChppGikWholeBodyTask::clear()
 {
     attGenericTask->clearElements();
-    attSolutionMotion->clear();
 }
 
 
@@ -62,7 +61,7 @@ void ChppGikWholeBodyTask::addStateConstraint(CjrlGikStateConstraint* inStateCon
 
 void ChppGikWholeBodyTask::addMotionConstraint(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority)
 {
-    ChppGikReadyMotionElement* readyMo = new ChppGikReadyMotionElement(inMotionConstraint, inPriority, attStandingRobot->maskFactory()->wholeBodyMask());
+    ChppGikReadyElement* readyMo = new ChppGikReadyElement( attStandingRobot->robot(), inMotionConstraint, inPriority, attStandingRobot->maskFactory()->wholeBodyMask());
     attUserMotionTasks.push_back(readyMo);
 }
 
@@ -89,7 +88,7 @@ bool ChppGikWholeBodyTask::algorithmSolve()
 
     bool tryBasic = true;
     bool isSolved = false;
-    
+
     if (attEnableStep)
     {
         double targetX, targetY, distance,centerX,centerY;
@@ -101,13 +100,13 @@ bool ChppGikWholeBodyTask::algorithmSolve()
         if ( distance > 0.7 )
             tryBasic =  false;
     }
-    
+
     if (tryBasic)
     {
         //try to solve the problem without stepping
         isSolved = basicSolve();
     }
-    
+
     if (!isSolved && attEnableStep)
     {
         attHadToStep = true;
@@ -116,7 +115,7 @@ bool ChppGikWholeBodyTask::algorithmSolve()
     }
 
     cropMotion( attGenericTask );
-    
+
     return isSolved;
 }
 
@@ -130,7 +129,7 @@ bool ChppGikWholeBodyTask::basicSolve()
     clear();
 
     std::cout << "Trying to solve without making a step.\n";
-    
+
     //get initial support polygon
     if (!attStandingRobot->supportPolygon()->isDoubleSupport())
     {
@@ -151,11 +150,11 @@ void ChppGikWholeBodyTask::defaultPlannerTaskMaker(double defaultStartTime,doubl
     std::vector<ChppGikPrioritizedStateConstraint*>::iterator iter;
     for( iter = attUserStateTasks.begin(); iter != attUserStateTasks.end(); iter++)
     {
-        ChppGikPlannableConstraint* taskconstraint= dynamic_cast<ChppGikPlannableConstraint*>((*iter)->stateConstraint());
+        ChppGikVectorizableConstraint* taskconstraint= dynamic_cast<ChppGikVectorizableConstraint*>((*iter)->stateConstraint());
 
         if (taskconstraint != 0)
         {
-            ChppGikSingleMotionElement* task = new ChppGikSingleMotionElement( taskconstraint,(*iter)->priority(),defaultStartTime,defaultTaskDuration);
+            ChppGikInterpolatedElement* task = new ChppGikInterpolatedElement( attStandingRobot->robot(), taskconstraint, (*iter)->priority(), defaultStartTime, defaultTaskDuration, attSamplingPeriod);
             attGenericTask->addElement(task);
         }
         else
@@ -173,7 +172,7 @@ bool ChppGikWholeBodyTask::onestepSolve()
     // go through footprint candidates until a solution motion is met or all footprints unsuccessful
 
     std::cout << "Trying to solve with a step.\n";
-    
+
     //get initial support polygon
     if (!attStandingRobot->supportPolygon()->isDoubleSupport())
     {
@@ -220,32 +219,32 @@ bool ChppGikWholeBodyTask::onestepSolve()
     double zmpendcoef = 0.70;
 
     attGenericTask->dynamicWeights(false);
-    
+
     double otherTasksStartTime = stepStartTime + 1.8;
     double otherTasksDuration = 4.0;
 
     bool isSolved =false;
     ChppGikStepElement* stepTask = 0;
-    
-    ChppGikSingleMotionElement* waistTask = 0;
+
+    ChppGikInterpolatedElement* waistTask = 0;
     vector3d targetOrientation,laxis;
     laxis[0] = 0;
     laxis[1] = 0;
     laxis[2] = 1;
     targetOrientation = laxis;
     ChppGikParallelConstraint* waistConstraint = new ChppGikParallelConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->waist()),laxis,targetOrientation);
-    
+
     for (unsigned int i=0;i<attMaxIterations;i++)
     {
         //Clean task plan
         clear();
 
         //Create step task (default timings)
-        stepTask = new ChppGikStepElement(stepStartTime, vectorFootprints[i], whichFoot, zmpendcoef, zmpendshifttime, zmpstartshifttime, footflighttime);
-        
+        stepTask = new ChppGikStepElement( attStandingRobot->robot(), stepStartTime, vectorFootprints[i], whichFoot, attSamplingPeriod , zmpendcoef,  zmpendshifttime, zmpstartshifttime, footflighttime);
+
         attGenericTask->addElement(stepTask);
 
-        waistTask = new ChppGikSingleMotionElement(waistConstraint, 4, 0.0, otherTasksStartTime+otherTasksDuration);
+        waistTask = new ChppGikInterpolatedElement(attStandingRobot->robot(),waistConstraint, 4, 0.0, otherTasksStartTime+otherTasksDuration, attSamplingPeriod);
         attGenericTask->addElement(waistTask);
 
         //wrap & time user-entered state constraints, and add them to attPlannerTasks vector
@@ -269,7 +268,7 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
     outDistance = 0.0;
     outX = centerX;
     outY = centerY;
-    
+
     double maxDist = 0;
     vectorN target(3), vectorizedTarget(6);
     bool check = false;
@@ -284,7 +283,7 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
         if (check)
         {
             posConstr->computeVectorizedTarget();
-            target = ((ChppGikPlannableConstraint*)posConstr)->vectorizedTarget();
+            target = ((ChppGikVectorizableConstraint*)posConstr)->vectorizedTarget();
         }
         else
         {
@@ -293,7 +292,7 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
             if (check)
             {
                 transConstr->computeVectorizedTarget();
-                vectorizedTarget = ((ChppGikPlannableConstraint*)transConstr)->vectorizedTarget();
+                vectorizedTarget = ((ChppGikVectorizableConstraint*)transConstr)->vectorizedTarget();
                 target = subrange(vectorizedTarget,0,3);
             }
         }
@@ -358,9 +357,9 @@ void ChppGikWholeBodyTask::deleteFootprintCandidates(std::vector<ChppGikFootprin
 bool ChppGikWholeBodyTask::executeResolutionPlan()
 {
     //Add ready motions
-    std::vector<ChppGikReadyMotionElement*>::iterator iterM;
+    std::vector<ChppGikReadyElement*>::iterator iterM;
     for( iterM = attUserMotionTasks.begin(); iterM != attUserMotionTasks.end(); iterM++)
-        attGenericTask->addReadyMotionElement(*iterM);
+        attGenericTask->addElement(*iterM);
 
     return attGenericTask->solve();
 }

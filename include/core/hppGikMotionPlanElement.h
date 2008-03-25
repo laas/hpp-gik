@@ -20,7 +20,7 @@ public:
     \brief Constructor.
      */
     ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, unsigned int inPriority);
-   
+
     /**
     \brief Copy
      */
@@ -35,34 +35,47 @@ public:
     \brief Get the priority
     */
     unsigned int priority() const;
+
     /**
     \brief Add a constraint.
      */
     void addConstraint(CjrlGikStateConstraint* inJrlStateConstraint);
+
     /**
     \brief Get the dimension of this motion plan element
      */
     unsigned int dimension() const;
 
     /**
+    \brief Get a mask on the configuration vector denoting the working degrees of freedom
+     */
+    const vectorN& workingJoints() const;
+    
+    /**
+    \brief Set a mask on the configuration vector denoting the working degrees of freedom
+     */
+    void workingJoints(const vectorN& inVec);
+
+    /**
     \brief Clear stored references to constraints
     */
     void clear();
+
     /**
     \name Computations
      @{
      */
-    
+
     /**
     \brief Compute a binary vector whose size matches the robot cnfiguration's, where an element with value 1 indicates that the corresponding degree of freedom can modify the value of this constraint, and an element with value 0 cannot.
     */
     void computeInfluencingDofs();
-    
+
     /**
     \brief Get the influencing dofs
      */
     vectorN& influencingDofs();
-    
+
     /**
     \brief Compute the value of this motion plan element (task).
      */
@@ -87,7 +100,7 @@ public:
     \brief Get the current Jacobian
      */
     const matrixNxP& jacobian();
-    
+
     /**
     @}
      */
@@ -95,8 +108,9 @@ public:
     /**
        \brief Get constraints included in this element
      */
-    const std::vector<CjrlGikStateConstraint*>& constraints(){
-      return attConstraints;
+    const std::vector<CjrlGikStateConstraint*>& constraints()
+    {
+        return attConstraints;
     }
 
     ~ChppGikMotionPlanElement();
@@ -104,32 +118,14 @@ public:
 
 private:
 
-    /**
-    \brief robot
-    */
     CjrlDynamicRobot* attRobot;
-    /**
-    \brief  Priority
-    */
     unsigned int attPriority;
-    /**
-    \brief Vector of state constraints.
-     */
     std::vector<CjrlGikStateConstraint*> attConstraints;
-    /**
-    \brief Dimension
-     */
     unsigned int attDimension;
-    /**
-    \brief Value
-     */
     vectorN attValue;
-    /**
-    \brief Jacobian wrt to internal degrees of freedom (takes into account one non slippery contact with a fixed part of the world)
-     */
     matrixNxP attJacobian;
-
     vectorN attInfluencingDofs;
+    vectorN attWorkingJoints;
 };
 
 #endif

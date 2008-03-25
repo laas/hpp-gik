@@ -79,6 +79,13 @@ double ChppGikFootprint::th() const
     return attTh;
 }
 
+bool ChppGikFootprint::isPointInside(double inX, double inY)const
+{
+    if (sqrt(pow(inX - attX,2)+pow(inY - attY,2)) > 5e-2)
+        return false;
+    return true;
+}
+
 ChppGikFootprint*  ChppGikFootprint::cookFootprint ( const matrix4d& inTransformation, double inNormalFootHeight )
 {
     double threshDist = 4e-3;//4 mm

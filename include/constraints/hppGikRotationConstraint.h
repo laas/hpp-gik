@@ -4,12 +4,13 @@
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikRotationConstraint.h"
 #include "constraints/hppGikJointStateConstraint.h"
+#include "constraints/hppGikVectorizableConstraint.h"
 
 /**
 \brief Specify a 3D orientation constraint on a body of the robot.
  */
 
-class ChppGikRotationConstraint:public CjrlGikRotationConstraint, public ChppGikJointStateConstraint
+class ChppGikRotationConstraint:public CjrlGikRotationConstraint, public ChppGikJointStateConstraint, public ChppGikVectorizableConstraint
 {
 public:
     /**

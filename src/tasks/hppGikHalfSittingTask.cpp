@@ -1,14 +1,14 @@
 #include "tasks/hppGikHalfSittingTask.h"
 #include "hppGikTools.h"
-#include "constraints/hppGikTransformationConstraint.h"
+#include "constraints/hppGikConfigurationConstraint.h"
+#include "motionplanners/elements/hppGikInterpolatedElement.h"
+
+
 
 ChppGikHalfSittingTask::ChppGikHalfSittingTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod, "HalfsittingTask")
 {
-    attUpperBodyTask = new ChppGikConfigurationTask(inStandingRobot,inSamplingPeriod,inStandingRobot->halfsittingConfiguration());
-
     attStepBackTask = new ChppGikStepBackTask(inStandingRobot,attSamplingPeriod);
-
-    attGenericTask = new ChppGikGenericTask(inStandingRobot, inSamplingPeriod);
+    attGenericTask = new ChppGikGenericTask(inStandingRobot, attSamplingPeriod);
 }
 
 void ChppGikHalfSittingTask::automaticFoot(bool inAutomatic, bool inSelectedFootIsRight  )
@@ -18,10 +18,6 @@ void ChppGikHalfSittingTask::automaticFoot(bool inAutomatic, bool inSelectedFoot
 
 bool ChppGikHalfSittingTask::algorithmSolve()
 {
-    matrix4d &waistH = attStandingRobot->halfsittingWaistTransformation();
-    matrix4d &rfootH = attStandingRobot->halfsittingRightFootTransformation();
-    matrix4d &lfootH = attStandingRobot->halfsittingLeftFootTransformation();
-
     //StepBack
     attStepBackTask->targetFeetDistance(attStandingRobot->halfsittingFeetDistance());
 
@@ -35,73 +31,36 @@ bool ChppGikHalfSittingTask::algorithmSolve()
         return false;
     }
 
-    //Waist positioning
-    matrix4d nowlFootH = attStandingRobot->robot()->leftFoot()->currentTransformation();
-    double waistMotionStart = 0.0;
-    double waistMotionDuration = 3.0;
-    ChppGikSingleMotionElement* waisttask = extractTransformationTask(lfootH,waistH,nowlFootH,attStandingRobot->robot()->waist(),waistMotionStart,waistMotionDuration,2);
-    waisttask->workingJoints(attStandingRobot->maskFactory()->wholeBodyMask());
+    //Config constraint
+    vectorN mask(attStandingRobot->robot()->numberDof());
+    mask.clear();
+    subrange(mask,6,attStandingRobot->robot()->numberDof()) = attStandingRobot->maskFactory()->wholeBodyMask();
+    
+    double duration = 4.0;
+    vectorN targetConfig = attStandingRobot->halfsittingConfiguration();
+    ChppGikConfigurationConstraint confc( *(attStandingRobot->robot()), targetConfig, mask);
+    
+    ChppGikInterpolatedElement* confe = new ChppGikInterpolatedElement(attStandingRobot->robot(), &confc, 1, 0.0, duration, attSamplingPeriod);
 
     attGenericTask->clearElements();
-    attGenericTask->addElement( waisttask );
-
+    attGenericTask->addElement( confe );
     isSolved = attGenericTask->solve();
 
     cropMotion( attGenericTask );
 
     if (!isSolved)
     {
-        std::cout << "ChppGikHalfSittingTask::solve(): failing on phase 2.\n";
+        std::cout << "ChppGikHalfSittingTask::solve(): failure 2.\n";
         return false;
     }
-
-    //Chest reset (//hard code to reset HRP2's chest degree of freedom no.1)
-    vectorN targetconfig = attStandingRobot->robot()->currentConfiguration();
-    targetconfig(18) = attStandingRobot->halfsittingConfiguration()(18);
-    attUpperBodyTask->targetConfiguration( targetconfig );
-
-    attUpperBodyTask->epilogueDuration(0.0);
-    isSolved = attUpperBodyTask->solve();
-
-    cropMotion( attUpperBodyTask );
-
-    if (!isSolved)
-        std::cout << "ChppGikHalfSittingTask::solve(): failing on phase 3.\n";
-
-    //Upper body
-    attUpperBodyTask->targetConfiguration( attStandingRobot->halfsittingConfiguration() );
-    isSolved = attUpperBodyTask->solve();
-
-    attUpperBodyTask->epilogueDuration(1.0);
-    cropMotion( attUpperBodyTask );
-
-    if (!isSolved)
-        std::cout << "ChppGikHalfSittingTask::solve(): failing on phase 4.\n";
 
     return isSolved;
 }
 
-ChppGikSingleMotionElement* ChppGikHalfSittingTask::extractTransformationTask(const matrix4d& refBase, const matrix4d& refTarget, const matrix4d& nowBase, CjrlJoint* joint, double startTime,double  duration, unsigned int priority )
-{
-    matrix4d targetM4;
-    ChppGikTools::targetTransformationM(refBase,refTarget,nowBase,targetM4);
-
-    ublas::zero_vector<double> zero3U(3);
-    vector3d localPoint;
-    ChppGikTools::UblastoVector3( zero3U, localPoint);
-
-    ChppGikTransformationConstraint* constraint = new ChppGikTransformationConstraint(*(attStandingRobot->robot()), *joint,localPoint, targetM4);
-
-    ChppGikSingleMotionElement* task = new ChppGikSingleMotionElement(constraint, priority, startTime, duration);
-
-    delete constraint;
-    return task;
-}
 
 ChppGikHalfSittingTask::~ChppGikHalfSittingTask()
 {
     delete attStepBackTask;
-    delete attUpperBodyTask;
     delete attGenericTask;
     cleanUp();
 }

@@ -18,7 +18,7 @@ A "motion plan column" is a container for the motion plan elements that can be c
 class ChppGikMotionPlan
 {
 public:
-  
+
     /**
     \brief Constructor
      */
@@ -36,82 +36,57 @@ public:
     \brief Add a prioritized motion constraint.
     If a row having the same priority is found it gets the new motion constraint, otherwise a new row is created for it.
     /return a pointer to the ChppGikMotionPlanRow that holds the entered motion constraint
+    /note null pointer is returned in case the adde motion is not defined for this motion plan's robot
      */
-    ChppGikMotionPlanRow* addMotionConstraint(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority);
-    /**
-    \brief Get lower bound of definition interval.
-     */
-    double startTime();
-    /**
-    \brief Get upper bound of definition interval.
-     */
-    double endTime();
-    
+    ChppGikMotionPlanRow* addMotion(ChppGikPrioritizedMotion* inMotion);
+
     /**
     \brief Get number of row corresponding to given priority value
     \return false if the given priority does not have a matching row
      */
-    bool rankPriority(unsigned int inPriority, unsigned int& outRownumber);
+    bool getRankForPriority(unsigned int inPriority, unsigned int& outRownumber);
 
     /**
     \brief Get a pointer to the row at the given rank (starting from 0).
     \return null pointer if inRank is out of range
-    */
+     */
     ChppGikMotionPlanRow* getRow(unsigned int inRank);
-            
+    
     /**
     \brief Tell is the motion plan is empty
      */
     bool empty();
+
+    /**
+    \brief Compute and get lower bound of definition interval.
+     */
+    double startTime();
+    /**
+    \brief Compute and get upper bound of definition interval.
+     */
+    double endTime();
+
     /**
     \brief Get the motion plan column at the given time.
      */
     ChppGikMotionPlanColumn* columnAtTime(double inTime);
+    
+    /**
+    \brief Get the motion plan column at the given time.
+     */
+    std::vector<ChppGikPrioritizedMotion*> activeAtTime(double inTime);
 
-
-
-
+    
 private:
-    /**
-    \brief Update End time according to stored motion plan rows
-     */
+
     void updateEndTime();
-
-    /**
-    \brief Update Start time according to stored motion plan rows
-     */
     void updateStartTime();
-
-
-    /**
-    \brief Pointer to the relevant robot.
-     */
     CjrlHumanoidDynamicRobot* attRobot;
-
-    /**
-    \brief Motion end time
-     */
     double attEndTime;
-
-    /**
-    \brief Motion start time
-     */
     double attStartTime;
-
-    /**
-    \brief Vector of subtasks
-     */
     std::vector<ChppGikMotionPlanRow*> attRows;
-
-
-    /**
-    \brief Resolution variable: used to store the motion plan column on which the generalized inverse kinematics algorithm is applied
-     */
     ChppGikMotionPlanColumn* attWorkColumn;
-
-
-
-
+    vectorN attVector;
 };
 
 #endif

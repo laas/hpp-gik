@@ -1,8 +1,10 @@
 #include "core/hppGikMotionPlanColumn.h"
+using namespace ublas;
 
 ChppGikMotionPlanColumn::ChppGikMotionPlanColumn(CjrlHumanoidDynamicRobot* inRobot)
 {
     attRobot = inRobot;
+    attWorkingJoints = scalar_vector<double>(inRobot->numberDof()-6,0);
 }
 
 
@@ -27,6 +29,17 @@ unsigned int ChppGikMotionPlanColumn::numberElements() const
     return attTaskStack.size();
 }
 
+const vectorN& ChppGikMotionPlanColumn::workingJoints() const
+{
+    return attWorkingJoints;
+}
+
+
+void ChppGikMotionPlanColumn::workingJoints(const vectorN& inVec)
+{
+    if (inVec.size() == attWorkingJoints.size())
+        attWorkingJoints = inVec;
+}
 
 
 std::vector<CjrlGikStateConstraint*> ChppGikMotionPlanColumn::constraints()

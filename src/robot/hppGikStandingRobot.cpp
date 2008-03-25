@@ -67,6 +67,15 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
     attRightFootShape.vertices.push_back(vert);
     vert.x = 0.105;
     attRightFootShape.vertices.push_back(vert);
+    
+    attPreviousConfiguration.resize(attRobot->numberDof());
+    attPreviousConfiguration.clear();
+    attPreviousVelocity.resize(attRobot->numberDof());
+    attPreviousVelocity.clear();
+    attAcceleration.resize(attRobot->numberDof());
+    attAcceleration.clear();
+    attVelocity.resize(attRobot->numberDof());
+    attVelocity.clear();
 
 }
 
@@ -88,10 +97,43 @@ const ChppGik2DShape& ChppGikStandingRobot::rightFootShape()const
     return attRightFootShape;
 }
 
+bool ChppGikStandingRobot::staticState(const vectorN& inConfig)
+{
+    
+    if (inConfig.size() != attRobot->numberDof())
+        return false;
+    ///*
+    attRobot->currentConfiguration( inConfig );
+    attPreviousConfiguration = inConfig;
+    attPreviousVelocity.clear();
+    attRobot->currentVelocity( attPreviousVelocity );
+    attRobot->currentAcceleration( attPreviousVelocity );
+    attRobot->computeForwardKinematics();
+    //*/
+    /*
+    attRobot->staticState(inConfig);
+    */
+    return true;
+}
+        
 void ChppGikStandingRobot::updateDynamics(double inSamplingPeriod, const vector3d& inZMPworPla, vector3d& outZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
 {
-    //Update kinematics (finite difference method)
-    attRobot->FiniteDifferenceStateEstimate(inSamplingPeriod);
+    ///*
+    //Update kinematics (standard method)
+    attVelocity = (attRobot->currentConfiguration() - attPreviousConfiguration)/ inSamplingPeriod;
+    attRobot->currentVelocity( attVelocity );
+    attAcceleration = (attVelocity - attPreviousVelocity)/inSamplingPeriod;
+    attRobot->currentAcceleration( attAcceleration );
+    attRobot->computeForwardKinematics();
+    
+    attPreviousConfiguration = attRobot->currentConfiguration();
+    attPreviousVelocity = attVelocity;
+    //*/
+    
+    /*
+    attRobot->FiniteDifferenceStateUpdate(inSamplingPeriod);
+    
+    */
 
     //Observed ZMP
     outZMPworObs = attRobot->zeroMomentumPoint();
@@ -268,7 +310,7 @@ matrix4d& ChppGikStandingRobot::halfsittingHeadTransformation()
 
 void ChppGikStandingRobot::staticHalfsitting()
 {
-    attRobot->staticState( attHalfSittingConfig );
+    staticState( attHalfSittingConfig );
 }
 
 ChppGikStandingRobot::~ChppGikStandingRobot()

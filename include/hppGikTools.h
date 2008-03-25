@@ -30,8 +30,8 @@ public :
     /**
     Inverse of RottoEulerZYX
      */
-    static void EulerZYXtoRot(double inThetaX, double inThetaY, 
-			      double inThetaZ, matrixNxP& outRot);
+    static void EulerZYXtoRot(double inThetaX, double inThetaY,
+                              double inThetaZ, matrixNxP& outRot);
 
     //inH and outH are supposed distinct
     static void invertTransformation(const matrixNxP& inH, matrixNxP& outH);
@@ -66,6 +66,8 @@ public :
 
     static void RotFromYaw(double inYaw, matrixNxP& outM);
 
+    static void m4dFromXyzt(double inX, double inY, double inZ, double inTh, matrix4d& outMat);
+
     /**
     \brief Produce a trajectory interpolating xi and xf given the intial first and second derivatives of x (vi and ai). The final first and second derivatives (following the previous notations, those would be denoted vf and af) are null. The computed trajectory samples are appended to outPosition. Their number is N = round(inMotionDuration/inSamplingPeriod) + 1.
     if outVelocity and outAcceleration pointers are given, the first and second derivative of the trajectory are also computed and returned in these.
@@ -89,18 +91,23 @@ public :
     static void dumpMatrix(const char* inFilename, const matrixNxP& inData, double inStartTime, double inSamplingPeriod);
 
     static bool sinFilter(vectorN& inSignal, double inSamplingPeriod, vectorN& outSignal);
-    
+
     static void filterWindow(double T, double dt, vectorN& outFilter);
-    
+
     static bool multiFilter(double inSamplingPeriod, matrixNxP& inSignal, matrixNxP& outSignal);
 
     static bool linearInterpolation(double D, double inSamplingPeriod, double xi, double xf, vectorN& outTrajectory);
 
     static bool multiLinearInterpolation(double D, double inSamplingPeriod, vectorN& xi, vectorN& xf, matrixNxP& outTrajectory);
 
+    static void prolongateSizeBased(unsigned int size1, unsigned int size2, const matrixNxP& inData, matrixNxP& outData);
     
-
-
+    static void prolongateTimeBased(double timePre, double timePost, double samplingPeriod, const matrixNxP& inData, matrixNxP& outData);
+    
+    static bool overlapConcat(matrixNxP& data, const matrixNxP& addedData, unsigned int overlap);
+    
+    static bool combineMasks(const vectorN& inMask1, const vectorN& inMask2, vectorN& outMask);
+    
 private:
 
     static double attEps;

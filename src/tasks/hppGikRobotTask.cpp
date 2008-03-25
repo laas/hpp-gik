@@ -36,7 +36,7 @@ void ChppGikRobotTask::backupRobot()
 
 void ChppGikRobotTask::restoreRobot()
 {
-    attStandingRobot->robot()->staticState(attInitialConfiguration);
+    attStandingRobot->staticState(attInitialConfiguration);
 }
 
 const ChppRobotMotion& ChppGikRobotTask::solutionMotion() const
@@ -52,7 +52,7 @@ void ChppGikRobotTask::cropMotion(ChppGikRobotTask* inRobotTask)
     {
         attSolutionMotion->appendMotion(inRobotTask->solutionMotion());
         attSolutionMotion->configAtTime(attSolutionMotion->endTime(),config);
-        attStandingRobot->robot()->staticState(config);
+        attStandingRobot->staticState(config);
     }
 }
 

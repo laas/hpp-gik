@@ -1,7 +1,9 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "core/hppGikMotionPlan.h"
+#include "hppGikTools.h"
 
+using namespace ublas;
 
 ChppGikMotionPlan::ChppGikMotionPlan(CjrlHumanoidDynamicRobot* inRobot)
 {
@@ -9,6 +11,7 @@ ChppGikMotionPlan::ChppGikMotionPlan(CjrlHumanoidDynamicRobot* inRobot)
     attStartTime = 0.0;
     attEndTime = 0.0;
     attWorkColumn = new ChppGikMotionPlanColumn(inRobot);
+    attVector = scalar_vector<double>(inRobot->numberDof()-6,0);
 }
 
 ChppGikMotionPlan::~ChppGikMotionPlan()
@@ -20,9 +23,10 @@ ChppGikMotionPlan::~ChppGikMotionPlan()
 }
 
 
-ChppGikMotionPlanRow* ChppGikMotionPlan::addMotionConstraint(CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority)
+ChppGikMotionPlanRow* ChppGikMotionPlan::addMotion(ChppGikPrioritizedMotion* inMotion)
 {
     bool foundSamePriority = false;
+    unsigned int inPriority = inMotion->priority();
     std::vector<ChppGikMotionPlanRow*>::iterator iter;
     std::vector<ChppGikMotionPlanRow*>::iterator insertionLocation = attRows.end();
 
@@ -45,13 +49,16 @@ ChppGikMotionPlanRow* ChppGikMotionPlan::addMotionConstraint(CjrlGikMotionConstr
     
     if (foundSamePriority)
     {
-        (*iter)->addMotionConstraint(inMotionConstraint);
+        (*iter)->addMotion(inMotion);
+        //std::cout << "Added a motion from time "<< inMotion->motionConstraint()->startTime() <<" to time "<< inMotion->motionConstraint()->endTime() <<" in row "<< inMotion->priority() <<"\n";
         return (*iter);
     }
 
     ChppGikMotionPlanRow* newRow = new ChppGikMotionPlanRow(attRobot, inPriority);
-    newRow->addMotionConstraint(inMotionConstraint);
+    newRow->addMotion(inMotion);
     attRows.insert(insertionLocation, newRow);
+    
+    //std::cout << "Added a motion from time "<< inMotion->motionConstraint()->startTime() <<" to time "<< inMotion->motionConstraint()->endTime() <<" in row "<< inMotion->priority()  <<"\n";
     return newRow;
 
 }
@@ -64,7 +71,7 @@ ChppGikMotionPlanRow* ChppGikMotionPlan::getRow(unsigned int inRank)
         return attRows[inRank];
 }
 
-bool ChppGikMotionPlan::rankPriority(unsigned int inPriority, unsigned int& outRownumber)
+bool ChppGikMotionPlan::getRankForPriority(unsigned int inPriority, unsigned int& outRownumber)
 {
     bool foundSamePriority = false;
     unsigned int rank = 0; 
@@ -96,12 +103,17 @@ ChppGikMotionPlanColumn* ChppGikMotionPlan::columnAtTime(double inTime)
     attWorkColumn->clear();
     ChppGikMotionPlanElement* element =0;
     std::vector<ChppGikMotionPlanRow*>::iterator iter;
+    attVector.clear();
     for( iter = attRows.begin(); iter != attRows.end(); iter++)
     {
         element = (*iter)->elementAtTime(inTime);
         if (element->dimension())
+        {
             attWorkColumn->addElement(element);
+            ChppGikTools::combineMasks( attVector, element->workingJoints(), attVector );
+        }
     }
+    attWorkColumn->workingJoints( attVector );
     return attWorkColumn;
 }
 

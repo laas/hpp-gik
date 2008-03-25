@@ -1,16 +1,18 @@
 #ifndef HPP_GIK_LOCOMOTION_PLAN_H
 #define HPP_GIK_LOCOMOTION_PLAN_H
 
-#include "tasks/hppGikGenericTaskElements.h"
 #include "robot/hppGikStandingRobot.h"
-#include "core/hppGikMotionPlan.h"
 #include "motionplanners/hppGikPreviewController.h"
+#include "motionplanners/elements/hppGikLocomotionElement.h"
+#include "motionplanners/elements/hppGikNoLocomotion.h"
+#include "motionplanners/elements/hppGikComMotion.h"
+#include "core/hppGikMotionPlan.h"
+
 
 /**
-\brief This is a task plan for locomotion tasks (ChppGikLocomotionElement).
-At anytime, there is a foot which is considered attached to the ground (in other terms non slippery contact with infinite grip). We define hereby a nonsupport foot as a foot that is not considered attached to the ground.
-This locomotion task plan is transformed into two motion constaints: the COM and the the nonsupport foot motion constraints which are inseted in the global motion plan (ChppGikMotionPlan)
-Each locomotion task knows how to plan for a stable Zero momentum Point motion and a foot motion for itself. The produced chunks of motions are stored by this object.
+\brief This is a locomotion plan for objects of type ChppGikLocomotionElement.
+its purpose is to transform ChppGikLocomotionElement objects into ChppGikPrioritizedMotion objects which can be inserted in a ChppGikMotionPlan object
+ 
 */
 class ChppGikLocomotionPlan
 {
@@ -22,32 +24,34 @@ public:
      */
     /**
     \brief Constructor.
+    \note the start time is fixed to 0.0
      */
-    ChppGikLocomotionPlan(ChppGikMotionPlan* inAssociatedMotionPlan, ChppGikStandingRobot* inStandingRobot, double inStartTime, double inSamplingPeriod);
-    
+    ChppGikLocomotionPlan(ChppGikMotionPlan* inAssociatedMotionPlan, ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod);
+
     /**
-    \brief Add a locomotion task.
-    The task addition fails if the time frame taken by the added task overlaps a previously added task
+    \brief Add a locomotion element (the object is not copied).
+    \return false if the time frame taken by the added element overlaps with a previously added element
      */
-    bool addTask(ChppGikLocomotionElement* inStep);
-    
+    bool addElement(ChppGikLocomotionElement* inElement);
+
     /**
-    \brief Get the end time
+    \brief Delete entered elements (the object deleted)
+    */
+    void clearElements();
+
+    /**
+    \brief Get the end time according to entered elements
      */
     double endTime();
     
+   
     /**
-    \brief Clear task stack
-    */
-    void clearTasks();
-    
+    \brief Get an extra end time
+     */
+    double extraEndTime();
+
     /**
-    \brief Add a static duration at the end of the planned motion
-    */
-    void extendEnd(double inDuration);
-    
-    /**
-    \brief Extend the planned Com/foot constraint by the given positive duration
+    \brief Set an extra end time
     */
     void extraEndTime(double inDuration);
     /**
@@ -58,37 +62,41 @@ public:
     \name Computations
     {@
      */
-    
+
     /**
-    \brief Solve for support polygon motion, non support foot motion and COM motion. Returned motions start at attStartTime - PreviewControl->previewTime().
+    \brief Solve = based on the entered elements do:
+        - plan ZMP
+        - plan COM
+        - append feet motion to MotionPlan
+     \return false if any of the above steps fail
      */
-    bool solveOneStage();
-    
-    /**
-    \brief Get a pointer to the computed support polygon motion
-     */
-    ChppGikSupportPolygonMotion* supportPolygonMotion();
-    
-    /**
-    \brief Get the default support foot joint at the given time
-     */
-    CjrlJoint* supportFootJoint(double inTime);
-    
+    bool solve();
+
     /**
     \brief Get an appropriate joints weighting vecotr according to current task.
+    \return False if given time is out of bounds
     */
-    bool weightsAtTime(double inTime, vectorN& outWeights);
-    
+    bool getWeightsAtTime(double inTime, vectorN& outWeights);
+
+    /**
+    \brief Get planned ZMP at time inTime
+    \return False if given time is out of bounds
+     */
+    bool getZMPAtTime(double inTime, vectorN& outZMP);
+
     /**
     \brief Get the currently active task if any.
-    \return null pointer if no locomotion task is active at the current time
+    \return null pointer if no locomotion element is active at the given time
     */
-    const ChppGikLocomotionElement* activeTask(double inTime) const;
-    
+    const ChppGikLocomotionElement* activeElement(double inTime) const;
+
     /**
-    \brief Get planned ZMP motion. The returned matrix has 3 rows
+    \brief Get the default support foot joint at the given time
+    \return null pointer if no locomotion element is active at the given time
      */
-    const matrixNxP& plannedZMPmotion();
+    CjrlJoint* supportFootJoint(double inTime);
+
+
 
     /**
     @}
@@ -100,110 +108,26 @@ public:
     ~ChppGikLocomotionPlan();
 
 private:
-    /**
-    \brief Return a pointer to a new instance of footprint based on the given transformation. Doesn't check whether the rotation is a yaw transformation of world frame.
-     */
-    ChppGikFootprint*  createFootprintFromTransformation(const matrix4d& inTransformation, bool& isAnkleHeightOK);
-
-    /**
-    \brief Clear previously-computed motions
-    */
-    bool reset(double inStartTime);
-    
-    /**
-    \brief add COM and foot motions references in the associated motion plan 
-    */
-    void addtoMotionPlan();
-
-    /**
-    \brief Build motions by calling all tasks' planning method
-    */
-    bool buildMotions();
-
-    /**
-    \brief Prolongate last planned motion values
-     */
-    bool prolongate(double inDuration);
-    /**
-    \brief Prolongate last planned ZMP
-     */
+    void clearSolverMess();
+    bool planElementsZMP();
     void prolongateZMP(double inDuration);
 
-    /**
-    \brief Associated robot
-     */
+    CjrlHumanoidDynamicRobot* attRobot;
     ChppGikStandingRobot* attStandingRobot;
-    
-    /**
-    \brief Associated motion plan
-    */
     ChppGikMotionPlan* attAssociatedMotionPlan;
-
-    /**
-    \brief The vector of pointers to tasks (not stored in this object)
-    */
-    std::vector<ChppGikLocomotionElement*> attTasks;
-
-    /**
-    \brief Start time
-     */
-    double attStartTime;
-    
-    /**
-    \brief End time
-     */
-    double attTasksEndTime;
-    
-    /**
-    \brief Extra end time
-     */
-    double attExtraEndTime;
-    
-    /**
-    \brief End time of zmp trajectory
-     */
-    double attExtraZMPEndTime;
-    
-    /**
-    \brief Sampling period
-     */
-    double attSamplingPeriod;
-    
-    /**
-    \brief Support polygon motion
-     */
-    ChppGikSupportPolygonMotion* attSupportPolygonMotion;
-    
-    /**
-    \brief The planned ZMP motion
-     */
-    matrixNxP attPlannedZMP;
-    
-    /**
-    \brief The corrected ZMP motion
-     */
-    matrixNxP attCorrectedZMP;
-    
-    /**
-    \brief Motion constraint on the CoM.
-     */
-    ChppGikMotionConstraint* attComMotion;
-    
-
-    ChppGikMotionPlanRow* attComMotionPlanRow;
-    
-    ChppGikMotionPlanRow* attFootMotionPlanRow;
-    
-
-    /**
-    \brief Motion constraint on nonsupport foot
-     */
-    ChppGikMotionConstraint* attFootMotion;
-    
-    /**
-    \brief The Preview Controller that comuptes com motion
-     */
+    std::vector<ChppGikLocomotionElement*> attElements;
+    ChppGikComMotion* attComMotion;
+    ChppGikMotionPlanRow* attComMotionPlanRow, *attFootMotionPlanRow, *attNoElementRow;
     ChppGikPreviewController* attPreviewController;
+    ChppGikNoLocomotion* attNoElementCase;
+    double attStartTime, attModifiedStartTime;
+    double attEndTime, attModifiedEndTime;
+    double attExtraEndTime;
+    double attExtraZMPEndTime;
+    double attSamplingPeriod, attEps;
+    bool attPlanSuccess;
+    matrixNxP attPlannedZMP;
+
 };
 
 #endif

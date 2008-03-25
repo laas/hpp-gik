@@ -11,13 +11,13 @@
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikPlaneConstraint.h"
 #include "constraints/hppGikJointStateConstraint.h"
-
+#include "constraints/hppGikVectorizableConstraint.h"
 
 /**
 \brief Description of a constraint that limits the position of a point of the robot to a given plan.
 */
 
-class ChppGikPlaneConstraint:  public CjrlGikPlaneConstraint, public ChppGikJointStateConstraint
+class ChppGikPlaneConstraint:  public CjrlGikPlaneConstraint, public ChppGikJointStateConstraint, public ChppGikVectorizableConstraint
 {
 public:
     /**

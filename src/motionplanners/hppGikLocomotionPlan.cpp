@@ -1,106 +1,322 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "motionplanners/hppGikLocomotionPlan.h"
-#include "constraints/hppGikComConstraint.h"
+#include "motionplanners/elements/hppGikStepElement.h"
+
 #include "hppGikTools.h"
 
 
-ChppGikLocomotionPlan::ChppGikLocomotionPlan(ChppGikMotionPlan* inAssociatedMotionPlan, ChppGikStandingRobot* inStandingRobot, double inStartTime, double inSamplingPeriod)
+ChppGikLocomotionPlan::ChppGikLocomotionPlan(ChppGikMotionPlan* inAssociatedMotionPlan, ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod)
 {
+    attRobot = inStandingRobot->robot();
     attExtraEndTime = 1.0;
-    attStartTime = inStartTime;
-    attTasksEndTime = attStartTime;
+    attStartTime = attModifiedStartTime = 0.0;
+    attEndTime = attModifiedEndTime = 0.0;
     attSamplingPeriod = inSamplingPeriod;
+    attEps = attSamplingPeriod/2;
 
     attAssociatedMotionPlan = inAssociatedMotionPlan;
     attStandingRobot = inStandingRobot;
 
-    attSupportPolygonMotion = new ChppGikSupportPolygonMotion(inStartTime);
-    attFootMotion = new ChppGikMotionConstraint(inSamplingPeriod);
-    attComMotion = new ChppGikMotionConstraint(inSamplingPeriod);
-    attPreviewController = new ChppGikPreviewController(inSamplingPeriod);
-    addtoMotionPlan();
+    attPreviewController = new ChppGikPreviewController( inSamplingPeriod );
+
+    
+    attFootMotionPlanRow = 0;
+    attComMotionPlanRow = 0;
+    attNoElementRow = 0;
+    attNoElementCase = 0;
+    attComMotion = 0;
+    
+    attPlanSuccess = false;
 }
 
 ChppGikLocomotionPlan::~ChppGikLocomotionPlan()
 {
-    attFootMotionPlanRow->removeMotionConstraint( attFootMotion );
-    attComMotionPlanRow->removeMotionConstraint( attComMotion );
-
-    delete attSupportPolygonMotion;
+    clearElements();
     delete attPreviewController;
-    delete attComMotion;
-    delete attFootMotion;
 }
 
-void ChppGikLocomotionPlan::clearTasks()
+void ChppGikLocomotionPlan::clearElements() //i.e a different problem is coming
 {
-    attTasks.clear();
-    attTasksEndTime = attStartTime;
-    attExtraEndTime = 1.0;
+    clearSolverMess();
+
+    for (unsigned int i=0;i<attElements.size();i++)
+        delete attElements[i];
+
+    attElements.clear();
+
+    attPlanSuccess = false;
+    attEndTime = attStartTime = attModifiedEndTime = attModifiedStartTime = 0.0;
+}
+
+void ChppGikLocomotionPlan::clearSolverMess() // might be the same problem resolved
+{
+    if (attFootMotionPlanRow)
+        for (unsigned int i=0;i<attElements.size();i++)
+            attFootMotionPlanRow->removeMotion(attElements[i]);
+    if (attComMotion)
+    {
+        attComMotionPlanRow->removeMotion( attComMotion );
+        delete attComMotion;
+        attComMotion = 0;
+    }
+    if (attNoElementCase)
+    {
+        attNoElementRow->removeMotion( attNoElementCase );
+        delete attNoElementCase;
+        attNoElementCase = 0;
+    }
+    attFootMotionPlanRow = 0;
 }
 
 void ChppGikLocomotionPlan::extraEndTime(double inDuration)
 {
     attExtraEndTime = (inDuration<0.0)?0.0:inDuration;
+    attPlanSuccess = false;
 }
 
-void ChppGikLocomotionPlan::extendEnd(double inDuration)
+double ChppGikLocomotionPlan::extraEndTime()
 {
-    attExtraEndTime += inDuration;
+    return attExtraEndTime;
 }
 
-bool ChppGikLocomotionPlan::reset(double inStartTime)
+bool ChppGikLocomotionPlan::addElement(ChppGikLocomotionElement * inElement)
 {
-    //Clear previous support polygon vector
-    attSupportPolygonMotion->reset(inStartTime);
+    double epsilon = attSamplingPeriod/2;
 
-    //Feet and Com Motions
-    attFootMotion->clear();
-    attComMotion->clear();
-    attFootMotion->startTime(inStartTime);
-    attComMotion->startTime(inStartTime);
-
-    //ZMP
-    //the robot is assumed to be still at first, so the projection of the center of mass on the flat ground gives the zmp
-    attPlannedZMP.resize(3,1,false);
-    vectorN initialZMP(3);
-    ChppGikTools::Vector3toUblas(attStandingRobot->robot()->positionCenterOfMass(),initialZMP);
-    attPlannedZMP(0,0) = initialZMP(0);
-    attPlannedZMP(1,0) = initialZMP(1);
-    attPlannedZMP(2,0) = 0.0;
-
-    //check for double support
-    if (!attStandingRobot->supportPolygon()->isDoubleSupport())
+    if (inElement->startTime() < attStartTime - epsilon)
     {
-        std::cout << "ChppGikLocomotionPlan::reset : failed to identify a double support polygon on the current robot configuration\n";
+        std::cout << "ChppGikLocomotionPlan::addElement() Invalid start time element \n";
         return false;
     }
-    attStandingRobot->supportPolygon()->rfootTransformation(attStandingRobot->robot()->rightFoot()->currentTransformation());
-    attStandingRobot->supportPolygon()->lfootTransformation(attStandingRobot->robot()->leftFoot()->currentTransformation());
-    //Add first support polygon to the support polygon motion
-    attSupportPolygonMotion->pushbackSupportPolygon(attStandingRobot->supportPolygon(),0.0);
 
-    //Non support foot: initial state constraint (default to right)
-    ublas::zero_vector<double> localP(3);
-    vector3d v3lP;
-    ChppGikTools::UblastoVector3( localP, v3lP);
-    ChppGikTransformationConstraint* footConstraint = new ChppGikTransformationConstraint(*attStandingRobot->robot(), *(attStandingRobot->robot()->rightFoot()), v3lP, attStandingRobot->robot()->rightFoot()->currentTransformation());
-    attFootMotion->pushbackStateConstraint((CjrlGikTransformationConstraint*)footConstraint);
-    delete footConstraint;
+    if (attElements.empty())
+    {
+        attElements.push_back(inElement);
+        attEndTime = inElement->endTime();
+        return true;
+    }
 
+    if (inElement->startTime() >= (*(attElements.end()-1))->endTime() - epsilon)
+    {
+        attElements.push_back(inElement);
+        attEndTime = inElement->endTime();
+        return true;
+    }
+
+    if (inElement->endTime() < (*(attElements.begin()))->startTime() + epsilon)
+    {
+        attElements.insert(attElements.begin(),inElement);
+        return true;
+    }
+
+    bool insertionSuccess = false;
+
+    std::vector<ChppGikLocomotionElement*>::iterator iter;
+    for (iter = attElements.begin(); iter != attElements.end()-1; iter++)
+    {
+        if (((*iter)->endTime() - epsilon < inElement->startTime()) && ((*(iter+1))->startTime() + epsilon > inElement->endTime()))
+        {
+            attElements.insert(iter,inElement);
+            insertionSuccess  = true;
+            attPlanSuccess = false;
+            break;
+        }
+    }
+    return insertionSuccess;
+}
+
+
+double ChppGikLocomotionPlan::endTime()
+{
+    return attEndTime;
+}
+
+
+bool ChppGikLocomotionPlan::solve()
+{
+    attPlanSuccess = false;
+
+    clearSolverMess();
+
+    //get previewTime
+    double prevT = attPreviewController->previewTime();
+
+    bool retVal;
+    if (attElements.empty())
+    {
+        attModifiedStartTime = attStartTime;
+        attModifiedEndTime = attEndTime + attExtraEndTime;
+        attNoElementCase = new ChppGikNoLocomotion( attRobot, attRobot->rightFoot(), attModifiedStartTime, attModifiedEndTime, attStandingRobot->maskFactory()->legsMask(),0);
+        attNoElementRow = attAssociatedMotionPlan->addMotion( attNoElementCase );
+    }
+    else
+    {
+        attModifiedStartTime = attElements[0]->startTime() - prevT;
+        attModifiedEndTime = attEndTime + attExtraEndTime;
+        if (attModifiedStartTime > attStartTime)
+            attModifiedStartTime = attStartTime;
+        attElements[0]->preProlongate(attElements[0]->startTime() - attModifiedStartTime);
+        //Extra time due to preview controller
+        attExtraZMPEndTime = prevT;
+        //build motions
+        retVal = planElementsZMP();
+        if (!retVal)
+        {
+            std::cout << "Failed to plan locomotion\n";
+            return false;
+        }
+        //filter ZMP motion to improve stability
+        matrixNxP filteringResult;
+        ChppGikTools::multiFilter(attSamplingPeriod, attPlannedZMP, filteringResult);
+
+        if (0)
+            ChppGikTools::dumpMatrix("filterdebug",  attPlannedZMP, 0.0, attSamplingPeriod);
+
+
+        attPlannedZMP = filteringResult;
+        matrixNxP resultTrajCOMXY;
+        retVal = attPreviewController->ZMPtoCOM(attPlannedZMP,resultTrajCOMXY);
+        if (!retVal)
+        {
+            std::cout << "Failed to plan center of mass motion\n";
+            return false;
+        }
+        attComMotion = new ChppGikComMotion( attRobot, attModifiedStartTime, attSamplingPeriod, attStandingRobot->maskFactory()->legsMask(),1);
+        attComMotion->setSamples( resultTrajCOMXY );
+        attComMotionPlanRow = attAssociatedMotionPlan->addMotion(attComMotion);
+        for (unsigned int i=0;i<attElements.size();i++)
+            attFootMotionPlanRow =  attAssociatedMotionPlan->addMotion( attElements[i]);
+    }
+
+    attPlanSuccess = true;
     return true;
 }
 
-const ChppGikLocomotionElement* ChppGikLocomotionPlan::activeTask(double inTime) const
+
+
+bool ChppGikLocomotionPlan::planElementsZMP()
+{
+    bool retVal = true;
+    double gapTime;
+
+    ChppGikSupportPolygon supportPolygon(*(attStandingRobot->supportPolygon()));
+    vector3d ZMP = attRobot->positionCenterOfMass();
+    ZMP[2] = 0.0;
+    attPlannedZMP.resize(3,1);
+    for (unsigned int i=0;i<3;i++)
+        attPlannedZMP(i,0) = ZMP[i];
+
+    std::vector<ChppGikLocomotionElement*>::iterator iter;
+    for (iter = attElements.begin(); iter != attElements.end()-1; iter++)
+    {
+        gapTime = (*(iter+1))->startTime() - (*iter)->endTime();
+        if (gapTime>0.0)
+            (*iter)->postProlongate(gapTime);
+        retVal = (*iter)->plan(supportPolygon, ZMP);
+
+        if (!retVal)
+        {
+            std::cout << "Failed 0\n";
+            return false;
+        }
+
+        if (!supportPolygon.isPointInside( ZMP[0],ZMP[1]))
+        {
+            std::cout << "Planned ZMP out of support polygon. Aborting Locomotion planning\n";
+            return false;
+        }
+
+        ChppGikTools::overlapConcat(attPlannedZMP, (*iter)->ZMPmotion(),  1);
+    }
+
+    (*iter)->postProlongate(attExtraEndTime);
+    retVal = (*iter)->plan(supportPolygon,ZMP);
+
+    if (!retVal)
+    {
+        std::cout << "Failed 1\n";
+        return false;
+    }
+
+    ChppGikTools::overlapConcat(attPlannedZMP, (*iter)->ZMPmotion(),  1);
+
+    prolongateZMP(attExtraZMPEndTime);
+    return true;
+}
+
+
+
+void ChppGikLocomotionPlan::prolongateZMP(double inDuration)
+{
+
+    unsigned int sizeNewChunk = (unsigned int)round(inDuration/attSamplingPeriod)-1;
+    unsigned int previousSize = attPlannedZMP.size2();
+    unsigned int newSize =  previousSize + sizeNewChunk;
+    vectorN paddingZMP = ublas::column(attPlannedZMP,previousSize-1);
+    attPlannedZMP.resize(3,newSize,true);
+    for (unsigned int i=previousSize; i<newSize; i++)
+        ublas::column(attPlannedZMP,i) = paddingZMP;
+}
+
+CjrlJoint* ChppGikLocomotionPlan::supportFootJoint(double inTime)
+{
+    if (!attPlanSuccess)
+        return 0;
+    CjrlJoint* joint = 0;
+    if (attElements.empty())
+    {
+        if (inTime > attNoElementCase->endTime() + attEps || inTime < attNoElementCase->startTime() + attEps)
+            return 0;
+        return attNoElementCase->supportFoot();
+    }
+    else
+    {
+        std::vector<ChppGikLocomotionElement*>::iterator iter;
+        for (iter = attElements.begin(); iter != attElements.end(); iter++)
+        {
+            joint = (*iter)->supportFootAtTime(inTime);
+            if (joint)
+                return joint;
+        }
+        return 0;
+    }
+}
+
+bool ChppGikLocomotionPlan::getZMPAtTime(double inTime, vectorN& outZMP)
+{
+    if (!attPlanSuccess)
+        return false;
+
+    if (attElements.empty())
+    {
+        if (inTime > attNoElementCase->endTime() + attEps || inTime < attNoElementCase->startTime() + attEps)
+            return false;
+        outZMP = attNoElementCase->ZMP();
+        return true;
+    }
+    else
+    {
+        unsigned int i = ChppGikTools::timetoRank( attModifiedStartTime, inTime, attSamplingPeriod);
+        if (i>0 && i<attPlannedZMP.size2())
+        {
+            outZMP = column(attPlannedZMP, i );
+            return true;
+        }
+        return false;
+    }
+
+}
+
+const ChppGikLocomotionElement* ChppGikLocomotionPlan::activeElement(double inTime) const
 {
     double epsilon = attSamplingPeriod/2;
 
     const ChppGikLocomotionElement* returnedPointer = 0;
 
     std::vector<ChppGikLocomotionElement*>::const_iterator iter;
-    for (iter = attTasks.begin(); iter != attTasks.end(); iter++)
-        if (((*iter)->startTime() + epsilon - attPreviewController->previewTime() < inTime) && (inTime < (*(iter))->endTime()) + 0.4)
+    for (iter = attElements.begin(); iter != attElements.end(); iter++)
+        if (((*iter)->startTime() + epsilon - attPreviewController->previewTime() < inTime) && (inTime < (*(iter))->endTime()) + 0.4) //^^;
         {
             returnedPointer = *iter;
             break;
@@ -109,14 +325,14 @@ const ChppGikLocomotionElement* ChppGikLocomotionPlan::activeTask(double inTime)
     return returnedPointer;
 }
 
-bool ChppGikLocomotionPlan::weightsAtTime(double inTime, vectorN& outWeights)
+bool ChppGikLocomotionPlan::getWeightsAtTime(double inTime, vectorN& outWeights)
 {
     double epsilon = attSamplingPeriod/2;
 
     outWeights = attStandingRobot->maskFactory()->weightsDoubleSupport();
 
     std::vector<ChppGikLocomotionElement*>::iterator iter;
-    for (iter = attTasks.begin(); iter != attTasks.end(); iter++)
+    for (iter = attElements.begin(); iter != attElements.end(); iter++)
     {
         ChppGikStepElement* st = dynamic_cast<ChppGikStepElement*>(*iter);
         if (st)
@@ -132,252 +348,3 @@ bool ChppGikLocomotionPlan::weightsAtTime(double inTime, vectorN& outWeights)
     return true;
 }
 
-bool ChppGikLocomotionPlan::addTask(ChppGikLocomotionElement * inTask)
-{
-    double epsilon = attSamplingPeriod/2;
-
-    if (inTask->startTime() < attStartTime - epsilon)
-    {
-        std::cout << "ChppGikLocomotionPlan::addTask() Invalid start time task \n";
-        return false;
-    }
-
-    if (attTasks.empty())
-    {
-        attTasks.push_back(inTask);
-        attTasksEndTime = inTask->endTime();
-        return true;
-    }
-
-    if (inTask->startTime() >= (*(attTasks.end()-1))->endTime() - epsilon)
-    {
-        attTasks.push_back(inTask);
-        attTasksEndTime = inTask->endTime();
-        return true;
-    }
-
-    if (inTask->endTime() < (*(attTasks.begin()))->startTime() + epsilon)
-    {
-        attTasks.insert(attTasks.begin(),inTask);
-        return true;
-    }
-
-    bool insertionSuccess = false;
-
-    std::vector<ChppGikLocomotionElement*>::iterator iter;
-    for (iter = attTasks.begin(); iter != attTasks.end()-1; iter++)
-    {
-        if (((*iter)->endTime() - epsilon < inTask->startTime()) && ((*(iter+1))->startTime() + epsilon > inTask->endTime()))
-        {
-            attTasks.insert(iter,inTask);
-            insertionSuccess  = true;
-            break;
-        }
-    }
-    return insertionSuccess;
-}
-
-double ChppGikLocomotionPlan::endTime()
-{
-    return attTasksEndTime;//+attExtraEndTime;
-}
-
-ChppGikSupportPolygonMotion* ChppGikLocomotionPlan::supportPolygonMotion()
-{
-    return attSupportPolygonMotion;
-}
-
-CjrlJoint* ChppGikLocomotionPlan::supportFootJoint(double inTime)
-{
-    double epsilon = attSamplingPeriod/2;
-    if ((inTime < attFootMotion->startTime()+epsilon) || (inTime > attFootMotion->endTime()+epsilon))
-    {
-        std::cout << "ChppGikLocomotionPlan::supportFootJoint() invalid time, return NULL pointer\n";
-        return NULL;
-    }
-
-    CjrlJoint* joint = 0;
-    CjrlGikStateConstraint* scstr = attFootMotion->stateConstraintAtTime(inTime);
-
-    ChppGikTransformationConstraint* cstr = dynamic_cast<ChppGikTransformationConstraint*>(scstr);
-
-    if (!cstr)
-    {
-        std::cout << "bug detected from ChppGikLocomotionPlan::supportFootJoint(double inTime) \n";
-    }
-    if (cstr->joint() == attStandingRobot->robot()->leftFoot())
-        joint =  attStandingRobot->robot()->rightFoot();
-    else
-        joint = attStandingRobot->robot()->leftFoot();
-
-
-    return joint;
-}
-
-bool ChppGikLocomotionPlan::solveOneStage()
-{
-    //previewTime of planned motion
-    double prevT = attPreviewController->previewTime();
-
-    bool retVal;
-    if (attTasks.empty())
-    {
-        retVal = reset(attStartTime);
-        if (!retVal)
-        {
-            std::cout << "Failed to reset locomotionplan 0\n";
-            return false;
-        }
-    }
-    else
-    {
-        double moddedStartTime = attTasks[0]->startTime() - prevT;
-        if (moddedStartTime >0)
-            moddedStartTime = attStartTime;
-        retVal = reset(moddedStartTime);
-        if (!retVal)
-        {
-            std::cout << "Failed to reset locomotionplan 1\n";
-            return false;
-        }
-        retVal = prolongate(attTasks[0]->startTime() - moddedStartTime);
-        if (!retVal)
-        {
-            std::cout << "Failed to reset locomotionplan 2\n";
-            return false;
-        }
-    }
-
-    //Extra time due to preview controller
-    attExtraZMPEndTime = prevT;
-    //build motions
-    retVal = buildMotions();
-    if (!retVal)
-    {
-        std::cout << "Failed to plan locomotion\n";
-        return false;
-    }
-
-    //filter ZMP motion to improve stability
-    matrixNxP filteringResult;
-    ChppGikTools::multiFilter(attSamplingPeriod, attPlannedZMP, filteringResult);
-    //     ChppGikTools::dumpMatrix("filterdebug",  attPlannedZMP, 0.0, attSamplingPeriod);
-    attPlannedZMP = filteringResult;
-
-
-    matrixNxP resultTrajCOMXY;
-    retVal = attPreviewController->ZMPtoCOM(attPlannedZMP,resultTrajCOMXY);
-    if (!retVal)
-    {
-        std::cout << "Failed to plan center of mass motion\n";
-        return false;
-    }
-
-    //fill in com motion constraint
-    ChppGikComConstraint* comC = new ChppGikComConstraint(*(attStandingRobot->robot()),0,0);
-    for (unsigned int i=0; i<attFootMotion->numberStateConstraints(); i++)
-    {
-        comC->targetXY(resultTrajCOMXY(0,i), resultTrajCOMXY(1,i));
-        attComMotion->pushbackStateConstraint(comC);
-    }
-
-    delete comC;
-    return true;
-}
-
-
-
-bool ChppGikLocomotionPlan::buildMotions()
-{
-    bool retVal = true;
-    double gapTime;
-    std::vector<ChppGikLocomotionElement*>::iterator iter;
-
-    if (attTasks.size()>0)
-    {
-        for (iter = attTasks.begin(); iter != attTasks.end()-1; iter++)
-        {
-            retVal = (*iter)->planMotions(*attSupportPolygonMotion,*attFootMotion,attPlannedZMP, attSamplingPeriod);
-            if (!retVal)
-                return false;
-            gapTime = (*(iter+1))->startTime() - (*iter)->endTime();
-            if (gapTime>0.0)
-            {
-                retVal = prolongate(gapTime);
-                if (!retVal)
-                    return false;
-            }
-        }
-
-        retVal = (*iter)->planMotions(*attSupportPolygonMotion,*attFootMotion,attPlannedZMP, attSamplingPeriod);
-        if (!retVal)
-            return false;
-    }
-    retVal = prolongate(attExtraEndTime);
-    if (!retVal)
-        return false;
-
-    prolongateZMP(attExtraZMPEndTime);
-    return retVal;
-}
-
-
-
-void ChppGikLocomotionPlan::addtoMotionPlan()
-{
-    unsigned int priority_0 = 0;
-    unsigned int priority_1 = 1;
-    attComMotionPlanRow =  attAssociatedMotionPlan->addMotionConstraint(attComMotion, priority_1);
-    attFootMotionPlanRow =  attAssociatedMotionPlan->addMotionConstraint(attFootMotion, priority_0);
-}
-
-bool ChppGikLocomotionPlan::prolongate(double inDuration)
-{
-    const ChppGikSupportPolygon* lastSupportPolygon = attSupportPolygonMotion->lastSupportPolygon();
-    if (!(lastSupportPolygon->isDoubleSupport()))
-    {
-        std::cout << "ChppGikLocomotionPlan::prolongate() Double support prerequisite not met.\n";
-        return false;
-    }
-
-    unsigned int sizeNewChunk = (unsigned int)round(inDuration/attSamplingPeriod);
-    unsigned int previousSize = attPlannedZMP.size2();
-    unsigned int newSize =  previousSize + sizeNewChunk;
-
-    //Last ZMP
-    vectorN paddingZMP = ublas::column(attPlannedZMP,previousSize-1);
-    attPlannedZMP.resize(3,newSize,true);
-    //Last foot constraint
-    CjrlGikStateConstraint* footConstraint = attFootMotion->stateConstraintAtRank(attFootMotion->numberStateConstraints()-1);
-    //Fill motions
-    for (unsigned int i=previousSize; i<newSize; i++)
-    {
-        ublas::column(attPlannedZMP,i) = paddingZMP;
-        attFootMotion->pushbackStateConstraint(footConstraint);
-    }
-    //Extend support polygon motion's last element
-    attSupportPolygonMotion->extendLastSupportPolygonDuration(inDuration);
-
-    return true;
-}
-
-void ChppGikLocomotionPlan::prolongateZMP(double inDuration)
-{
-
-    unsigned int sizeNewChunk = (unsigned int)round(inDuration/attSamplingPeriod);
-    unsigned int previousSize = attPlannedZMP.size2();
-    unsigned int newSize =  previousSize + sizeNewChunk;
-
-    //Last ZMP
-    vectorN paddingZMP = ublas::column(attPlannedZMP,previousSize-1);
-    attPlannedZMP.resize(3,newSize,true);
-
-    //Fill motions
-    for (unsigned int i=previousSize; i<newSize; i++)
-        ublas::column(attPlannedZMP,i) = paddingZMP;
-}
-
-const matrixNxP& ChppGikLocomotionPlan::plannedZMPmotion()
-{
-    return attPlannedZMP;
-}

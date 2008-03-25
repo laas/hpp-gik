@@ -11,7 +11,7 @@
 
 #include <unistd.h>
 
-#include "motionplanners/hppGikLocomotionPlanner.h"
+#include "motionplanners/hppGikStepPlanner.h"
 
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
@@ -20,9 +20,9 @@
 using namespace std;
 
 
-ChppGikTest::ChppGikTest() : attSamplingPeriod(10e-3)
+ChppGikTest::ChppGikTest() : attSamplingPeriod(5e-3)
 {
-        
+
     attLastRobotTask = 0;
 
     strcpy(attMotionName,"usermotion");
@@ -30,9 +30,13 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(10e-3)
     createHumanoidRobot();
 
     attWholeBodyTask = new ChppGikWholeBodyTask(attStandingRobot,attSamplingPeriod);
+    
+    attWholeBodyTask->showResolutionTime( true );
 
     attHalfSittingTask = new ChppGikHalfSittingTask(attStandingRobot, attSamplingPeriod);
-
+    
+    attHalfSittingTask->showResolutionTime( true );
+    
     attHandTask = new ChppGikHandTask(attStandingRobot,attSamplingPeriod);
 
     attStepBackTask = new ChppGikStepBackTask(attStandingRobot, attSamplingPeriod);
@@ -66,7 +70,7 @@ void ChppGikTest::createHumanoidRobot()
     dynamicsJRLJapan::Body> jrlRobotFactory;
 
     attRobot = jrlRobotFactory.createhumanoidDynamicRobot();
-
+            
     dynamicsJRLJapan::HumanoidDynamicMultiBody *aHDMB;
     aHDMB = (dynamicsJRLJapan::HumanoidDynamicMultiBody*) attRobot;
 
@@ -75,6 +79,11 @@ void ChppGikTest::createHumanoidRobot()
     aHDMB->parserVRML(path,name,"./HRP2LinkJointRank.xml");
     std::string aName="./HRP2Specificities.xml";
     aHDMB->SetHumanoidSpecificitiesFile(aName);
+    aHDMB->SetTimeStep(attSamplingPeriod);
+    aHDMB->setComputeAcceleration(true);
+    aHDMB->setComputeBackwardDynamics(false);
+    aHDMB->setComputeZMP(true);
+    
 
     unsigned int nDof = attRobot->numberDof();
     vectorN halfsittingConf(nDof);
@@ -115,8 +124,11 @@ void ChppGikTest::createHumanoidRobot()
     for(unsigned int i=6;i<nDof;i++)
         halfsittingConf(i) = dInitPos[i-6]*M_PI/180;
 
-    /* apply initial static state*/
-    attRobot->staticState(halfsittingConf);
+    ublas::zero_vector<double> zeros(attRobot->numberDof());
+    attRobot->currentConfiguration(halfsittingConf);
+    attRobot->currentVelocity(zeros);
+    attRobot->currentAcceleration(zeros);
+    attRobot->computeForwardKinematics();
 
     //set gaze origin and direction
     vector3d gazeDir,gazeOrigin;
@@ -131,6 +143,7 @@ void ChppGikTest::createHumanoidRobot()
     aHDMB->gaze((const vector3d&)gazeDir,(const vector3d&)gazeOrigin);
 
     attStandingRobot = new ChppGikStandingRobot(attRobot);
+    attStandingRobot->staticState(halfsittingConf);
 }
 
 void ChppGikTest::waist2worldPosition(vector3d& inWaistPosition, vector3d& outWorldPosition)
@@ -412,7 +425,7 @@ void ChppGikTest::lookat(vector3d& targetPoint, const char* filename, vectorN& c
 
     unsigned int priority;
     //the robot is static at the current configuration
-    attRobot->staticState(curConfig);
+    attStandingRobot->staticState(curConfig);
     //Reset planner
     attWholeBodyTask->reset();
 
@@ -437,7 +450,7 @@ void ChppGikTest::handat(bool taskIsForRightHand, bool doOrientation,vector3d& t
 
     unsigned int priority;
     //the robot is static at the current configuration
-    attRobot->staticState(curConfig);
+    attStandingRobot->staticState(curConfig);
     //Reset planner
     attWholeBodyTask->reset();
 
@@ -491,7 +504,7 @@ void ChppGikTest::lookhandat(bool taskIsForRightHand, bool doOrientation,vector3
 
     unsigned int priority;
     //the robot is static at the current configuration
-    attRobot->staticState(curConfig);
+    attStandingRobot->staticState(curConfig);
     //Reset planner
     attWholeBodyTask->reset();
 
@@ -550,7 +563,7 @@ void ChppGikTest::handGrasp(bool taskIsForRightHand, double valTighten, const ch
     attLastRobotTask = attHandTask;
 
     //the robot is static at the current configuration
-    attRobot->staticState(curConfig);
+    attStandingRobot->staticState(curConfig);
 
     attHandTask->forRightHand(taskIsForRightHand);
     attHandTask->targetClench(valTighten);
@@ -569,7 +582,7 @@ void ChppGikTest::stepback(const char* filename, vectorN& curConfig, vectorN& re
     attLastRobotTask = attStepBackTask;
 
     //the robot is static at the current configuration
-    attRobot->staticState(curConfig);
+    attStandingRobot->staticState(curConfig);
 
     bool solved = attStepBackTask->solve();
 
@@ -587,7 +600,7 @@ void ChppGikTest::halfsitting(const char* filename, vectorN& curConfig, vectorN&
     attLastRobotTask = attHalfSittingTask;
 
     //the robot is static at the current configuration
-    attRobot->staticState(curConfig);
+    attStandingRobot->staticState(curConfig);
 
     bool solved = attHalfSittingTask->solve();
 
@@ -772,151 +785,21 @@ void ChppGikTest::goDownTree(const CjrlJoint* startJoint)
 
 
 
-void ChppGikTest::basicExample()
-{
-
-    //We have a robot at some initial configuration
-
-    //all coordinates are in world frame (when the robot is in half sitting configuration, the world frame is located at the projection of the waist center on the ground, x axis pointing forwards, z axis upwards)
-
-    //In this example, target points and transformation are fed to the constraint constructors. They are equivalent to velocities when we knoe the sampling period of the problem.
-
-    //Note that the following constrants are being created and stacked in decreasing priority
-
-
-    //Select the support foot
-    CjrlJoint* fixedFoot = attRobot->rightFoot(); //arbitrary
-    //Record the fixed foot in the robot object:
-    attRobot->clearFixedJoints();
-    attRobot->addFixedJoint( fixedFoot );
-
-    //Create a Gik solver
-    ChppGikSolver* gikSolver = new ChppGikSolver(attRobot);
-
-    //Create an empty stack of constraints
-    std::vector<CjrlGikStateConstraint*> stack;
-
-    //some variables
-    vector3d targetPoint, localPoint;
-
-    //-- Stability-related constraints --//
-    //-----------------------------------//
-
-
-    //create the non support foot constraint
-    localPoint[0] = 0.0;
-    localPoint[1] = 0.0;
-    localPoint[2] = 0.0;
-    CjrlJoint& nsfJoint = *(attRobot->leftFoot());
-    matrix4d nsfTransform = nsfJoint.currentTransformation();
-    CjrlGikTransformationConstraint* nsfc = attGikFactory.createTransformationConstraint(*attRobot, nsfJoint, localPoint, nsfTransform);
-    stack.push_back(nsfc);
-
-    //create a CoM constraint
-    vector3d com = attRobot->positionCenterOfMass();
-    CjrlGikComConstraint* comc = attGikFactory.createComConstraint(*attRobot, com[0], com[1]);
-
-    stack.push_back(comc);
-
-
-    //-- User constraints --//
-    //----------------------//
-    //create a position constraint on a localPoint in the right wrist
-    matrix4d curT=  attRobot->rightWrist()->currentTransformation();
-    targetPoint[0] = 0.5;
-    targetPoint[1] = -0.3;
-    targetPoint[2] = 1.0;
-    CjrlJoint& rwJoint = *(attRobot->rightWrist());
-    localPoint = attRobot->rightHand()->centerInWristFrame();
-    CjrlGikPositionConstraint* pc = attGikFactory.createPositionConstraint(*attRobot,rwJoint,localPoint, curT*localPoint);
-    stack.push_back(pc);
-
-    //-- Do one solving step --//
-    //-------------------------//
-    //Set the weights used in solving the inverse kinematics problem
-    //GikSolver treats all joints equally by default. Toy with these weights for realism.
-    vectorN activated =  attStandingRobot->maskFactory()->wholeBodyMask();
-    vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
-    vectorN combined = weights;
-
-    for (unsigned int i=0;i<combined.size();i++)
-        combined(i) *= activated(i);
-    gikSolver->weights(combined);
-
-
-    vector3d p;
-    ChppRobotMotion attSolutionMotion(attRobot, 0.0 , attSamplingPeriod);
-
-    struct timeval *Tps, *Tpf;
-    struct timezone *Tzp;
-    Tps = (struct timeval*) malloc(sizeof(struct timeval));
-    Tpf = (struct timeval*) malloc(sizeof(struct timeval));
-    Tzp = 0;
-    gettimeofday (Tps, Tzp);
-
-    for (unsigned int j = 0; j< 500;j++)
-    {
-        p = pc->worldTarget();
-        p[0] += 0.001;
-        pc->worldTarget(p);
-
-        //compute the support foot jacobian (this is done to avoid computing this jacobian several times as it is needed to computes the jacobians of every constraint)
-        fixedFoot->computeJacobianJointWrtConfig();
-
-        //compute constraints jacobians and values
-        for (unsigned int i = 0; i< stack.size();i++)
-        {
-            stack[i]->computeValue();
-            stack[i]->computeJacobian();
-        }
-
-        gikSolver->weights(combined);
-
-        //Account for joint limits: modifies the weights according to current configuration
-        gikSolver->accountForJointLimits();
-
-        //1-step Solve (might not fulfill the desired constraints)
-        bool ok = gikSolver->gradientStep( stack ); //There is a more singularity-robust but less accurate method with one more argument (see GikSolver.h)
-
-        //-- Retrieve solution --//
-        //-----------------------//
-        vectorN solutionConfig = attRobot->currentConfiguration();
-
-        //store
-        //attRobot->SaveCurrentStateAsPastState();
-        attRobot->FiniteDifferenceStateUpdate(attSamplingPeriod);
-        attSolutionMotion.appendSample(solutionConfig,p,p,p,p);
-    }
-
-    gettimeofday (Tpf, Tzp);
-    printf("Basic example solved in: %ld ms\n", (Tpf->tv_sec-Tps->tv_sec)*1000 + (Tpf->tv_usec-Tps->tv_usec)/1000);
-    free(Tps);
-    free(Tpf);
-
-    attSolutionMotion.dumpTo( "test" );
-
-    //clean the mess
-    delete gikSolver;
-    for (unsigned int i = 0; i<stack.size();i++)
-        delete stack[i];
-
-}
-
 void ChppGikTest::locoPlannerTest()
 {
 
-    ChppGikLocomotionPlanner lplanner(attStandingRobot);
-    std::vector<ChppGikPlannableConstraint*> constraints;
+    ChppGikStepPlanner lplanner(attStandingRobot);
+    std::vector<ChppGikVectorizableConstraint*> constraints;
     vector3d targetPoint, localPoint, normalVec;
 
-    /*
+    ///*
     //create the non support foot constraint
     targetPoint[0] = 1;
     targetPoint[1] = 2;
     targetPoint[2] = 0.9;
     ChppGikGazeConstraint gc( *(attStandingRobot->robot()), targetPoint);
     constraints.push_back(&gc);
-    */
+    //*/
 
     ///*
     localPoint = attStandingRobot->robot()->leftHand()->centerInWristFrame();
@@ -926,7 +809,7 @@ void ChppGikTest::locoPlannerTest()
     ChppGikPositionConstraint posc2( *(attStandingRobot->robot()), *(attStandingRobot->robot()->leftWrist()), localPoint, targetPoint);
     constraints.push_back(&posc2);
     //*/
-    
+
     //ChppGikParallelConstraint wvert(*attRobot, *(attRobot->waist()), normalVec, normalVec);
     //constraints.push_back(&wvert);
 
@@ -939,7 +822,7 @@ void ChppGikTest::locoPlannerTest()
     ChppGikPositionConstraint posc( *(attStandingRobot->robot()), *(attStandingRobot->robot()->waist()), localPoint, targetPoint);
     constraints.push_back(&posc);
     */
-    
+
 
 
     /*
@@ -962,7 +845,7 @@ void ChppGikTest::locoPlannerTest()
     //     constraints.push_back(&gazeplanelat);
     //     constraints.push_back(&gazeplanesag);
         */
-    
+
     lplanner.constraints( constraints );
     bool ok = lplanner.bigSolve( 40 );
     lplanner.dumpBigSolutionTo( "ankleprints" );
@@ -995,8 +878,8 @@ void ChppGikTest::locoPlannerTestInteractive()
     double curTheta;
 
     /**the constraint*/
-    ChppGikLocomotionPlanner lplanner(attStandingRobot);
-    std::vector<ChppGikPlannableConstraint*> constraints;
+    ChppGikStepPlanner lplanner(attStandingRobot);
+    std::vector<ChppGikVectorizableConstraint*> constraints;
 
     localPoint[0] =localPoint[1] = localPoint[2] = 0.0;
     ChppGikPositionConstraint posw( *(attStandingRobot->robot()), *(attStandingRobot->robot()->waist()), localPoint, waistTarget);
@@ -1132,14 +1015,14 @@ void ChppGikTest::locoPlannerTestInteractive()
             }
         }
 
-        
+
         while (lplanner.littleSolve())
         {
             attViewer->erase();
             draw2DRobot();
             attViewer->flush();
-//             std::cout << "After little solve:\n";
-//             attStandingRobot->supportPolygon()->print();
+            //             std::cout << "After little solve:\n";
+            //             attStandingRobot->supportPolygon()->print();
         }
     }
 }

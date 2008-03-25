@@ -41,14 +41,14 @@ bool ChppGikSnoopTask::algorithmSolve()
     double gzStart = 4.01;
     double gzDuration = 7.0;
     ChppGikGazeConstraint* gazeConstraint = new ChppGikGazeConstraint(*(attStandingRobot->robot()), attGazeTarget);
-    ChppGikSingleMotionElement* gazeElement = new ChppGikSingleMotionElement(gazeConstraint, 3, gzStart, gzDuration);
+    ChppGikInterpolatedElement* gazeElement = new ChppGikInterpolatedElement(attStandingRobot->robot(), gazeConstraint, 3, gzStart, gzDuration, attSamplingPeriod);
     gazeElement->workingJoints( attStandingRobot->maskFactory()->wholeBodyMask() );
     
     double hhStartTime = 0.0;
     double hhDuration = 4.0;
     
     //Head height task
-    ChppGikSingleMotionElement* headheightElement = 0;
+    ChppGikInterpolatedElement* headheightElement = 0;
     vector3d lposition,planePosition,planeNormal, ldirection;
     attStandingRobot->robot()->gaze(  ldirection ,lposition);
     planePosition[0] = 0;
@@ -58,11 +58,11 @@ bool ChppGikSnoopTask::algorithmSolve()
     planeNormal[1] = 0;
     planeNormal[2] = 1;
     ChppGikPlaneConstraint* headheightConstraint = new ChppGikPlaneConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->gazeJoint()),lposition,planePosition,planeNormal);
-    headheightElement = new ChppGikSingleMotionElement(headheightConstraint, 2, hhStartTime, hhDuration);
+    headheightElement = new ChppGikInterpolatedElement(attStandingRobot->robot(), headheightConstraint, 2, hhStartTime, hhDuration, attSamplingPeriod);
     headheightElement->workingJoints( attStandingRobot->maskFactory()->wholeBodyMask() );
 
     //Head x task
-    ChppGikSingleMotionElement* headXElement = 0;
+    ChppGikInterpolatedElement* headXElement = 0;
     double ox,oy;
     attStandingRobot->supportPolygon()->center( ox,oy);
     planeNormal = attStandingRobot->supportPolygon()->meanOrientation();
@@ -70,7 +70,7 @@ bool ChppGikSnoopTask::algorithmSolve()
     planePosition[1] = oy + planeNormal[1]*attHeadAdvancement;
     planePosition[2] = 0;
     ChppGikPlaneConstraint* headXConstraint = new ChppGikPlaneConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->gazeJoint()),lposition,planePosition,planeNormal);
-    headXElement = new ChppGikSingleMotionElement(headXConstraint, 2, hhStartTime, hhDuration);
+    headXElement = new ChppGikInterpolatedElement(attStandingRobot->robot(), headXConstraint, 2, hhStartTime, hhDuration, attSamplingPeriod);
 
     attGenericTask->clearElements();
     attGenericTask->addElement( headheightElement );

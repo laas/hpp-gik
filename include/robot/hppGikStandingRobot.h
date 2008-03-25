@@ -126,6 +126,11 @@ public:
     ChppGikMaskFactory* maskFactory();
 
     /**
+    \brief apply a static configuration on the robot
+    */
+    bool staticState(const vectorN& inConfig);
+            
+    /**
     \brief Simulate the application of a configuration to the robot (uses the Finite Difference control scheme). The ZMP resulting from the motion is computed in world frame and in waist frame. This method also computes the planned ZMP position in waist frame based on the position in world frame.
     \return false if the provided configuration does not meet requirements of method FiniteDifferenceStateUpdate() in jrl robot.
     */
@@ -143,53 +148,18 @@ public:
     ~ChppGikStandingRobot();
 
 private:
-    /**
-    \brief pointer to the robot
-    */
     CjrlHumanoidDynamicRobot* attRobot;
-    /**
-    \brief Mask factory
-     */
     ChppGikMaskFactory* attMaskFactory;
-
-    /**
-    \brief the current support polygon of the robot
-    */
     ChppGikSupportPolygon* attCurrentSupportPolygon;
-
-    /**
-    \brief the configuration used to compute the support polygon of the robot (backup)
-    */
     vectorN attSupportPolygonConfig;
-
-    /**
-    \brief COM - RightAnkle
-    */
     vector3d attRelativeCOM;
-
-    /**
-    \brief Half sitting configuration
-    */
     vectorN attHalfSittingConfig;
-
-    /**
-    \brief transformation of end bodies in half sitting stance
-    */
     matrix4d attLWrist, attRWrist, attHead, attWaist, attLFoot, attRFoot;
-
-    /**
-    \brief Shapes 
-    */
     ChppGik2DShape attWaistShape,attLeftFootShape, attRightFootShape;
-
-    /**
-    {@
-    */
     vector3d tempVec;
     matrix4d tempInv, tempM4;
-    /**
-    @}
-     */
+    vectorN attPreviousVelocity;
+    vectorN attPreviousConfiguration, attAcceleration, attVelocity;
 };
 
 #endif

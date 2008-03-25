@@ -1,4 +1,5 @@
 #include "tasks/hppGikStepTask.h"
+#include "motionplanners/elements/hppGikStepElement.h"
 
 ChppGikStepTask::ChppGikStepTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, bool inForRightFoot, double relativeTargetX, double relativeTargetY, double relativeTargetTheta):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"StepTask")
 {
@@ -54,7 +55,7 @@ bool ChppGikStepTask::algorithmSolve()
     double footflighttime = 0.9;
     double zmpendcoef = 0.5;
 
-    ChppGikStepElement* stepElement = new ChppGikStepElement(stepStartTime, targetFootprint, attForRightFoot, zmpendcoef, zmpendshifttime, zmpstartshifttime, footflighttime);
+    ChppGikStepElement* stepElement = new ChppGikStepElement(attStandingRobot->robot(), stepStartTime, targetFootprint, attForRightFoot, attSamplingPeriod, zmpendcoef, zmpendshifttime, zmpstartshifttime, footflighttime);
 
     attGenericTask->clearElements();
     attGenericTask->addElement(stepElement);

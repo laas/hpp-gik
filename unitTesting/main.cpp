@@ -1,20 +1,18 @@
-/*
- *  Copyright
- */
-
 #include "hppGikTest.h"
+#include "hppGikBasicExample.h"
 #include <string>
 
 
 int main(int argc, char *argv[])
 {
     ChppGikTest gikTest;
+    
+    //ChppGikBasicExample gikExample;
+    //gikExample.planExample();
 
-    //gikTest.basicExample();
+    //gikTest.locoPlannerTest();
     
-    gikTest.locoPlannerTest();
-    
-    //gikTest.locoPlannerTestInteractive();
+    gikTest.locoPlannerTestInteractive();
     
     //gikTest.interprete();
 }

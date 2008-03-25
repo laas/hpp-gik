@@ -43,11 +43,6 @@ public:
     void interprete();
     
     /**
-    \brief a method serving as an example on gikSolver usage
-    */
-    void basicExample();
-    
-    /**
     \brief
     */
     void locoPlannerTest();

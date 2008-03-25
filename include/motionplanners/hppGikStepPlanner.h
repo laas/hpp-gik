@@ -4,11 +4,10 @@
 #include "robot/hppGikFootprintRelated.h"
 #include "robot/hppGikStandingRobot.h"
 #include "core/hppGikSolver.h"
-#include "constraints/hppGikPlannableConstraint.h"
+#include "constraints/hppGikVectorizableConstraint.h"
 #include "constraints/hppGikPlaneConstraint.h"
 #include "robot/hppRobotMotion.h"
 #include "constraints/hppGikLPConstraint.h"
-#include "constraints/hppGikLP2Constraint.h"
 #include "constraints/hppGikComConstraint.h"
 #include "constraints/hppGikPlaneConstraint.h"
 #include "constraints/hppGikPositionConstraint.h"
@@ -16,24 +15,26 @@
 #include "constraints/hppGikRotationConstraint.h"
 #include "constraints/hppGikTransformationConstraint.h"
 #include "constraints/hppGikPointingConstraint.h"
+#include "constraints/hppGikConfigurationConstraint.h"
+
 
 
 /**
 \brief This plans steps according to given stack of constraints, selected actuated dofs and weights
  */
-class ChppGikLocomotionPlanner
+class ChppGikStepPlanner
 {
 public:
 
     /**
     \brief Constructor.
      */
-    ChppGikLocomotionPlanner(ChppGikStandingRobot* inStandingRobot);
+    ChppGikStepPlanner(ChppGikStandingRobot* inStandingRobot);
 
     /**
     \brief Set the prioritized constraints to plan locomotion for. THE CONSTRAINTS MUST NOT BE DELETED BEFORE CALLING SOLVE METHOD. The entered constraints are not const qualified to permit computation of vectorized targets
      */
-    void constraints(const std::vector<ChppGikPlannableConstraint*>& inConstraints);
+    void constraints(const std::vector<ChppGikVectorizableConstraint*>& inConstraints);
 
     /**
     \brief Set the weights used to solve the constraints. 0 indicates that the corresponding dof is not to be used to compute the solution. The higher the value, the more the dof is preferred to others for the solution.
@@ -92,7 +93,7 @@ public:
     /**
     \brief Destructor
      */
-    ~ChppGikLocomotionPlanner();
+    ~ChppGikStepPlanner();
 
 private:
     /**
@@ -204,12 +205,12 @@ private:
     /**
     \brief Pointers to the copies of the entered constaints
      */
-    std::vector<ChppGikPlannableConstraint*> attConstraints;
+    std::vector<ChppGikVectorizableConstraint*> attConstraints;
 
     /**
     \brief Pointers to the original constraints
      */
-    std::vector<ChppGikPlannableConstraint*> attUserConstraints;
+    std::vector<ChppGikVectorizableConstraint*> attUserConstraints;
     
     /**
     \brief
@@ -289,7 +290,7 @@ private:
     ChppGikParallelConstraint* attFootParallel, *attWaistParallel;
     ChppGikTransformationConstraint* attFootTransformation, *attWaistTransformation;
     ChppGikLPConstraint* attLPConstraint;
-    ChppGikLP2Constraint* attLP2Constraint;
+    ChppGikConfigurationConstraint* attConfConstraint;
     ChppGikRotationConstraint* attFootRot;
     ChppGikPointingConstraint* attWaistPointing;
 

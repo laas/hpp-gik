@@ -30,9 +30,19 @@ public:
         \brief Get the number of motion plan elements in this column
      */
     unsigned int numberElements()const;
-    
+
     /**
-    \brief Get a vector of pointers to jrl state constraints sorted in descending priority
+        \brief Get a mask on the configuration vector denoting the working degrees of freedom
+     */
+    const vectorN& workingJoints() const;
+
+    /**
+        \brief Set a mask on the configuration vector denoting the working degrees of freedom
+     */
+    void workingJoints(const vectorN& inVec);
+
+    /**
+        \brief Get a vector of pointers to jrl state constraints sorted in descending priority
      */
     std::vector<CjrlGikStateConstraint*> constraints();
 
@@ -51,14 +61,9 @@ public:
 
 private:
 
-    /**
-        \brief Pointer to the relevant robot.
-     */
     CjrlHumanoidDynamicRobot* attRobot;
-    /**
-        \brief Vector (stack) of motion plan elements (tasks)
-     */
     std::vector<ChppGikMotionPlanElement*> attTaskStack;
+    vectorN attWorkingJoints;
 
 };
 

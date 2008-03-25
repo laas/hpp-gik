@@ -70,7 +70,7 @@ ChppGikMaskFactory::ChppGikMaskFactory(CjrlHumanoidDynamicRobot* inRobot)
 
 
 
-    combineMasks( attLegs,attUpperBody,attWholeBody);
+    ChppGikTools::combineMasks( attLegs,attUpperBody,attWholeBody);
 
 
     attWeightsDouble.resize(attNumJoints,false);
@@ -212,27 +212,6 @@ vectorN& ChppGikMaskFactory::maskForJoint(CjrlJoint* inJoint)
 }
 
 
-bool ChppGikMaskFactory::combineMasks(const vectorN& inMask1, const vectorN& inMask2, vectorN& outMask) const
-{
-    unsigned int sz1 = inMask1.size();
-    unsigned int sz2 = inMask2.size();
-
-    if (sz1 == sz2 && sz1 == attNumJoints)
-    {
-        for (unsigned int i=0; i<attNumJoints; i++)
-            if ((inMask1(i) > 0) || (inMask2(i) > 0))
-                outMask(i) = 1;
-            else
-                outMask(i) = 0;
-        return true;
-    }
-    else
-    {
-        std::cout <<"ChppGikMaskFactory::combineMasks() input masks incorrectly sized\n";
-        return false;
-    }
-}
-
 bool ChppGikMaskFactory::activateJointInMask(CjrlJoint* inJoint, vectorN& inoutMask)
 {
     if (inoutMask.size() != attNumJoints)
@@ -241,7 +220,7 @@ bool ChppGikMaskFactory::activateJointInMask(CjrlJoint* inJoint, vectorN& inoutM
         return false;
     }
 
-    combineMasks(maskForJoint(inJoint), inoutMask,inoutMask);
+    ChppGikTools::combineMasks(maskForJoint(inJoint), inoutMask, inoutMask);
     return true;
 }
 

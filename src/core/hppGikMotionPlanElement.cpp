@@ -2,13 +2,13 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "core/hppGikMotionPlanElement.h"
 
+using namespace ublas;
 
 ChppGikMotionPlanElement::ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, unsigned int inPriority)
 {
     attDimension = 0;
     attPriority = inPriority;
     attRobot = inRobot;
-    //initialize the jacobians' length with the number of internal degrees of freedom in the robot
     unsigned int dof;
     if (attRobot->countFixedJoints()>0)
     {
@@ -21,6 +21,7 @@ ChppGikMotionPlanElement::ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, un
 
     attJacobian.resize(0,dof,false);
     attInfluencingDofs.resize(attRobot->numberDof(),false);
+    attWorkingJoints = scalar_vector<double>(dof,0);
 }
 
 
@@ -38,7 +39,6 @@ unsigned int ChppGikMotionPlanElement::priority() const
 {
     return attPriority;
 }
-
 
 void ChppGikMotionPlanElement::addConstraint(CjrlGikStateConstraint* inStateConstraint)
 {
@@ -58,6 +58,19 @@ void ChppGikMotionPlanElement::clear()
     attDimension = 0;
 
 }
+
+const vectorN& ChppGikMotionPlanElement::workingJoints() const
+{
+    return attWorkingJoints;
+}
+
+
+void ChppGikMotionPlanElement::workingJoints(const vectorN& inVec)
+{
+    if (inVec.size() == attWorkingJoints.size())
+        attWorkingJoints = inVec;
+}
+
 
 void ChppGikMotionPlanElement::computeInfluencingDofs()
 {

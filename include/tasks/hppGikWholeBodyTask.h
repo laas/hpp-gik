@@ -3,12 +3,11 @@
 
 #include  <vector>
 #include "tasks/hppGikGenericTask.h"
-
+#include "constraints/hppGikPrioritizedStateConstraint.h"
+#include "motionplanners/elements/hppGikReadyElement.h"
 
 /**
-\brief This is a whole body motion planner. It accepts state constraints and motion constraints for which it is to compute a joints motion.
-The motion constraints entered by the user are directly added to the motion plan at the adequate row.
-The start time of the planner is 0 seconds, it's the reference for any timings set by the user in the motion and state constraints he enters.
+\brief Deprecated: this class will disappear soon
  */
 class ChppGikWholeBodyTask: public ChppGikRobotTask
 {
@@ -79,7 +78,7 @@ protected:
     /**
     \brief Convert user-entered prioritized constraints to single motion planning tasks with the given start time and duration
     */
-    void defaultPlannerTaskMaker(double defaultStartTime,double defaultTaskDuration);
+    void defaultPlannerTaskMaker(double defaultStartTime, double defaultTaskDuration);
 
     /**
     \brief Try to compute a RobotMotion complying with the entered constraints by doing a step at the same time.
@@ -103,34 +102,11 @@ protected:
      */
     void deleteFootprintCandidates(std::vector<ChppGikFootprint*>& inVectorFootprints );
 
-    /**
-    \brief Determines whether the algorithm can try to plan a step for the robot in order to solve the stack of constraints. Default value upon construction is True.
-    */
     bool attEnableStep;
-    
-    /**
-    \brief Tell if last solve() needed stepping
-    */
     bool attHadToStep;
-            
-    /**
-    \brief The solution task plan
-     */
     ChppGikGenericTask* attGenericTask;
-
-    /**
-    \brief State constraints and priorities entered by the user
-     */
     std::vector<ChppGikPrioritizedStateConstraint*> attUserStateTasks;
-
-    /**
-    \brief Motion constraints and priorities entered by the user
-     */
-    std::vector<ChppGikReadyMotionElement*> attUserMotionTasks;
-
-    /**
-    \brief maximum number of iterations for the embedded algorithm
-    */
+    std::vector<ChppGikReadyElement*> attUserMotionTasks;
     unsigned int attMaxIterations;
 
 };

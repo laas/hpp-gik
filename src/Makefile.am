@@ -15,7 +15,7 @@ libhppGik_la_SOURCES = \
 	constraints/hppGikRotationConstraint.cpp \
 	constraints/hppGikPositionConstraint.cpp \
 	constraints/hppGikLPConstraint.cpp \
-	constraints/hppGikLP2Constraint.cpp \
+	constraints/hppGikConfigurationConstraint.cpp \
 	constraints/hppGikComConstraint.cpp \
 	constraints/hppGikTransformationConstraint.cpp \
 	constraints/hppGikMotionConstraint.cpp \
@@ -25,11 +25,15 @@ libhppGik_la_SOURCES = \
 	core/hppGikMotionPlan.cpp \
 	core/hppGikMotionPlanRow.cpp \
 	motionplanners/hppGikLocomotionPlan.cpp \
-	motionplanners/hppGikLocomotionPlanner.cpp \
+	motionplanners/hppGikStepPlanner.cpp \
 	motionplanners/hppGikPreviewController.cpp \
-	motionplanners/hppGikSingleMotionsPlan.cpp \
+	motionplanners/elements/hppGikComMotion.cpp \
+	motionplanners/elements/hppGikFootDisplaceElement.cpp \
+	motionplanners/elements/hppGikInterpolatedElement.cpp \
+	motionplanners/elements/hppGikNoLocomotion.cpp \
+	motionplanners/elements/hppGikStepElement.cpp \
+	motionplanners/elements/hppGikZMPshiftElement.cpp \
 	tasks/hppGikGenericTask.cpp \
-	tasks/hppGikGenericTaskElements.cpp \
 	tasks/hppGikWholeBodyTask.cpp \
 	tasks/hppGikRobotTask.cpp \
 	tasks/hppGikStepBackTask.cpp \
@@ -37,7 +41,6 @@ libhppGik_la_SOURCES = \
 	tasks/hppGikHandTask.cpp \
 	tasks/hppGikMetaTask.cpp \
 	tasks/hppGikReachTask.cpp \
-	tasks/hppGikConfigurationTask.cpp \
 	tasks/hppGikHalfSittingTask.cpp \
 	robot/hppGikFootprintRelated.cpp \
 	robot/hppGikMaskFactory.cpp \

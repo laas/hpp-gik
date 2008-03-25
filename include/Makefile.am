@@ -13,38 +13,39 @@ gainfile_DATA=\
 	motionplanners/hppGikPreviewController50ms.ini
 EXTRA_DIST=	$(gainfile_DATA)
 
-hppGikdir = $(includedir)/hpp
+hppGikdir = $(includedir)/hppGik
 hppGik_HEADERS = \
 	hppGikTools.h
 
-hppGikConstdir = $(includedir)/hpp/constraints
+hppGikConstdir = $(includedir)/hppGik/constraints
 hppGikConst_HEADERS = \
 	constraints/hppGikJointStateConstraint.h \
 	constraints/hppGikComConstraint.h	\
 	constraints/hppGikPlaneConstraint.h 	\
-	constraints/hppGikPlannableConstraint.h 	\
+	constraints/hppGikVectorizableConstraint.h 	\
 	constraints/hppGikPointingConstraint.h \
 	constraints/hppGikGazeConstraint.h \
 	constraints/hppGikParallelConstraint.h \
 	constraints/hppGikRotationConstraint.h \
 	constraints/hppGikLPConstraint.h \
-	constraints/hppGikLP2Constraint.h \
+	constraints/hppGikConfigurationConstraint.h \
 	constraints/hppGikPositionConstraint.h \
 	constraints/hppGikTransformationConstraint.h \
+	constraints/hppGikPrioritizedStateConstraint.h \
 	constraints/hppGikMotionConstraint.h 
 
-hppGikCoredir = $(includedir)/hpp/core
+hppGikCoredir = $(includedir)/hppGik/core
 hppGikCore_HEADERS = \
 	core/hppGikSolver.h \
 	core/hppGikMotionPlanColumn.h \
 	core/hppGikMotionPlanElement.h \
 	core/hppGikMotionPlan.h \
+	core/hppGikPrioritizedMotion.h \
 	core/hppGikMotionPlanRow.h
 
-hppGikTasksdir = $(includedir)/hpp/tasks
+hppGikTasksdir = $(includedir)/hppGik/tasks
 hppGikTasks_HEADERS = \
 	tasks/hppGikGenericTask.h \
-	tasks/hppGikGenericTaskElements.h \
 	tasks/hppGikWholeBodyTask.h \
 	tasks/hppGikRobotTask.h \
 	tasks/hppGikStepBackTask.h \
@@ -52,17 +53,26 @@ hppGikTasks_HEADERS = \
 	tasks/hppGikHandTask.h \
 	tasks/hppGikMetaTask.h \
 	tasks/hppGikReachTask.h \
-	tasks/hppGikConfigurationTask.h \
 	tasks/hppGikHalfSittingTask.h
 
-hppGikPlannersdir = $(includedir)/hpp/motionplanners
+hppGikPlannersdir = $(includedir)/hppGik/motionplanners
 hppGikPlanners_HEADERS = \
 	motionplanners/hppGikLocomotionPlan.h \
-	motionplanners/hppGikLocomotionPlanner.h \
-	motionplanners/hppGikPreviewController.h \
-	motionplanners/hppGikSingleMotionsPlan.h
+	motionplanners/hppGikStepPlanner.h \
+	motionplanners/hppGikPreviewController.h
+	
+hppGikElementsdir = $(includedir)/hppGik/motionplanners/elements
+hppGikElements_HEADERS = \
+	motionplanners/elements/hppGikComMotion.h \
+	motionplanners/elements/hppGikFootDisplaceElement.h \
+	motionplanners/elements/hppGikInterpolatedElement.h \
+	motionplanners/elements/hppGikLocomotionElement.h \
+	motionplanners/elements/hppGikNoLocomotion.h \
+	motionplanners/elements/hppGikReadyElement.h \
+	motionplanners/elements/hppGikStepElement.h \
+	motionplanners/elements/hppGikZMPshiftElement.h
 
-hppGikRobotdir = $(includedir)/hpp/robot
+hppGikRobotdir = $(includedir)/hppGik/robot
 hppGikRobot_HEADERS = \
 	robot/hppGikFootprintRelated.h \
 	robot/hppGikMaskFactory.h \

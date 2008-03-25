@@ -72,7 +72,6 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
     jobVt = 'A';
 
     FixedJoint = 0;
-
 }
 
 
@@ -191,40 +190,60 @@ void ChppGikSolver::accountForJointLimits()
 void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
                                        double inSRcoef, bool inComputeHatJacobian, bool inComputeNullspace)
 {
-
+    //determin participating dofs
     computeConstraintDofs(inConstraint);
-
     //determin task dimension
     xDim = inConstraint->dimension();
+    //resize matrices
     resizeMatrices ( xDim );
 
-    //store used columns only
-    for ( unsigned int col = 0; col<LongSize;col++ )
-        noalias (column ( CarvedJacobian,col) )=  column ( inConstraint->jacobian(),UsedIndexes ( col ));
 
-    //update value according to previous tasks
-    noalias (Residual) = inConstraint->value();
-    noalias ( Residual) -= prod (CarvedJacobian,DeltaQ);
-
-    //slightly faster product to obtain projected jacobian on previous tasks nullspace
-    HatJacobian.clear();
-
-    if (inComputeHatJacobian)
-        for ( unsigned int d = 0; d<xDim;d++ )
+    if (inConstraint->jacobian().size1() == 0)
+    {
+        unsigned int realInd,valInd = 0;
+        for ( unsigned int col = 0; col<LongSize;col++ )
         {
-            for ( unsigned int col = 0; col<LongSize;col++ )
-                if ( ElementMask ( UsedIndexes ( col ) + Offset ) == 1)
-                    noalias ( row (HatJacobian,d) ) += CarvedJacobian ( d,col ) * row ( NullSpace,col);
+            realInd = UsedIndexes ( col ) + Offset;
+            if ( ElementMask ( realInd ) == 1)
+            {
+                Residual(col) = inConstraint->value()(valInd) - DeltaQ(col);
+                row(HatJacobian,valInd) = row(NullSpace,col);
+                valInd++;
+            }
         }
+        noalias ( WJt ) = trans ( HatJacobian);
+        noalias ( JWJt ) = prod ( HatJacobian,  WJt );
+
+    }
     else
-        noalias (HatJacobian) = CarvedJacobian;
+   {
+        //store used columns only
+        for ( unsigned int col = 0; col<LongSize;col++ )
+            noalias (column ( CarvedJacobian,col) )=  column ( inConstraint->jacobian(),UsedIndexes ( col ));
 
-    noalias ( WJt ) = trans ( HatJacobian);
-    for ( unsigned int lin=0;lin<LongSize;lin++ )
-        row ( WJt,lin ) *= PIWeights ( lin );
+        //update value according to previous tasks
+        noalias (Residual) = inConstraint->value();
+        noalias ( Residual) -= prod (CarvedJacobian,DeltaQ);
 
-    noalias ( JWJt ) = prod ( HatJacobian,  WJt );
+        //slightly faster product to obtain projected jacobian on previous tasks nullspace
+        HatJacobian.clear();
 
+        if (inComputeHatJacobian)
+            for ( unsigned int d = 0; d<xDim;d++ )
+            {
+                for ( unsigned int col = 0; col<LongSize;col++ )
+                    if ( ElementMask ( UsedIndexes ( col ) + Offset ) == 1)
+                        noalias ( row (HatJacobian,d) ) += CarvedJacobian ( d,col ) * row ( NullSpace,col);
+            }
+        else
+            noalias (HatJacobian) = CarvedJacobian;
+
+        noalias ( WJt ) = trans ( HatJacobian);
+        for ( unsigned int lin=0;lin<LongSize;lin++ )
+            row ( WJt,lin ) *= PIWeights ( lin );
+
+        noalias ( JWJt ) = prod ( HatJacobian,  WJt );
+    }
     //svd
     if (inSRcoef != 0)
     {
@@ -232,9 +251,9 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
             JWJt(i,i) += inSRcoef;
     }
 
+
     lapack::gesvd ( jobU, jobVt, JWJt, tempS, tempU, tempVt );
     tempU = trans ( tempVt );
-
     PenroseMask.clear();
     //Determin task value projection space
     for ( unsigned int i=0;i<xDim;i++ )
@@ -269,10 +288,10 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
 
 void ChppGikSolver::computeConstraintDofs(CjrlGikStateConstraint* inConstraint)
 {
+    ElementMask = inConstraint->influencingDofs();
     //Take into account support Leg dofs
     if (attRobot->countFixedJoints()>0)
     {
-        ElementMask = inConstraint->influencingDofs();
         for(unsigned int em = 0; em < supportJointsRanks.size(); em++)
             ElementMask(supportJointsRanks[em]) = 1;
     }
@@ -280,7 +299,6 @@ void ChppGikSolver::computeConstraintDofs(CjrlGikStateConstraint* inConstraint)
 
 bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs )
 {
-
     if (inSortedConstraints.empty())
         return true;
 
@@ -406,7 +424,7 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         if ( recompute )
             if ( NextLongSize == 0 )
             {
-                std::cout << "gikSolver(): ran out of movable joints. (Check the weights vector ?)\n";
+                std::cout << "GradientStep(): could not move at all\n";
                 return false;
             }
             else
@@ -423,9 +441,15 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         for ( iC=0; iC< 6; iC++ )
             CurFullConfig ( iC ) = 0;
 
+        /*
         //update joints transformations from root to fixed joint in waist frame
         for ( iC=0; iC< supportJoints.size(); iC++ )
             supportJoints[iC]->updateTransformation ( CurFullConfig );
+        */
+        ///*
+        attRobot->currentConfiguration( CurFullConfig );
+        attRobot->computeForwardKinematics();
+        //*/
 
         //Compute new waist transformation
         ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),Hf );
@@ -440,8 +464,11 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
             CurFullConfig ( iC ) = BaseEuler ( iC-3 );
     }
 
-    attRobot->applyConfiguration ( CurFullConfig );
-
+    //attRobot->applyConfiguration ( CurFullConfig );
+    ///*
+    attRobot->currentConfiguration( CurFullConfig );
+    attRobot->computeForwardKinematics();
+    //*/
     return true;
 }
 

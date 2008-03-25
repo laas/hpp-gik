@@ -8,4 +8,4 @@ Description: Implementation of abstract interface for Generalized Inverse Kinema
 Version: @VERSION@
 Requires: @ABSTRACTGIKTASK_REQD@, @DYNAMICSJRLJAPAN_REQD@
 Libs: -L${libdir} -lhppGik
-Cflags: -I${includedir}/hpp
+Cflags: -I${includedir}/hppGik

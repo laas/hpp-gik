@@ -2,14 +2,16 @@
 #define HPP_GIK_TRANSFORMATION_CONSTRAINT_H
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "gikTask/jrlGikTransformationConstraint.h"
 #include "constraints/hppGikJointStateConstraint.h"
+#include "gikTask/jrlGikTransformationConstraint.h"
+#include "constraints/hppGikVectorizableConstraint.h"
+
 
 /**
 \brief Specify a 3D position constraint on a point of the robot.
  */
 
-class ChppGikTransformationConstraint: public CjrlGikTransformationConstraint, public ChppGikJointStateConstraint
+class ChppGikTransformationConstraint: public CjrlGikTransformationConstraint, public ChppGikJointStateConstraint, public ChppGikVectorizableConstraint
 {
 public:
     /**

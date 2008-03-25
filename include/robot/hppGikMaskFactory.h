@@ -27,10 +27,6 @@ public:
      */
     bool activateJointInMask(CjrlJoint* inJoint, vectorN& inoutMask);
     /**
-    \brief Get the resulting mask from the union of two given masks
-     */
-    bool combineMasks(const vectorN& inMask1, const vectorN& inMask2, vectorN& outMask) const;
-    /**
     \brief Get the joint mask for the legs
      */
     vectorN& legsMask();

@@ -1,6 +1,9 @@
 #include "tasks/hppGikStepBackTask.h"
 #include "constraints/hppGikParallelConstraint.h"
 #include "constraints/hppGikPlaneConstraint.h"
+#include "motionplanners/elements/hppGikZMPshiftElement.h"
+#include "motionplanners/elements/hppGikInterpolatedElement.h"
+#include "motionplanners/elements/hppGikStepElement.h"
 #define V3_I  MAL_S3_VECTOR_ACCESS
 
 ChppGikStepBackTask::ChppGikStepBackTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod, "StepbackTask")
@@ -82,17 +85,19 @@ bool ChppGikStepBackTask::algorithmSolve()
     targetFootprint =  new ChppGikFootprint(*supportFootprint);
     targetFootprint->localTranslate(relativeTargetX, relativeTargetY);
 
+    
     /*ZMP shift element*/
-    double middleX,middleY;
+    vector3d targetZMP;
+    targetZMP[2] = 0.0;
     double shiftStartTime = 1.7;
     double shiftDuration = 0.6;
-    attStandingRobot->supportPolygon()->center( middleX, middleY );
-    ChppGikZMPshiftElement* zmpshiftElement = new ChppGikZMPshiftElement(middleX, middleY, shiftStartTime, shiftDuration);
+    attStandingRobot->supportPolygon()->center( targetZMP[0], targetZMP[1] );
+    ChppGikZMPshiftElement* zmpshiftElement = new ChppGikZMPshiftElement(attStandingRobot->robot(), targetZMP, shiftStartTime, shiftDuration, attSamplingPeriod);
 
     /*waist normal height recovery (element)*/
     double whStartTime = 0.0;
     double whDuration = 3.0;
-    ChppGikSingleMotionElement* waistheightElement = 0;
+    ChppGikInterpolatedElement* waistheightElement = 0;
     vector3d lposition,planePosition,planeNormal;
     lposition[0] = 0;
     lposition[1] = 0;
@@ -104,7 +109,7 @@ bool ChppGikStepBackTask::algorithmSolve()
     planeNormal[1] = 0;
     planeNormal[2] = 1;
     ChppGikPlaneConstraint* waistheightConstraint = new ChppGikPlaneConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->waist()),lposition,planePosition,planeNormal);
-    waistheightElement = new ChppGikSingleMotionElement(waistheightConstraint, 3, whStartTime, whDuration);
+    waistheightElement = new ChppGikInterpolatedElement(attStandingRobot->robot(), waistheightConstraint, 3, whStartTime, whDuration, attSamplingPeriod);
 
     /* step back element*/
     double stepStartTime = whStartTime+whDuration;
@@ -112,18 +117,18 @@ bool ChppGikStepBackTask::algorithmSolve()
     double zmpendshifttime = 0.4;
     double footflighttime = 0.9;
     vector3d& relGap= attStandingRobot->halfsittingRelativeCOM();
-    ChppGikStepElement* stepElement = new ChppGikStepElement( targetFootprint,stepStartTime, FootisRight, V3_I(relGap,0), V3_I(relGap,1), zmpendshifttime, zmpstartshifttime, footflighttime);
-    //ChppGikStepElement* stepElement = new ChppGikStepElement(stepStartTime, targetFootprint, FootisRight, 0.5, zmpendshifttime, zmpstartshifttime, footflighttime);
+    ChppGikStepElement* stepElement = new ChppGikStepElement(attStandingRobot->robot(), targetFootprint, stepStartTime, FootisRight, V3_I(relGap,0), V3_I(relGap,1), attSamplingPeriod, zmpendshifttime, zmpstartshifttime, footflighttime);
+    //ChppGikStepElement* stepElement = new ChppGikStepElement(attStandingRobot->robot(), stepStartTime, targetFootprint, FootisRight, attSamplingPeriod, 0.5, zmpendshifttime, zmpstartshifttime, footflighttime);
 
     /*waist is always vertical (element)*/
-    ChppGikSingleMotionElement* waistverticalElement = 0;
+    ChppGikInterpolatedElement* waistverticalElement = 0;
     vector3d targetOrientation,laxis;
     laxis[0] = 0;
     laxis[1] = 0;
     laxis[2] = 1;
     targetOrientation = laxis;
     ChppGikParallelConstraint* waistverticalConstraint = new ChppGikParallelConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->waist()),laxis,targetOrientation);
-    waistverticalElement = new ChppGikSingleMotionElement(waistverticalConstraint, 2, 0.0, stepStartTime+stepElement->duration()+1.0);
+    waistverticalElement = new ChppGikInterpolatedElement(attStandingRobot->robot(),waistverticalConstraint, 2, 0.0, stepStartTime+stepElement->duration()+1.0, attSamplingPeriod);
 
     /*element stack*/
     attGenericTask->clearElements();
