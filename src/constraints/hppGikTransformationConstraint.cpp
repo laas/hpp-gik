@@ -114,10 +114,10 @@ const matrix4d& ChppGikTransformationConstraint::targetTransformation()
     for (unsigned int i=0; i< 3; i++)
         for (unsigned int j=0; j< 3; j++)
             M4_IJ(attTargetTransformation4, i, j) = attTargetOrientation(i,j);
-    
+
     for (unsigned int i=0; i< 3; i++)
         M4_IJ(attTargetTransformation4, i, 3) = attWorldTarget(i);
-    
+
     return attTargetTransformation4;
 }
 
@@ -226,17 +226,22 @@ void ChppGikTransformationConstraint::computeVectorizedTarget()
 {
     ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
     ChppGikTools::RottoEulerZYX(tempRot, temp3DVec);
-    
+
     subrange(attVectorizedTarget,0,3) = attWorldTarget;
     ChppGikTools::RottoEulerZYX(attTargetOrientation, temp3DVec1);
     for (unsigned int i=0; i<3;i++)
     {
         if (temp3DVec1(i) < 0)
-            if (temp3DVec1(i) + M_PI > temp3DVec(i))
-                temp3DVec1(i) += 2 * M_PI; 
-        if (temp3DVec1(i) > 0)
-            if (temp3DVec1(i) - M_PI > temp3DVec(i))
-                temp3DVec1(i) -= 2 * M_PI; 
+        {
+            if (temp3DVec1(i) + M_PI < temp3DVec(i))
+                temp3DVec1(i) += 2 * M_PI;
+        }
+        else
+        {
+            if (temp3DVec1(i) > 0)
+                if (temp3DVec1(i) - M_PI > temp3DVec(i))
+                    temp3DVec1(i) -= 2 * M_PI;
+        }
     }
     subrange(attVectorizedTarget,3,6) = temp3DVec1;
 }
@@ -250,10 +255,10 @@ bool ChppGikTransformationConstraint::vectorizedTarget(const vectorN& inVector )
     }
 
     attVectorizedTarget = inVector;
-    
+
     attWorldTarget = subrange(inVector,0,3);
     ChppGikTools::UblastoVector3(attWorldTarget, attWorldTargetVector3);
-    
+
     temp3DVec1 = subrange(inVector,3,6);
     ChppGikTools::EulerZYXtoRot ( temp3DVec1,attTargetOrientation );
     ChppGikTools::UblastoMatrix3(attTargetOrientation, attTargetOrientationMatrix3);

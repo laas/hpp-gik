@@ -131,11 +131,16 @@ void ChppGikRotationConstraint::computeVectorizedTarget()
     for (unsigned int i=0; i<3;i++)
     {
         if (attVectorizedTarget(i) < 0)
-            if (attVectorizedTarget(i) + M_PI > temp3DVec(i))
-                attVectorizedTarget(i) += 2 * M_PI; 
-        if (attVectorizedTarget(i) > 0)
-            if (attVectorizedTarget(i) - M_PI > temp3DVec(i))
-                attVectorizedTarget(i) -= 2 * M_PI; 
+        {
+            if (attVectorizedTarget(i) + M_PI < temp3DVec(i))
+                attVectorizedTarget(i) += 2 * M_PI;
+        }
+        else
+        {
+            if (attVectorizedTarget(i) > 0)
+                if (attVectorizedTarget(i) - M_PI > temp3DVec(i))
+                    attVectorizedTarget(i) -= 2 * M_PI;
+        }
     }
 
 }
