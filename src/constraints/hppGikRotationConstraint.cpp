@@ -123,7 +123,19 @@ bool ChppGikRotationConstraint::vectorizedTarget ( const vectorN& inVector )
 
 void ChppGikRotationConstraint::computeVectorizedTarget()
 {
-    ChppGikTools::RottoEulerZYX ( attTargetOrientation, temp3DVec );
-    attVectorizedTarget = temp3DVec;
+    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
+    ChppGikTools::RottoEulerZYX(tempRot, temp3DVec);
+    
+    ChppGikTools::RottoEulerZYX ( attTargetOrientation, attVectorizedTarget );
+    
+    for (unsigned int i=0; i<3;i++)
+    {
+        if (attVectorizedTarget(i) < 0)
+            if (attVectorizedTarget(i) + M_PI > temp3DVec(i))
+                attVectorizedTarget(i) += 2 * M_PI; 
+        if (attVectorizedTarget(i) > 0)
+            if (attVectorizedTarget(i) - M_PI > temp3DVec(i))
+                attVectorizedTarget(i) -= 2 * M_PI; 
+    }
 
 }

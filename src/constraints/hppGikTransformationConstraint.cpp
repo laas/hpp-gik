@@ -224,8 +224,20 @@ void ChppGikTransformationConstraint::computeVectorizedState()
 
 void ChppGikTransformationConstraint::computeVectorizedTarget()
 {
+    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
+    ChppGikTools::RottoEulerZYX(tempRot, temp3DVec);
+    
     subrange(attVectorizedTarget,0,3) = attWorldTarget;
     ChppGikTools::RottoEulerZYX(attTargetOrientation, temp3DVec1);
+    for (unsigned int i=0; i<3;i++)
+    {
+        if (temp3DVec1(i) < 0)
+            if (temp3DVec1(i) + M_PI > temp3DVec(i))
+                temp3DVec1(i) += 2 * M_PI; 
+        if (temp3DVec1(i) > 0)
+            if (temp3DVec1(i) - M_PI > temp3DVec(i))
+                temp3DVec1(i) -= 2 * M_PI; 
+    }
     subrange(attVectorizedTarget,3,6) = temp3DVec1;
 }
 
