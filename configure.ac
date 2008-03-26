@@ -14,7 +14,7 @@ AC_PROG_LIBTOOL
 
 AC_PROG_CXX
 
-define(abstractgiktask_reqd, [abstractGikTask >= 1.3])
+define(abstractgiktask_reqd, [abstractGikTask >= 1.4])
 AC_SUBST(ABSTRACTGIKTASK_REQD, "abstractgiktask_reqd")
 PKG_CHECK_MODULES(ABS_GIKTASK, abstractgiktask_reqd)
 ABS_GIKTASK_PREFIX=`$PKG_CONFIG abstractGikTask --variable=prefix`
