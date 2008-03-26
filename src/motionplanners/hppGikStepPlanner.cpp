@@ -144,7 +144,9 @@ bool ChppGikStepPlanner::automaticSupportFoot()
     bool ls = littleSolve(false);
     double normR = norm_2(attDeltaWaistState);
 
-    attRobot->applyConfiguration( bConf );
+    attRobot->currentConfiguration( bConf );
+    attRobot->computeForwardKinematics();
+    
     supportFoot(attRobot->leftFoot());//left
     attDeltaWaistState.clear();
     ls = littleSolve(false);
@@ -310,7 +312,9 @@ bool ChppGikStepPlanner::littleSolve(bool allowFootChange)
 
         if (changeFoot)
         {
-            attRobot->applyConfiguration( attPreviousConfiguration );
+            attRobot->currentConfiguration( attPreviousConfiguration );
+            attRobot->computeForwardKinematics();
+
             switchFeetRoles();
             if (allowFootChange)
                 footChanges++;
@@ -320,7 +324,8 @@ bool ChppGikStepPlanner::littleSolve(bool allowFootChange)
     }
 
     if (!result)
-        attRobot->applyConfiguration( attPreviousConfiguration );
+        attRobot->currentConfiguration( attPreviousConfiguration );
+        attRobot->computeForwardKinematics();
     return result;
 }
 
@@ -560,7 +565,8 @@ bool ChppGikStepPlanner::enforceFeetDomain()
     if (modifyPosition || projectTarget || modifyRotation)//(projectTarget)//
     {
         //restore previous configuration
-        attRobot->applyConfiguration( attPreviousConfiguration );
+        attRobot->currentConfiguration( attPreviousConfiguration );
+        attRobot->computeForwardKinematics();
 
         attFootPosition->worldTarget( footTarget );
 
@@ -638,7 +644,8 @@ bool ChppGikStepPlanner::defaultStopConditionMet()
     }
 
     attFinalConfiguration = attRobot->currentConfiguration();
-    attRobot->applyConfiguration( backupConfig );
+    attRobot->currentConfiguration( backupConfig );
+    attRobot->computeForwardKinematics();
 
     attGikSolver->weights( attWeights );
 
@@ -671,7 +678,9 @@ bool ChppGikStepPlanner::comMovable()
 
     if (!gikSolved)
     {
-        attRobot->applyConfiguration( backupConfig );
+        attRobot->currentConfiguration( backupConfig );
+        attRobot->computeForwardKinematics();
+
         return false;
     }
 
@@ -681,7 +690,8 @@ bool ChppGikStepPlanner::comMovable()
     modConstraints.push_back(attComConstraint);
 
     gikSolved = solveGik(modConstraints, modConstraints);
-    attRobot->applyConfiguration( backupConfig );
+    attRobot->currentConfiguration( backupConfig );
+    attRobot->computeForwardKinematics();
 
     return gikSolved;
 }
