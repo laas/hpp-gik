@@ -24,6 +24,10 @@ define(dynamicsjrljapan_reqd, [dynamicsJRLJapan >= 1.7])
 AC_SUBST(DYNAMICSJRLJAPAN_REQD, "dynamicsjrljapan_reqd")
 PKG_CHECK_MODULES(DYNAMICSJRLJAPAN, dynamicsjrljapan_reqd)
 
+# Required by unit testing program
+AC_CHECK_HEADERS(X11/Xlib.h)
+AC_CHECK_HEADERS(X11/Xutil.h)
+
 AC_OUTPUT(Makefile
 	src/Makefile
 	include/Makefile

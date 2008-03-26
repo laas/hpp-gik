@@ -1,15 +1,23 @@
+/*
+ * Copyright (c) 2008
+ *      IS/AIST-ST2I/CNRS Joint Japanese-French Robotics Laboratory (JRL).
+ * All rights reserved.
+ */
+
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 #include <iostream>
-#include "hppGikTest.h"
-#include "hppGikTools.h"
 #include <time.h>
 #include <sys/time.h>
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H)
+# include <X11/Xlib.h>
+# include <X11/Xutil.h>
+#endif
 
-#include <unistd.h>
+#include "hppGikTest.h"
+#include "hppGikTools.h"
 
 #include "motionplanners/hppGikStepPlanner.h"
 
@@ -74,10 +82,10 @@ void ChppGikTest::createHumanoidRobot()
     dynamicsJRLJapan::HumanoidDynamicMultiBody *aHDMB;
     aHDMB = (dynamicsJRLJapan::HumanoidDynamicMultiBody*) attRobot;
 
-    std::string path = "./";
-    std::string name = "HRP2JRLmain.wrl.longneck.clean";
-    aHDMB->parserVRML(path,name,"./HRP2LinkJointRank.xml");
-    std::string aName="./HRP2Specificities.xml";
+    std::string path = "/usr/local/jrl/OpenHRP/etc/HRP2JRL/";
+    std::string name = "HRP2JRLmain.wrl";
+    aHDMB->parserVRML(path,name,"/home/mallet/openrobots/share/hrp2_14/HRP2LinkJointRank.xml");
+    std::string aName="/home/mallet/openrobots/share/hrp2_14/HRP2Specificities.xml";
     aHDMB->SetHumanoidSpecificitiesFile(aName);
     aHDMB->SetTimeStep(attSamplingPeriod);
     aHDMB->setComputeAcceleration(true);
@@ -852,6 +860,7 @@ void ChppGikTest::locoPlannerTest()
 
 }
 
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H)
 void ChppGikTest::locoPlannerTestInteractive()
 {
     /* perform an events loop */
@@ -1026,6 +1035,7 @@ void ChppGikTest::locoPlannerTestInteractive()
         }
     }
 }
+#endif /* defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) */
 
 void ChppGikTest::draw2DRobot()
 {
