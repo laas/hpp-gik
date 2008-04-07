@@ -2,13 +2,14 @@ $Id: ChangeLog 2008/02/18 18:26:39 mallet $
 
 hppGik 1.7 released Wed 26 Mar 2008
 
+        40. adapt to version 1.8 of interface-robot-dynamics
         39. ChppGikSingleMotionElement was renamed to
- 	    ChppGikInterpolatedElement
+            ChppGikInterpolatedElement
             ChppGikReadyMotionElement was renamed to ChppGikReadyElement
             constructors of the above classes were modified
             constructors of classes deriving from ChppGikLocomotionElement
-	    were modified
-	38. Fix orientation planning.
+            were modified
+        38. Fix orientation planning.
 	
 hppGik 1.6 released Mon 18 Feb 2008
 
