@@ -1,4 +1,8 @@
-$Id: ChangeLog 2008/02/18 18:26:39 mallet $
+$Id: ChangeLog 2008/04/08 16:50:32 mallet $
+
+hppGik 1.7.1 released Tue 8 Apr 2008
+
+	41. Fix bug in ChppGikMotionPlanElement::jacobian() and value()
 
 hppGik 1.7 released Wed 26 Mar 2008
 
