@@ -8,7 +8,7 @@
 SUBDIRS = \
 	src 		\
 	include 	\
-	unitTesting	
+	unitTesting	\
 	doc
 
 hppGikdir = $(libdir)/pkgconfig
