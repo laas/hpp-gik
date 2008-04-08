@@ -8,10 +8,10 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
     attConstraint = new ChppGikMotionPlanElement(inRobot, 0);
     vector3d pcom = inRobot->positionCenterOfMass();
     attComConstraint = new ChppGikComConstraint(*inRobot, pcom[0], pcom[1]);
-    
+
     vector3d zer;
     zer[0] = zer[1] = zer[2] = 0;
-    
+
     if (( inSupportFoot != inRobot->rightFoot()) &&( inSupportFoot != inRobot->leftFoot()))
     {
         attFootConstraint = new ChppGikTransformationConstraint(*inRobot, *(inRobot->rightFoot()), zer, inRobot->rightFoot()->currentTransformation());
@@ -30,13 +30,13 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
             attSupportFoot = inRobot->leftFoot();
         }
     }
-    
+
     attConstraint->addConstraint( attComConstraint );
     attConstraint->addConstraint( attFootConstraint );
-    
+
     attStartTime = (inStartTime>0.0)?inStartTime:0.0;
     attEndTime = (inEndTime>attStartTime)?inEndTime:attStartTime;
-    
+
     attZMP.resize(3);
     attZMP(0) = pcom[0];
     attZMP(1) = pcom[1];
@@ -47,7 +47,9 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
 }
 ChppGikNoLocomotion::~ChppGikNoLocomotion()
 {
-    delete attComConstraint,attConstraint,attFootConstraint;
+    delete attComConstraint;
+    delete attConstraint;
+    delete attFootConstraint;
 }
 
 CjrlGikMotionConstraint* ChppGikNoLocomotion::motionConstraint()
@@ -64,7 +66,7 @@ CjrlDynamicRobot* ChppGikNoLocomotion::robot()
 {
     return attRobot;
 }
-        
+
 CjrlGikStateConstraint* ChppGikNoLocomotion::stateConstraintAtTime(double inTime)
 {
     return attConstraint;

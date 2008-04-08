@@ -173,8 +173,6 @@ void ChppGikTest::dumpFilesAndGetLastConfig(ChppGikRobotTask* robotTask,const ch
 {
     //dump files
     robotTask->solutionMotion().dumpTo( inFilename );
-    //update robot last config
-    vectorN newConfiguration(attRobot->numberDof());
 
     double eT = robotTask->solutionMotion().endTime();
     bool assertion = robotTask->solutionMotion().configAtTime(eT, outLastConfig);
@@ -502,7 +500,8 @@ void ChppGikTest::handat(bool taskIsForRightHand, bool doOrientation,vector3d& t
     else
         std::cout<< "\nNot solved.\n";
 
-    delete psc,poc;
+    delete psc;
+    delete poc;
 
 }
 
@@ -561,7 +560,9 @@ void ChppGikTest::lookhandat(bool taskIsForRightHand, bool doOrientation,vector3
     else
         std::cout<< "\nNot solved.\n";
 
-    delete psc,poc,gc;
+    delete psc;
+    delete poc;
+    delete gc;
 
 }
 
@@ -855,7 +856,7 @@ void ChppGikTest::locoPlannerTest()
         */
 
     lplanner.constraints( constraints );
-    bool ok = lplanner.bigSolve( 40 );
+    lplanner.bigSolve( 40 );
     lplanner.dumpBigSolutionTo( "ankleprints" );
 
 }

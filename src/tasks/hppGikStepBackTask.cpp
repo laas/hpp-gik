@@ -41,9 +41,7 @@ bool ChppGikStepBackTask::algorithmSolve()
         return false;
     }
 
-    CjrlJoint* displacedFoot = 0;
     ChppGikFootprint* targetFootprint;
-    const ChppGikFootprint *leftFootprint, *rightFootprint;
     const ChppGikFootprint *supportFootprint, *nonsupportFootprint;
     bool FootisRight;
     double relativeTargetY,relativeTargetX =0.0;

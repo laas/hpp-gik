@@ -344,7 +344,8 @@ ChppGikSupportPolygon* ChppGikSupportPolygon::makeSupportPolygon ( const matrix4
         if ( rightFP )
             spPl = new ChppGikSupportPolygon ( *rightFP,true );
 
-    delete leftFP, rightFP;
+    delete leftFP;
+    delete rightFP;
     return spPl;
 }
 

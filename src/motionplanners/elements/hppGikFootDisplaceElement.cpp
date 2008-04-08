@@ -81,6 +81,7 @@ bool ChppGikFootDisplaceElement::plan(ChppGikSupportPolygon& supportPolygon, vec
     supportPolygon.applyStep( attTargetFootprint, attIsRight );
     
     attPlanSuccess = true;
+    return true;
 }
 
 bool ChppGikFootDisplaceElement::planFeet()
