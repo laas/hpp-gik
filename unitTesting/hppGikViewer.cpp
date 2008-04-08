@@ -136,7 +136,6 @@ void ChppGikViewer::equivalentPixel(double inX, double inY, int& pX, int& pY)
 
 KeySym* ChppGikViewer::nextKey( )
 {
-    int done = 0;
     XNextEvent(display, &attEvent);
     if (attEvent.type == KeyPress)
     {

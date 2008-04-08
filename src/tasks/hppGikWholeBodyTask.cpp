@@ -269,7 +269,7 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
     outX = centerX;
     outY = centerY;
 
-    double maxDist = 0;
+    double maxDist = 0.0;
     vectorN target(3), vectorizedTarget(6);
     bool check = false;
     double temp;
@@ -298,10 +298,11 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
         }
         if (check)
         {
-            outDistance = sqrt(pow((target(0)-centerX),2)+pow((target(1)-centerY),2));
-            if ( outDistance > maxDist)
+            temp = sqrt(pow((target(0)-centerX),2)+pow((target(1)-centerY),2));
+            if ( temp > maxDist)
             {
                 maxDist = temp;
+                outDistance = temp;
                 outX = target(0);
                 outY = target(1);
             }

@@ -126,10 +126,21 @@ ChppGikStepPlanner::~ChppGikStepPlanner()
     clearFeet();
 
     delete attGikSolver;
-    delete attDetailedMotion, attRefinedMotion;
-    delete attFootParallel, attFootPlane, attFootTransformation, attFootPosition, attFootRot;
-    delete attWaistPosition, attWaistParallel, attWaistPlane, attWaistTransformation, attWaistPointing;
-    delete attComConstraint, attLPConstraint, attConfConstraint;
+    delete attDetailedMotion;
+    delete attRefinedMotion;
+    delete attFootParallel;
+    delete attFootPlane;
+    delete  attFootTransformation;
+    delete  attFootPosition;
+    delete  attFootRot;
+    delete attWaistPosition;
+    delete  attWaistParallel;
+    delete  attWaistPlane;
+    delete  attWaistTransformation;
+    delete  attWaistPointing;
+    delete attComConstraint;
+    delete  attLPConstraint;
+    delete  attConfConstraint;
 }
 
 
@@ -385,9 +396,6 @@ bool ChppGikStepPlanner::enforceFeetDomain()
         std::cout << " ChppGikStepPlanner::enforceFeetDomain(): sp not double\n";
         return false;
     }
-
-    const matrix4d& nsfm = attNonSupportFoot->currentTransformation();
-    const matrix4d& sfm = attSupportFoot->currentTransformation();
 
     ChppGikSupportPolygon* supportPolygon = attStandingRobot->supportPolygon();
 
@@ -870,10 +878,10 @@ void ChppGikStepPlanner::appendClampedTargets(std::vector<CjrlGikStateConstraint
 
             if (norm_2(val) <= maxNorm)
             {/*
-                                //debug
-                                attUserConstraints[i]->computeVectorizedTarget();
-                                std::cout << attConstraints[i]->vectorizedTarget()<<"\n";
-                                std::cout << val <<"\n";*/
+                                                //debug
+                                                attUserConstraints[i]->computeVectorizedTarget();
+                                                std::cout << attConstraints[i]->vectorizedTarget()<<"\n";
+                                                std::cout << val <<"\n";*/
                 break;
             }
 
