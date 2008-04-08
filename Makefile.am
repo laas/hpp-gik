@@ -9,7 +9,7 @@ SUBDIRS = \
 	src 		\
 	include 	\
 	unitTesting	
-#	doc
+	doc
 
 hppGikdir = $(libdir)/pkgconfig
 hppGik_DATA = \
