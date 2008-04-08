@@ -82,10 +82,10 @@ void ChppGikTest::createHumanoidRobot()
     dynamicsJRLJapan::HumanoidDynamicMultiBody *aHDMB;
     aHDMB = (dynamicsJRLJapan::HumanoidDynamicMultiBody*) attRobot;
 
-    std::string path = "/usr/local/jrl/OpenHRP/etc/HRP2JRL/";
-    std::string name = "HRP2JRLmain.wrl";
-    aHDMB->parserVRML(path,name,"/home/mallet/openrobots/share/hrp2_14/HRP2LinkJointRank.xml");
-    std::string aName="/home/mallet/openrobots/share/hrp2_14/HRP2Specificities.xml";
+    std::string path = "./";
+    std::string name = "HRP2.wrl";
+    aHDMB->parserVRML(path,name,"./HRP2LinkJointRank.xml");
+    std::string aName="./HRP2Specificities.xml";
     aHDMB->SetHumanoidSpecificitiesFile(aName);
     aHDMB->SetTimeStep(attSamplingPeriod);
     aHDMB->setComputeAcceleration(true);
@@ -802,21 +802,21 @@ void ChppGikTest::locoPlannerTest()
 
     ///*
     //create the non support foot constraint
-    targetPoint[0] = 1;
-    targetPoint[1] = 2;
+    targetPoint[0] = -2;
+    targetPoint[1] = -1;
     targetPoint[2] = 0.9;
     ChppGikGazeConstraint gc( *(attStandingRobot->robot()), targetPoint);
     constraints.push_back(&gc);
     //*/
 
-    ///*
+    /*
     localPoint = attStandingRobot->robot()->leftHand()->centerInWristFrame();
     targetPoint[0] = 1;
     targetPoint[1] = 2;
     targetPoint[2] = 0.9;
     ChppGikPositionConstraint posc2( *(attStandingRobot->robot()), *(attStandingRobot->robot()->leftWrist()), localPoint, targetPoint);
     constraints.push_back(&posc2);
-    //*/
+    */
 
     //ChppGikParallelConstraint wvert(*attRobot, *(attRobot->waist()), normalVec, normalVec);
     //constraints.push_back(&wvert);
@@ -936,7 +936,7 @@ void ChppGikTest::locoPlannerTestInteractive()
                 waistTarget[0] = attRobot->currentConfiguration()(0) + Xincr;
                 waistTarget[1] = attRobot->currentConfiguration()(1);
                 posw.worldTarget(waistTarget);
-                std::cout << "Up\n";
+                //std::cout << "Up\n";
                 constraints.clear();
                 constraints.push_back(&posw);
                 lplanner.constraints( constraints );
@@ -946,7 +946,7 @@ void ChppGikTest::locoPlannerTestInteractive()
                 waistTarget[0] = attRobot->currentConfiguration()(0);
                 waistTarget[1] = attRobot->currentConfiguration()(1) + Yincr;
                 posw.worldTarget(waistTarget);
-                std::cout << "Left\n";
+                //std::cout << "Left\n";
                 constraints.clear();
                 constraints.push_back(&posw);
                 lplanner.constraints( constraints );
@@ -956,7 +956,7 @@ void ChppGikTest::locoPlannerTestInteractive()
                 waistTarget[0] = attRobot->currentConfiguration()(0);
                 waistTarget[1] = attRobot->currentConfiguration()(1) - Yincr;
                 posw.worldTarget(waistTarget);
-                std::cout << "Right\n";
+                //std::cout << "Right\n";
                 constraints.clear();
                 constraints.push_back(&posw);
                 lplanner.constraints( constraints );
@@ -966,7 +966,7 @@ void ChppGikTest::locoPlannerTestInteractive()
                 waistTarget[0] = attRobot->currentConfiguration()(0) - Xincr;
                 waistTarget[1] = attRobot->currentConfiguration()(1);
                 posw.worldTarget(waistTarget);
-                std::cout << "Down\n";
+                //std::cout << "Down\n";
                 constraints.clear();
                 constraints.push_back(&posw);
                 lplanner.constraints( constraints );
@@ -978,7 +978,7 @@ void ChppGikTest::locoPlannerTestInteractive()
                 M3_IJ(rot,1,0) = sin(curTheta);
                 M3_IJ(rot,0,1) = -M3_IJ(rot,0,1);
                 oriow.targetOrientation( rot);
-                std::cout << "Turn left\n";
+                //std::cout << "Turn left\n";
                 constraints.clear();
                 constraints.push_back(&oriow);
                 lplanner.constraints( constraints );
@@ -990,7 +990,7 @@ void ChppGikTest::locoPlannerTestInteractive()
                 M3_IJ(rot,1,0) = sin(curTheta);
                 M3_IJ(rot,0,1) = -M3_IJ(rot,0,1);
                 oriow.targetOrientation( rot);
-                std::cout << "Turn right\n";
+                //std::cout << "Turn right\n";
                 constraints.clear();
                 constraints.push_back(&oriow);
                 lplanner.constraints( constraints );
@@ -1002,7 +1002,7 @@ void ChppGikTest::locoPlannerTestInteractive()
                 gazeTarget[0] = attRobot->currentConfiguration()(0) + cos(curTheta);
                 gazeTarget[1] = attRobot->currentConfiguration()(1) - sin(curTheta);
                 gazec.worldTarget( gazeTarget );
-                std::cout << "look right\n";
+                //std::cout << "look right\n";
                 constraints.clear();
                 constraints.push_back(&gazec);
                 lplanner.constraints( constraints );
@@ -1013,7 +1013,7 @@ void ChppGikTest::locoPlannerTestInteractive()
                 gazeTarget[0] = attRobot->currentConfiguration()(0) + cos(curTheta);
                 gazeTarget[1] = attRobot->currentConfiguration()(1) - sin(curTheta);
                 gazec.worldTarget( gazeTarget );
-                std::cout << "look right\n";
+                //std::cout << "look right\n";
                 constraints.clear();
                 constraints.push_back(&gazec);
                 lplanner.constraints( constraints );

@@ -160,7 +160,7 @@ void ChppGikMotionPlanElement::computeJacobian()
 const vectorN& ChppGikMotionPlanElement::value()
 {
     if (attConstraints.size() == 1)
-        attConstraints[0]->value();
+        return attConstraints[0]->value();
     else
         return attValue;
 }
@@ -169,7 +169,7 @@ const vectorN& ChppGikMotionPlanElement::value()
 const matrixNxP& ChppGikMotionPlanElement::jacobian()
 {
     if (attConstraints.size() == 1)
-        attConstraints[0]->jacobian();
+        return attConstraints[0]->jacobian();
     else
         return attJacobian;
 }

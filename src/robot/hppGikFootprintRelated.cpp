@@ -29,7 +29,14 @@ void ChppGikFootprint::makeRelative ( const ChppGikFootprint* inReferenceFootpri
     double deltay = outFootprint->y() - inReferenceFootprint->y();
     outFootprint->x ( cos ( inReferenceFootprint->th() ) *deltax + sin ( inReferenceFootprint->th() ) *deltay );
     outFootprint->y ( cos ( inReferenceFootprint->th() ) *deltay - sin ( inReferenceFootprint->th() ) *deltax );
-    outFootprint->th ( outFootprint->th() - inReferenceFootprint->th() );
+
+    double diffTh = outFootprint->th() - inReferenceFootprint->th();
+    if (diffTh > M_PI)
+        diffTh -= 2*M_PI;
+    else
+        if (diffTh < -M_PI)
+            diffTh += 2*M_PI;
+    outFootprint->th ( diffTh );
 }
 
 void ChppGikFootprint::makeAbsolute ( const ChppGikFootprint* inReferenceFootprint,  ChppGikFootprint* outFootprint )
@@ -40,7 +47,14 @@ void ChppGikFootprint::makeAbsolute ( const ChppGikFootprint* inReferenceFootpri
 
     outFootprint->x ( absX );
     outFootprint->y ( absY );
-    outFootprint->th ( outFootprint->th() + inReferenceFootprint->th() );
+    double diffTh = outFootprint->th() + inReferenceFootprint->th() ;
+    
+    if (diffTh > M_PI)
+        diffTh -= 2*M_PI;
+    else
+        if (diffTh < -M_PI)
+            diffTh += 2*M_PI;
+    outFootprint->th ( diffTh );
 }
 
 double ChppGikFootprint::distanceTo ( const ChppGikFootprint* inFootprint ) const
