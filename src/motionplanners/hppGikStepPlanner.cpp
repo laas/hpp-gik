@@ -90,13 +90,13 @@ ChppGikStepPlanner::ChppGikStepPlanner(ChppGikStandingRobot* inStandingRobot)
     attComConstraint = new ChppGikComConstraint(*attRobot, 0.0, 0.0);
 
     attLPConstraint = new ChppGikLPConstraint(*attRobot);
-    
+
     vectorN legsdofsmask(attRobot->numberDof());
     legsdofsmask.clear();
     for(unsigned int i=6;i<legsdofsmask.size();i++)
         if (attStandingRobot->maskFactory()->legsMask()(i-6) == 1)
             legsdofsmask(i) = 1;
-    
+
     attConfConstraint = new ChppGikConfigurationConstraint(*attRobot, attStandingRobot->halfsittingConfiguration(),legsdofsmask);
 
     attFinalConfiguration.resize(attRobot->numberDof(), false);
@@ -146,7 +146,7 @@ bool ChppGikStepPlanner::automaticSupportFoot()
 
     attRobot->currentConfiguration( bConf );
     attRobot->computeForwardKinematics();
-    
+
     supportFoot(attRobot->leftFoot());//left
     attDeltaWaistState.clear();
     ls = littleSolve(false);
@@ -217,7 +217,7 @@ bool ChppGikStepPlanner::solveConstraints()
     appendClampedTargets( attJrlAll, attGikValueStep);
 
     attJrlAll.push_back(attConfConstraint);
-            
+
     recordCurrentValues();
 
     return solveGik(attJrlAll, attJrlWatched, false);
@@ -269,7 +269,7 @@ bool ChppGikStepPlanner::littleSolve(bool allowFootChange)
     bool result = false;
     unsigned int footChanges = 0;
     bool changeFoot;
-    
+
     attPreviousConfiguration = attRobot->currentConfiguration();
     while ((result == false) && footChanges<2)
     {
@@ -288,25 +288,25 @@ bool ChppGikStepPlanner::littleSolve(bool allowFootChange)
                         result = true;
                     else
                     {
-                        std::cout << "No progress\n";
+                        //std::cout << "No progress\n";
                         changeFoot = true;
                     }
                 }
                 else
                 {
-                    std::cout << "COM not reaching\n";
+                    //std::cout << "COM not reaching\n";
                     changeFoot = true;
                 }
             }
             else
             {
-                std::cout << "Could not enforce feet boundaries\n";
+                //std::cout << "Could not enforce feet boundaries\n";
                 changeFoot = true;
             }
         }
         else
         {
-            std::cout << "Could not ensure waist and foot constraints\n";
+            //std::cout << "Could not ensure waist and foot constraints\n";
             changeFoot = true;
         }
 
@@ -325,7 +325,7 @@ bool ChppGikStepPlanner::littleSolve(bool allowFootChange)
 
     if (!result)
         attRobot->currentConfiguration( attPreviousConfiguration );
-        attRobot->computeForwardKinematics();
+    attRobot->computeForwardKinematics();
     return result;
 }
 
@@ -442,6 +442,7 @@ bool ChppGikStepPlanner::enforceFeetDomain()
         if (attCheckForRot)
         {
             theta = relNSFP->th();
+            //std::cout <<"theta before "<<theta<<"\n";
             if (theta < attMinRelTheta)
             {
                 theta = attMinRelTheta;
@@ -453,7 +454,7 @@ bool ChppGikStepPlanner::enforceFeetDomain()
                     theta = attMaxRelTheta;
                     modifyRotation = true;
                 }
-
+            //std::cout <<"theta after "<<theta<<"\n";
             relNSFP->th(theta);
         }
     }
@@ -665,7 +666,7 @@ bool ChppGikStepPlanner::comMovable()
     const matrix4d& mnsf = attNonSupportFoot->currentTransformation();
     attFootTransformation->targetTransformation( mnsf );
     modConstraints.push_back(attFootTransformation);
-//     modConstraints.push_back(attWaistPlane);
+    //     modConstraints.push_back(attWaistPlane);
     modConstraints.push_back(attWaistParallel);
 
 
@@ -859,7 +860,7 @@ void ChppGikStepPlanner::appendClampedTargets(std::vector<CjrlGikStateConstraint
         lambda = 1;
         while (1)
         {
-            
+
             interpolatedVec = (1-lambda)*subrange(currentState,0,interpolatedVec.size()) + lambda*(attUserConstraints[i]->vectorizedTarget());
 
             attConstraints[i]->vectorizedTarget(interpolatedVec);
@@ -869,10 +870,10 @@ void ChppGikStepPlanner::appendClampedTargets(std::vector<CjrlGikStateConstraint
 
             if (norm_2(val) <= maxNorm)
             {/*
-                //debug
-                attUserConstraints[i]->computeVectorizedTarget();
-                std::cout << attConstraints[i]->vectorizedTarget()<<"\n";
-                std::cout << val <<"\n";*/
+                                //debug
+                                attUserConstraints[i]->computeVectorizedTarget();
+                                std::cout << attConstraints[i]->vectorizedTarget()<<"\n";
+                                std::cout << val <<"\n";*/
                 break;
             }
 

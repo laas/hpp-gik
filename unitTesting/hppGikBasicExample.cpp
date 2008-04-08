@@ -80,7 +80,7 @@ void ChppGikBasicExample::planExample()
 
     vector3d absZMPPla, absZMPObs, relZMPObs, relZMPPla;
     absZMPPla = com;
-    
+
     //Start the loop where we change the desired target position of the hand, thus generating a motion
     for (unsigned int j = 0; j< 500;j++)
     {
@@ -157,11 +157,16 @@ void ChppGikBasicExample::createStandingRobot()
     aHDMB->parserVRML(path,name,"./HRP2LinkJointRank.xml");
     std::string aName="./HRP2Specificities.xml";
     aHDMB->SetHumanoidSpecificitiesFile(aName);
+    aHDMB->SetTimeStep(attSamplingPeriod);
+    aHDMB->setComputeAcceleration(true);
+    aHDMB->setComputeBackwardDynamics(false);
+    aHDMB->setComputeZMP(true);
+
 
     unsigned int nDof = attRobot->numberDof();
     vectorN halfsittingConf(nDof);
 
-    //Half sitting configuration
+    //Half sitting
     double dInitPos[40] =
         {
             0.0, 0.0, -26.0, 50.0, -24.0, 0.0, // right leg
@@ -197,7 +202,6 @@ void ChppGikBasicExample::createStandingRobot()
     for(unsigned int i=6;i<nDof;i++)
         halfsittingConf(i) = dInitPos[i-6]*M_PI/180;
 
-    /* apply initial static state*/
     ublas::zero_vector<double> zeros(attRobot->numberDof());
     attRobot->currentConfiguration(halfsittingConf);
     attRobot->currentVelocity(zeros);
@@ -209,9 +213,11 @@ void ChppGikBasicExample::createStandingRobot()
     gazeDir[0] = 1;
     gazeDir[1] = 0;
     gazeDir[2] = 0;
+
     gazeOrigin[0] = 0;
     gazeOrigin[1] = 0;
     gazeOrigin[2] = 0.118;
+
     aHDMB->gaze((const vector3d&)gazeDir,(const vector3d&)gazeOrigin);
 
     attStandingRobot = new ChppGikStandingRobot(attRobot);
