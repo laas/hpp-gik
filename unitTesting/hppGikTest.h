@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2008
+ *      IS/AIST-ST2I/CNRS Joint Japanese-French Robotics Laboratory (JRL).
+ * All rights reserved.
+ */
+
 #ifndef HPP_GIKTEST_H
 #define HPP_GIKTEST_H
 
@@ -19,7 +25,9 @@
 #include "tasks/hppGikHandTask.h"
 #include "tasks/hppGikHalfSittingTask.h"
 
-#include "hppGikViewer.h"
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
+# include "hppGikViewer.h"
+#endif
 
 /**
  \brief UnitTesting class of class ChppGik
@@ -122,8 +130,10 @@ private:
     
     char attMotionName[256];
     
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
     ChppGikViewer* attViewer;
-    
+#endif
+
     bool attViewerHealthy;
 
 };
