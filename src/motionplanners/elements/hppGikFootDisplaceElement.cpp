@@ -3,7 +3,7 @@
 #include "motionplanners/elements/hppGikFootDisplaceElement.h"
 #include "hppGikTools.h"
 
-
+#define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 using namespace ublas;
 
 ChppGikFootDisplaceElement::ChppGikFootDisplaceElement(CjrlHumanoidDynamicRobot* inRobot, double inStartTime, const ChppGikFootprint * inTargetFootprint, bool isRight, double inDuration, double inSamplingPeriod, double inHeight):ChppGikLocomotionElement( inRobot, inStartTime, inDuration, inSamplingPeriod)
@@ -90,17 +90,22 @@ bool ChppGikFootDisplaceElement::planFeet()
 
     unsigned int nsamples = (unsigned int)round(attDuration/attSamplingPeriod)+1;
 
-    attConstraint->targetTransformation( attConstrainedFoot->currentTransformation() );
+    matrix4d m  = attConstrainedFoot->currentTransformation();
+    attConstraint->targetTransformation(m);
     attConstraint->computeVectorizedTarget();
     vectorN startXYZRPY = ((ChppGikVectorizableConstraint*)attConstraint)->vectorizedTarget();
-    vectorN endXYZRPY(6);
-
-    endXYZRPY(0) = attTargetFootprint->x();
-    endXYZRPY(1) = attTargetFootprint->y();
-    endXYZRPY(2) = startXYZRPY(2);
-    endXYZRPY(3) = 0.0;
-    endXYZRPY(4) = 0.0;
-    endXYZRPY(5) = attTargetFootprint->th();
+    
+    M4_IJ(m,0,3) = attTargetFootprint->x();
+    M4_IJ(m,1,3) = attTargetFootprint->y();
+    M4_IJ(m,0,0) = M4_IJ(m,1,1) = cos(attTargetFootprint->th());
+    M4_IJ(m,1,0) = sin(attTargetFootprint->th());
+    M4_IJ(m,0,1) = -M4_IJ(m,1,0);
+    M4_IJ(m,0,2) = M4_IJ(m,1,2) = M4_IJ(m,2,0) = M4_IJ(m,2,1) = 0.0;
+    M4_IJ(m,2,2) = 1.0;
+    
+    attConstraint->targetTransformation(m);
+    attConstraint->computeVectorizedTarget();
+    vectorN endXYZRPY = ((ChppGikVectorizableConstraint*)attConstraint)->vectorizedTarget();
 
     matrixNxP data(6,nsamples);
     data.clear();

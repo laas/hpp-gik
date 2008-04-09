@@ -120,7 +120,22 @@ void ChppGikStandingRobot::updateDynamics(double inSamplingPeriod, const vector3
 {
     ///*
     //Update kinematics (standard method)
-    attVelocity = (attRobot->currentConfiguration() - attPreviousConfiguration)/ inSamplingPeriod;
+    attVelocity = attRobot->currentConfiguration();// - attPreviousConfiguration);
+    for (unsigned int i=3; i<6;i++)
+    {
+        if (attPreviousConfiguration(i) > 0)
+        {
+            if (attVelocity(i) < attPreviousConfiguration(i) - M_PI)
+                attVelocity(i) += 2*M_PI; 
+        }
+        else
+        {
+            if (attVelocity(i) > attPreviousConfiguration(i) + M_PI)
+                attVelocity(i) -= 2*M_PI; 
+        }
+    }
+    attVelocity = (attVelocity - attPreviousConfiguration)/inSamplingPeriod;
+            
     attRobot->currentVelocity( attVelocity );
     attAcceleration = (attVelocity - attPreviousVelocity)/inSamplingPeriod;
     attRobot->currentAcceleration( attAcceleration );

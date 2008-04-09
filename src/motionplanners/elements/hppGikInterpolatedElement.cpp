@@ -102,6 +102,10 @@ bool ChppGikInterpolatedElement::planningAlgorithm()
     attInterpolationData.resize(stateSize, nsamples,false);
     attInterpolationLine.resize(nsamples,false);
 
+    attConstraint->vectorizedTarget( attTarget);
+    attConstraint->computeVectorizedTarget();
+    attTarget = attConstraint->vectorizedTarget();
+    
     attConstraint->computeVectorizedState();
     const vectorN& currentState = attConstraint->vectorizedState();
 
