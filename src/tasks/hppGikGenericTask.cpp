@@ -26,6 +26,7 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
     attNeutralBodyOption = false;
     attUserDefinedMask = false;
 
+    attExtraEndTime = 1.0;
 }
 
 
@@ -90,11 +91,13 @@ bool ChppGikGenericTask::algorithmSolve()
 
     attSolutionMotion->startTime(0.0);
 
-    gapTime = attLocomotionPlan->extraEndTime() + attLocomotionPlan->endTime() - attMotionPlan->endTime();
+    gapTime = attLocomotionPlan->endTime() - attMotionPlan->endTime();
     
     if (gapTime<0)
-        attLocomotionPlan->extraEndTime(attLocomotionPlan->extraEndTime()-gapTime);
+        attLocomotionPlan->extraEndTime(-gapTime);
 
+    attLocomotionPlan->extraEndTime( attLocomotionPlan->extraEndTime() + attExtraEndTime );
+    
     ok = attLocomotionPlan->solve();
     if (!ok)
     {
@@ -214,7 +217,7 @@ void ChppGikGenericTask::automaticJointsMask(bool inSwitch, const  vectorN* inMa
 
 void ChppGikGenericTask::extraEndTime(double inDuration)
 {
-    attLocomotionPlan->extraEndTime( inDuration );
+    attExtraEndTime = (inDuration<0.0)?0.0:inDuration;
 }
 
 ChppGikGenericTask::~ChppGikGenericTask()

@@ -9,7 +9,7 @@
 ChppGikLocomotionPlan::ChppGikLocomotionPlan(ChppGikMotionPlan* inAssociatedMotionPlan, ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod)
 {
     attRobot = inStandingRobot->robot();
-    attExtraEndTime = 1.0;
+    attExtraEndTime = 0.0;
     attStartTime = attModifiedStartTime = 0.0;
     attEndTime = attModifiedEndTime = 0.0;
     attSamplingPeriod = inSamplingPeriod;

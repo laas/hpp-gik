@@ -77,5 +77,6 @@ private:
     vectorN jointsMask;
     bool attUserDefinedMask;
     vectorN attUserJointsMask;
+    double attExtraEndTime;
 };
 #endif
