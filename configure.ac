@@ -1,6 +1,8 @@
 dnl autoconf script for hppGik libs
 dnl
-dnl   Research carried out within the scope of the Associated International Laboratory: Joint Japanese-French Robotics Laboratory (JRL)
+dnl   Research carried out within the scope of the Associated
+dnl	International Laboratory: Joint Japanese-French Robotics
+dnl	Laboratory (JRL)
 dnl
 dnl   Author: Florent Lamiraux LAAS-CNRS
 dnl
@@ -27,6 +29,9 @@ PKG_CHECK_MODULES(DYNAMICSJRLJAPAN, dynamicsjrljapan_reqd)
 # Required by unit testing program
 AC_CHECK_HEADERS(X11/Xlib.h)
 AC_CHECK_HEADERS(X11/Xutil.h)
+AC_CHECK_LIB(X11, XOpenDisplay,
+	[AC_DEFINE(HAVE_LIBX11) LIBX11=-lX11])
+AC_SUBST(LIBX11)
 
 AC_OUTPUT(Makefile
 	src/Makefile

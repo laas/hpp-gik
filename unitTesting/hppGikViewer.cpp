@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2008
+ *      IS/AIST-ST2I/CNRS Joint Japanese-French Robotics Laboratory (JRL).
+ * All rights reserved.
+ */
+
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
+
 #include "hppGikViewer.h"
 #include <math.h>
 
@@ -153,3 +161,6 @@ ChppGikViewer::~ChppGikViewer( )
     /* close the connection to the X server. */
     XCloseDisplay(display);
 }
+
+#endif /* defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) &&
+	* defined(HAVE_LIBX11) */

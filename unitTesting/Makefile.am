@@ -15,6 +15,9 @@ testhppGik_SOURCES=\
 	hppGikViewer.h
 
 
-testhppGik_CPPFLAGS =  -I$(srcdir)/../include $(ABS_GIKTASK_CFLAGS) $(DYNAMICSJRLJAPAN_CFLAGS)
+testhppGik_CPPFLAGS=\
+	-I$(srcdir)/../include		\
+	$(ABS_GIKTASK_CFLAGS)		\
+	$(DYNAMICSJRLJAPAN_CFLAGS)
 
-testhppGik_LDFLAGS = $(DYNAMICSJRLJAPAN_LIBS) ../src/libhppGik.la -lX11 -lm
+testhppGik_LDFLAGS = $(DYNAMICSJRLJAPAN_LIBS) ../src/libhppGik.la $(LIBX11) -lm

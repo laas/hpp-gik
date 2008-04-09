@@ -11,9 +11,10 @@
 #include <time.h>
 #include <sys/time.h>
 
-#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H)
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
 # include <X11/Xlib.h>
 # include <X11/Xutil.h>
+# include <X11/keysym.h>
 #endif
 
 #include "hppGikTest.h"
@@ -52,8 +53,9 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(5e-3)
     attMotion = new ChppRobotMotion(attRobot, 0.0, attSamplingPeriod);
 
     attViewerHealthy = false;
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
     attViewer = new ChppGikViewer(attViewerHealthy);
-
+#endif
 }
 
 ChppGikTest::~ChppGikTest()
@@ -64,7 +66,9 @@ ChppGikTest::~ChppGikTest()
     delete attStepBackTask;
     delete attHandTask;
     delete attMotion;
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
     delete attViewer;
+#endif
 }
 
 void ChppGikTest::createHumanoidRobot()
@@ -861,7 +865,7 @@ void ChppGikTest::locoPlannerTest()
 
 }
 
-#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H)
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
 void ChppGikTest::locoPlannerTestInteractive()
 {
     /* perform an events loop */
@@ -1036,10 +1040,12 @@ void ChppGikTest::locoPlannerTestInteractive()
         }
     }
 }
-#endif /* defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) */
+#endif /* defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) &&
+	* defined(HAVE_LIBX11) */
 
 void ChppGikTest::draw2DRobot()
 {
+#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
     ChppGikSupportPolygon* curSup = attStandingRobot->supportPolygon();
 
     attViewer->draw2DShape(attStandingRobot->waistShape(), attRobot->currentConfiguration()(0),attRobot->currentConfiguration()(1),attRobot->currentConfiguration()(5));
@@ -1047,7 +1053,7 @@ void ChppGikTest::draw2DRobot()
     attViewer->draw2DShape(attStandingRobot->rightFootShape(), curSup->rightFootprint()->x(),curSup->rightFootprint()->y(),curSup->rightFootprint()->th());
 
     attViewer->draw2DShape(attStandingRobot->leftFootShape(), curSup->leftFootprint()->x(),curSup->leftFootprint()->y(), curSup->leftFootprint()->th());
-
+#endif
 }
 
 
