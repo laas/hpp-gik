@@ -26,13 +26,6 @@ define(dynamicsjrljapan_reqd, [dynamicsJRLJapan >= 1.8])
 AC_SUBST(DYNAMICSJRLJAPAN_REQD, "dynamicsjrljapan_reqd")
 PKG_CHECK_MODULES(DYNAMICSJRLJAPAN, dynamicsjrljapan_reqd)
 
-# Required by unit testing program
-AC_CHECK_HEADERS(X11/Xlib.h)
-AC_CHECK_HEADERS(X11/Xutil.h)
-AC_CHECK_LIB(X11, XOpenDisplay,
-	[AC_DEFINE(HAVE_LIBX11) LIBX11=-lX11])
-AC_SUBST(LIBX11)
-
 AC_OUTPUT(Makefile
 	src/Makefile
 	include/Makefile

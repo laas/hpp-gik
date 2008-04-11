@@ -27,7 +27,6 @@ hppGikConst_HEADERS = \
 	constraints/hppGikGazeConstraint.h \
 	constraints/hppGikParallelConstraint.h \
 	constraints/hppGikRotationConstraint.h \
-	constraints/hppGikLPConstraint.h \
 	constraints/hppGikConfigurationConstraint.h \
 	constraints/hppGikPositionConstraint.h \
 	constraints/hppGikTransformationConstraint.h \
@@ -58,7 +57,6 @@ hppGikTasks_HEADERS = \
 hppGikPlannersdir = $(includedir)/hppGik/motionplanners
 hppGikPlanners_HEADERS = \
 	motionplanners/hppGikLocomotionPlan.h \
-	motionplanners/hppGikStepPlanner.h \
 	motionplanners/hppGikPreviewController.h
 	
 hppGikElementsdir = $(includedir)/hppGik/motionplanners/elements

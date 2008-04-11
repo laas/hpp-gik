@@ -17,12 +17,6 @@ int main(int argc, char *argv[])
     //ChppGikBasicExample gikExample;
     //gikExample.planExample();
 
-    //gikTest.locoPlannerTest();
-
-#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H)
-    //gikTest.locoPlannerTestInteractive();
-#endif
-
     gikTest.interprete();
 }
 

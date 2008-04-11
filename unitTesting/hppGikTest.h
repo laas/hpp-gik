@@ -25,10 +25,6 @@
 #include "tasks/hppGikHandTask.h"
 #include "tasks/hppGikHalfSittingTask.h"
 
-#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
-# include "hppGikViewer.h"
-#endif
-
 /**
  \brief UnitTesting class of class ChppGik
 */
@@ -49,23 +45,9 @@ public:
     \brief User commands interpreter
     */
     void interprete();
-    
-    /**
-    \brief
-    */
-    void locoPlannerTest();
-    
-    /**
-    \brief
-    */
-    void locoPlannerTestInteractive();
-
 
 private:
 
-    /**
-        \brief Create a humanoid robot
-    */
     void createHumanoidRobot();
 
     void waist2worldPosition(vector3d& inWaistPosition, vector3d& outWorldPosition);
@@ -105,8 +87,6 @@ private:
     void dumpMotion();
     
     void clearMotion();
-    
-    void draw2DRobot();
 
     void customSave(std::istringstream& stream);
 
@@ -129,13 +109,6 @@ private:
     ChppRobotMotion* attMotion;
     
     char attMotionName[256];
-    
-#if defined(HAVE_X11_XLIB_H) && defined(HAVE_X11_XUTIL_H) && defined(HAVE_LIBX11)
-    ChppGikViewer* attViewer;
-#endif
-
-    bool attViewerHealthy;
-
 };
 
 #endif
