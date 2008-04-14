@@ -1,5 +1,15 @@
 $Id: ChangeLog 2008/02/18 18:26:39 mallet $
 
+hppGik 1.8 released Mon 14 Apr 2008
+
+	45. Removed StepPlanner to make it a standalone package
+	44. Choosing M_PI as initial value for root's yaw caused
+	    problems. Reason: velocity computation in
+	    ChppGikStandingRobot.
+	43. Added interpolation of feet yaw
+	42. Extra motion time was not properly added
+	41. Fix bug in ChppGikMotionPlanElement::jacobian() and value()
+	
 hppGik 1.7 released Wed 26 Mar 2008
 
         40. adapt to version 1.8 of interface-robot-dynamics
