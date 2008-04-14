@@ -10,11 +10,28 @@ dnl
 AC_INIT([hppGik],[1.8.99],[openrobots@laas.fr])
 AC_PREREQ(2.59)
 
+if test "$CFLAGS$CXXFLAGS" = ""; then
+  setdefaultflags=yes
+else
+  setdefaultflags=no
+fi
+
 AM_INIT_AUTOMAKE([foreign no-define])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 
 AC_PROG_CXX
+
+if test "$setdefaultflags" = "yes"; then
+  if test "$GCC" = "yes"; then
+    CFLAGS="$CFLAGS -Wall"
+    AC_MSG_NOTICE([adding default "-Wall" c flags])
+  fi
+  if test "$GXX" = "yes"; then
+    CXXFLAGS="$CXXFLAGS -Wall"
+    AC_MSG_NOTICE([adding default "-Wall" c++ flags])
+  fi
+fi
 
 define(abstractgiktask_reqd, [abstractGikTask >= 1.4])
 AC_SUBST(ABSTRACTGIKTASK_REQD, "abstractgiktask_reqd")
