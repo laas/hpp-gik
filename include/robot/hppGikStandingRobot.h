@@ -61,7 +61,7 @@ public:
     */
 
     /**
-    \brief Get (dx, dy, dz) defined by (dy = YCOM - Yrfoot) and (dx = XCOM - Xrfoot) in world frame when the robot is in half sitting stance
+    \brief Get (dx, dy, dz) defined by (dy = YCOM - Yrfoot) and (dx = RfootR'(XCOM - Xrfoot)) in right foot frame when the robot is in half sitting stance
     */
     vector3d& halfsittingRelativeCOM();
 

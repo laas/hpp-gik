@@ -25,7 +25,16 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
 
     attRelativeCOM = attRobot->positionCenterOfMass();
     for (unsigned int i=0; i < 3; i++)
-        V3_I(attRelativeCOM,i) = V3_I(attRelativeCOM,i) - M4_IJ(attRFoot,i,3);
+        attRelativeCOM[i] = attRelativeCOM[i] - M4_IJ(attRFoot,i,3);
+    double yaw = atan2(M4_IJ(attRFoot,1,0), M4_IJ(attRFoot,0,0));
+    //std::cout << "yaw "<< yaw <<"\n";
+    //std::cout << "attRelativeCOM " << attRelativeCOM <<"\n";
+    double relcx = cos(yaw) * attRelativeCOM[0] + sin(yaw)* attRelativeCOM[1];
+    double relcy = cos(yaw) * attRelativeCOM[1] - sin(yaw)* attRelativeCOM[0];
+    attRelativeCOM[0] = relcx;
+    attRelativeCOM[1] = relcy;
+    //std::cout << "relcx " << relcx <<"\n";
+    //std::cout << "relcy " << relcy <<"\n";
 
     if (attRobot->countFixedJoints()==0)
     {
@@ -106,6 +115,7 @@ bool ChppGikStandingRobot::staticState(const vectorN& inConfig)
     attRobot->currentConfiguration( inConfig );
     attPreviousConfiguration = inConfig;
     attPreviousVelocity.clear();
+    attVelocity.clear();
     attRobot->currentVelocity( attPreviousVelocity );
     attRobot->currentAcceleration( attPreviousVelocity );
     attRobot->computeForwardKinematics();
@@ -231,7 +241,7 @@ bool ChppGikStandingRobot::leftFootAhead()
 
     testInitialFootprint = new ChppGikFootprint(*attCurrentSupportPolygon->leftFootprint());
     ChppGikFootprint::makeRelative(attCurrentSupportPolygon->rightFootprint(),  testInitialFootprint);
-    if (testInitialFootprint->x() > 1e-3)
+    if (testInitialFootprint->x() > 1e-2)
         ret = true;
     else
         ret = false;
@@ -255,7 +265,7 @@ bool ChppGikStandingRobot::rightFootAhead()
 
     testInitialFootprint = new ChppGikFootprint(*attCurrentSupportPolygon->rightFootprint());
     ChppGikFootprint::makeRelative(attCurrentSupportPolygon->leftFootprint(),  testInitialFootprint);
-    if (testInitialFootprint->x() > 1e-3)
+    if (testInitialFootprint->x() > 1e-2)
         ret = true;
     else
         ret = false;
@@ -278,7 +288,9 @@ vectorN& ChppGikStandingRobot::halfsittingConfiguration()
 
 double ChppGikStandingRobot::halfsittingFeetDistance()
 {
-    return fabs(M4_IJ(attRFoot,1,3) - M4_IJ(attLFoot,1,3));
+    double dx = M4_IJ(attRFoot,0,3)-M4_IJ(attLFoot,0,3);
+    double dy = M4_IJ(attRFoot,1,3)-M4_IJ(attLFoot,1,3);
+    return sqrt(dx*dx + dy*dy);
 }
 
 

@@ -87,7 +87,6 @@ const vectorN& ChppGikComConstraint::worldTarget()
 
 void ChppGikComConstraint::computeValue()
 {
-
     ChppGikTools::Vector3toUblas( attRobot->positionCenterOfMass(), temp3DVec);
     attValue = attWorldTarget - ublas::subrange(temp3DVec,0,attDimension);
 }

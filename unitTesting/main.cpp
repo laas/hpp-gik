@@ -12,11 +12,14 @@
 
 int main(int argc, char *argv[])
 {
+    
     ChppGikTest gikTest;
-
-    //ChppGikBasicExample gikExample;
-    //gikExample.planExample();
-
     gikTest.interprete();
+    
+    /*
+    ChppGikBasicExample gikExample;
+    gikExample.planExample();
+    */
+
 }
 

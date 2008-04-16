@@ -45,6 +45,8 @@ CjrlGikStateConstraint* ChppGikZMPshiftElement::stateConstraintAtTime(double inT
     if (i==1)
         attConstraint->targetTransformation( attConstrainedFoot->currentTransformation() );
 
+    //if (attConstraint)
+    //std::cout << "time " << inTime << " targetTr " << attConstraint->targetTransformation() << "\n";
     return attConstraint;
 }
 
@@ -62,7 +64,7 @@ bool ChppGikZMPshiftElement::plan(ChppGikSupportPolygon& supportPolygon, vector3
 {
     attPlanSuccess = false;
 
-
+    //std::cout << "shift ZMP from " << ZMP <<  " to " << attTargetZMP << "\n";
     if (!supportPolygon.isPointInside(ZMP[0], ZMP[1]))
     {
         std::cout << "ChppGikZMPshiftElement::plan() bad initial ZMP\n";
@@ -72,6 +74,9 @@ bool ChppGikZMPshiftElement::plan(ChppGikSupportPolygon& supportPolygon, vector3
     if (!supportPolygon.isPointInside(attTargetZMP(0), attTargetZMP(1)))
     {
         std::cout << "ChppGikZMPshiftElement::plan() bad ZMP target\n";
+        std::cout << attTargetZMP(0)<<"\n";
+        std::cout << attTargetZMP(1)<<"\n";
+        supportPolygon.print();
         return false;
     }
 

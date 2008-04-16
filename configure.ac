@@ -43,6 +43,11 @@ define(dynamicsjrljapan_reqd, [dynamicsJRLJapan >= 1.8])
 AC_SUBST(DYNAMICSJRLJAPAN_REQD, "dynamicsjrljapan_reqd")
 PKG_CHECK_MODULES(DYNAMICSJRLJAPAN, dynamicsjrljapan_reqd)
 
+PKG_CHECK_MODULES(HRP2, hrp2Dynamics)
+HRP2_PREFIX=`$PKG_CONFIG hrp2Dynamics --variable=prefix`
+AC_SUBST(HRP2_CFLAGS)
+AC_SUBST(HRP2_LIBS)
+
 AC_OUTPUT(Makefile
 	src/Makefile
 	include/Makefile

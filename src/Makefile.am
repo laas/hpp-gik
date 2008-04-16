@@ -52,6 +52,7 @@ libhppGik_la_CPPFLAGS=\
 	$(ABS_GIKTASK_CFLAGS)		\
 	$(DYNAMICSJRLJAPAN_CFLAGS)	\
 	-DGAINDIR='"${datadir}/gik"'
+	
 libhppGik_la_LDFLAGS= -release ${PACKAGE_VERSION}
 
 libhppGik_la_LIBADD = $(DYNAMICSJRLJAPAN_LIBS)

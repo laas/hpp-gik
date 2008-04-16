@@ -14,7 +14,7 @@ using namespace ublas;
 
 ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod, "GenericTask")
 {
-    attRobot = inStandingRobot->robot();
+    attRobot = inStandingRobot->robot(); 
 
     attMotionPlan = new ChppGikMotionPlan(attRobot);
 
@@ -26,7 +26,7 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
     attNeutralBodyOption = false;
     attUserDefinedMask = false;
 
-    attExtraEndTime = 1.0;
+    attExtraEndTime = 1.0; 
 }
 
 
@@ -132,7 +132,6 @@ bool ChppGikGenericTask::algorithmSolve()
             constraintStack[i]->computeValue();
             constraintStack[i]->computeJacobian();
         }
-
         ok = attGikSolver->gradientStep(constraintStack);
         if (!ok)
         {

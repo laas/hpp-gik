@@ -61,9 +61,9 @@ void ChppGikBasicExample::planExample()
     stack.push_back(comc);
     //create a position constraint on a localPoint in the right wrist
     matrix4d curT=  attRobot->rightWrist()->currentTransformation();
-    targetPoint[0] = 0.0;
-    targetPoint[1] = 0.0;
-    targetPoint[2] = -0.18;
+    localPoint[0] = 0.0;
+    localPoint[1] = 0.0;
+    localPoint[2] = -0.18;
     CjrlJoint& rwJoint = *(attRobot->rightWrist());
     localPoint = attRobot->rightHand()->centerInWristFrame();
     CjrlGikPositionConstraint* pc = attGikFactory.createPositionConstraint(*attRobot,rwJoint,localPoint, curT*localPoint);

@@ -7,6 +7,7 @@
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
 #include "core/hppGikSolver.h"
+#include "constraints/hppGikConfigurationConstraint.h"
 #include "hppGikTools.h"
 
 namespace lapack = boost::numeric::bindings::lapack;
@@ -198,7 +199,9 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
     resizeMatrices ( xDim );
 
 
-    if (inConstraint->jacobian().size1() == 0)
+    ChppGikConfigurationConstraint* confc = dynamic_cast<ChppGikConfigurationConstraint*>(inConstraint);
+
+    if (confc)
     {
         unsigned int realInd,valInd = 0;
         for ( unsigned int col = 0; col<LongSize;col++ )
@@ -213,10 +216,9 @@ void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
         }
         noalias ( WJt ) = trans ( HatJacobian);
         noalias ( JWJt ) = prod ( HatJacobian,  WJt );
-
     }
     else
-   {
+    {
         //store used columns only
         for ( unsigned int col = 0; col<LongSize;col++ )
             noalias (column ( CarvedJacobian,col) )=  column ( inConstraint->jacobian(),UsedIndexes ( col ));
@@ -315,17 +317,17 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
 
             //joints from root to fixed joint (including both)
             supportJoints = FixedJoint->jointsFromRootToThis();
-            ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(), Hif );
             supportJointsRanks.clear();
             for(unsigned int em = 0; em < supportJoints.size(); em++)
                 supportJointsRanks.push_back(supportJoints[em]->rankInConfiguration());
         }
+        ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(), Hif );
     }
     else
     {
         FixedJoint = NULL;
     }
-
+    
     bool recompute = true;
     std::vector<CjrlGikStateConstraint*>::iterator iter;
     std::vector<double>::iterator iter2;

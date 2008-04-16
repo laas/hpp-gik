@@ -13,6 +13,7 @@
 
 #include "hppGikTest.h"
 #include "hppGikTools.h"
+#include "hrp2Dynamics/hrp2OptHumanoidDynamicRobot.h"
 
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
@@ -31,13 +32,13 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(5e-3)
     createHumanoidRobot();
 
     attWholeBodyTask = new ChppGikWholeBodyTask(attStandingRobot,attSamplingPeriod);
-    
+
     attWholeBodyTask->showResolutionTime( true );
 
     attHalfSittingTask = new ChppGikHalfSittingTask(attStandingRobot, attSamplingPeriod);
-    
+
     attHalfSittingTask->showResolutionTime( true );
-    
+
     attHandTask = new ChppGikHandTask(attStandingRobot,attSamplingPeriod);
 
     attStepBackTask = new ChppGikStepBackTask(attStandingRobot, attSamplingPeriod);
@@ -59,14 +60,14 @@ void ChppGikTest::createHumanoidRobot()
 {
     CjrlRobotDynamicsObjectConstructor<
     dynamicsJRLJapan::DynamicMultiBody,
-    dynamicsJRLJapan::HumanoidDynamicMultiBody,
+    Chrp2OptHumanoidDynamicRobot,
     dynamicsJRLJapan::JointFreeflyer,
     dynamicsJRLJapan::JointRotation,
     dynamicsJRLJapan::JointTranslation,
     dynamicsJRLJapan::Body> jrlRobotFactory;
 
     attRobot = jrlRobotFactory.createhumanoidDynamicRobot();
-            
+
     dynamicsJRLJapan::HumanoidDynamicMultiBody *aHDMB;
     aHDMB = (dynamicsJRLJapan::HumanoidDynamicMultiBody*) attRobot;
 
@@ -79,7 +80,7 @@ void ChppGikTest::createHumanoidRobot()
     aHDMB->setComputeAcceleration(true);
     aHDMB->setComputeBackwardDynamics(false);
     aHDMB->setComputeZMP(true);
-    
+
 
     unsigned int nDof = attRobot->numberDof();
     vectorN halfsittingConf(nDof);
@@ -114,7 +115,7 @@ void ChppGikTest::createHumanoidRobot()
     //waist roll pitch yaw
     halfsittingConf(3) = 0.0;
     halfsittingConf(4) = 0.0;
-    halfsittingConf(5) = 0.0;
+    halfsittingConf(5) = -0.8;
 
     //joints
     for(unsigned int i=6;i<nDof;i++)
@@ -594,10 +595,20 @@ void ChppGikTest::stepback(const char* filename, vectorN& curConfig, vectorN& re
 
 void ChppGikTest::halfsitting(const char* filename, vectorN& curConfig, vectorN& resultConfig)
 {
+    /*
+        attLastRobotTask = attHalfSittingTask;
+        attStandingRobot->staticState(curConfig);
+        ChppGikHalfSittingTask halfSittingTask(attStandingRobot, attSamplingPeriod);
+        halfSittingTask.showResolutionTime( true );
+        bool solved = halfSittingTask.solve();
+        dumpFilesAndGetLastConfig(&halfSittingTask, filename, resultConfig);
+        */
     attLastRobotTask = attHalfSittingTask;
 
     //the robot is static at the current configuration
     attStandingRobot->staticState(curConfig);
+
+    std::cout << curConfig << "\n";
 
     bool solved = attHalfSittingTask->solve();
 
@@ -605,6 +616,7 @@ void ChppGikTest::halfsitting(const char* filename, vectorN& curConfig, vectorN&
         dumpFilesAndGetLastConfig(attHalfSittingTask, filename, resultConfig);
     else
         std::cout <<"\nNot solved.\n";
+
 }
 
 void  ChppGikTest::printMenu()

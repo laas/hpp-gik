@@ -27,21 +27,19 @@ ChppGikConfigurationConstraint::ChppGikConfigurationConstraint(CjrlDynamicRobot&
     for (unsigned int i = 6; i< attRobot->numberDof();i++ )
         if (attInfluencingDofs(i) == 1)
             attDimension++;
-    
 
-    attJacobian.resize(0,0);
 
-    /*
     attJacobian.resize(attDimension,attNumberActuatedDofs);
     attJacobian.clear();
     unsigned int line = 0;
     for (unsigned int col = 6; col< attRobot->numberDof();col++ )
+    {
         if (attInfluencingDofs(col) == 1)
         {
             attJacobian(line, col-6) = 1;
             line++;
         }
-    */
+    }
 
     attValue.resize(attDimension);
     attVectorizedState.resize(3*attTargetConfiguration.size());
