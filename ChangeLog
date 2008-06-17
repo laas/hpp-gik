@@ -1,15 +1,21 @@
-$Id: ChangeLog 2008/02/18 18:26:39 mallet $
+$Id: ChangeLog 2008/06/17 14:15:37 mallet $
+
+hppGik 1.9 released Tue 17 Jun 2008
+
+        47. Fix computation of initial Com in initial right foot frame in
+            hppGikStandingRobot.
+        46. Fix retrieval of Fixed Foot Transformation in GikSolver.
 
 hppGik 1.8 released Mon 14 Apr 2008
 
-	45. Removed StepPlanner to make it a standalone package
-	44. Choosing M_PI as initial value for root's yaw caused
-	    problems. Reason: velocity computation in
-	    ChppGikStandingRobot.
-	43. Added interpolation of feet yaw
-	42. Extra motion time was not properly added
-	41. Fix bug in ChppGikMotionPlanElement::jacobian() and value()
-	
+        45. Removed StepPlanner to make it a standalone package
+        44. Choosing M_PI as initial value for root's yaw caused
+            problems. Reason: velocity computation in
+            ChppGikStandingRobot.
+        43. Added interpolation of feet yaw
+        42. Extra motion time was not properly added
+        41. Fix bug in ChppGikMotionPlanElement::jacobian() and value()
+
 hppGik 1.7 released Wed 26 Mar 2008
 
         40. adapt to version 1.8 of interface-robot-dynamics
@@ -20,7 +26,7 @@ hppGik 1.7 released Wed 26 Mar 2008
             constructors of classes deriving from ChppGikLocomotionElement
             were modified
         38. Fix orientation planning.
-	
+
 hppGik 1.6 released Mon 18 Feb 2008
 
 	37. Extra method in GenericTask to enable the user to change the
@@ -28,7 +34,7 @@ hppGik 1.6 released Mon 18 Feb 2008
 	36. updated ComConstraint according to changes in
 	    DynamicMultiBody.
 	35. Extra method in GenericTask to enable the user to set the same
-	    joints mask for all entered elements. 
+	    joints mask for all entered elements.
 	34. Added the possibility to use neutral weights for upper body
 	    joints in GenericTask.
 	33. Added the possibility to select working joints when entering
@@ -42,7 +48,7 @@ hppGik 1.6 released Mon 18 Feb 2008
 	28. Added const qualifier to numberSamples() in hppRobotMotion.
 	27. Two new methods in RobotMotion + imprecision fix.
 	26. Many changes resulting in improved memory usage and speed.
-	
+
 hppGik 1.5 released Wed 28 Nov 2007
 
 	25. Added #include "MatrixAbstractLayer/MatrixAbstractLayer.h" where necessary
@@ -67,7 +73,7 @@ hppGik 1.3 released Thu 30 Aug 2007
 	gradientStep()
 	15. add ChppGikTools::EulerZYXtoRot()
 	14. replace several CjrlHumanoidDynamicRobot with CjrlDynamicRobot.
-	
+
 hppGik 1.2 released Mon 16 Jul 2007
 
 	13. (fumio) some of member variables and functions are moved from
@@ -76,11 +82,11 @@ hppGik 1.2 released Mon 16 Jul 2007
 	is used instead of {upper|lower}BoundDof(int)
 	11. (fumio) Now ChppGikSolver::accountForJointLimits() must be called
 	before calling ChppGikSolver::gradientStep()
-	10. (fumio) Use CjrlDynamicRobot::FiniteDifferenceStateEstimate() and 
+	10. (fumio) Use CjrlDynamicRobot::FiniteDifferenceStateEstimate() and
  	CjrlDynamicRobot::SaveCurrentStateAsPastState().
 	9. (fumio) generate doxytags.
 	8. (oussama) fix hppGikSolver to prevent infinite loops in some cases.
-	
+
 hppGik 1.1.5 released Thu 12 Jul 2007
 
 	7. (oussama) improved stepping timings in wholebodytask
@@ -100,5 +106,5 @@ hppGik 1.1 released Fri 06 Jul 2007
 	1. (oussama) Constraints values and jacobians computations
 	are left to the user. The solving methos name is changed to
 	gradientStep. Pseudo inverse Weights are now set separately.
-    
+
 hppGik 1.0 released Thu 28 Jun 2007
