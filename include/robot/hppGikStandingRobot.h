@@ -8,7 +8,6 @@
 #include "robot/hppGik2DShape.h"
 
 
-
 /**
 \brief This is a wrapper for a jrlHumanoidDynamicRobot, its support polygon and related information
 */
@@ -46,12 +45,12 @@ public:
     const ChppGik2DShape& waistShape()const;
 
     /**
-    \brief get the 2DShape representing the robot's left foot seen from above
+    \brief get the 2DShape representing the robot's left foot seen from above. HRP2 feet dimensions hard coded
      */
     const ChppGik2DShape& leftFootShape()const;
 
     /**
-    \brief get the 2DShape representing the robot's right foot seen from above
+    \brief get the 2DShape representing the robot's right foot seen from above. HRP2 feet dimensions hard coded
      */
     const ChppGik2DShape& rightFootShape()const;
 
@@ -129,7 +128,11 @@ public:
     \brief apply a static configuration on the robot
     */
     bool staticState(const vectorN& inConfig);
-            
+    
+    /**
+    \brief update velocity and acceleration of joints in robot
+    */
+    void updateJointVA(double inSamplingPeriod);
     /**
     \brief Simulate the application of a configuration to the robot (uses the Finite Difference control scheme). The ZMP resulting from the motion is computed in world frame and in waist frame. This method also computes the planned ZMP position in waist frame based on the position in world frame.
     \return false if the provided configuration does not meet requirements of method FiniteDifferenceStateUpdate() in jrl robot.
@@ -142,6 +145,16 @@ public:
     */
     vectorN computeConfigurationWrtFreeFlyer(CjrlJoint* inJoint, matrix4d& inFreeFlyerInWorld);
 
+    /**
+    \brief 
+    */
+    const ChppGik2DShape& supportPolygonShape();
+    
+    /**
+    \brief 
+    */
+    void computeFeet2DConvexHull(std::vector<const ChppGikLinkedVertex*>& outVertices);
+    
     /**
     \brief Destructor
     */
@@ -160,6 +173,8 @@ private:
     matrix4d tempInv, tempM4;
     vectorN attPreviousVelocity;
     vectorN attPreviousConfiguration, attAcceleration, attVelocity;
+    ChppGik2DShape attSPShape;
+    std::vector<ChppGikLinkedVertex> attElements;
 };
 
 #endif

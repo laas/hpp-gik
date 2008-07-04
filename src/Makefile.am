@@ -18,7 +18,10 @@ libhppGik_la_SOURCES = \
 	constraints/hppGikComConstraint.cpp \
 	constraints/hppGikTransformationConstraint.cpp \
 	constraints/hppGikMotionConstraint.cpp \
+	core/hppGikBounder.cpp \
 	core/hppGikSolver.cpp \
+	core/hppGikSolverBasic.cpp \
+	core/hppGikSolverHumanoid.cpp \
 	core/hppGikMotionPlanColumn.cpp \
 	core/hppGikMotionPlanElement.cpp \
 	core/hppGikMotionPlan.cpp \

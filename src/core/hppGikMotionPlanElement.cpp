@@ -45,7 +45,18 @@ void ChppGikMotionPlanElement::addConstraint(CjrlGikStateConstraint* inStateCons
     attConstraints.push_back(inStateConstraint);
     attDimension += inStateConstraint->dimension();
 }
-
+bool ChppGikMotionPlanElement::removeConstraint(const CjrlGikStateConstraint* inJrlStateConstraint)
+{
+    std::vector<CjrlGikStateConstraint*>::iterator iter;
+    for (iter = attConstraints.begin();iter!=attConstraints.end();iter++)
+        if (*iter == inJrlStateConstraint)
+        {
+            attDimension -= (*iter)->dimension();
+            attConstraints.erase(iter);
+            return true;
+        }
+    return false;
+}
 
 unsigned int ChppGikMotionPlanElement::dimension() const
 {

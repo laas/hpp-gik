@@ -595,20 +595,10 @@ void ChppGikTest::stepback(const char* filename, vectorN& curConfig, vectorN& re
 
 void ChppGikTest::halfsitting(const char* filename, vectorN& curConfig, vectorN& resultConfig)
 {
-    /*
-        attLastRobotTask = attHalfSittingTask;
-        attStandingRobot->staticState(curConfig);
-        ChppGikHalfSittingTask halfSittingTask(attStandingRobot, attSamplingPeriod);
-        halfSittingTask.showResolutionTime( true );
-        bool solved = halfSittingTask.solve();
-        dumpFilesAndGetLastConfig(&halfSittingTask, filename, resultConfig);
-        */
     attLastRobotTask = attHalfSittingTask;
 
     //the robot is static at the current configuration
     attStandingRobot->staticState(curConfig);
-
-    std::cout << curConfig << "\n";
 
     bool solved = attHalfSittingTask->solve();
 

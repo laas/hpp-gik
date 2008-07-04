@@ -119,30 +119,30 @@ ChppGikFootprint::~ChppGikFootprint()
 {}
 
 
-ChppGikFoot::ChppGikFoot(const ChppGikFootprint&  inFootprint, bool isRight)
+ChppGikStepTarget::ChppGikStepTarget(const ChppGikFootprint&  inFootprint, bool isRight)
 {
     attIsRight = isRight;
     attFootprint = new ChppGikFootprint(inFootprint);
 }
 
 
-ChppGikFoot::ChppGikFoot(const ChppGikFoot&  sourceObject)
+ChppGikStepTarget::ChppGikStepTarget(const ChppGikStepTarget&  sourceObject)
 {
-    attIsRight = sourceObject.isRight();
+    attIsRight = sourceObject.isForRight();
     attFootprint = new ChppGikFootprint ( sourceObject.footprint() );
 }
 
-const ChppGikFootprint& ChppGikFoot::footprint() const
+const ChppGikFootprint& ChppGikStepTarget::footprint() const
 {
     return *attFootprint;
 }
 
-bool ChppGikFoot::isRight() const
+bool ChppGikStepTarget::isForRight() const
 {
     return attIsRight;
 }
 
-ChppGikFoot::~ChppGikFoot()
+ChppGikStepTarget::~ChppGikStepTarget()
 {
     delete attFootprint;
 }

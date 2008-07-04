@@ -56,7 +56,7 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
     attWaistShape.vertices.push_back(vert);
 
 
-    vert.x = 0.105;
+    vert.x = 0.135;
     vert.y = 0.079;
     attLeftFootShape.vertices.push_back(vert);
     vert.x = -0.105;
@@ -66,7 +66,6 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
     vert.x = 0.135;
     attLeftFootShape.vertices.push_back(vert);
 
-
     vert.x = 0.135;
     vert.y = 0.059;
     attRightFootShape.vertices.push_back(vert);
@@ -74,9 +73,9 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
     attRightFootShape.vertices.push_back(vert);
     vert.y = -0.079;
     attRightFootShape.vertices.push_back(vert);
-    vert.x = 0.105;
+    vert.x = 0.135;
     attRightFootShape.vertices.push_back(vert);
-    
+
     attPreviousConfiguration.resize(attRobot->numberDof());
     attPreviousConfiguration.clear();
     attPreviousVelocity.resize(attRobot->numberDof());
@@ -88,6 +87,262 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
 
 }
 
+
+const ChppGik2DShape& ChppGikStandingRobot::supportPolygonShape()
+{
+    attSPShape.vertices.clear();
+    ChppGik2DVertex attVertex;
+    supportPolygon();
+    if (!(attCurrentSupportPolygon->isDoubleSupport()))
+    {
+        if (attCurrentSupportPolygon->isLeftLegSupporting())
+        {
+
+            double co = cos(attCurrentSupportPolygon->leftFootprint()->th());
+            double si = sin(attCurrentSupportPolygon->leftFootprint()->th());
+            double posX= attCurrentSupportPolygon->leftFootprint()->x();
+            double posY= attCurrentSupportPolygon->leftFootprint()->y();
+            for (unsigned int i=0;i<attLeftFootShape.vertices.size();i++)
+            {
+                attVertex.x = posX + co * attLeftFootShape.vertices[i].x - si * attLeftFootShape.vertices[i].y ;
+                attVertex.y = posY + si * attLeftFootShape.vertices[i].x + co * attLeftFootShape.vertices[i].y ;
+                attSPShape.vertices.push_back(attVertex);
+            }
+        }
+        else
+            if (attCurrentSupportPolygon->isRightLegSupporting())
+            {
+                attSPShape.vertices.clear();
+                double co = cos(attCurrentSupportPolygon->rightFootprint()->th());
+                double si = sin(attCurrentSupportPolygon->rightFootprint()->th());
+                double posX= attCurrentSupportPolygon->rightFootprint()->x();
+                double posY= attCurrentSupportPolygon->rightFootprint()->y();
+                for (unsigned int i=0;i<attRightFootShape.vertices.size();i++)
+                {
+                    attVertex.x = posX + co * attRightFootShape.vertices[i].x - si * attRightFootShape.vertices[i].y ;
+                    attVertex.y = posY + si * attRightFootShape.vertices[i].x + co * attRightFootShape.vertices[i].y ;
+                    attSPShape.vertices.push_back(attVertex);
+                }
+            }
+    }
+    else
+    {
+        attSPShape.vertices.clear();
+        std::vector<const ChppGikLinkedVertex*> linkedVertices;
+        computeFeet2DConvexHull(linkedVertices);
+        for (unsigned int i=0;i<linkedVertices.size();i++)
+            attSPShape.vertices.push_back(linkedVertices[i]->world);
+
+    }
+    return attSPShape;
+}
+
+void ChppGikStandingRobot::computeFeet2DConvexHull(std::vector<const ChppGikLinkedVertex*>& outVertices)
+{
+    supportPolygon();
+    if (!(attCurrentSupportPolygon->isDoubleSupport()))
+        return;
+
+    std::vector<ChppGik2DVertex> points;
+    std::vector<ChppGik2DVertex> localpoints;
+    std::vector<unsigned int> feet;
+    ChppGik2DVertex vl,vw;
+    ChppGik2DVertex bary;
+    bary.x = 0;
+    bary.y = 0;
+    unsigned int nv = attLeftFootShape.vertices.size() + attRightFootShape.vertices.size();
+
+    double th = attCurrentSupportPolygon->leftFootprint()->th();
+    for (unsigned int i=0;i<attLeftFootShape.vertices.size();i++)
+    {
+        vl = attLeftFootShape.vertices[i];
+        vw.x = attCurrentSupportPolygon->leftFootprint()->x() + cos(th)*vl.x -sin(th)*vl.y;
+        vw.y = attCurrentSupportPolygon->leftFootprint()->y() + sin(th)*vl.x +cos(th)*vl.y;
+        points.push_back(vw);
+        localpoints.push_back(vl);
+        feet.push_back(0);
+        bary.x += vw.x;
+        bary.y += vw.y;
+    }
+
+    th = attCurrentSupportPolygon->rightFootprint()->th();
+    for (unsigned int i=0;i<attRightFootShape.vertices.size();i++)
+    {
+        vl = attRightFootShape.vertices[i];
+        vw.x = attCurrentSupportPolygon->rightFootprint()->x() + cos(th)*vl.x -sin(th)*vl.y;
+        vw.y = attCurrentSupportPolygon->rightFootprint()->y() + sin(th)*vl.x +cos(th)*vl.y;
+        points.push_back(vw);
+        localpoints.push_back(vl);
+        feet.push_back(1);
+        bary.x += vw.x;
+        bary.y += vw.y;
+    }
+
+    bary.x /=nv;
+    bary.y /=nv;
+
+    std::vector<ChppGik2DVertex> sortedpoints;
+    std::vector<ChppGik2DVertex> sortedlocalpoints;
+    std::vector<unsigned int> sortedfeet;
+    std::vector<double> sortedangles;
+    std::vector<double> sorteddist;
+
+    ChppGik2DVertex axis;
+    axis.x= points[0].x - bary.x;
+    axis.y= points[0].y - bary.y;
+    double normAxis = sqrt(axis.x*axis.x +axis.y*axis.y);
+    axis.x /= normAxis;
+    axis.y /= normAxis;
+
+    sortedpoints.push_back(points[0]);
+    sortedlocalpoints.push_back(localpoints[0]);
+    sortedfeet.push_back(feet[0]);
+    sortedangles.push_back(0);
+    sorteddist.push_back(normAxis);
+    
+    double norm,dx,dy,cs,sn, ang;
+    std::vector<double>::iterator iterangle;
+    std::vector<double>::iterator iterdist;
+    std::vector<ChppGik2DVertex>::iterator itervert;
+    std::vector<ChppGik2DVertex>::iterator iterlocalvert;
+    std::vector<unsigned int>::iterator iterfoot;
+    bool inserted;
+    for (unsigned int i=1;i<nv;i++)
+    {
+        dx= points[i].x - bary.x;
+        dy= points[i].y - bary.y;
+        norm = sqrt(dx*dx + dy*dy);
+        dx /= norm;
+        dy /= norm;
+        cs = dx*axis.x + dy*axis.y;
+        sn = dy*axis.x - dx*axis.y;
+        ang = atan2(sn,cs);
+        
+        iterangle = sortedangles.begin();
+        itervert = sortedpoints.begin();
+        iterlocalvert = sortedlocalpoints.begin();
+        iterfoot = sortedfeet.begin();
+        iterdist = sorteddist.begin();
+        
+        inserted = false;
+        while(iterangle != sortedangles.end())
+        {
+            if (*iterangle == ang)
+            {
+                if (norm > *iterdist)
+                {
+                    *iterdist = norm;
+                    *itervert = points[i];
+                    *iterlocalvert = localpoints[i];
+                    *iterfoot = feet[i];
+                }
+                inserted = true;
+                break;
+            }
+            if (*iterangle > ang)
+            {
+                sortedangles.insert(iterangle, ang);
+                sortedpoints.insert(itervert, points[i]);
+                sortedlocalpoints.insert(iterlocalvert, localpoints[i]);
+                sortedfeet.insert(iterfoot, feet[i]);
+                sorteddist.insert(iterdist, norm);
+                inserted = true;
+                break;
+            }
+            iterangle++;
+            iterfoot++;
+            itervert++;
+            iterlocalvert++;
+            iterdist++;
+        }
+        if (!inserted)
+        {
+            sortedangles.push_back(ang);
+            sortedpoints.push_back(points[i]);
+            sortedlocalpoints.push_back(localpoints[i]);
+            sortedfeet.push_back(feet[i]);
+            sorteddist.push_back(norm);
+        }
+    }
+
+    double dxnext,dxprev,dynext,dyprev;
+
+    attElements.clear();
+    
+    ChppGikLinkedVertex lv;
+    iterlocalvert = sortedlocalpoints.begin();
+    iterfoot = sortedfeet.begin();
+    for ( itervert = sortedpoints.begin(); itervert != sortedpoints.end(); itervert++)
+    {
+        lv.world = *itervert;//sortedpoints[i];
+        lv.local = *iterlocalvert;//sortedlocalpoints[i];
+        lv.foot = *iterfoot;//sortedfeet[i];
+        attElements.push_back(lv);
+        iterlocalvert++;
+        iterfoot++;
+    }
+    unsigned int lastind = attElements.size()-1;
+    for (unsigned int i = 1; i < lastind; i++)
+    {
+        attElements[i].prev = &(attElements[i-1]);
+        attElements[i].next = &(attElements[i+1]);
+    }
+    attElements[0].prev = &(attElements[lastind]);
+    attElements[0].next = &(attElements[1]);
+    attElements[lastind].prev = &(attElements[lastind-1]);
+    attElements[lastind].next = &(attElements[0]);
+
+
+    ChppGikLinkedVertex* currentVertex = &(attElements[0]);
+    unsigned int nelements = attElements.size(), checked = 0;
+
+   
+    while (checked!=nelements)
+    {
+        dxprev= currentVertex->prev->world.x - currentVertex->world.x;
+        dyprev= currentVertex->prev->world.y - currentVertex->world.y;
+        norm = sqrt(dxprev*dxprev + dyprev*dyprev);
+        dxprev /= norm;
+        dyprev /= norm;
+
+        dxnext= currentVertex->next->world.x - currentVertex->world.x;
+        dynext= currentVertex->next->world.y - currentVertex->world.y;
+        norm = sqrt(dxnext*dxnext + dynext*dynext);
+        dxnext /= norm;
+        dynext /= norm;
+        
+        currentVertex->ntonext.x = dxnext;
+        currentVertex->ntonext.y = dynext;
+        
+        currentVertex->nout.x = dynext;
+        currentVertex->nout.y = -dxnext;
+        
+        currentVertex->dtonext = norm;
+
+        sn = dxnext*dyprev - dxprev*dynext;
+
+        if (sn<=0)
+        {
+            currentVertex->next->prev = currentVertex->prev;
+            currentVertex->prev->next = currentVertex->next;
+            currentVertex = currentVertex->prev;
+            nelements--;
+            checked = 0;
+        }
+        else
+        {
+            checked++;
+            currentVertex = currentVertex->next;
+        }
+    }
+
+    outVertices.clear();
+    for (unsigned int i = 0; i<nelements;i++)
+    {
+        outVertices.push_back(currentVertex);
+        currentVertex = currentVertex->next;
+    }
+}
 
 const ChppGik2DShape& ChppGikStandingRobot::waistShape() const
 {
@@ -108,7 +363,7 @@ const ChppGik2DShape& ChppGikStandingRobot::rightFootShape()const
 
 bool ChppGikStandingRobot::staticState(const vectorN& inConfig)
 {
-    
+
     if (inConfig.size() != attRobot->numberDof())
         return false;
     ///*
@@ -125,10 +380,9 @@ bool ChppGikStandingRobot::staticState(const vectorN& inConfig)
     */
     return true;
 }
-        
-void ChppGikStandingRobot::updateDynamics(double inSamplingPeriod, const vector3d& inZMPworPla, vector3d& outZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
+
+void ChppGikStandingRobot::updateJointVA(double inSamplingPeriod)
 {
-    ///*
     //Update kinematics (standard method)
     attVelocity = attRobot->currentConfiguration();// - attPreviousConfiguration);
     for (unsigned int i=3; i<6;i++)
@@ -136,33 +390,29 @@ void ChppGikStandingRobot::updateDynamics(double inSamplingPeriod, const vector3
         if (attPreviousConfiguration(i) > 0)
         {
             if (attVelocity(i) < attPreviousConfiguration(i) - M_PI)
-                attVelocity(i) += 2*M_PI; 
+                attVelocity(i) += 2*M_PI;
         }
         else
         {
             if (attVelocity(i) > attPreviousConfiguration(i) + M_PI)
-                attVelocity(i) -= 2*M_PI; 
+                attVelocity(i) -= 2*M_PI;
         }
     }
     attVelocity = (attVelocity - attPreviousConfiguration)/inSamplingPeriod;
-            
+
     attRobot->currentVelocity( attVelocity );
     attAcceleration = (attVelocity - attPreviousVelocity)/inSamplingPeriod;
     attRobot->currentAcceleration( attAcceleration );
-    attRobot->computeForwardKinematics();
-    
     attPreviousConfiguration = attRobot->currentConfiguration();
     attPreviousVelocity = attVelocity;
-    //*/
-    
-    /*
-    attRobot->FiniteDifferenceStateUpdate(inSamplingPeriod);
-    
-    */
+}
 
-    //Observed ZMP
+void ChppGikStandingRobot::updateDynamics(double inSamplingPeriod, const vector3d& inZMPworPla, vector3d& outZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
+{
+    updateJointVA(inSamplingPeriod);
+    attRobot->computeForwardKinematics();
+    //Dump Observed ZMP, planned ZMP in waist and world frames
     outZMPworObs = attRobot->zeroMomentumPoint();
-
     tempM4 =attRobot->waist()->currentTransformation();
     MAL_S4x4_INVERSE(tempM4,tempInv,double);
     MAL_S4x4_C_eq_A_by_B(outZMPwstObs,tempInv,outZMPworObs);

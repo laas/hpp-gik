@@ -41,6 +41,12 @@ public:
     void addConstraint(CjrlGikStateConstraint* inJrlStateConstraint);
 
     /**
+    \brief Remove a constraint. Recomputing new value and jacobian is NOT done automatically.
+    \return false if constraint not found
+     */
+    bool removeConstraint(const CjrlGikStateConstraint* inJrlStateConstraint);
+    
+    /**
     \brief Get the dimension of this motion plan element
      */
     unsigned int dimension() const;

@@ -8,10 +8,11 @@ using namespace ublas;
 
 ChppGikConfigurationConstraint::ChppGikConfigurationConstraint(CjrlDynamicRobot& inRobot, const vectorN& inTargetConfig, const vectorN& inMask)
 {
-    if ((inTargetConfig.size() == inRobot.numberDof()) && (inMask.size() == inRobot.numberDof()))
+    if ((inTargetConfig.size() == inRobot.numberDof()) && (inMask.size() == inRobot.numberDof()-6))
     {
         attTargetConfiguration = inTargetConfig;
-        attInfluencingDofs = inMask;
+        attInfluencingDofs = scalar_vector<double>(inRobot.numberDof(),1);
+        subrange(attInfluencingDofs,6,inRobot.numberDof()) = inMask;
     }
     else
     {
@@ -63,7 +64,8 @@ ChppGikConfigurationConstraint::~ChppGikConfigurationConstraint()
 
 CjrlGikStateConstraint* ChppGikConfigurationConstraint::clone() const
 {
-    return new ChppGikConfigurationConstraint(*attRobot,attTargetConfiguration, attInfluencingDofs);
+    vectorN mask = subrange(attInfluencingDofs,6,attRobot->numberDof());
+    return new ChppGikConfigurationConstraint(*attRobot,attTargetConfiguration, mask);
 }
 
 

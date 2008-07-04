@@ -13,7 +13,7 @@ class ChppGikConfigurationConstraint:public ChppGikVectorizableConstraint
 {
 public:
     /**
-    \brief Constructor. if second paramter's size is not equal to robot's number of dofs, the robot's current configuration is assigned to target instead
+    \brief Constructor. inTargetConfig is of size  inRobot.numberDof() and inMask of size inRobot.numberDof()-6 (i.e. excluding free flyer's dofs)
      */
     ChppGikConfigurationConstraint(CjrlDynamicRobot& inRobot, const vectorN& inTargetConfig,  const vectorN& inMask);
 

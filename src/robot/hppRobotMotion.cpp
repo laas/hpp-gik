@@ -295,6 +295,13 @@ const ChppRobotMotionSample* ChppRobotMotion::firstSample()
         return 0;
 }
 
+const ChppRobotMotionSample* ChppRobotMotion::previousSample()
+{
+    if (attAccessedSample != attSamples.begin())
+        attAccessedSample--;
+    return &(*attAccessedSample);
+}
+
 const ChppRobotMotionSample* ChppRobotMotion::nextSample()
 {
     attAccessedSample++;

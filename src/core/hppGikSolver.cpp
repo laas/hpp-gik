@@ -350,8 +350,12 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
             solveOneConstraint(*iter, *iter2, false, true);
             iter++;
             iter2++;
-            for ( iter, iter2; iter != inSortedConstraints.end()-1; iter++,iter2++ )
+            while (iter != inSortedConstraints.end()-1)
+            {
                 solveOneConstraint(*iter, *iter2, true, true);
+                iter++;
+                iter2++;
+            }
             solveOneConstraint(*iter, *iter2, true, false);
         }
 
@@ -443,15 +447,8 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
         for ( iC=0; iC< 6; iC++ )
             CurFullConfig ( iC ) = 0;
 
-        /*
-        //update joints transformations from root to fixed joint in waist frame
-        for ( iC=0; iC< supportJoints.size(); iC++ )
-            supportJoints[iC]->updateTransformation ( CurFullConfig );
-        */
-        ///*
         attRobot->currentConfiguration( CurFullConfig );
         attRobot->computeForwardKinematics();
-        //*/
 
         //Compute new waist transformation
         ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),Hf );
@@ -466,11 +463,9 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
             CurFullConfig ( iC ) = BaseEuler ( iC-3 );
     }
 
-    //attRobot->applyConfiguration ( CurFullConfig );
-    ///*
     attRobot->currentConfiguration( CurFullConfig );
     attRobot->computeForwardKinematics();
-    //*/
+
     return true;
 }
 

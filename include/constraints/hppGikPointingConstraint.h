@@ -64,7 +64,7 @@ public:
     virtual bool vectorizedTarget( const vectorN& inTarget );
 
     /**
-        \brief Compute the value of the constraint. Stored in a static variable.
+        \brief Compute the value of the constraint.
      */
     void computeValue();
 

@@ -83,20 +83,20 @@ private:
 };
 
 /**
-\brief This is a foot ! A footprint with the information right or left
+\brief This is a step target with information on the moving foot
  */
-class ChppGikFoot
+class ChppGikStepTarget
 {
 public:
     /**
-    \constructor
+    \brief constructor
     */
-    ChppGikFoot(const ChppGikFootprint&  inFootprint, bool isRight);
+    ChppGikStepTarget(const ChppGikFootprint&  inFootprint, bool isRight);
 
     /**
-    \copy constructor
+    \brief copy constructor
      */
-    ChppGikFoot(const ChppGikFoot&  sourceObject);
+    ChppGikStepTarget(const ChppGikStepTarget&  sourceObject);
 
     /**
     \brief Get the associated footprint
@@ -104,14 +104,14 @@ public:
     const ChppGikFootprint& footprint() const;
 
     /**
-    \brief Is this the right foot
+    \brief Is this a step target for the right foot
     */
-    bool isRight() const;
+    bool isForRight() const;
     
     /**
     \brief destructor
     */
-    ~ChppGikFoot();
+    ~ChppGikStepTarget();
 
 private:
     bool attIsRight;

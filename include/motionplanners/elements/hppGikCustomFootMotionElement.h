@@ -5,7 +5,6 @@
 
 /**
 \brief A locomotion element for moving a foot according to a custom foot motion (i.e. does not have to be a stepping).
-The entered custom foot motion should converge to a static state.
  */
 class ChppGikCustomFootMotionElement:public ChppGikLocomotionElement
 {

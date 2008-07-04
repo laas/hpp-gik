@@ -35,7 +35,10 @@ hppGikConst_HEADERS = \
 
 hppGikCoredir = $(includedir)/hppGik/core
 hppGikCore_HEADERS = \
+	core/hppGikBounder.h \
 	core/hppGikSolver.h \
+	core/hppGikSolverBasic.h \
+	core/hppGikSolverHumanoid.h \
 	core/hppGikMotionPlanColumn.h \
 	core/hppGikMotionPlanElement.h \
 	core/hppGikMotionPlan.h \

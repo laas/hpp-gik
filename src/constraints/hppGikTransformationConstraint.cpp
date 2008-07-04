@@ -48,6 +48,7 @@ ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobo
     ChppGikTools::UblastoMatrix3(attTargetOrientation, attTargetOrientationMatrix3);
 
     attJacobian.resize(6,attNumberActuatedDofs,false);
+    tempJacobian.resize(6,inRobot.numberDof(),false);
     attValue.resize(6, false);
 
     tempRot.resize(3,3,false);
@@ -160,6 +161,7 @@ void ChppGikTransformationConstraint::computeJacobian()
     attJoint->getJacobianPointWrtConfig(attLocalPointVector3, tempJacobian);
 
     attJacobian = subrange(tempJacobian,0,6,6,attRobot->numberDof());
+    
     attJacobian.minus_assign(subrange(*tempFixedJointJacobian,0,6,6,attRobot->numberDof()));
 
     ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
@@ -172,7 +174,6 @@ void ChppGikTransformationConstraint::computeJacobian()
     ChppGikTools::equivAsymMat(temp3DVec,tempRot);
 
     noalias(subrange(attJacobian,0,3,0,attNumberActuatedDofs)) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
-
 }
 
 

@@ -7,7 +7,7 @@
 ChppGikMotionConstraint::ChppGikMotionConstraint(CjrlDynamicRobot* inRobot, double inSamplingPeriod, double inStartTime)
 {
     attSamplingPeriod = inSamplingPeriod;
-    attStartTime = inStartTime;
+    attStartTime = (inStartTime>0.0)?inStartTime:0.0;
     attEndTime = attStartTime;
     attEps = attSamplingPeriod/2;
     attRobot = inRobot;
@@ -96,8 +96,9 @@ void ChppGikMotionConstraint::clear()
 
 void ChppGikMotionConstraint::startTime(double inStartTime)
 {
-    attEndTime = attEndTime - attStartTime + inStartTime;
-    attStartTime = inStartTime;
+    double temp = (inStartTime>0.0)?inStartTime:0.0;
+    attEndTime = attEndTime - attStartTime + temp;
+    attStartTime = temp;
 }
 
 

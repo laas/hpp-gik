@@ -18,7 +18,7 @@
 
 
 /**
- \brief This object inplements a simple motion planning algorithm using a GikSolver object
+ \brief This object inplements a simple motion planning algorithm using a GikSolverHumanoid object
  */
 class ChppGikBasicExample
 {

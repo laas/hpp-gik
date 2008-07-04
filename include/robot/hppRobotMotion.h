@@ -157,6 +157,11 @@ public:
     \return 0 if the end of the list is met.
      */
     const ChppRobotMotionSample* nextSample();
+    /**
+    \brief This object keeps an iterator on the list of stored samples and it is decremented by this method. 
+    \return first sample if current is sample is first, previous otherwise.
+     */    
+    const ChppRobotMotionSample* previousSample();
     
     /**
     \brief Get a pointer to the last sample stored. The returned pointer is null in case the motion is empty.

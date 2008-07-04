@@ -16,7 +16,7 @@ ChppGikPlaneConstraint::ChppGikPlaneConstraint(CjrlDynamicRobot& inRobot, CjrlJo
     worldPlanePoint(inWorldPlanePoint);
     worldPlaneNormal(inWorldPlaneNormal);
 
-    tempEffectorJointJacobian.resize(3,inRobot.numberDof(),false);
+    tempEffectorJointJacobian.resize(6,inRobot.numberDof(),false);
     tempJointPositionJacobian.resize(3,attNumberActuatedDofs,false);
     attJacobian.resize(1,attNumberActuatedDofs,false);
     attValue.resize(1, false);
