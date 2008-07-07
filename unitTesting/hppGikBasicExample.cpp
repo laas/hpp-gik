@@ -115,10 +115,10 @@ void ChppGikBasicExample::planExample()
             gikSolverHumanoid.applySolution();
         }
 
-        //Get the new configuration of the robot
-        vectorN solutionConfig = attRobot->currentConfiguration();
         //Update robot dynamics based on new and past configurations
         attStandingRobot->updateDynamics(attSamplingPeriod, absZMPPla, absZMPObs, relZMPObs, relZMPPla);
+        //Get the new configuration of the robot
+        const vectorN& solutionConfig = attRobot->currentConfiguration();
         //store the solution configuration in the ChppRobotMotion object.
         attSolutionMotion.appendSample(solutionConfig,absZMPPla, absZMPObs, relZMPPla, relZMPObs);
     }
