@@ -38,7 +38,8 @@ hppGikCore_HEADERS = \
 	core/hppGikBounder.h \
 	core/hppGikSolver.h \
 	core/hppGikSolverBasic.h \
-	core/hppGikSolverHumanoid.h \
+	core/hppGikSolverRobotFree.h \
+	core/hppGikSolverRobotAttached.h \
 	core/hppGikMotionPlanColumn.h \
 	core/hppGikMotionPlanElement.h \
 	core/hppGikMotionPlan.h \

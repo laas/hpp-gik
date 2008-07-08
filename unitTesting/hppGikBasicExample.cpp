@@ -1,5 +1,5 @@
 #include "robot/hppRobotMotion.h"
-#include "core/hppGikSolverHumanoid.h"
+#include "core/hppGikSolverRobotAttached.h"
 #include "hppGikBasicExample.h"
 
 
@@ -36,7 +36,7 @@ void ChppGikBasicExample::planExample()
     attRobot->addFixedJoint( fixedFoot );
 
     //Create a Gik solver
-    ChppGikSolverHumanoid gikSolverHumanoid(*attRobot);
+    ChppGikSolverRobotAttached gikSolver(*attRobot);
     //Create a CppRobotMotion (where the successive configurations will be stored)
     ChppRobotMotion attSolutionMotion(attRobot, 0.0 , attSamplingPeriod);
 
@@ -99,7 +99,7 @@ void ChppGikBasicExample::planExample()
             //Prepare the solver and the constraints
             {
                 //Set the weights in the solver
-                gikSolverHumanoid.weights(combined);
+                gikSolver.weights(combined);
                 //compute the support foot jacobian
                 fixedFoot->computeJacobianJointWrtConfig();
                 //prepare constraints by computing jacobians and values
@@ -111,8 +111,8 @@ void ChppGikBasicExample::planExample()
             }
 
             //Solve. The solution configuration is directly applied on the robot
-            gikSolverHumanoid.solve( stack );
-            gikSolverHumanoid.applySolution();
+            gikSolver.solve( stack );
+            gikSolver.applySolution();
         }
 
         //Update robot dynamics based on new and past configurations

@@ -50,8 +50,7 @@ void ChppGikSolverBasic::resizeMatrices ( unsigned int inSize)
 {
     Residual.resize ( inSize,false );
     PenroseMask.resize ( inSize,false );
-    tempS.resize(inSize, false);
-
+    
     CarvedJacobian.resize ( inSize,LongSize,false );
     HatJacobian.resize ( inSize,LongSize,false );
     WJt.resize ( LongSize,inSize,false );
@@ -61,6 +60,7 @@ void ChppGikSolverBasic::resizeMatrices ( unsigned int inSize)
 
     tempU.resize(inSize,inSize,false);
     tempVt.resize(inSize,inSize,false);
+    tempS.resize(inSize, false);
 }
 
 
@@ -94,8 +94,13 @@ unsigned int ChppGikSolverBasic::resetSolution()
     return LongSize;
 }
 
-void ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double inSRcoef, bool inComputeHatJacobian , bool inComputeNullspace )
+bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double inSRcoef, bool inComputeHatJacobian , bool inComputeNullspace )
 {
+    if (inConstraint->jacobian().size2()!=attNumberParam)
+    {
+        std::cout << "ChppGikSolverBasic::solveTask() err: given constraint's jacobian size did not match number of parameters of this solver.\n";
+        return false;
+    }
     //determin task dimension
     xDim = inConstraint->dimension();
     //resize matrices
@@ -167,13 +172,14 @@ void ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
         }
     }
     if ( PenroseMask ( 0 ) ==0 )
-        return;
+        return true;
 
     noalias ( InverseJWJt ) = prod ( tempU,tempVt );
     noalias ( Jsharp ) = prod (WJt , InverseJWJt);
     noalias ( DeltaQ ) += prod ( Jsharp, Residual );
     if (inComputeNullspace)
         noalias (  NullSpace ) -= prod ( Jsharp, HatJacobian );
+    return true;
 }
 
 const vectorN& ChppGikSolverBasic::solution()

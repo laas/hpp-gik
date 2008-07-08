@@ -145,7 +145,6 @@ void ChppGikParallelConstraint::computeVectorizedState()
     //std::cout << "curvel " << curvel << std::endl;
 
     //constraint acceleration
-    curaccel.clear();
     ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().rotationAcceleration(),rotaccel);
     ChppGikTools::CrossProduct(rotaccel,curpos,curaccel);
     ChppGikTools::CrossProduct(rotvel,curvel,temp);
@@ -154,9 +153,6 @@ void ChppGikParallelConstraint::computeVectorizedState()
     subrange(attVectorizedState,0,3) = curpos;
     subrange(attVectorizedState,3,6) = curvel;
     subrange(attVectorizedState,6,9) = curaccel;
-
-
-
 }
 
 

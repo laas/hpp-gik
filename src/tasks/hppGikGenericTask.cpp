@@ -20,7 +20,7 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
 
     attLocomotionPlan = new ChppGikLocomotionPlan( attMotionPlan, attStandingRobot, attSamplingPeriod);
 
-    attGikSolver = new ChppGikSolverHumanoid(*attRobot);
+    attGikSolver = new ChppGikSolverRobotAttached(*attRobot);
 
     attUseDynamicWeights = true;
     attNeutralBodyOption = false;

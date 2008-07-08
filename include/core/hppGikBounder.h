@@ -29,7 +29,7 @@ public:
      */
     bool lowerBound(unsigned int i_rank, double i_bound);
     /**
-    \brief set the braking zone in percentage of the total interval. Will apply for all interals. Entered value clamped between 0.01 and 0.5. Default to 0.12;
+    \brief set the braking zone size near upper and lower bound in percentage of the total interval. Will apply for all intervals. Entered value clamped between 0.01 and 0.5. Default to 0.12;
     */
     void brakingZone(double inPercent);
     /**

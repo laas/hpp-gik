@@ -3,7 +3,7 @@
 
 #include "motionplanners/hppGikLocomotionPlan.h"
 #include "tasks/hppGikRobotTask.h"
-#include "core/hppGikSolverHumanoid.h"
+#include "core/hppGikSolverRobotAttached.h"
 #include "core/hppGikPrioritizedMotion.h"
 
 /**
@@ -65,7 +65,7 @@ protected:
     CjrlHumanoidDynamicRobot* attRobot;
     ChppGikMotionPlan* attMotionPlan;
     ChppGikLocomotionPlan* attLocomotionPlan;
-    ChppGikSolverHumanoid* attGikSolver;
+    ChppGikSolverRobotAttached* attGikSolver;
     void computeGikWeights(double inTime, const vectorN& inActiveJoints, vectorN& outGikWeights);
 
 private:

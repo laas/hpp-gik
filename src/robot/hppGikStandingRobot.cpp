@@ -363,28 +363,22 @@ const ChppGik2DShape& ChppGikStandingRobot::rightFootShape()const
 
 bool ChppGikStandingRobot::staticState(const vectorN& inConfig)
 {
-
     if (inConfig.size() != attRobot->numberDof())
         return false;
-    ///*
+
     attRobot->currentConfiguration( inConfig );
     attPreviousConfiguration = inConfig;
     attPreviousVelocity.clear();
-    attVelocity.clear();
     attRobot->currentVelocity( attPreviousVelocity );
     attRobot->currentAcceleration( attPreviousVelocity );
     attRobot->computeForwardKinematics();
-    //*/
-    /*
-    attRobot->staticState(inConfig);
-    */
     return true;
 }
 
 void ChppGikStandingRobot::updateJointVA(double inSamplingPeriod)
 {
     //Update kinematics (standard method)
-    attVelocity = attRobot->currentConfiguration();// - attPreviousConfiguration);
+    attVelocity = attRobot->currentConfiguration();
     for (unsigned int i=3; i<6;i++)
     {
         if (attPreviousConfiguration(i) > 0)
@@ -398,10 +392,11 @@ void ChppGikStandingRobot::updateJointVA(double inSamplingPeriod)
                 attVelocity(i) -= 2*M_PI;
         }
     }
-    attVelocity = (attVelocity - attPreviousConfiguration)/inSamplingPeriod;
+    attVelocity.minus_assign(attPreviousConfiguration);
+    attVelocity /= inSamplingPeriod;
 
     attRobot->currentVelocity( attVelocity );
-    attAcceleration = (attVelocity - attPreviousVelocity)/inSamplingPeriod;
+    noalias(attAcceleration) = (attVelocity - attPreviousVelocity)/inSamplingPeriod;
     attRobot->currentAcceleration( attAcceleration );
     attPreviousConfiguration = attRobot->currentConfiguration();
     attPreviousVelocity = attVelocity;

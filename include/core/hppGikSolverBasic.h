@@ -6,7 +6,7 @@
 
 
 /**
-\brief this object can be used to solve a sequence of linear systems from highest to lowest priority. A linear system is provided by a CjrlGikStateConstraint object through its methods jacobian() and value(). These are assumed to be already computed.
+\brief This is a prioritized inverse kinematics solver. It can be used to solve a sequence of linear systems from highest to lowest priority. A linear system is provided by a CjrlGikStateConstraint object through its methods jacobian() and value(). These are assumed to be already computed.
 Each linear system is solved by a pseudo inversion. The weighted pseudo inverse is used.
 
 Typical usage:
@@ -61,8 +61,9 @@ public:
     \param inSRcoef if non-zero value is given, \f$ (\hat{J}W\hat{J}^t)^{-1} \f$ is computed using SR-Inverse.
     \param computeHatJacobian set to true to project connstaint jacobian on nullspace
     \param inComputeNullspace set to true to update null space projector
+    \return false if task  jacobian's size is not equal to number of parameters
      */
-    void solveTask(CjrlGikStateConstraint *inConstraint, double inSRcoef=0.0, bool computeHatJacobian = true, bool inComputeNullspace = true);
+    bool solveTask(CjrlGikStateConstraint *inConstraint, double inSRcoef=0.0, bool computeHatJacobian = true, bool inComputeNullspace = true);
     /**
     \brief get the solution to last serie of calls of solveTask (up to last resetSolution call)
      */
@@ -114,6 +115,7 @@ private:
     ublas::matrix<double, ublas::column_major> tempVt;
     char jobU;
     char jobVt;
+    
 };
 
 #endif
