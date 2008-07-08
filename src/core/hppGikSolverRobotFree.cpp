@@ -16,6 +16,11 @@ ChppGikSolverRobotFree::ChppGikSolverRobotFree(CjrlDynamicRobot& inRobot)
         attBounder->upperBound(i, attRobot->upperBoundDof(i));
         attBounder->lowerBound(i, attRobot->lowerBoundDof(i));
     }
+    for (unsigned int i=0;i<6;i++)
+    {
+        attBounder->upperBound(i, 1e10);
+        attBounder->lowerBound(i, -1e10);
+    }
     attWeights = attComputationWeights = attActive = scalar_vector<double>(attNumParams,1);
     attSolution = zero_vector<double>(attNumParams);
     ElementMask.resize(attNumParams);
@@ -56,31 +61,24 @@ bool ChppGikSolverRobotFree::solve(std::vector<CjrlGikStateConstraint*>& inSorte
     }
 
     bool recompute = true;
-    unsigned int remaining;
     unsigned int iC;
     double ub, lb;
     std::vector<CjrlGikStateConstraint*>::iterator iter;
     std::vector<double>::iterator iter2;
-    
+
     attVals = attRobot->currentConfiguration();
     attRate = attRobot->currentVelocity();
     attComputationWeights = attWeights;
     attBounder->modifyWeights( attVals, attRate, attComputationWeights );
-    
+
     while ( recompute )
     {
-        
         attSolver->weights( attComputationWeights );
-        remaining = attSolver->resetSolution();
-        if (remaining ==0)
-        {
-            attSolution = zero_vector<double>(attNumParams);
-            return true; //cannot move
-        }
+        attSolver->resetSolution();
 
         iter = inSortedConstraints.begin();
         iter2 = inSRcoefs.begin();
-        
+
         computeConstraintDofs(*iter);
         attSolver->setActiveParameters(ElementMask);
         if (inSortedConstraints.size() == 1)
@@ -111,11 +109,11 @@ bool ChppGikSolverRobotFree::solve(std::vector<CjrlGikStateConstraint*>& inSorte
         for ( iC=0; iC< attNumParams; iC++ )
             CurFullConfig(iC) += attSolver->solution()(iC);
         //joint limit checking
-        for ( iC=0; iC< attNumParams; iC++ )
+        for ( iC=6; iC< attNumParams; iC++ )
         {
             lb = attRobot->lowerBoundDof(iC);
             ub = attRobot->upperBoundDof(iC);
-            if (CurFullConfig(iC) < lb +1e-2 || CurFullConfig ( iC ) > ub-1e-2)
+            if ((attComputationWeights(iC) != 0)&&(CurFullConfig(iC) < lb +1e-2 || CurFullConfig ( iC ) > ub-1e-2))
             {
                 recompute = true;
                 attComputationWeights(iC) = 0;
