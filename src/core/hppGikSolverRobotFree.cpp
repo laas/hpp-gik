@@ -129,13 +129,6 @@ const vectorN& ChppGikSolverRobotFree::solution()
     return attSolution;
 }
 
-void ChppGikSolverRobotFree::applySolution()
-{
-    CurFullConfig = attRobot->currentConfiguration();
-    CurFullConfig.plus_assign(attSolution);
-    attRobot->currentConfiguration( CurFullConfig );
-}
-
 ChppGikSolverRobotFree::~ChppGikSolverRobotFree()
 {
     delete attSolver;

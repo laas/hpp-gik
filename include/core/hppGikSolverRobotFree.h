@@ -25,6 +25,7 @@ public:
     bool weights(vectorN& inWeights);
     /**
         \brief Compute a solution to the entered vector of linear systems. the linear systems(CjrlGikStateConstraint objects) should already be computed. The order in the vector of tasks follows decreasing priority.
+        The computed solution vector represents the update on the parameters implied by the jacobian. One has to pay attention (especially for the robot free flyer parameters) before applying the solution to the robot
      */
     bool solve(std::vector<CjrlGikStateConstraint*>& inTasks, std::vector<double>& inSRcoefs);
     /**
@@ -33,13 +34,10 @@ public:
     bool solve(std::vector<CjrlGikStateConstraint*>& inTasks);
     /**
         \brief get the solution (i.e. the computed joint velocities (including freeflyer))
+        Note that 
         \return vector of size robot.numberDof()
      */
     const vectorN& solution();
-    /**
-        \brief Call robot->currentConfiguration(updatedConfig) with updatedConfig being the current robot configuration incremented with solution(). This method does not call computeForwardKinematics().
-     */
-    void applySolution();
     /**
         \brief Destructor
      */
