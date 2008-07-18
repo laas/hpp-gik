@@ -8,6 +8,7 @@
 
 /**
 \brief Specify a 2D orientation constraint on a body of the robot.
+\ingroup constraints
  */
 
 class ChppGikParallelConstraint: public CjrlGikParallelConstraint, public ChppGikJointStateConstraint, public ChppGikVectorizableConstraint

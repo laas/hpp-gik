@@ -10,6 +10,7 @@
 
 /**
 \brief This is a wrapper for a jrlHumanoidDynamicRobot, its support polygon and related information
+\ingroup robot
 */
 class ChppGikStandingRobot
 {

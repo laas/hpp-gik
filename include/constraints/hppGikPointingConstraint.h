@@ -8,6 +8,7 @@
 
 /**
 \brief Constraint on a line segment attached to a body to be aligned with a given point in the world frame. The line segment is defined by an origin point and a vector both given in the body's local frame.
+\ingroup constraints
  */
 class ChppGikPointingConstraint: virtual public CjrlGikPointingConstraint, public ChppGikJointStateConstraint, public ChppGikVectorizableConstraint
 {

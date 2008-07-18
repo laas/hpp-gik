@@ -5,10 +5,14 @@
 #include <iostream>
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 
-/**
-\brief A footprint is a shape (not defined) located at (attX, attY, 0.0) in the world frame and is rotated by attTheta around OZ.  The local frame is set as follows: locOX points ahead (to the toes), locOY points to the left and z points up.
- */
+
 class ChppGikFootprint;
+/**
+\brief This object describes a footprint on a flat floor, by its (x,y) position and its rotation in world frame. A local frame is associated with a footprint: The local frame is set as follows: axis OX points ahead (to the toes), axis OY points to the left and axis OZ points upwards.<br>
+The footprint has a circular shape of radius (hardcoded 5cm, to be replaced after description of a footprint shape in CjrlHumanoidDynamicRobot).
+
+\ingroup robot
+ */
 class ChppGikFootprint
 {
 public:
@@ -84,7 +88,7 @@ private:
 
 /**
 \brief This is a step target with information on the moving foot
- */
+*/
 class ChppGikStepTarget
 {
 public:
@@ -120,6 +124,7 @@ private:
 
 /**
 \brief This is a support polygon class. A support polygon is defined by at least one foot print.
+\ingroup robot
  */
 class ChppGikSupportPolygon
 {
@@ -225,90 +230,5 @@ private:
     matrix4d* attLfootM;
 };
 
-
-
-
-#include "boost/numeric/ublas/matrix.hpp"
-namespace ublas = boost::numeric::ublas;
-
-/**
-\brief This is a support polygon motion class. The successive support polygons are atored in a vector and the corresponding start and end times are stored in a separate vector.
-*/
-class ChppGikSupportPolygonMotion
-{
-public:
-    /**
-    \brief Constructor
-     */
-    ChppGikSupportPolygonMotion(double inStartTime);
-    /**
-    \brief reset suport polygon stack
-     */
-    void reset(double inStartTime);
-    /**
-    \brief Append the given support polygon to the end of the motion (a copy of inSupportPolygon is made)
-     */
-    void pushbackSupportPolygon(ChppGikSupportPolygon* inSupportPolygon, double inDuration);
-    /**
-    \brief Append the given support polygon at the beginning of the motion (a copy of inSupportPolygon is made)
-     */
-    void pushfrontSupportPolygon(ChppGikSupportPolygon* inSupportPolygon, double inDuration);
-    /**
-    \brief Extend the last support polygon recorded by the given time
-     */
-    void extendLastSupportPolygonDuration(double inExtraTime);
-    /**
-    \brief Get the support polygon at the given time
-    \return null pointer if invalid time
-     */
-    const ChppGikSupportPolygon* lastSupportPolygon() const;
-    /**
-    \brief Get the support polygon at the given time
-    \return null pointer if invalid time
-     */
-    const ChppGikSupportPolygon* supportPolygonAtTime(double inTime) const;
-    /**
-    \return false is right foot is not on the ground at the given time
-     */
-    bool isRightLegSupportingAtTime(double inTime) const;
-    /**
-    \return false is left foot is not on the ground at the given time
-     */
-    bool isLeftLegSupportingAtTime(double inTime) const;
-    /**
-    \return false if single support at the given time
-     */
-    bool isDoubleSupportAtTime(double inTime) const;
-
-    /**
-    \brief Tell if the given trajectory lies within the planned support polygon motion
-    inTrajectory is a matrix with two rows: first for xZMP and second for yZMP
-     */
-    bool isTrajectoryInside(const matrixNxP& inTrajectory, double inStartTime, double inSamplingPeriod) const;
-
-    /**
-    \brief Get the motion end time
-     */
-    double endTime() const;
-    /**
-    \brief Get the motion start time
-     */
-    double startTime() const;
-    /**
-    \brief Tell if support vector motion is empty
-     */
-    bool empty();
-    /**
-    \brief Destructor
-     */
-    ~ChppGikSupportPolygonMotion();
-
-private:
-    double attStartTime;
-    double attEndTime;
-    std::vector<ChppGikSupportPolygon*> attVectorSupportPolygon;
-    std::vector<double> attVectorStartTimes;
-
-};
 
 #endif

@@ -25,6 +25,7 @@
 #include "tasks/hppGikHandTask.h"
 #include "tasks/hppGikHalfSittingTask.h"
 
+
 /**
  \brief UnitTesting class of class ChppGik
 */

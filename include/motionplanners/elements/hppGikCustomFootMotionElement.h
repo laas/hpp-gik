@@ -5,6 +5,7 @@
 
 /**
 \brief A locomotion element for moving a foot according to a custom foot motion (i.e. does not have to be a stepping).
+\ingroup motions
  */
 class ChppGikCustomFootMotionElement:public ChppGikLocomotionElement
 {

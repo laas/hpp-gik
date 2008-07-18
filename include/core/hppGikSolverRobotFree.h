@@ -8,7 +8,8 @@
 
 /**
 \brief this object is a prioritized inverse kinematics solver for a freeflying CjrlDynamicRobot.
-The solver implements smooth enforcement of joint limits by using an object of class ChppGikBounder .
+The solver implements smooth enforcement of joint limits by using an object of class ChppGikBounder.
+\ingroup solver
  */
 class ChppGikSolverRobotFree
 {

@@ -6,6 +6,7 @@
 /**
 \brief This is a task to make the robot do a single step.
 Call solve() to plan joint motion for a step given in support foot frame (origin is projection of ankle on floor, x axis pointing to the toes, y axis pointing to the left and z upward). Orientation of displaced foot is defined by the angle it will make with axis x of support foot.
+\ingroup tasks
  */
 
 class ChppGikStepTask : public ChppGikRobotTask

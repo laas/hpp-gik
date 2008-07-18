@@ -7,7 +7,8 @@
 
 
 /**
-\brief Build some joint masks and weighting vectors for the GIK solver 
+\brief Build some joint masks and weighting vectors for the GIK solver.
+\ingroup robot
  */
 class ChppGikMaskFactory
 {

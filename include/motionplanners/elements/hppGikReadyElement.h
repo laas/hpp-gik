@@ -5,6 +5,7 @@
 
 /**
 \brief CjrlMotionConstraint + priority + working joints
+\ingroup motions
  */
 class ChppGikReadyElement:public ChppGikPrioritizedMotion
 {

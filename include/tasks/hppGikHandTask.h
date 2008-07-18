@@ -6,6 +6,7 @@
 /**
 \brief This is a robot hand task. It can be used to plan joint motion to change the clench of a hand. The clench is represented by a single scalar value ranging from 0 (open hand) to 1 (closed hand).
 Joint motion is a slow minimum jerk motion from current to target clench.
+\ingroup tasks
  */
 class ChppGikHandTask : public ChppGikRobotTask
 {

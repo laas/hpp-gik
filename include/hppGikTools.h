@@ -3,7 +3,9 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 
-
+/**
+\ingroup tools
+*/
 class ChppGikTools
 {
 public :

@@ -5,8 +5,8 @@
 
 /**
 \brief This is a robot task  composed of a sequence of robot tasks.
+\ingroup tasks
  */
-
 class ChppGikMetaTask : public ChppGikRobotTask
 {
 public:

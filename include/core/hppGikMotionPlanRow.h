@@ -9,6 +9,7 @@
 /**
 \brief A "motion row" is a container for motion constraints that share the same priority.
 This is a low level object.
+\ingroup motionsplan
  */
 class ChppGikMotionPlanRow
 {

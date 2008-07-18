@@ -10,6 +10,7 @@ typedef vectorN CjrlRobotConfiguration;
 
 /**
 \brief This is a stored robot motion sample. It contains the full configuration of the robot at some time, as well as the position of the ZMP observed and planned , in the waist frame and in the world frame.
+\ingroup robot
 */
 class ChppRobotMotionSample
 {
@@ -45,12 +46,13 @@ class ChppRobotMotionSample
         
 };
 
+
+class ChppRobotMotion;
 /**
 \brief Defines the motion of a robot along time.
 The motion is stored as a list of ublas vectors.
+\ingroup robot
  */
-
-class ChppRobotMotion;
 class ChppRobotMotion:public CjrlRobotMotion
 {
 public:

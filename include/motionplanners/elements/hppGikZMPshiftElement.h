@@ -6,6 +6,7 @@
 
 /**
 \brief A locomotion element for shifting the body mass by planning a linear zmp motion inside the support polygon.
+\ingroup motions
  */
 class ChppGikZMPshiftElement:public ChppGikLocomotionElement
 {

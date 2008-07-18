@@ -5,6 +5,7 @@
 
 /**
 \brief This is a task to make the robot step back to have his feet parallel and symmetrical.
+\ingroup tasks
  */
 class ChppGikStepBackTask : public ChppGikRobotTask
 {

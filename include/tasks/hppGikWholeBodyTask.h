@@ -7,7 +7,8 @@
 #include "motionplanners/elements/hppGikReadyElement.h"
 
 /**
-\brief Deprecated: this class will disappear soon
+\brief Implementation of the Humanoid2006 papers by E.Yoshida.
+\ingroup tasks
  */
 class ChppGikWholeBodyTask: public ChppGikRobotTask
 {

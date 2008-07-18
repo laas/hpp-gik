@@ -8,6 +8,10 @@
 #include "robot/hppRobotMotion.h"
 
 class ChppGikRobotTask;
+/**
+\brief Abstract class of an object that produces a ChppRobotMotion through a method ChppGikRobotTask::solve()
+\ingroup tasks
+*/
 class ChppGikRobotTask
 {
 public:

@@ -8,6 +8,7 @@
 
 /**
 \brief Specify a 3D orientation constraint on a body of the robot.
+\ingroup constraints
  */
 
 class ChppGikRotationConstraint:public CjrlGikRotationConstraint, public ChppGikJointStateConstraint, public ChppGikVectorizableConstraint

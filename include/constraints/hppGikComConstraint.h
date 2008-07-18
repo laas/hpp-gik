@@ -5,11 +5,10 @@
 #include "gikTask/jrlGikComConstraint.h"
 
 
-
 /**
 \brief Specify a full or partial position constraint on the center of mass.
+\ingroup constraints
  */
-
 class ChppGikComConstraint:public CjrlGikComConstraint
 {
 public:

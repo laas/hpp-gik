@@ -15,6 +15,7 @@
 
 /**
 \brief Description of a constraint that limits the position of a point of the robot to a given plan.
+\ingroup constraints
 */
 
 class ChppGikPlaneConstraint:  public CjrlGikPlaneConstraint, public ChppGikJointStateConstraint, public ChppGikVectorizableConstraint
@@ -68,7 +69,7 @@ public:
     /**
     \brief A unified method to change the target of the constraint with a vectorN.
     \return false if the argument's size does not match the one expected for this constraint type.
-    \parameter inTarget must be of size 6. First three coordinates are for the target plane's point and the last three are for the target plane's normal
+    \param inTarget must be of size 6. First three coordinates are for the target plane's point and the last three are for the target plane's normal
      */
     virtual bool vectorizedTarget( const vectorN& inTarget );
 

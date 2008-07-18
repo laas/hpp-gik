@@ -8,6 +8,7 @@
 
 /**
         \brief Specify a 3D position constraint on a point of the robot.
+        \ingroup constraints
  */
 
 class ChppGikPositionConstraint: public CjrlGikPositionConstraint, public ChppGikJointStateConstraint, public ChppGikVectorizableConstraint

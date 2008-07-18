@@ -7,6 +7,8 @@
 
 /**
 \brief This is a prioritized inverse kinematics solver. It produces a robot configuration complying with a vector of high-to-low-priority jrlGikStateConstraints
+\deprecated This class is doomed, please use one of the other solvers instead.
+\ingroup solver
  */
 class ChppGikSolver
 {
@@ -100,6 +102,8 @@ private:
        -# update null space:\f$ N \leftarrow N(I-\hat{J}^\#\hat{J}) \f$
        \param inConstraint a constraint to be solved
        \param inSRcoef if non-zero value is given, \f$ (\hat{J}W\hat{J}^t)^{-1} \f$ is computed using SR-Inverse.
+       \param computeHatJacobian set to true to project connstaint jacobian on nullspace
+       \param inComputeNullspace set to true to update null space projector ChppGikSolver::Nullspace
     */
     void solveOneConstraint(CjrlGikStateConstraint *inConstraint, 
                             double inSRcoef=0.0, bool computeHatJacobian = true, bool inComputeNullspace = true);

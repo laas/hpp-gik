@@ -5,7 +5,7 @@
 # Author: Florent Lamiraux
 #
 
-SUBDIRS = \
+SUBDIRS = \	
 	src 		\
 	include 	\
 	unitTesting	\

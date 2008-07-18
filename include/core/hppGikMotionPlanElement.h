@@ -7,8 +7,9 @@
 
 
 /**
-\brief A "motion element" is a container for state constraints that share the same priority. A motion element is equivalent to a generelized inverse kinematics task in the literature.
-This is a low level object.
+\brief Use this to concatenate several CjrlGikStateConstraint objects.
+\ingroup constraints
+\ingroup motionsplan
  */
 class ChppGikMotionPlanElement: public CjrlGikStateConstraint
 {
@@ -45,7 +46,7 @@ public:
     \return false if constraint not found
      */
     bool removeConstraint(const CjrlGikStateConstraint* inJrlStateConstraint);
-    
+
     /**
     \brief Get the dimension of this motion plan element
      */
@@ -55,7 +56,7 @@ public:
     \brief Get a mask on the configuration vector denoting the working degrees of freedom
      */
     const vectorN& workingJoints() const;
-    
+
     /**
     \brief Set a mask on the configuration vector denoting the working degrees of freedom
      */
@@ -77,11 +78,6 @@ public:
     void computeInfluencingDofs();
 
     /**
-    \brief Get the influencing dofs
-     */
-    vectorN& influencingDofs();
-
-    /**
     \brief Compute the value of this motion plan element (task).
      */
     void computeValue();
@@ -97,6 +93,10 @@ public:
     \name Getting result of computations
     @{
      */
+    /**
+    \brief Get the influencing dofs
+     */
+    vectorN& influencingDofs();
     /**
     \brief Get the current value of this motion plan element (task).
      */

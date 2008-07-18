@@ -5,14 +5,8 @@
 #include "core/hppGikMotionPlanRow.h"
 
 /**
-\brief The motion plan contains references to planned motion constraints, organized by descending priority in motion plan rows.
- 
-References to motion constraints are stacked according to their priority:
-A motion plan is a structure that resembles to a matrix of "motion plan elements".
-A "motion plan element" is a container for state constraints that share the same priority. A "motion element" is "a task" in the scheme of prioritized task solving using generalized inverse kinematics.
-A "motion plan row" is a container for motion constraints that share the same priority, so the horizontal direction is for time progression.
-A "motion plan column" is a container for the motion plan elements that can be collected at a given time. The vertical direction stacks the planned tasks at a given time.
- 
+The Motion Plan contains references to ChppGikPrioritizedMotion objects, sorted by descending priority in ChppGikMotionPlanRow objects.
+\ingroup motionsplan
  */
 
 class ChppGikMotionPlan

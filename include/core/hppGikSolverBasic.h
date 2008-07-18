@@ -21,7 +21,7 @@ for (tasks)
 }
 
 solution()
-
+\ingroup solver
 */
 class ChppGikSolverBasic
 {
@@ -29,7 +29,7 @@ public:
 
     /**
     \brief Constructor
-    \parameter numberParam is the size of the variables vector
+    \param numberParam is the size of the variables vector
      */
     ChppGikSolverBasic(unsigned int numberParam);
     /**

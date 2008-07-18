@@ -8,6 +8,7 @@
 
 /**
 \brief An object that plans a motion a constraint based on a given target constraint
+\ingroup motions
  */
 class ChppGikInterpolatedElement: public ChppGikPrioritizedMotion, public CjrlGikMotionConstraint
 {

@@ -10,6 +10,7 @@
 \brief this object is a prioritized inverse kinematics solver tailored to a robot that has one fixed joint.
 The solver implements smooth enforcement of joint limits by using an object of class ChppGikBounder .
 Implementation Note: The 6 degrees of freedom of the root are for now supposed to be stored at the head of the robot configuration vector.
+\ingroup solver
  */
 class ChppGikSolverRobotAttached
 {
@@ -17,7 +18,7 @@ public:
 
     /**
     \brief Constructor
-    \parameter inRobot must be a CjrlDynamicRobot with a fixed joint.
+    \param inRobot must be a CjrlDynamicRobot with a fixed joint.
      */
     ChppGikSolverRobotAttached(CjrlDynamicRobot& inRobot);
     /**

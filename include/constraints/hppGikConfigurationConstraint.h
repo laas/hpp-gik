@@ -7,6 +7,7 @@
 
 /**
 \brief Specify a full or partial configuration constraint
+\ingroup constraints
  */
 
 class ChppGikConfigurationConstraint:public ChppGikVectorizableConstraint

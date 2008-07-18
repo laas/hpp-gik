@@ -6,6 +6,7 @@
 
 /**
 \brief A locomotion element for displacing a foot to the given footprint
+\ingroup motions
  */
 class ChppGikFootDisplaceElement:public ChppGikLocomotionElement
 {

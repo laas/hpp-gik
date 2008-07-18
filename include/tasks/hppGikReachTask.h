@@ -15,6 +15,7 @@ The following options are available:
 the reach target has to be set through method target() or the solve() algorithm will return false.
 
 The options are not reset by method solve()
+\ingroup tasks
 */
 
 class ChppGikReachTask : public ChppGikRobotTask

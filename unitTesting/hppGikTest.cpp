@@ -56,10 +56,12 @@ ChppGikTest::~ChppGikTest()
     delete attMotion;
 }
 
+
 void ChppGikTest::createHumanoidRobot()
 {
     CjrlRobotDynamicsObjectConstructor<
     dynamicsJRLJapan::DynamicMultiBody,
+    //dynamicsJRLJapan::HumanoidDynamicMultiBody,
     Chrp2OptHumanoidDynamicRobot,
     dynamicsJRLJapan::JointFreeflyer,
     dynamicsJRLJapan::JointRotation,
@@ -115,7 +117,7 @@ void ChppGikTest::createHumanoidRobot()
     //waist roll pitch yaw
     halfsittingConf(3) = 0.0;
     halfsittingConf(4) = 0.0;
-    halfsittingConf(5) = -0.8;
+    halfsittingConf(5) = 0.0;
 
     //joints
     for(unsigned int i=6;i<nDof;i++)
@@ -170,6 +172,7 @@ void ChppGikTest::dumpFilesAndGetLastConfig(ChppGikRobotTask* robotTask,const ch
         std::cout << "Mysterious debug: an unexpected problem happended !! abort now !!\n";
 
 }
+
 
 void  ChppGikTest::interprete()
 {

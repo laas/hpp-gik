@@ -4,8 +4,10 @@
 #include "tasks/hppGikStepBackTask.h"
 #include "tasks/hppGikGenericTask.h"
 
+
 /**
 \brief This robot task consists in going back to half-sitting stance.
+\ingroup tasks
  */
 class ChppGikHalfSittingTask : public ChppGikRobotTask
 {

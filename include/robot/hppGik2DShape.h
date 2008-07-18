@@ -3,6 +3,7 @@
 
 #include <vector>
 
+
 class ChppGik2DVertex
 {
     public:
@@ -16,10 +17,11 @@ class ChppGik2DShape
         std::vector<ChppGik2DVertex> vertices;
 };
 
+
+class ChppGikLinkedVertex;
 /**
 \brief Chained list element
  */
-class ChppGikLinkedVertex;
 class ChppGikLinkedVertex
 {
     public:

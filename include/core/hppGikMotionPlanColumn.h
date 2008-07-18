@@ -5,9 +5,8 @@
 #include "core/hppGikMotionPlanElement.h"
 
 /**
-\brief A motion plan column is a column of motion elements inside a motion plan. It is the equivalent of a prioritized stack of tasks in the generalized inverse kinematics scheme.
- 
-This is a low level object.
+\brief A motion plan column is a column of motion elements inside a motion plan. It is the equivalent of a prioritized stack of constraints.
+\ingroup motionsplan
  */
 class ChppGikMotionPlanColumn
 {
