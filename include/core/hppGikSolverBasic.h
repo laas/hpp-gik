@@ -4,25 +4,14 @@
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikStateConstraint.h"
 
-
 /**
 \brief This is a prioritized inverse kinematics solver. It can be used to solve a sequence of linear systems from highest to lowest priority. A linear system is provided by a CjrlGikStateConstraint object through its methods jacobian() and value(). These are assumed to be already computed.
+<br>
 Each linear system is solved by a pseudo inversion. The weighted pseudo inverse is used.
 
-Typical usage:
-
-weights(weightVector)
-resetSolution()
-
-for (tasks)
-{
-    setActiveParameters(inActiveVector)
-    solveTask(inTask)
-}
-
-solution()
 \ingroup solver
 */
+
 class ChppGikSolverBasic
 {
 public:
@@ -33,12 +22,12 @@ public:
      */
     ChppGikSolverBasic(unsigned int numberParam);
     /**
-    \brief Set the diagonal weights for the  Weighted Pseudoinverse
+    \brief Set the diagonal weights for the  Weighted Pseudoinverse. This calls resetSolution() before returning true.
     \return false if inWeights of incorrect size
      */
     bool weights(vectorN& inWeights);
     /**
-    \brief Clear solution and reset nullspace. Call this prior to solving the first task of every stack of tasks. Should be called after weights()
+    \brief Clear solution, reset nullspace and analyze weights to determine which parameters are being used and optimize computation accordingly. Call this prior to solving the first task of every stack of tasks.
     \return the number of non null weights found.
      */
     unsigned int resetSolution();
@@ -63,7 +52,7 @@ public:
     \param inComputeNullspace set to true to update null space projector
     \return false if task  jacobian's size is not equal to number of parameters
      */
-    bool solveTask(CjrlGikStateConstraint *inConstraint, double inSRcoef=0.0, bool computeHatJacobian = true, bool inComputeNullspace = true);
+    bool solveTask(CjrlGikStateConstraint *inConstraint, double inSRcoef=0.0, bool computeHatJacobian = false, bool inComputeNullspace = false);
     /**
     \brief get the solution to last serie of calls of solveTask (up to last resetSolution call)
      */

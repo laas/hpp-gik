@@ -68,7 +68,7 @@ WARN_LOGFILE           =
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
-EXAMPLE_PATH           = 
+EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
 INPUT_FILTER           = 
@@ -179,7 +179,7 @@ SEARCHENGINE           = NO
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = @PACKAGE@
-PROJECT_NUMBER         = @VERSION@
+PROJECT_NUMBER         = 
 
 #---------------------------------------------------------------------------
 # Build related configuration options

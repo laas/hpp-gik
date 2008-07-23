@@ -5,11 +5,14 @@
 #include "motionplanners/elements/hppGikFootDisplaceElement.h"
 
 /**
-\brief A ChppGikStepElement is a FootDisplaceElement preceded by a ZMPshiftElement and ended by another ZMP shift element.
-The additional parameters for the constructor are
-    <br>-a startZMPshift duration (which can be zero),
-    <br>-an endZMPshift duration (which can be zero) 
-    <br>-a coefficent in [0,1] indicating a point inside the double support polygonm where the final zmp would be.
+\brief This is motion planner for a step
+This is a sequence ChppGikZMPshiftElement-ChppGikFootDisplaceElement-ChppGIkZMPshiftElement that plans motion for the feet and for the ZMP as follows:
+<br>
+First, ZMP is moved under the support foot.
+<br>
+Second, the non-support foot is displaced
+<br>
+Third, the ZMP is moved at a given point between the two feet.
 \ingroup motions
  */
 class ChppGikStepElement: public ChppGikLocomotionElement

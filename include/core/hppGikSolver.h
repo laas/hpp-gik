@@ -6,7 +6,7 @@
 
 
 /**
-\brief This is a prioritized inverse kinematics solver. It produces a robot configuration complying with a vector of high-to-low-priority jrlGikStateConstraints
+\brief [DEPRECATED] This is a prioritized inverse kinematics solver. It produces a robot configuration complying with a vector of high-to-low-priority jrlGikStateConstraints
 \deprecated This class is doomed, please use one of the other solvers instead.
 \ingroup solver
  */

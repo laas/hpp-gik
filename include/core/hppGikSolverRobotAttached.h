@@ -5,7 +5,6 @@
 #include "core/hppGikSolverBasic.h"
 #include "core/hppGikBounder.h"
 
-
 /**
 \brief this object is a prioritized inverse kinematics solver tailored to a robot that has one fixed joint.
 The solver implements smooth enforcement of joint limits by using an object of class ChppGikBounder .

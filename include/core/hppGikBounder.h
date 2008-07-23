@@ -5,7 +5,7 @@
 
 
 /**
-\brief Object used in ChppGIkSolverRobotFree and ChppGikSolverRobotAttached to smoothly enforce the joint limits.
+\brief Object used in ChppGikSolverRobotFree and ChppGikSolverRobotAttached to smoothly enforce the joint limits.
 Let I be an interval bounded by a lower value LV and an upper value UV. Let X be a variable whose value is continuously changing in I. Call D the change rate in X. 
 X is free to move at any rate D if not too close to LV or UV. if X is close enough to UV (resp LV) and going toward UV (resp LV), we want to compute a coefficient tending from 1 (instant of entering ineraction region) to 0 (when reaching UV) to be used in clamping the change rate. This object computes this coefficient for several parameters acording to their current values and change rates and the upper and lower bounds. 
 \ingroup solver

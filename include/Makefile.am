@@ -17,6 +17,11 @@ hppGikdir = $(includedir)/hppGik
 hppGik_HEADERS = \
 	hppGikTools.h
 
+hppGikExampledir = $(includedir)/hppGik/examples
+hppGikExample_HEADERS = \
+	examples/example.h
+
+
 hppGikConstdir = $(includedir)/hppGik/constraints
 hppGikConst_HEADERS = \
 	constraints/hppGikJointStateConstraint.h \

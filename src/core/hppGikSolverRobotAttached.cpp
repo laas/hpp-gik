@@ -100,7 +100,6 @@ bool ChppGikSolverRobotAttached::solve(std::vector<CjrlGikStateConstraint*>& inS
     {
         
         attSolver->weights( attComputationWeights );
-        remaining = attSolver->resetSolution();
         if (remaining ==0)
         {
             attSolution = zero_vector<double>(attNumParams);

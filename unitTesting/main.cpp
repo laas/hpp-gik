@@ -7,7 +7,6 @@
 #include <string>
 
 #include "hppGikTest.h"
-#include "hppGikBasicExample.h"
 
 
 int main(int argc, char *argv[])
@@ -15,11 +14,6 @@ int main(int argc, char *argv[])
     
     ChppGikTest gikTest;
     gikTest.interprete();
-
-    /*
-    ChppGikBasicExample gikExample;
-    gikExample.planExample();
-    */
 
 }
 

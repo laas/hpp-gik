@@ -7,8 +7,6 @@ TESTS = \
 noinst_PROGRAMS = testhppGik
 testhppGik_SOURCES=\
 	main.cpp		\
-	hppGikBasicExample.cpp	\
-	hppGikBasicExample.h	\
 	hppGikTest.cpp		\
 	hppGikTest.h
 

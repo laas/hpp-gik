@@ -18,7 +18,7 @@ ChppGikSolverBasic::ChppGikSolverBasic(unsigned int numberParam)
     xDefaultDim = 6;
     attSVDThreshold = 0.001;
     LongSize =  attNumberParam;
-    PIWeights = Weights = scalar_vector<double> ( attNumberParam,1 );
+    ElementMask = PIWeights = Weights = scalar_vector<double> ( attNumberParam,1 );
     UsedIndexes.resize ( attNumberParam,false );
     for ( unsigned int i=0; i<attNumberParam;i++ )
         UsedIndexes ( i ) = i;
@@ -27,6 +27,7 @@ ChppGikSolverBasic::ChppGikSolverBasic(unsigned int numberParam)
     IdentityMat = tempid;
     attSolution.resize(attNumberParam);
     resizeMatrices ( xDefaultDim );
+    resetSolution();
     jobU = 'N';
     jobVt = 'A';
 }
@@ -36,6 +37,7 @@ bool ChppGikSolverBasic::weights ( vectorN& inWeights )
     if ( inWeights.size() == attNumberParam )
     {
         Weights = inWeights;
+        resetSolution();
         return true;
     }
     else
