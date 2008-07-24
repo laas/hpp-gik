@@ -13,7 +13,7 @@ ChppGikJointStateConstraint::ChppGikJointStateConstraint(CjrlDynamicRobot& inRob
     if (attRobot->countFixedJoints()>0){
         attNumberActuatedDofs = inRobot.numberDof()-6;
     }else{
-        attNumberActuatedDofs = 6;
+        attNumberActuatedDofs = inRobot.numberDof();
     }
     
     computeInfluencingDofs();
