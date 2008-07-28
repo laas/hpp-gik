@@ -5,7 +5,9 @@
 
 using namespace ublas;
 
-ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const matrix3d& inTargetOrientation):ChppGikJointStateConstraint(inRobot, inJoint)
+ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, 
+						     const matrix3d& inTargetOrientation) :
+  ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
     attTargetOrientationMatrix3 = inTargetOrientation;
     attTargetOrientation.resize(3,3,false);
@@ -21,8 +23,6 @@ ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, 
 
     attVectorizedState.resize(9,false);
     attVectorizedTarget.resize(3,false);
-
-    attDimension = 3;
 }
 
 CjrlGikStateConstraint* ChppGikRotationConstraint::clone() const
@@ -45,7 +45,7 @@ const matrix3d& ChppGikRotationConstraint::targetOrientation()
 
 void ChppGikRotationConstraint::computeValue()
 {
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
+    ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
     noalias(tempGapRot) =  prod(trans(tempRot),attTargetOrientation);
     ChppGikTools::RottoOmega(tempGapRot,temp3DVec);
     noalias(attValue) = prod(tempRot,temp3DVec);
@@ -54,25 +54,25 @@ void ChppGikRotationConstraint::computeValue()
 
 void ChppGikRotationConstraint::computeJacobian()
 {
-    tempFixedJoint = &(attRobot->fixedJoint(0));
+    tempFixedJoint = &(robot().fixedJoint(0));
     if (!tempFixedJoint)
     {
         std::cout << "ChppGikRotationConstraint::computeJacobian() expected a fixed joint on the robot.\n";
         return;
     }
 
-    attJoint->computeJacobianJointWrtConfig();
+    joint()->computeJacobianJointWrtConfig();
     //tempFixedJoint->computeJacobianJointWrtConfig();
 
     tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-    tempEffectorJointJacobian = &(attJoint->jacobianJointWrtConfig());
+    tempEffectorJointJacobian = &(joint()->jacobianJointWrtConfig());
     if (!tempFixedJointJacobian || !tempEffectorJointJacobian)
     {
         std::cout << "ChppGikRotationConstraint::computeJacobian() could not retrieve partial jacobians.\n";
         return;
     }
 
-    noalias(attJacobian) = subrange(*tempEffectorJointJacobian,3,6,6,attRobot->numberDof()) - subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof());
+    noalias(attJacobian) = subrange(*tempEffectorJointJacobian,3,6,6,robot().numberDof()) - subrange(*tempFixedJointJacobian,3,6,6,robot().numberDof());
 }
 
 void ChppGikRotationConstraint::computeVectorizedState()
@@ -87,13 +87,13 @@ void ChppGikRotationConstraint::computeVectorizedState()
     matrixNxP tmpRot(3,3);
 
     //constraint position
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tmpRot,temp3DVec);
+    ChppGikTools::HtoRT(joint()->currentTransformation(),tmpRot,temp3DVec);
     ChppGikTools::RottoEulerZYX(tmpRot, curEuler);
     //constraint velocity
-    ChppGikTools::Vector3toUblas(attJoint->jointVelocity().rotationVelocity(),omega);
+    ChppGikTools::Vector3toUblas(joint()->jointVelocity().rotationVelocity(),omega);
     ChppGikTools::OmegatoEulerZYX(omega,curEulerVel);
     //constraint acceleration
-    ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().rotationAcceleration(),dotOmega);
+    ChppGikTools::Vector3toUblas(joint()->jointAcceleration().rotationAcceleration(),dotOmega);
     ChppGikTools::OmegatoEulerZYX(dotOmega,curEulerAccel);
 
 
@@ -120,7 +120,7 @@ bool ChppGikRotationConstraint::vectorizedTarget ( const vectorN& inVector )
 
 void ChppGikRotationConstraint::computeVectorizedTarget()
 {
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
+    ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
     ChppGikTools::RottoEulerZYX(tempRot, temp3DVec);
     ChppGikTools::RottoEulerZYX ( attTargetOrientation, attVectorizedTarget );
 

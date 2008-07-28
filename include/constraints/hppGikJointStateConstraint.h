@@ -13,8 +13,13 @@ public:
 
     /**
         \brief Constructor
+	
+	\param inRobot Reference to the robot the constraint is associated to.
+	\param inJoint Reference to the joint the constraint is associated to.
+	\param inDimension of the constraint.
     */
-    ChppGikJointStateConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint);
+    ChppGikJointStateConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint,
+				unsigned int inDimension);
 
     /**
     \brief Get the dimension of the constraint.
@@ -24,7 +29,9 @@ public:
     /**
         \brief Get robot associated to the constraint.
      */
-    virtual CjrlDynamicRobot& robot();
+    virtual CjrlDynamicRobot& robot() {
+      return *attRobot;
+    };
 
     /**
         \brief Set the joint associated to the constraint. This also calls computeInfluencingDofs().
@@ -33,7 +40,9 @@ public:
     /**
         \brief Get the joint associated to the constraint.
      */
-    virtual  CjrlJoint* joint();
+    virtual  CjrlJoint* joint() {
+      return attJoint;
+    };
 
     /**
         \brief Compute a binary vector whose size matches the robot cnfiguration's, where an element with value 1 indicates that the corresponding degree of freedom can modify the value of this constraint, and an element with value 0 cannot.
@@ -59,21 +68,6 @@ public:
 protected:
 
     /**
-        \brief The robot on which this constraint is applied
-     */
-    CjrlDynamicRobot* attRobot;
-
-    /**
-        \brief The joint on which this constraint is applied
-     */
-    CjrlJoint* attJoint;
-    
-    /**
-    \brief The dimension of this constraint
-    */
-    unsigned int attDimension;
-
-    /**
         \brief The value of this constraint
      */
     vectorN attValue;
@@ -92,6 +86,23 @@ protected:
         \brief The number of actuated degrees of freedom 
     */
     unsigned int attNumberActuatedDofs;
+
+private:
+
+    /**
+        \brief The robot on which this constraint is applied
+     */
+    CjrlDynamicRobot* attRobot;
+
+    /**
+        \brief The joint on which this constraint is applied
+     */
+    CjrlJoint* attJoint;
+    
+    /**
+    \brief The dimension of this constraint
+    */
+    unsigned int attDimension;
 
 };
 

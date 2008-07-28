@@ -5,7 +5,10 @@
 
 using namespace ublas;
 
-ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame):ChppGikJointStateConstraint(inRobot, inJoint)
+ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, 
+						     const vector3d& inPointInBodyLocalFrame, 
+						     const vector3d& inPointInWorldFrame) :
+  ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
     attLocalPointVector3 =  inPointInBodyLocalFrame;
     attWorldTargetVector3 =  inPointInWorldFrame;
@@ -27,8 +30,6 @@ ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, 
 
     attVectorizedState.resize(9,false);
     attVectorizedTarget.resize(3,false);
-
-    attDimension = 3;
 }
 
 CjrlGikStateConstraint* ChppGikPositionConstraint::clone() const
@@ -62,7 +63,7 @@ const vector3d& ChppGikPositionConstraint::worldTarget()
 
 void ChppGikPositionConstraint::computeValue()
 {
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
+    ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
     attValue = attWorldTarget;
     attValue -= temp3DVec;
     noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
@@ -72,15 +73,15 @@ void ChppGikPositionConstraint::computeValue()
 
 void ChppGikPositionConstraint::computeJacobian()
 {
-    attJoint->getJacobianPointWrtConfig(attLocalPointVector3, tempJacobian);
+    joint()->getJacobianPointWrtConfig(attLocalPointVector3, tempJacobian);
 
-    int start = attRobot->numberDof() - attNumberActuatedDofs;
-    attJacobian = subrange(tempJacobian,0,3,start,attRobot->numberDof());
+    int start = robot().numberDof() - attNumberActuatedDofs;
+    attJacobian = subrange(tempJacobian,0,3,start,robot().numberDof());
 
 
-    if (attRobot->countFixedJoints()>0)
+    if (robot().countFixedJoints()>0)
     {
-        tempFixedJoint = &(attRobot->fixedJoint(0));
+        tempFixedJoint = &(robot().fixedJoint(0));
         tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
         if (!tempFixedJointJacobian)
         {
@@ -88,9 +89,9 @@ void ChppGikPositionConstraint::computeJacobian()
             return;
         }
         attJacobian.minus_assign(subrange(*tempFixedJointJacobian,
-                                          0,3,start,attRobot->numberDof()));
+                                          0,3,start,robot().numberDof()));
 
-        ChppGikTools::HtoRT(attJoint->currentTransformation(),
+        ChppGikTools::HtoRT(joint()->currentTransformation(),
                             tempRot,temp3DVec);
         noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
         temp3DVec.plus_assign(temp3DVec1);//joint point in world
@@ -99,7 +100,7 @@ void ChppGikPositionConstraint::computeJacobian()
         temp3DVec.minus_assign(temp3DVec1);//joint point in world - ankle joint center in world
 
         ChppGikTools::equivAsymMat(temp3DVec,tempRot);
-        noalias(attJacobian) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,start,attRobot->numberDof()));
+        noalias(attJacobian) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,start,robot().numberDof()));
     }
 }
 
@@ -119,20 +120,20 @@ void ChppGikPositionConstraint::computeVectorizedState()
     matrixNxP tmpRot(3,3);
 
     //constraint position
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tmpRot,curpos);
+    ChppGikTools::HtoRT(joint()->currentTransformation(),tmpRot,curpos);
     worldLocalPoint = prod(tmpRot, attLocalPoint);
     curpos += worldLocalPoint;
 
     //constraint velocity
-    ChppGikTools::Vector3toUblas(attJoint->jointVelocity().linearVelocity(),curvel);
-    ChppGikTools::Vector3toUblas(attJoint->jointVelocity().rotationVelocity(),rotvel);
+    ChppGikTools::Vector3toUblas(joint()->jointVelocity().linearVelocity(),curvel);
+    ChppGikTools::Vector3toUblas(joint()->jointVelocity().rotationVelocity(),rotvel);
     ChppGikTools::CrossProduct(rotvel,worldLocalPoint,rotvelCrossLocal);
     curvel += rotvelCrossLocal;
 
     //constraint acceleration
-    ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().linearAcceleration(),curaccel);
+    ChppGikTools::Vector3toUblas(joint()->jointAcceleration().linearAcceleration(),curaccel);
     //std::cout << "curaccel " << curaccel << "\n";
-    ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().rotationAcceleration(),rotaccel);
+    ChppGikTools::Vector3toUblas(joint()->jointAcceleration().rotationAcceleration(),rotaccel);
     ChppGikTools::CrossProduct(rotaccel,worldLocalPoint,temp);
     curaccel += temp;
     //std::cout << "curaccel " << curaccel << "\n";

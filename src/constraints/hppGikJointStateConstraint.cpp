@@ -4,7 +4,8 @@
 
 using namespace ublas;
 
-ChppGikJointStateConstraint::ChppGikJointStateConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint)
+ChppGikJointStateConstraint::ChppGikJointStateConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint,
+							 unsigned int inDimension) : attDimension(inDimension)
 {
     attJoint = &inJoint;
     attRobot = &inRobot;
@@ -52,11 +53,6 @@ const matrixNxP& ChppGikJointStateConstraint::jacobian()
     return attJacobian;
 }
 
-CjrlJoint* ChppGikJointStateConstraint::joint()
-{
-    return attJoint;
-}
-
 void ChppGikJointStateConstraint::joint(CjrlJoint* inJoint)
 {
     attJoint = inJoint;
@@ -66,10 +62,5 @@ void ChppGikJointStateConstraint::joint(CjrlJoint* inJoint)
 unsigned int ChppGikJointStateConstraint::dimension() const
 {
     return attDimension;
-}
-
-CjrlDynamicRobot& ChppGikJointStateConstraint::robot()
-{
-    return *attRobot;
 }
 

@@ -4,7 +4,9 @@
 #include "hppGikTools.h"
 
 
-ChppGikParallelConstraint::ChppGikParallelConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalVector, const vector3d& inTargetVector):ChppGikJointStateConstraint(inRobot, inJoint)
+ChppGikParallelConstraint::ChppGikParallelConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, 
+						     const vector3d& inLocalVector, const vector3d& inTargetVector) :
+  ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
     attLocalVectorVector3 =  inLocalVector;
     attTargetVectorVector3 =  inTargetVector;
@@ -31,8 +33,6 @@ ChppGikParallelConstraint::ChppGikParallelConstraint(CjrlDynamicRobot& inRobot, 
 
     attVectorizedState.resize(9,false);
     attVectorizedTarget.resize(3,false);
-
-    attDimension = 3;
 }
 
 CjrlGikStateConstraint* ChppGikParallelConstraint::clone() const
@@ -69,7 +69,7 @@ const vector3d& ChppGikParallelConstraint::targetVector()
 void ChppGikParallelConstraint::computeValue()
 {
 
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
+    ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
     //std::cout << "local vector "<< attLocalVector << "\n";
     temp3DVec =  ublas::prod(tempRot,attLocalVector);
     //std::cout << "current world vector "<< temp3DVec << "\n";
@@ -79,30 +79,30 @@ void ChppGikParallelConstraint::computeValue()
 
 void ChppGikParallelConstraint::computeJacobian()
 {
-    tempFixedJoint = &(attRobot->fixedJoint(0));
+    tempFixedJoint = &(robot().fixedJoint(0));
     if (!tempFixedJoint)
     {
         std::cout << "ChppGikParallelConstraint::computeJacobian() expected a fixed joint on the robot.\n";
         return;
     }
 
-    attJoint->computeJacobianJointWrtConfig();
+    joint()->computeJacobianJointWrtConfig();
     //tempFixedJoint->computeJacobianJointWrtConfig();
 
     tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-    tempEffectorJointJacobian = &(attJoint->jacobianJointWrtConfig());
+    tempEffectorJointJacobian = &(joint()->jacobianJointWrtConfig());
     if (!tempFixedJointJacobian || !tempEffectorJointJacobian)
     {
         std::cout << "ChppGikParallelConstraint::computeJacobian() could not retrieve partial jacobians.\n";
         return;
     }
 
-    ublas::noalias(tempJointOrientJacobian) = ublas::subrange(*tempEffectorJointJacobian,3,6,6,attRobot->numberDof()) - ublas::subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof());
+    ublas::noalias(tempJointOrientJacobian) = ublas::subrange(*tempEffectorJointJacobian,3,6,6,robot().numberDof()) - ublas::subrange(*tempFixedJointJacobian,3,6,6,robot().numberDof());
 
     //     std::cout << "tempJointOrientJacobian\n";
     //     ChppGikTools::printBlasMat( tempJointOrientJacobian );
 
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
+    ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
     temp3DVec =  ublas::prod(tempRot,attLocalVector);
 
     ChppGikTools::equivAsymMat(attTargetVector,tempRot1);
@@ -133,19 +133,19 @@ void ChppGikParallelConstraint::computeVectorizedState()
     //correct a known bug in this hurriedly coded method: determin the nearest target vector (the given one or its opposite, because a parallel constraint does not care about orientation like a pointing constraint)
 
     //constraint position
-    ChppGikTools::HtoRT(attJoint->currentTransformation(),tempRot,temp3DVec);
+    ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
     curpos =  ublas::prod(tempRot,attLocalVector);
 
     //std::cout << "curpos " << curpos << std::endl;
 
     //constraint velocity
-    ChppGikTools::Vector3toUblas(attJoint->jointVelocity().rotationVelocity(),rotvel);
+    ChppGikTools::Vector3toUblas(joint()->jointVelocity().rotationVelocity(),rotvel);
     ChppGikTools::CrossProduct(rotvel,curpos,curvel);
 
     //std::cout << "curvel " << curvel << std::endl;
 
     //constraint acceleration
-    ChppGikTools::Vector3toUblas(attJoint->jointAcceleration().rotationAcceleration(),rotaccel);
+    ChppGikTools::Vector3toUblas(joint()->jointAcceleration().rotationAcceleration(),rotaccel);
     ChppGikTools::CrossProduct(rotaccel,curpos,curaccel);
     ChppGikTools::CrossProduct(rotvel,curvel,temp);
     curaccel.plus_assign(temp);
