@@ -5,9 +5,7 @@
 
 using namespace ublas;
 
-ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, 
-						     const matrix3d& inTargetOrientation) :
-  ChppGikJointStateConstraint(inRobot, inJoint, 3)
+ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint,  const matrix3d& inTargetOrientation) :ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
     attTargetOrientationMatrix3 = inTargetOrientation;
     attTargetOrientation.resize(3,3,false);

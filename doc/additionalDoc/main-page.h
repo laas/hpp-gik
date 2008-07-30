@@ -111,7 +111,7 @@ This system is solved in the same fashion as \f$E1\f$ to obtain a solution point
 
 Because \f$E2\f$ might become singular when projected on \f$E1\f$, the methods used to deal with singular cases presented in previous section can still be used here. Then the point \f${x_{2}}^{*}\f$ would not strictly be solution to \f$(E1)\f$, but a least-square- error solution.
 
-\subsection impl2_subsection Implmentation
+\subsection impl2_subsection Implementation
 
 ChppGikSolverBasic implements prioritized linear system resolution.
 The systems must be presented one at a time, the solution vector is incremented after each system resolution and the nullspace is updated.\n
@@ -154,26 +154,26 @@ Let \f$q\f$ be the vector of joint values and let \f$P(q)\f$ be the position of 
 
 \code
 WHILE P(q) - T(q) != 0 DO:
-   (1) Value             V = eval(P(q) - T(q))
+   (1) Value             V = eval(T(q) - P(q))
    (2) Jacobian          J = d (P - T) / d q 
-   (3) Slight change     dq = -r * pseudoinverse(J) * V
+   (3) Slight change     dq = r * pseudoinverse(J) * V
    (4) IF dq = 0 QUIT
    (5) q = q + dq
 \endcode
 
 where \c r is a positive real used to scale the value.\n
 The joint update computed at step (3) is the solution to the linear system:
-\f[ {{\partial (P - T)} \over {\partial {q}}}(q)  \delta q = - r V \f]
+\f[ {{\partial (P - T)} \over {\partial {q}}}(q)  \delta q = r V \f]
 
 If \c r is controlled properly through iterations, the above algorithm yields a smooth motion. The achievement of position \f$T\f$ is not guaranteed because the linear system might become singular after a few iterations, even from start. In that case the algorithm is said to be trapped in a local minimum and it cannot achieve any better.\n
 
 
-\subsection impl3_subsection Implmentation
+\subsection impl3_subsection Implementation
 
 
 Given the tasks, the user should implement CjrlGikStateConstraint objects that compute the jacobians and values correponding to the respective tasks.
 To solve the linear systems implied by step (3) ChppGikSolverBasic can be used.\n
-However, a problem arises for a robot: joint limits. Joint limits are inequality constraints on the joint values that must constantly be verified. ChppGikSolverRobotFree and ChppGikSolverRobotAttached are another prioritized linear system solvers based on ChppGikSolverBasic, which use a ChppGikBounder object to enforce joint limits. See these objects'documentation for more details.\n
+However, a problem arises for a robot: joint limits. Joint limits are inequality constraints on the joint values that must constantly be verified. ChppGikSolverRobotFree and ChppGikSolverRobotAttached are prioritized linear system solvers based on ChppGikSolverBasic, which use a ChppGikBounder object to enforce joint limits. See these objects' documentation for more details.\n
 Both solvers are constructed by giving a reference to a CjrlDynamicRobot object.\n
 The difference lies in the way the solution is computed. ChppGikSolverRobotFree treats the robot as a kinematic tree whose root is a freeflying joint, whereas ChppGikSolverRobotAttached 
 treats the robot like a kinematic tree whose root is fixed in the ground via a body of the robot. The second solver gives significant computation speedup, so it should be preferred when applicable.\n
@@ -212,11 +212,11 @@ See \ref example1_page for a source code using ChppGikSolverRobotAttached.
 
 \n\n
 \section plan2_section Plan motion for your humanoid robot
-This section is merely about drawing the user's attention to humanoid's stability issue.\n As a matter of fact, to reach something with the right hand, and supposing the humanoid is standing upon a flat ground, it needs to move while keeping its Zero Momentum Point inside its support polygon. There is NOTHING implemented in this library that provides such a guarantee. However, if the planned motion is smooth enough (does not necessarily mean slow), Keeping the center of mass's projection inside the support polygon should be enough to achieve a stable reaching motion.\n\n
+This section is merely about drawing the user's attention to humanoid's stability issue.\n As a matter of fact, to reach something with the right hand, and supposing the humanoid is standing upon a flat ground, it needs to move while keeping its Zero Momentum Point inside its support polygon. There is NOTHING implemented in this library that provides such a guarantee. However, if the planned motion is smooth enough (does not necessarily mean slow), then keeping the center of mass's projection inside the support polygon should be enough to achieve a stable reaching motion.\n\n
 See \ref example1_page for a code where center of mass and feet constraints are added to maintain stability while reaching.
 
 \n\n
- \section plan3_section Obtain humanoid motion without reading previous sections
+ \section plan3_section Obtain humanoid motion without reading all previous sections
 Well, this is no joke, you will be able to compute all kinds of motion just reading this section. At the expense of flexibility, of course. The API shown in previous sections would be "low-level" compared to the one shown here.\n
 Attention is focused on ChppGikGenericTask class. Objects of this class define a time scale \f$[0,+\inf[\f$ on which the user schedules finite-time motions.\n
 A motion is either a ChppGikPrioritizedMotion or a ChppGikLocomotionElement.\n

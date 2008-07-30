@@ -7,11 +7,7 @@
 
 using namespace ublas;
 
-ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, 
-								 const vector3d& inPointInBodyLocalFrame, 
-								 const vector3d& inPointInWorldFrame, 
-								 const matrix3d& inTargetOrientation) :
-  ChppGikJointStateConstraint(inRobot, inJoint, 6)
+ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame, const matrix3d& inTargetOrientation) : ChppGikJointStateConstraint(inRobot, inJoint, 6)
 {
     attLocalPointVector3 =  inPointInBodyLocalFrame;
     attWorldTargetVector3 =  inPointInWorldFrame;
@@ -35,10 +31,7 @@ ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobo
     attVectorizedTarget.resize(6,false);
 }
 
-ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, 
-								 const vector3d& inPointInBodyLocalFrame,  
-								 const matrix4d& inTransformation) :
-  ChppGikJointStateConstraint(inRobot, inJoint, 6)
+ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const matrix4d& inTransformation) : ChppGikJointStateConstraint(inRobot, inJoint, 6)
 {
     attLocalPointVector3 =  inPointInBodyLocalFrame;
 

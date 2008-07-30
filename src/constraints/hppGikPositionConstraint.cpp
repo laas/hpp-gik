@@ -5,10 +5,7 @@
 
 using namespace ublas;
 
-ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, 
-						     const vector3d& inPointInBodyLocalFrame, 
-						     const vector3d& inPointInWorldFrame) :
-  ChppGikJointStateConstraint(inRobot, inJoint, 3)
+ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame) : ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
     attLocalPointVector3 =  inPointInBodyLocalFrame;
     attWorldTargetVector3 =  inPointInWorldFrame;

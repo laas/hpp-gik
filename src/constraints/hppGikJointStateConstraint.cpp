@@ -4,19 +4,21 @@
 
 using namespace ublas;
 
-ChppGikJointStateConstraint::ChppGikJointStateConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint,
-							 unsigned int inDimension) : attDimension(inDimension)
+ChppGikJointStateConstraint::ChppGikJointStateConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, unsigned int inDimension) : attDimension(inDimension)
 {
     attJoint = &inJoint;
     attRobot = &inRobot;
     attInfluencingDofs = zero_vector<double>(attRobot->numberDof());
-    
-    if (attRobot->countFixedJoints()>0){
+
+    if (attRobot->countFixedJoints()>0)
+    {
         attNumberActuatedDofs = inRobot.numberDof()-6;
-    }else{
+    }
+    else
+    {
         attNumberActuatedDofs = inRobot.numberDof();
     }
-    
+
     computeInfluencingDofs();
 }
 

@@ -5,10 +5,7 @@
 
 using namespace ublas;
 
-ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, 
-						     const vector3d& inLocalOrigin, const vector3d& inLocalVector, 
-						     const vector3d& inTargetWorldPoint) :
-  ChppGikJointStateConstraint(inRobot, inJoint, 3)
+ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint,  const vector3d& inLocalOrigin, const vector3d& inLocalVector, const vector3d& inTargetWorldPoint) :  ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
     attLocalOriginVector3 = inLocalOrigin;
     attLocalVectorVector3 = inLocalVector;
@@ -157,7 +154,7 @@ void ChppGikPointingConstraint::computeJacobian()
         vecOP /= normOP;
     if (normOT != 0)
         vecOT /= normOT;
-    
+
     ChppGikTools::equivAsymMat(vecOT,matOT);
     ChppGikTools::equivAsymMat(vecOP,matOP);
 

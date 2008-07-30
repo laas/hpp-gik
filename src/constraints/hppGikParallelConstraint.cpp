@@ -4,9 +4,7 @@
 #include "hppGikTools.h"
 
 
-ChppGikParallelConstraint::ChppGikParallelConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, 
-						     const vector3d& inLocalVector, const vector3d& inTargetVector) :
-  ChppGikJointStateConstraint(inRobot, inJoint, 3)
+ChppGikParallelConstraint::ChppGikParallelConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalVector, const vector3d& inTargetVector) :  ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
     attLocalVectorVector3 =  inLocalVector;
     attTargetVectorVector3 =  inTargetVector;
