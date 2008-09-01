@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
     
     ChppGikTest gikTest;
     gikTest.interprete();
+    //gikTest.springTest();
 
 }
 

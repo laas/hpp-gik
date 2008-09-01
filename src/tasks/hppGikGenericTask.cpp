@@ -14,7 +14,7 @@ using namespace ublas;
 
 ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod, "GenericTask")
 {
-    attRobot = inStandingRobot->robot(); 
+    attRobot = inStandingRobot->robot();
 
     attMotionPlan = new ChppGikMotionPlan(attRobot);
 
@@ -25,8 +25,8 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
     attUseDynamicWeights = true;
     attNeutralBodyOption = false;
     attUserDefinedMask = false;
-
-    attExtraEndTime = 1.0; 
+    attNIter = 1;
+    attExtraEndTime = 1.0;
 }
 
 
@@ -74,11 +74,18 @@ void ChppGikGenericTask::clearElements()
     attLocomotionPlan->clearElements();
 }
 
-
+void ChppGikGenericTask::numberGikIterations(unsigned int inNiter)
+{
+    if (inNiter == 0)
+        attNIter = 1;
+    else
+        attNIter = inNiter;
+}
 
 bool ChppGikGenericTask::algorithmSolve()
 {
     unsigned int rank;
+    unsigned int niter;
     bool ok,atLeastOneZMPUnsafe = false;
     double time, motionStartTime, motionEndTime, gapTime;
     CjrlJoint* supportJoint = 0;
@@ -92,19 +99,19 @@ bool ChppGikGenericTask::algorithmSolve()
     attSolutionMotion->startTime(0.0);
 
     gapTime = attLocomotionPlan->endTime() - attMotionPlan->endTime();
-    
+
     if (gapTime<0)
         attLocomotionPlan->extraEndTime(-gapTime);
 
     attLocomotionPlan->extraEndTime( attLocomotionPlan->extraEndTime() + attExtraEndTime );
-    
+
     ok = attLocomotionPlan->solve();
     if (!ok)
     {
         std::cout << "Locomotion planning Failed\n";
         return false;
     }
-    
+
     motionStartTime = attMotionPlan->startTime()+attSamplingPeriod;
     motionEndTime = attMotionPlan->endTime()+attEps;
     time = motionStartTime;
@@ -124,19 +131,24 @@ bool ChppGikGenericTask::algorithmSolve()
         constraintStack = columnInTime->constraints();
         computeGikWeights(time, columnInTime->workingJoints(), gikWeights);
         attGikSolver->weights(gikWeights);
-        supportJoint->computeJacobianJointWrtConfig();
-        for (unsigned int i = 0; i< constraintStack.size();i++)
+
+        for (niter=0;niter<attNIter;niter++)
         {
-            constraintStack[i]->computeValue();
-            constraintStack[i]->computeJacobian();
+            supportJoint->computeJacobianJointWrtConfig();
+            for (unsigned int i = 0; i< constraintStack.size();i++)
+            {
+                constraintStack[i]->computeValue();
+                constraintStack[i]->computeJacobian();
+            }
+            ok = attGikSolver->solve(constraintStack);
+            if (!ok)
+            {
+                std::cout <<"ChppGikGenericTask::gradientStep() Could not solve motion plan at time "<< time << "\n";
+                return false;
+            }
+            attGikSolver->applySolution();
         }
-        ok = attGikSolver->solve(constraintStack);
-        if (!ok)
-        {
-            std::cout <<"ChppGikGenericTask::gradientStep() Could not solve motion plan at time "<< time << "\n";
-            return false;
-        }
-        attGikSolver->applySolution();
+
         attLocomotionPlan->getZMPAtTime(time, uZMPworPla);
         ChppGikTools::UblastoVector3(uZMPworPla, ZMPworPla);
         attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);

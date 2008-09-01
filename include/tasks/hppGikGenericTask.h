@@ -45,6 +45,11 @@ public :
      */
     void clearElements();
 
+    /**
+    \brief Set the number of Gik iterations per time sample. By default this is set to 1, meaning only one iteration of inverse kinematics is applied on the constraints of every time sample. Try to increase this if you notice that some of the motion that should normally be achieved are not.
+    \param inNiter should be bigger or equal to 1. Value 0 is equivalent to value 1.
+    */
+    void numberGikIterations(unsigned int inNiter);
 
     /**
     \brief modify extra end time (use with caution, make sure there is at least one second of planned motion after the endtime of the last planned stepElement)
@@ -83,6 +88,7 @@ protected:
 
 private:
     virtual bool algorithmSolve();
+    unsigned int attNIter;
     std::vector<ChppGikMotionPlanRow*> attPrioritizedMotionRows;
     std::vector<ChppGikPrioritizedMotion*> attPrioritizedMotions;
     bool attUseDynamicWeights;
