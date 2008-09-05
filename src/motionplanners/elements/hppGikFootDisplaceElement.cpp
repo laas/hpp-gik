@@ -111,10 +111,14 @@ bool ChppGikFootDisplaceElement::planFeet()
     data.clear();
     vectorN tempInterpolationResult(nsamples);
 
-
-    if (attSamplingPeriod <= 6e-3) // small enough
+    
+    
+    if (attSamplingPeriod <= 11e-3) // small enough
     {
-        unsigned int numberZbufferSamples = 15; //arbitrary
+        unsigned int numberZbufferSamples = 8; //arbitrary
+        if (attSamplingPeriod <= 6e-3)
+            numberZbufferSamples = 15; //arbitrary
+
         double flightTime = attDuration - numberZbufferSamples*attSamplingPeriod;
         unsigned int padStart = nsamples - numberZbufferSamples;//we are sure this is a strictly positive integer because we threshold the minimum stepping time in the ChppStep constructor
         matrixNxP vectomat(1,padStart);
