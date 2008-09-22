@@ -74,7 +74,6 @@ bool ChppGikSolverRobotFree::solve(std::vector<CjrlGikStateConstraint*>& inSorte
     while ( recompute )
     {
         attSolver->weights( attComputationWeights );
-
         iter = inSortedConstraints.begin();
         iter2 = inSRcoefs.begin();
 

@@ -26,6 +26,8 @@ ChppGikSolverRobotAttached::ChppGikSolverRobotAttached(CjrlDynamicRobot& inRobot
     Hf.resize ( 4,4,false );
     Hif.resize ( 4,4,false );
     InvHf.resize ( 4,4,false );
+    
+    FixedJoint = 0;
 }
 
 bool ChppGikSolverRobotAttached::weights ( vectorN& inWeights )
@@ -58,9 +60,9 @@ bool ChppGikSolverRobotAttached::solve ( std::vector<CjrlGikStateConstraint*>& i
 
 bool ChppGikSolverRobotAttached::solve(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs)
 {
+    attSolution.clear();
     if (inSortedConstraints.empty())
     {
-        attSolution.clear();
         std::cout << "ChppGikSolverRobotAttached::solve() nothing to do\n";
         return true;
     }
@@ -84,7 +86,6 @@ bool ChppGikSolverRobotAttached::solve(std::vector<CjrlGikStateConstraint*>& inS
     }
 
     bool recompute = true;
-    unsigned int remaining;
     unsigned int iC;
     unsigned int paramIndex;
     double ub, lb;
@@ -98,14 +99,7 @@ bool ChppGikSolverRobotAttached::solve(std::vector<CjrlGikStateConstraint*>& inS
     
     while ( recompute )
     {
-        
         attSolver->weights( attComputationWeights );
-        if (remaining ==0)
-        {
-            attSolution = zero_vector<double>(attNumParams);
-            return true; //cannot move
-        }
-
         iter = inSortedConstraints.begin();
         iter2 = inSRcoefs.begin();
         
@@ -133,18 +127,21 @@ bool ChppGikSolverRobotAttached::solve(std::vector<CjrlGikStateConstraint*>& inS
             attSolver->solveTask(*iter, *iter2, true, false);
         }
 
-        //update dof config
+        if (norm_2(attSolver->solution())<1e-5)
+            return true; //cannot move
+        
+        //update config and check joint limits
         recompute = false;
         CurFullConfig = attRobot->currentConfiguration();
-        for ( iC=6; iC< attNumParams+6; iC++ )
-            CurFullConfig(iC) += attSolver->solution()(iC-6);
-        //joint limit checking
         for ( iC=6; iC< attNumParams+6; iC++ )
         {
             paramIndex = iC-6;
             lb = attRobot->lowerBoundDof(iC);
             ub = attRobot->upperBoundDof(iC);
-            if (CurFullConfig(iC) < lb +1e-2 || CurFullConfig ( iC ) > ub-1e-2)
+            //update
+            CurFullConfig(iC) += attSolver->solution()(paramIndex);
+            //check
+            if ((attComputationWeights(paramIndex) != 0)&&(CurFullConfig(iC) < lb +1e-2 || CurFullConfig ( iC ) > ub-1e-2))
             {
                 recompute = true;
                 attComputationWeights(paramIndex) = 0;
@@ -183,7 +180,7 @@ void ChppGikSolverRobotAttached::computeFreeFlyerVelocity()
     //update joints transformations from root to fixed joint in waist frame
     for ( iC=0; iC< supportJoints.size(); iC++ )
         supportJoints[iC]->updateTransformation ( CurFullConfig );
-    
+
     //Compute new waist transformation
     ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),Hf );
     ChppGikTools::invertTransformation ( Hf,InvHf );

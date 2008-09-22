@@ -190,7 +190,7 @@ const vectorN& ChppGikSolverBasic::solution()
             
     for ( unsigned int iC=0; iC< LongSize; iC++ )
     {
-        attSolution ( UsedIndexes ( iC ) ) += DeltaQ ( iC );
+        attSolution ( UsedIndexes ( iC ) ) = DeltaQ ( iC );
     }
     
     return attSolution;
