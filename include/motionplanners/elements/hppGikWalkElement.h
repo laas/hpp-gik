@@ -1,8 +1,8 @@
 #ifndef HPP_GIK_WALK_ELEMENT_H
 #define HPP_GIK_WALK_ELEMENT_H
 
-#include "hppGik/motionplanners/elements/hppGikStepElement.h"
-#include "hppGik/robot/hppGikFootprintRelated.h"
+#include "motionplanners/elements/hppGikStepElement.h"
+#include "robot/hppGikFootprintRelated.h"
 
 /**
 \brief This is motion planner for a walk (multiple steps)

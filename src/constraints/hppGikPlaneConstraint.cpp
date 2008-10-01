@@ -157,6 +157,7 @@ void ChppGikPlaneConstraint::computeVectorizedState()
     ChppGikTools::CrossProduct(rotvel,rotvelCrossLocal,temp);
     curaccel += temp;
 
+    attVectorizedState.clear();
     subrange(attVectorizedState,0,3) = curpos;
     subrange(attVectorizedState,6,9) = curvel;
     subrange(attVectorizedState,12,15) = curaccel;
