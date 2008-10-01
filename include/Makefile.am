@@ -77,6 +77,7 @@ hppGikElements_HEADERS = \
 	motionplanners/elements/hppGikNoLocomotion.h \
 	motionplanners/elements/hppGikReadyElement.h \
 	motionplanners/elements/hppGikStepElement.h \
+	motionplanners/elements/hppGikWalkElement.h \
 	motionplanners/elements/hppGikZMPshiftElement.h
 
 hppGikRobotdir = $(includedir)/hppGik/robot

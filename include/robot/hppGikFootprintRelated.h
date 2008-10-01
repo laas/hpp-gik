@@ -106,6 +106,11 @@ public:
     \brief Get the associated footprint
     */
     const ChppGikFootprint& footprint() const;
+    
+    /**
+    \brief Print the x,y coordinates and the identity of foot (left/right)
+     */
+    void print() const;
 
     /**
     \brief Is this a step target for the right foot

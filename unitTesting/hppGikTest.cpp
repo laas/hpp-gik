@@ -57,6 +57,64 @@ ChppGikTest::~ChppGikTest()
     delete attMotion;
 }
 
+void ChppGikTest::accel()
+{
+    /**debug*/
+    
+    CjrlJoint* fixedFoot = attRobot->leftFoot();
+    attRobot->clearFixedJoints();
+    attRobot->addFixedJoint( fixedFoot );
+    ChppGikSolverRobotAttached gikSolver(*attRobot);
+    
+    vector3d targetPoint, localPoint, p;
+    vector3d absZMPPla, absZMPObs, relZMPObs, relZMPPla;
+    vector3d normalVec;
+
+    std::vector<CjrlGikStateConstraint*> stack;
+    
+    localPoint[0] = 0.0;
+    localPoint[1] = 0.0;
+    localPoint[2] = 0.0;
+    CjrlJoint& nsfJoint = *(attRobot->rightFoot());
+    matrix4d nsfTransform = nsfJoint.currentTransformation();
+    matrix4d sfTransform = fixedFoot->currentTransformation();
+    ChppGikTransformationConstraint nsfc(*attRobot, nsfJoint, localPoint, nsfTransform);
+    stack.push_back(&nsfc);
+    
+    
+    matrix4d m;
+    M4_IJ(m,0,3) = 0.0001;
+    M4_IJ(m,1,3) = 0;
+    M4_IJ(m,2,3) = 0.6487;
+    localPoint[0] = localPoint[1] = localPoint[2] = 0;
+    ChppGikTransformationConstraint trans (*(attStandingRobot->robot()), *(attStandingRobot->robot()->waist()), localPoint, m);
+    stack.push_back(&trans);
+    
+    
+    vectorN activated =  attStandingRobot->maskFactory()->legsMask();
+    vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
+    vectorN combined = weights;
+    for (unsigned int i=0;i<combined.size();i++)
+        combined(i) *= activated(i);
+    ChppGikSupportPolygon* curSupportPolygon;
+    gikSolver.weights(combined);
+    
+    fixedFoot->computeJacobianJointWrtConfig();
+    for (unsigned int i = 0; i< stack.size();i++)
+    {
+        stack[i]->computeValue();
+        stack[i]->computeJacobian();
+    }
+    gikSolver.solve( stack );
+    gikSolver.applySolution();
+
+    attStandingRobot->updateDynamics(attSamplingPeriod, absZMPPla, absZMPObs, relZMPObs, relZMPPla);
+    
+    std::cout << absZMPObs << "\n";
+    std::cout << attRobot->currentConfiguration() << "\n";
+    
+}
+
 void ChppGikTest::springTest()
 {
     CjrlJoint* fixedFoot = attRobot->leftFoot();

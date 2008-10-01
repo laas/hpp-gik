@@ -34,6 +34,7 @@ libhppGik_la_SOURCES = \
 	motionplanners/elements/hppGikInterpolatedElement.cpp \
 	motionplanners/elements/hppGikNoLocomotion.cpp \
 	motionplanners/elements/hppGikStepElement.cpp \
+	motionplanners/elements/hppGikWalkElement.cpp \
 	motionplanners/elements/hppGikZMPshiftElement.cpp \
 	tasks/hppGikGenericTask.cpp \
 	tasks/hppGikWholeBodyTask.cpp \

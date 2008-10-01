@@ -20,15 +20,25 @@ public:
      */
     ChppGikBounder(unsigned int numberParam);
     /**
-    \brief Upper bound on a control variable. 
+    \brief Set the upper bound on a control variable. 
     \return false if rank is out of bounds or given upper bound is smaller than recorded lower bound
      */
     bool upperBound(unsigned int i_rank, double i_bound);
     /**
-    \brief Lower bound on a control variable
+    \brief Set the lower bound on a control variable
     \return false if rank is out of bounds or given lower bound is bigger than recorded lower bound
      */
     bool lowerBound(unsigned int i_rank, double i_bound);
+    /**
+    \brief Get the upper bound on a control variable. 
+    \return false if rank is out of bounds
+    */
+    bool getUpperBound(unsigned int i_rank, double &i_bound);
+    /**
+    \brief Get the lower bound on a control variable
+    \return false if rank is out of bounds
+     */
+    bool getLowerBound(unsigned int i_rank, double &i_bound);
     /**
     \brief set the braking zone size near upper and lower bound in percentage of the total interval. Will apply for all intervals. Entered value clamped between 0.01 and 0.5. Default to 0.12;
     */

@@ -51,6 +51,7 @@ public:
     \brief 
     */
     void springTest();
+    void accel();
 
 private:
 

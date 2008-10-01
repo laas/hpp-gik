@@ -50,7 +50,7 @@ void ChppGikFootprint::makeAbsolute ( const ChppGikFootprint* inReferenceFootpri
     outFootprint->x ( absX );
     outFootprint->y ( absY );
     double diffTh = outFootprint->th() + inReferenceFootprint->th() ;
-    
+
     if (diffTh > M_PI)
         diffTh -= 2*M_PI;
     else
@@ -126,7 +126,15 @@ ChppGikStepTarget::ChppGikStepTarget(const ChppGikFootprint&  inFootprint, bool 
     attIsRight = isRight;
     attFootprint = new ChppGikFootprint(inFootprint);
 }
-
+void ChppGikStepTarget::print() const
+{
+    if (isForRight())
+        std::cout << "Right ";
+    else
+        std::cout << "Left  ";
+    
+    std::cout << "step to X = " << attFootprint->x()<< " and Y = " << attFootprint->y()<<"\n";
+}
 
 ChppGikStepTarget::ChppGikStepTarget(const ChppGikStepTarget&  sourceObject)
 {

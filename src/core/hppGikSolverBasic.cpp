@@ -52,7 +52,7 @@ void ChppGikSolverBasic::resizeMatrices ( unsigned int inSize)
 {
     Residual.resize ( inSize,false );
     PenroseMask.resize ( inSize,false );
-    
+
     CarvedJacobian.resize ( inSize,LongSize,false );
     HatJacobian.resize ( inSize,LongSize,false );
     WJt.resize ( LongSize,inSize,false );
@@ -112,6 +112,7 @@ bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
 
     if (confc)
     {
+        zero_vector<double> zeroV(LongSize);
         unsigned int realInd,valInd = 0;
         for ( unsigned int col = 0; col<LongSize;col++ )
         {
@@ -119,12 +120,20 @@ bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
             if ( ElementMask ( realInd ) == 1)
             {
                 Residual(col) = inConstraint->value()(valInd) - DeltaQ(col);
-                row(HatJacobian,valInd) = row(NullSpace,col);
                 valInd++;
             }
         }
-        noalias ( WJt ) = trans ( HatJacobian);
-        noalias ( JWJt ) = prod ( HatJacobian,  WJt );
+        noalias ( DeltaQ ) += prod ( NullSpace, Residual );
+        if (inComputeNullspace)
+        {
+            valInd = 0;
+            for ( unsigned int col = 0; col<LongSize;col++ )
+            {
+                realInd = UsedIndexes ( col );
+                if ( ElementMask ( realInd ) == 1)
+                    column(NullSpace,col) = zeroV;
+            }
+        }
     }
     else
     {
@@ -150,49 +159,51 @@ bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
             row ( WJt,lin ) *= PIWeights ( lin );
 
         noalias ( JWJt ) = prod ( HatJacobian,  WJt );
-    }
-    //svd
-    if (inSRcoef != 0)
-    {
-        for ( unsigned int i=0;i<xDim;i++ )
-            JWJt(i,i) += inSRcoef;
-    }
 
-
-    lapack::gesvd ( jobU, jobVt, JWJt, tempS, tempU, tempVt );
-    tempU = trans ( tempVt );
-    PenroseMask.clear();
-    //Determin task value projection space
-    for ( unsigned int i=0;i<xDim;i++ )
-    {
-        if ( attSVDThreshold > tempS ( i ) )
-            row ( tempVt,i ) *= 0;
-        else
+        //svd
+        if (inSRcoef != 0)
         {
-            PenroseMask ( i ) =  1;
-            row ( tempVt,i ) /= tempS ( i );
+            for ( unsigned int i=0;i<xDim;i++ )
+                JWJt(i,i) += inSRcoef;
+        }
+
+        lapack::gesvd ( jobU, jobVt, JWJt, tempS, tempU, tempVt );
+        tempU = trans ( tempVt );
+        PenroseMask.clear();
+        //Determin task value projection space
+        for ( unsigned int i=0;i<xDim;i++ )
+        {
+            if ( attSVDThreshold > tempS ( i ) )
+                row ( tempVt,i ) *= 0;
+            else
+            {
+                PenroseMask ( i ) =  1;
+                row ( tempVt,i ) /= tempS ( i );
+            }
+        }
+        if ( PenroseMask ( 0 ) ==0 )
+            return true;
+
+        noalias ( InverseJWJt ) = prod ( tempU,tempVt );
+        noalias ( Jsharp ) = prod (WJt , InverseJWJt);
+        noalias ( DeltaQ ) += prod ( Jsharp, Residual );
+        if (inComputeNullspace)
+        {
+            noalias (  NullSpace ) -= prod ( Jsharp, HatJacobian );
         }
     }
-    if ( PenroseMask ( 0 ) ==0 )
-        return true;
-
-    noalias ( InverseJWJt ) = prod ( tempU,tempVt );
-    noalias ( Jsharp ) = prod (WJt , InverseJWJt);
-    noalias ( DeltaQ ) += prod ( Jsharp, Residual );
-    if (inComputeNullspace)
-        noalias (  NullSpace ) -= prod ( Jsharp, HatJacobian );
     return true;
 }
 
 const vectorN& ChppGikSolverBasic::solution()
 {
     attSolution.clear();
-            
+
     for ( unsigned int iC=0; iC< LongSize; iC++ )
     {
         attSolution ( UsedIndexes ( iC ) ) = DeltaQ ( iC );
     }
-    
+
     return attSolution;
 }
 
@@ -207,5 +218,4 @@ const vectorN& ChppGikSolverBasic::penroseMask() const
 }
 
 ChppGikSolverBasic::~ChppGikSolverBasic()
-{
-}
+{}

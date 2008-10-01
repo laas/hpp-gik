@@ -8,10 +8,8 @@ using namespace ublas;
 ChppGikBounder::ChppGikBounder(unsigned int numberParam)
 {
     attNumberParam = numberParam;
-    attUpperBound.resize(numberParam);
-    attUpperBound.clear();
-    attLowerBound.resize(numberParam);
-    attLowerBound.clear();
+    attUpperBound = scalar_vector<double>(numberParam, 1e10);
+    attLowerBound = scalar_vector<double>(numberParam, -1e10);
     attCoefs.resize(numberParam);
     BrakingZone = 0.12;
     WindowStep = 1e-3;
@@ -53,6 +51,28 @@ bool ChppGikBounder::lowerBound(unsigned int i_rank, double i_bound)
     return true;
 }
 
+bool ChppGikBounder::getUpperBound(unsigned int i_rank, double &i_bound)
+{
+    if (i_rank >= attNumberParam)
+    {
+        std::cout << "ChppGikSolverGeneric::lowerBound() rank out of bounds\n";
+        return false;
+    }
+    i_bound = attUpperBound(i_rank);
+    return true;
+}
+
+bool ChppGikBounder::getLowerBound(unsigned int i_rank, double &i_bound)
+{
+    if (i_rank >= attNumberParam)
+    {
+        std::cout << "ChppGikSolverGeneric::lowerBound() rank out of bounds\n";
+        return false;
+    }
+    i_bound = attLowerBound(i_rank);
+    return true;
+}
+
 void ChppGikBounder::brakingZone(double inPercent)
 {
     if (inPercent > 0.5)
@@ -60,9 +80,9 @@ void ChppGikBounder::brakingZone(double inPercent)
     else
         if (inPercent < 0.01)
             BrakingZone = 0.01;
-    else
-        BrakingZone = inPercent;
-    
+        else
+            BrakingZone = inPercent;
+
     prepareBrakeWindow();
 }
 
@@ -152,4 +172,5 @@ bool ChppGikBounder::modifyWeights(const vectorN& values, const vectorN& changer
     return true;
 }
 
-ChppGikBounder::~ChppGikBounder(){}
+ChppGikBounder::~ChppGikBounder()
+{}
