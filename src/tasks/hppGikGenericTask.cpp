@@ -7,7 +7,6 @@
 #include "tasks/hppGikGenericTask.h"
 #include "motionplanners/elements/hppGikInterpolatedElement.h"
 #include "hppGikTools.h"
-#include "core/hppGikSolver.h"
 
 #define V3_I MAL_S3_VECTOR_ACCESS
 
@@ -76,8 +75,6 @@ void ChppGikGenericTask::clearElements()
 
 bool ChppGikGenericTask::algorithmSolve()
 {
-    ChppGikSolver solver(attRobot);
-    
     unsigned int rank;
     bool ok,atLeastOneZMPUnsafe = false;
     double time, motionStartTime, motionEndTime, gapTime;
@@ -123,10 +120,7 @@ bool ChppGikGenericTask::algorithmSolve()
         columnInTime = attMotionPlan->columnAtTime(time);
         constraintStack = columnInTime->constraints();
         computeGikWeights(time, columnInTime->workingJoints(), gikWeights);
-        //attGikSolver->weights(gikWeights);
-        
-        solver.weights( gikWeights );
-        solver.accountForJointLimits();
+        attGikSolver->weights(gikWeights);
 
         supportJoint->computeJacobianJointWrtConfig();
         for (unsigned int i = 0; i< constraintStack.size();i++)
@@ -134,15 +128,14 @@ bool ChppGikGenericTask::algorithmSolve()
             constraintStack[i]->computeValue();
             constraintStack[i]->computeJacobian();
         }
-        //ok = attGikSolver->solve(constraintStack);
-        ok = solver.gradientStep( constraintStack );
-        
+        ok = attGikSolver->solve(constraintStack);
+
         if (!ok)
         {
             std::cout <<"ChppGikGenericTask::gradientStep() Could not solve motion plan at time "<< time << "\n";
             return false;
         }
-        //attGikSolver->applySolution();
+        attGikSolver->applySolution();
 
         attLocomotionPlan->getZMPAtTime(time, uZMPworPla);
         ChppGikTools::UblastoVector3(uZMPworPla, ZMPworPla);
