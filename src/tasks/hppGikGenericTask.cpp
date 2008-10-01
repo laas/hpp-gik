@@ -7,7 +7,7 @@
 #include "tasks/hppGikGenericTask.h"
 #include "motionplanners/elements/hppGikInterpolatedElement.h"
 #include "hppGikTools.h"
-#include "hppGik/core/hppGikSolver.h"
+#include "core/hppGikSolver.h"
 
 #define V3_I MAL_S3_VECTOR_ACCESS
 
