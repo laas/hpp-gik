@@ -327,7 +327,7 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
     {
         FixedJoint = NULL;
     }
-    
+
     bool recompute = true;
     std::vector<CjrlGikStateConstraint*>::iterator iter;
     std::vector<double>::iterator iter2;
@@ -418,7 +418,6 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
                         || CurFullConfig ( realIndex ) > ub-1e-2 ))
             {
                 recompute = true;
-
             }
             else
             {
@@ -427,11 +426,12 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
                 NextLongSize++;
             }
         }
+
         if ( recompute )
             if ( NextLongSize == 0 )
             {
                 std::cout << "GradientStep(): could not move at all\n";
-                return false;
+                return true;
             }
             else
             {
@@ -465,7 +465,6 @@ bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSorte
 
     attRobot->currentConfiguration( CurFullConfig );
     attRobot->computeForwardKinematics();
-
     return true;
 }
 

@@ -37,12 +37,11 @@ bool ChppGikSolverBasic::weights ( vectorN& inWeights )
     if ( inWeights.size() == attNumberParam )
     {
         Weights = inWeights;
-        resetSolution();
-        return true;
+        return (resetSolution()!=0);
     }
     else
     {
-        std::cout << "ChppGikSolverBasic::weights() incorrect size\n";
+        std::cout << "ChppGikSolverBasic::weights() incorrect size"<<std::endl;
         return false;
     }
 }
@@ -71,7 +70,7 @@ bool ChppGikSolverBasic::setActiveParameters(const vectorN& inMask)
 {
     if (inMask.size() != attNumberParam)
     {
-        std::cout << "ChppGikSolverBasic::setActiveParameters() incorrect size\n";
+        std::cout << "ChppGikSolverBasic::setActiveParameters() incorrect size"<<std::endl;
         return false;
     }
     ElementMask = inMask;
@@ -88,7 +87,7 @@ unsigned int ChppGikSolverBasic::resetSolution()
             PIWeights ( LongSize ) = Weights ( i );
             LongSize++;
         }
-
+    
     NullSpace.resize ( LongSize, LongSize,false );
     NullSpace = subrange ( IdentityMat,0,LongSize,0,LongSize );
     DeltaQ.resize ( LongSize,false );
@@ -100,7 +99,7 @@ bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
 {
     if (inConstraint->jacobian().size2()!=attNumberParam)
     {
-        std::cout << "ChppGikSolverBasic::solveTask() err: given constraint's jacobian size did not match number of parameters of this solver.\n";
+        std::cout << "ChppGikSolverBasic::solveTask() err: given constraint's jacobian size did not match number of parameters of this solver."<<std::endl;
         return false;
     }
     //determin task dimension
