@@ -53,7 +53,7 @@ bool ChppGikFootDisplaceElement::plan(ChppGikSupportPolygon& supportPolygon, vec
             return false;
         }
 
-        if (!supportPolygon.leftFootprint()->isPointInside(ZMP[0], ZMP[1]))
+        if (!supportPolygon.leftFootprint()->isPointInsideSafeZone(ZMP[0], ZMP[1]))
         {
             std::cout << "ChppGikZMPshiftElement::plan() bad initial ZMP\n";
             return false;
@@ -67,7 +67,7 @@ bool ChppGikFootDisplaceElement::plan(ChppGikSupportPolygon& supportPolygon, vec
             return false;
         }
 
-        if (!supportPolygon.rightFootprint()->isPointInside(ZMP[0], ZMP[1]))
+        if (!supportPolygon.rightFootprint()->isPointInsideSafeZone(ZMP[0], ZMP[1]))
         {
             std::cout << "ChppGikZMPshiftElement::plan() bad initial ZMP\n";
             return false;

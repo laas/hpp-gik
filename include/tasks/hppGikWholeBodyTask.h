@@ -49,6 +49,11 @@ public:
      */
     void reset();
 
+    void bringBackZMP(bool inChoice, double inStartTime, double inDuration)
+    {
+        attGenericTask->bringBackZMP( inChoice,inStartTime,inDuration );
+    }
+    
     /**
     \brief Destructor
      */

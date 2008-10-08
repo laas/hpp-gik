@@ -71,7 +71,7 @@ bool ChppGikStepElement::plan(ChppGikSupportPolygon& supportPolygon, vector3d& Z
     for (unsigned int i = 0 ; i<3; i++)
         attZMPmotion(i,0) = ZMP[i];
 
-    if (!supportPolygon.isPointInside(ZMP[0], ZMP[1]))
+    if (!supportPolygon.isPointInsideSafeZone(ZMP[0], ZMP[1]))
     {
         std::cout << "ChppGikZMPshiftElement::plan() bad initial ZMP\n";
         return attPlanSuccess;

@@ -67,7 +67,9 @@ public :
      */
     void automaticJointsMask(bool inSwitch, const  vectorN* inMask = 0);
 
-
+    /** \brief inherited */
+    void bringBackZMP(bool inChoice, double inStartTime, double inDuration);
+    
     /**
     \brief Destructor
      */
@@ -90,5 +92,8 @@ private:
     bool attUserDefinedMask;
     vectorN attUserJointsMask;
     double attExtraEndTime;
+    bool attBringBackZmp;
+    double attBringStart,attBringDuration,attBringEnd;
+    bool planZMPBack();
 };
 #endif

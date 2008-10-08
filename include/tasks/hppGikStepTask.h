@@ -27,6 +27,11 @@ public:
      */
     void relativeTarget( double relativeTargetX, double relativeTargetY, double relativeTargetTheta);
     
+    void bringBackZMP(bool inChoice, double inStartTime, double inDuration)
+    {
+        attGenericTask->bringBackZMP( inChoice,inStartTime,inDuration );
+    }
+    
     /**
         \brief Destructor
      */

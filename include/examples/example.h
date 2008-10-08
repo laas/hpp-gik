@@ -48,13 +48,13 @@ First priority: Foot on the ground
     localPoint[2] = 0.0;
     CjrlJoint& nsfJoint = *(attRobot->leftFoot());
     matrix4d nsfTransform = nsfJoint.currentTransformation();
-    ChppGikTransformationConstraint nsfc = new ChppGikTransformationConstraint(*attRobot, nsfJoint, localPoint, nsfTransform);
+    ChppGikTransformationConstraint nsfc(*attRobot, nsfJoint, localPoint, nsfTransform);
 \endcode
     
 Second priority: static Center of Mass
 \code
     vector3d com = attRobot->positionCenterOfMass();
-    ChppGikComConstraint comc = ChppGikComConstraint(*attRobot, com[0], com[1]);
+    ChppGikComConstraint comc(*attRobot, com[0], com[1]);
     absZMPPla = com;
 \endcode
     
@@ -63,7 +63,7 @@ Third priority: A position constraint on a point in the right wrist frame
     matrix4d curT=  attRobot->rightWrist()->currentTransformation();
     CjrlJoint& rwJoint = *(attRobot->rightWrist());
     localPoint = attRobot->rightHand()->centerInWristFrame();
-    ChppGikPositionConstraint pc = new ChppGikPositionConstraint(*attRobot,rwJoint,localPoint, curT*localPoint);
+    ChppGikPositionConstraint pc(*attRobot,rwJoint,localPoint, curT*localPoint);
 \endcode
 Stack the constraints in a vector
 \code

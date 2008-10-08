@@ -317,6 +317,9 @@ void ChppGikStandingRobot::computeFeet2DConvexHull(std::vector<const ChppGikLink
         currentVertex->nout.x = dynext;
         currentVertex->nout.y = -dxnext;
         
+        currentVertex->b = currentVertex->nout.x * currentVertex->world.x + currentVertex->nout.y * currentVertex->world.y;
+        
+        
         currentVertex->dtonext = norm;
 
         sn = dxnext*dyprev - dxprev*dynext;
@@ -373,6 +376,21 @@ bool ChppGikStandingRobot::staticState(const vectorN& inConfig)
     attRobot->currentAcceleration( attPreviousVelocity );
     attRobot->computeForwardKinematics();
     return true;
+}
+
+bool ChppGikStandingRobot::isPointInsideSupportPolygon(double inX, double inY,double safetyMargin)
+{
+    double msfm = (safetyMargin>0.0)?safetyMargin:0.0;
+    std::vector<const ChppGikLinkedVertex*> vertices;
+    computeFeet2DConvexHull(vertices);
+    bool oneIsOut = false;
+    for (unsigned int i = 0; i<vertices.size();i++)
+    {
+        if (vertices[i]->nout.x * inX + vertices[i]->nout.y * inY > vertices[i]->b - msfm)
+                    oneIsOut = true;
+        break;
+    }
+    return !oneIsOut;
 }
 
 void ChppGikStandingRobot::updateJointVA(double inSamplingPeriod)

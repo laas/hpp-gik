@@ -3,6 +3,7 @@
 
 ChppGikMetaTask::ChppGikMetaTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"MetaTask")
 {
+    attBringChoice = false;
 }
 
 void ChppGikMetaTask::pushbackTask(ChppGikRobotTask* inRobotTask )
@@ -25,10 +26,24 @@ bool ChppGikMetaTask::algorithmSolve()
     
     bool solved = false;
     
+    
+    bool bringZMPDone = false;
     for (unsigned int i=0; i< attTasks.size(); i++ )
     {
+        if (!bringZMPDone)
+        {
+            attTasks[i]->bringBackZMP(attBringChoice,attBringStart,attBringDuration);
+        }
+        else
+        {
+            attTasks[i]->bringBackZMP(false,0,0);
+        }
+        
         solved = attTasks[i]->solve();
         cropMotion( attTasks[i]);
+        if (!(attTasks[i]->solutionMotion().empty()))
+            bringZMPDone = true;
+        
         if (!solved)
         {
             std::cout << "MetaTask: task ranked "<< i <<" not solved. Abort.\n";

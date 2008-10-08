@@ -57,7 +57,10 @@ public:
      */
     virtual bool plan(ChppGikSupportPolygon& supportPolygon, vector3d& ZMP);
 
-
+    /**
+    \brief enable/disable the checking of the initial ZMP inside supportPolygon
+    */
+    void startZMPCheck(bool inChoice);
 
     /**
         \brief Destructor
@@ -69,6 +72,7 @@ private:
 
     vector3d attTargetZMP;
     ChppGikTransformationConstraint* attConstraint;
+    bool attStartZMPCheck;
 };
 
 #endif

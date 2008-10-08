@@ -31,6 +31,7 @@ class ChppGikLinkedVertex
         ChppGik2DVertex local;
         ChppGik2DVertex ntonext;
         ChppGik2DVertex nout;
+        double b;
         double dtonext;
         unsigned int foot;
 };

@@ -95,7 +95,7 @@ double ChppGikFootprint::th() const
     return attTh;
 }
 
-bool ChppGikFootprint::isPointInside(double inX, double inY)const
+bool ChppGikFootprint::isPointInsideSafeZone(double inX, double inY)const
 {
     if (sqrt(pow(inX - attX,2)+pow(inY - attY,2)) > 5e-2)
         return false;
@@ -132,7 +132,7 @@ void ChppGikStepTarget::print() const
         std::cout << "Right ";
     else
         std::cout << "Left  ";
-    
+
     std::cout << "step to X = " << attFootprint->x()<< " and Y = " << attFootprint->y()<<"\n";
 }
 
@@ -278,7 +278,7 @@ void ChppGikSupportPolygon::applyStep ( const ChppGikFootprint*  inTargetFootpri
     }
 }
 
-bool ChppGikSupportPolygon::isPointInside ( double inx, double iny ) const
+bool ChppGikSupportPolygon::isPointInsideSafeZone ( double inx, double iny ) const
 {
     double dxr,dyr,dxl,dyl,uX,uY,f2f,coord;
 
@@ -327,6 +327,61 @@ bool ChppGikSupportPolygon::isPointInside ( double inx, double iny ) const
     }
 
 }
+
+vector3d ChppGikSupportPolygon::nearestCenterPointTo(const vector3d& inPoint)
+{
+    vector3d result;
+    result[2] = 0.0;
+    double dxr,dyr,uX,uY,f2f,coord;
+
+    if ( isRightLegSupporting() )
+    {
+        if ( isLeftLegSupporting() )
+        {
+            dxr = inPoint[0] - attRightFootprint->x();
+            dyr = inPoint[1] - attRightFootprint->y();
+
+            //right to left vector
+            uX = attLeftFootprint->x() - attRightFootprint->x();
+            uY = attLeftFootprint->y() - attRightFootprint->y();
+            f2f = sqrt ( uX*uX+uY*uY );
+
+            uX = uX/f2f;
+            uY = uY/f2f;
+            coord = dxr*uX+dyr*uY;
+
+            if ( coord <= 0 )
+            {
+                result[0] = attRightFootprint->x();
+                result[1] = attRightFootprint->y();
+
+            }
+            else
+                if (coord >= f2f)
+                {
+                    result[0] = attLeftFootprint->x();
+                    result[1] = attLeftFootprint->y();
+                }
+                else
+                {
+                    result[0] = attRightFootprint->x() + coord*uX;
+                    result[1] = attRightFootprint->y() + coord*uY;
+                }
+        }
+        else
+        {
+            result[0] = attRightFootprint->x();
+            result[1] = attRightFootprint->y();
+        }
+    }
+    else
+    {
+        result[0] = attLeftFootprint->x();
+        result[1] = attLeftFootprint->y();
+    }
+    return result;
+}
+
 void ChppGikSupportPolygon::print() const
 {
     std::cout << "Support Polygon:---\n";

@@ -52,9 +52,12 @@ public:
     */
     void springTest();
     void accel();
+    
 
 private:
 
+    void tamperCOM(vectorN& resultConfig);
+    
     void createHumanoidRobot();
 
     void waist2worldPosition(vector3d& inWaistPosition, vector3d& outWorldPosition);

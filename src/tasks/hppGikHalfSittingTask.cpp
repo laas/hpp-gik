@@ -9,6 +9,7 @@ ChppGikHalfSittingTask::ChppGikHalfSittingTask(ChppGikStandingRobot* inStandingR
 {
     attStepBackTask = new ChppGikStepBackTask(inStandingRobot,attSamplingPeriod);
     attGenericTask = new ChppGikGenericTask(inStandingRobot, attSamplingPeriod);
+    attBringChoice = false;
 }
 
 void ChppGikHalfSittingTask::automaticFoot(bool inAutomatic, bool inSelectedFootIsRight  )
@@ -18,9 +19,12 @@ void ChppGikHalfSittingTask::automaticFoot(bool inAutomatic, bool inSelectedFoot
 
 bool ChppGikHalfSittingTask::algorithmSolve()
 {
+    attGenericTask->bringBackZMP( false,0,0);
+            
     //StepBack
     attStepBackTask->targetFeetDistance(attStandingRobot->halfsittingFeetDistance());
-
+    attStepBackTask->bringBackZMP( attBringChoice,attBringStart,attBringDuration);
+    
     bool isSolved = attStepBackTask->solve();
 
     cropMotion( attStepBackTask );
@@ -30,6 +34,12 @@ bool ChppGikHalfSittingTask::algorithmSolve()
         std::cout << "ChppGikHalfSittingTask::solve(): failure on phase 1.\n";
         return false;
     }
+    
+    if (attStepBackTask->solutionMotion().empty())
+    {
+        attGenericTask->bringBackZMP( attBringChoice,attBringStart,attBringDuration);
+    }
+        
 
     //Config constraint
     vectorN targetConfig = attStandingRobot->halfsittingConfiguration();

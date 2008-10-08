@@ -153,6 +153,11 @@ public:
     
     /**
     \brief 
+     */
+    bool isPointInsideSupportPolygon(double inX, double inY,double safetyMargin = 0.01);
+    
+    /**
+    \brief 
     */
     void computeFeet2DConvexHull(std::vector<const ChppGikLinkedVertex*>& outVertices);
     

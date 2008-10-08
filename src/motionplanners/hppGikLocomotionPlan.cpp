@@ -84,11 +84,13 @@ bool ChppGikLocomotionPlan::addElement(ChppGikLocomotionElement * inElement)
 {
     double epsilon = attSamplingPeriod/2;
 
+    /*
     if (inElement->startTime() < attStartTime - epsilon)
     {
         std::cout << "ChppGikLocomotionPlan::addElement() Invalid start time element \n";
         return false;
     }
+    */
 
     if (attElements.empty())
     {
@@ -132,6 +134,13 @@ double ChppGikLocomotionPlan::endTime()
     return attEndTime;
 }
 
+double ChppGikLocomotionPlan::startTime()
+{
+    if (attElements.empty())
+        return attStartTime;
+    else
+        return attElements[0]->startTime();
+}
 
 bool ChppGikLocomotionPlan::solve()
 {
@@ -221,7 +230,7 @@ bool ChppGikLocomotionPlan::planElementsZMP()
             return false;
         }
 
-        if (!supportPolygon.isPointInside( ZMP[0],ZMP[1]))
+        if (!supportPolygon.isPointInsideSafeZone( ZMP[0],ZMP[1]))
         {
             std::cout << "Planned ZMP out of support polygon. Aborting Locomotion planning\n";
             return false;

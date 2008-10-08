@@ -18,7 +18,7 @@ public:
     */
     ChppGikLocomotionElement(CjrlHumanoidDynamicRobot* inRobot, double inStartTime, double inDuration, double inSamplingPeriod):ChppGikPrioritizedMotion( inRobot, 0, this)
     {
-        attStartTime = attModifiedStart = (inStartTime>=0.0)?inStartTime:0.0;
+        attStartTime = attModifiedStart = inStartTime;
         attDuration = (inDuration>=0.0)?inDuration:0.0;
         attEndTime = attModifiedEnd = attStartTime + attDuration;
         attSamplingPeriod = inSamplingPeriod;

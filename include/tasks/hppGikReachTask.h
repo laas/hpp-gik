@@ -55,6 +55,11 @@ public:
         \brief enable or disable stepping 
      */
     void steppingEnabled(bool inOption);
+    
+    void bringBackZMP(bool inChoice, double inStartTime, double inDuration)
+    {
+        attWholeBodyTask->bringBackZMP( inChoice,inStartTime,inDuration );
+    }
 
     /**
         \brief Destructor

@@ -24,6 +24,13 @@ public:
      */
     void automaticFoot(bool mode = true, bool footIsRight = true );
 
+    void bringBackZMP(bool inChoice, double inStartTime, double inDuration)
+    {
+        attBringChoice = inChoice;
+        attBringStart = inStartTime;
+        attBringDuration = inDuration;
+    }
+            
     /**
     \brief Destructor
      */
@@ -35,6 +42,8 @@ protected :
     CjrlRobotConfiguration attHalfSitting;
     ChppGikStepBackTask* attStepBackTask;
     ChppGikGenericTask* attGenericTask;
+    double attBringStart,attBringDuration;
+    double attBringChoice;
 
 };
 #endif

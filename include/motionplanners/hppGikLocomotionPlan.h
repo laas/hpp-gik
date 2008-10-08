@@ -44,6 +44,10 @@ public:
      */
     double endTime();
     
+     /**
+    \brief Get the start time according to entered elements
+      */
+    double startTime();
    
     /**
     \brief Get an extra end time
@@ -95,7 +99,6 @@ public:
     \return null pointer if no locomotion element is active at the given time
      */
     CjrlJoint* supportFootJoint(double inTime);
-
 
 
     /**

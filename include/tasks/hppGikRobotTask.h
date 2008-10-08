@@ -35,6 +35,13 @@ public:
     \brief Get the computed solution motion. Can be empty.
     */
     const ChppRobotMotion& solutionMotion() const;
+    
+    /**
+    \brief Option to bring back the ZMP before any other motion (Disabled by default).
+    A motion is planned to bring back the ZMP to the closest point on the line segment defining the center of the safe zone. The start time and the duration of this ZMP motion is left up to the user. The start time is defined relatively to the start of the locomotion plan. Example: bringBackZmp(-0.5, 2.0 ) will make the zmp planning start 0.5 seconds before the first locomotion element (if none, absolute time 0.0s), and take 2.0 seconds to finish.
+    USE AT YOUR OWN RISK
+     */
+    virtual void bringBackZMP(bool inChoice, double inStartTime, double inDuration) = 0;
 
     /**
     \brief destructor

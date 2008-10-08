@@ -7,6 +7,7 @@
 #include "tasks/hppGikGenericTask.h"
 #include "motionplanners/elements/hppGikInterpolatedElement.h"
 #include "hppGikTools.h"
+#include "motionplanners/elements/hppGikZMPshiftElement.h"
 
 #define V3_I MAL_S3_VECTOR_ACCESS
 
@@ -26,8 +27,15 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
     attNeutralBodyOption = false;
     attUserDefinedMask = false;
     attExtraEndTime = 1.0;
+    attBringBackZmp = false;
 }
 
+void ChppGikGenericTask::bringBackZMP(bool inChoice, double inStartTime, double inDuration)
+{
+    attBringBackZmp = inChoice;
+    attBringStart = inStartTime;
+    attBringDuration = inDuration;
+}
 
 bool ChppGikGenericTask::addElement(ChppGikPrioritizedMotion* inMotion)
 {
@@ -73,10 +81,33 @@ void ChppGikGenericTask::clearElements()
     attLocomotionPlan->clearElements();
 }
 
+bool ChppGikGenericTask::planZMPBack()
+{
+    //std::cout << "ChppGikGenericTask::planZMPBack Started " << std::endl;
+    ChppGikSupportPolygon *curSP = attStandingRobot->supportPolygon();
+    if (!curSP)
+    {
+        std::cout << "ChppGikGenericTask::planZMPBack failed: support polygon not found, check your robot configuration" << std::endl;
+        return false;
+    }
+    vector3d targetZMP = curSP->nearestCenterPointTo(attRobot->positionCenterOfMass());
+    double myStartTime = attLocomotionPlan->startTime() + attBringStart;
+    attBringEnd = myStartTime + attBringDuration;
+    ChppGikZMPshiftElement* startshift = new ChppGikZMPshiftElement(attRobot,targetZMP,myStartTime,attBringDuration,attSamplingPeriod);
+    startshift->startZMPCheck( false );
+    bool inserted = addElement( startshift );
+    if (!inserted)
+    {
+        std::cout << "ChppGikGenericTask::planZMPBack Failed: timings overlapping with the first locomotion element." << std::endl;
+        return false;
+    }
+    //std::cout << "ChppGikGenericTask::planZMPBack OK" << std::endl;
+    return true;
+}
 bool ChppGikGenericTask::algorithmSolve()
 {
     unsigned int rank;
-    bool ok,atLeastOneZMPUnsafe = false;
+    bool ok,atLeastOneZMPUnsafe = false, atLeastOneZMPEccentered = false;;
     double time, motionStartTime, motionEndTime, gapTime;
     CjrlJoint* supportJoint = 0;
     vectorN gikWeights(attRobot->numberDof()-6);
@@ -94,6 +125,9 @@ bool ChppGikGenericTask::algorithmSolve()
         attLocomotionPlan->extraEndTime(-gapTime);
 
     attLocomotionPlan->extraEndTime( attLocomotionPlan->extraEndTime() + attExtraEndTime );
+
+    if (attBringBackZmp)
+        planZMPBack();
 
     ok = attLocomotionPlan->solve();
     if (!ok)
@@ -143,18 +177,29 @@ bool ChppGikGenericTask::algorithmSolve()
         attSolutionMotion->appendSample(attStandingRobot->robot()->currentConfiguration(),ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs);
 
         curSupportPolygon = attStandingRobot->supportPolygon();
-        if (!curSupportPolygon->isPointInside(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
+        if (!curSupportPolygon->isPointInsideSafeZone(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
         {
-            std::cout << "ZMP: " << V3_I(ZMPworObs,0) <<" , "<< V3_I(ZMPworObs,1) <<" out of polygon at time " << time << "\n";
-            curSupportPolygon->print();
-            atLeastOneZMPUnsafe = true;
+            if (!(attStandingRobot->isPointInsideSupportPolygon(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1),0.005)))
+            {
+                std::cout << "BAD ZMP: "<< V3_I(ZMPworObs,0) <<" , "<< V3_I(ZMPworObs,1) <<" at time " << time << "\n";
+                curSupportPolygon->print();
+                atLeastOneZMPUnsafe = true;
+            }
+            else
+                atLeastOneZMPEccentered = true;
         }
 
         time += attSamplingPeriod;
         rank++;
     }
 
+   
+    
     ok = !atLeastOneZMPUnsafe;
+    
+    if (ok && atLeastOneZMPEccentered)
+        std::cout << "Eccentered ZMP were detected during motion" << std::endl;
+    
     return ok;
 }
 

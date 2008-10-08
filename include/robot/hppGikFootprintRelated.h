@@ -55,7 +55,7 @@ public:
     /**
     \brief Determine wether the given point is inside the footprint
     */
-    bool isPointInside(double inX, double inY)const;
+    bool isPointInsideSafeZone(double inX, double inY)const;
     
     /**
     \brief make a footprint from a transformation. Return 0 if the foot transformation did not turn flat on the ground
@@ -196,10 +196,15 @@ public:
     vector3d meanOrientation();
 
     /**
-    \brief Tell if the given 2D point is inside this support polygon. A weak version is implemented: if the support polygon is simple, check wether the given point is in the disc centered on the orthogonal projection of the foot ankle on the ground. The radius is arbitrarily set to 4 cm. If the support is double, see if the point is in the area covered by the continuous translation of the same disc from one ankle projection to the other.
+    \brief Tell if the given 2D point is inside this support polygon's safe zone.  if the support polygon is simple, check wether the given point is in the disc centered on the orthogonal projection of the foot ankle on the ground. The radius is arbitrarily set to 4 cm. If the support is double, see if the point is in the area covered by the continuous translation of the same disc from one ankle projection to the other.
      */
-    bool isPointInside(double x, double y) const;
+    bool isPointInsideSafeZone(double x, double y) const;
 
+    /**
+    Compute a point on the line segment linking the projections of the ankles on the ground such as M is the nearest to the parameter point inPoint.
+    */
+    vector3d nearestCenterPointTo(const vector3d& inPoint);
+            
     /**
     \brief Get a pointer to a stored transformation matrix for the right foot. Temporary method (until new version is ready):
     \return 0 if nothing stored

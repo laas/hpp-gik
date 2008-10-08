@@ -81,16 +81,21 @@ bool ChppGikHandTask::algorithmSolve()
                 val = 1e-5;
         attStandingRobot->robot()->setHandClench( attHand, val);
         attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
-	//attStandingRobot->robot()->SaveCurrentStateAsPastState();
-        if (!curSupportPolygon->isPointInside(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
+
+        /*
+        if (!curSupportPolygon->isPointInsideSafeZone(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
             atLeastOneZMPUnsafe = true;
+        */
         attSolutionMotion->appendSample(attStandingRobot->robot()->currentConfiguration(), ZMPwstPla, ZMPwstObs, ZMPworPla, ZMPworObs);
     }
 
+    /*
     if (atLeastOneZMPUnsafe)
         std::cout << "ChppGikHandTask::solve(): ZMP goes out of support polygon\n";
+    */
 
-    return !atLeastOneZMPUnsafe;
+    //return !atLeastOneZMPUnsafe;
+    return true;
 }
 
 

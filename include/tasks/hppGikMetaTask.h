@@ -25,6 +25,13 @@ public:
      */
     void clearTasks();
 
+    void bringBackZMP(bool inChoice, double inStartTime, double inDuration)
+    {
+        attBringChoice = inChoice;
+        attBringStart = inStartTime;
+        attBringDuration = inDuration;
+    }
+    
     /**
         \brief Destructor
      */
@@ -38,10 +45,9 @@ protected:
 
 private:
 
-    /**
-        \brief vector of added tasks
-    */
     std::vector<ChppGikRobotTask*> attTasks;
+    double attBringStart,attBringDuration;
+    double attBringChoice;
 
 };
 #endif
