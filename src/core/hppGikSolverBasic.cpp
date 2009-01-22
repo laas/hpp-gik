@@ -6,11 +6,12 @@
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
 #include "core/hppGikSolverBasic.h"
 #include "constraints/hppGikConfigurationConstraint.h"
+#include "core/hppGikMotionPlanElement.h"
 #include "hppGikTools.h"
 
 namespace lapack = boost::numeric::bindings::lapack;
 
-using namespace ublas;
+
 
 ChppGikSolverBasic::ChppGikSolverBasic(unsigned int numberParam)
 {
@@ -28,6 +29,8 @@ ChppGikSolverBasic::ChppGikSolverBasic(unsigned int numberParam)
     attSolution.resize(attNumberParam);
     resizeMatrices ( xDefaultDim );
     resetSolution();
+    deltaqComplete.resize(attNumberParam);
+    valueComplete.resize(attNumberParam);
     jobU = 'N';
     jobVt = 'A';
 }
@@ -87,7 +90,7 @@ unsigned int ChppGikSolverBasic::resetSolution()
             PIWeights ( LongSize ) = Weights ( i );
             LongSize++;
         }
-    
+
     NullSpace.resize ( LongSize, LongSize,false );
     NullSpace = subrange ( IdentityMat,0,LongSize,0,LongSize );
     DeltaQ.resize ( LongSize,false );
@@ -104,28 +107,58 @@ bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
     }
     //determin task dimension
     xDim = inConstraint->dimension();
-    //resize matrices
-    resizeMatrices ( xDim );
 
+    bool specialCase = false;
     ChppGikConfigurationConstraint* confc = dynamic_cast<ChppGikConfigurationConstraint*>(inConstraint);
 
-    if (confc)
+    if (!confc)
     {
-        zero_vector<double> zeroV(LongSize);
-        unsigned int realInd,valInd = 0;
-        for ( unsigned int col = 0; col<LongSize;col++ )
+        ChppGikMotionPlanElement* cmpConfc = dynamic_cast<ChppGikMotionPlanElement*>(inConstraint);
+        if (cmpConfc  && (cmpConfc->constraints().size() == 1))
         {
-            realInd = UsedIndexes ( col );
-            if ( ElementMask ( realInd ) == 1)
+            confc =  dynamic_cast<ChppGikConfigurationConstraint*>(cmpConfc->constraints()[0]);
+            if (confc)
+                specialCase = true;
+        }
+    }
+    else
+        specialCase = true;
+ 
+    if (specialCase)
+    {
+        Residual.resize ( LongSize,false );
+        deltaqComplete.clear();
+        valueComplete.clear();
+        for ( unsigned int iC=0; iC< LongSize; iC++ )
+            deltaqComplete ( UsedIndexes ( iC ) ) = DeltaQ ( iC );
+
+        unsigned int valInd = 0,li;
+        for ( li = 0; (li<attNumberParam) && (valInd <xDim);li++ )
+        {
+            if (inConstraint->influencingDofs()(li)==1)
             {
-                Residual(col) = inConstraint->value()(valInd) - DeltaQ(col);
+                valueComplete(li) = inConstraint->value()(valInd);
+                valInd++;
+            }
+            else
+                valueComplete(li) = deltaqComplete(li);
+        }
+        valueComplete.minus_assign(deltaqComplete);
+        valInd = 0;
+        for ( li = 0; (li<attNumberParam) && (valInd <LongSize);li++ )
+        {
+            if ((Weights(li)>1e-2))
+            {
+                Residual(valInd) = valueComplete(li);
                 valInd++;
             }
         }
+
         noalias ( DeltaQ ) += prod ( NullSpace, Residual );
         if (inComputeNullspace)
         {
-            valInd = 0;
+            zero_vector<double> zeroV(LongSize);
+            unsigned int realInd;
             for ( unsigned int col = 0; col<LongSize;col++ )
             {
                 realInd = UsedIndexes ( col );
@@ -136,12 +169,14 @@ bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
     }
     else
     {
+        //resize matrices
+        resizeMatrices ( xDim );
         //store used columns only
         for ( unsigned int col = 0; col<LongSize;col++ )
             noalias (column ( CarvedJacobian,col) )=  column ( inConstraint->jacobian(),UsedIndexes ( col ));
         //update value according to previous tasks
         noalias (Residual) = inConstraint->value();
-        noalias ( Residual) -= prod (CarvedJacobian,DeltaQ);
+        noalias (Residual) -= prod (CarvedJacobian,DeltaQ);
         HatJacobian.clear();
         if (inComputeHatJacobian)
             for ( unsigned int d = 0; d<xDim;d++ )

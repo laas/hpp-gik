@@ -2,177 +2,78 @@
 #define HPP_GIK_SOLVER_H
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "gikTask/jrlGikStateConstraint.h"
-
+#include "core/hppGikSolverBasic.h"
+#include "core/hppGikBounder.h"
 
 /**
-\brief [DEPRECATED] This is a prioritized inverse kinematics solver. It produces a robot configuration complying with a vector of high-to-low-priority jrlGikStateConstraints
-\deprecated This class is doomed, please use one of the other solvers instead.
+\brief this object is a prioritized inverse kinematics for a dynamic robot (CjrlDynamicRobot).
+The solver implements smooth enforcement of joint limits by using an object of class ChppGikBounder.
 \ingroup solver
  */
 class ChppGikSolver
 {
 public:
-    /**
-        \name Definition
-        @{
-     */
+
     /**
         \brief Constructor
+        \param inRobot robot
      */
-    ChppGikSolver(CjrlDynamicRobot* inRobot);
+    ChppGikSolver(CjrlDynamicRobot& inRobot);
 
     /**
-        @}
+        \brief Set the root joint for computations
      */
-
+    void rootJoint(CjrlJoint& inRootJoint);
+    
     /**
-        \name Resolution
-        @{
+        \brief Set the diagonal weights for the  Weighted Pseudoinverse
+        \return false if inWeights not of size robot.numberDof()
      */
-
-    /**
-    \brief Update weights according to joint limits.
-     */
-    void accountForJointLimits();
-
-    /**
-    \brief set pseudo inverse weights according to current configuration and entered weights. A 0 weight indicates a disactivated joint. The given vector must be of size (robot.numberDofs - 6).
-    The default vector (on the construction of an instance) is an all-one vector.
-    \return false if inWeights of incorrect size
-    */
     bool weights(vectorN& inWeights);
 
     /**
-    \brief perform a single gradient descent step on the given constraints (ordered from the most to the least prioriary constraint). Constraints jacobians and values computations are left to the user. The result of the gradient descent, if any, is directly applied to the robot.
-    The last vector contains the damping factors for solving the corresponding constraints. 0.01 should be a good filling value for this vector.
-    \return false if a fixed joint is not set in the robot.
-     */
-    bool gradientStep(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs );
-    
-    /**
-    \brief get the solution to last call of gradientStep
+        \brief prepare for solving. use this to set root joint and compute jacobians and values for given stack
     */
+    void prepare(std::vector<CjrlGikStateConstraint*>& inTasks);
+    /**
+        \brief Compute a solution to the entered vector of linear systems. the linear systems(CjrlGikStateConstraint objects) should already be computed. The order in the vector of tasks follows decreasing priority.
+     */
+    void solve(std::vector<CjrlGikStateConstraint*>& inTasks, std::vector<double>& inSRcoefs);
+    /**
+        \brief Same as previous without damping
+     */
+    void solve(std::vector<CjrlGikStateConstraint*>& inTasks);
+    /**
+        \brief get the velocity vector, solution of the problem. The freeflyer rotational velocity part is given in angle rate around world frame axises.
+        \return vector of size robot.numberDof()
+     */
     const vectorN& solution();
-
     /**
-       \brief variant of above gradientStep(). Zero-vector is passed to inSRcoefs.
+        \brief Converts freeflyer velocity in solution() to eurler angles velocities and add then to the configuration of the robot. This does not call computeForwardKinematics().
      */
-    bool gradientStep(std::vector<CjrlGikStateConstraint*>& inSortedConstraints);
-
-    /**
-       \brief Set the minimum singular value. If a singular value is smaller than this value, it is set to zero in the computation process of pseudo inverse. 
-       \param i_threshold the minimum singular value
-     */
-    void SVDThreshold(double i_threshold) { attSVDThreshold = i_threshold;}
-
-    /**
-       \brief Get Penrose mask vector
-       \return Penrose mask vector
-    */
-    const vectorN& penroseMask() const { return PenroseMask; }
-
-    /**
-        @}
-     */
-
+    void applySolution();
     /**
         \brief Destructor
      */
     ~ChppGikSolver();
 
 private:
-
-
+    void convertFreeFlyerVelocity();
+    unsigned int attNumParams;
     CjrlDynamicRobot* attRobot;
-    void resizeMatrices(unsigned int inSubtaskDefaultSize);
-    void prepareBrakeWindow();
-    double brakeCoefForJoint(const double& qVal,const double& lowerLimit, const double& upperLimit, const double& dq);
-
-
-    /**
-       \brief solve one constraint in the current null space. The solution is added to ChppGikSolver::DeltaQ and ChppGikSolver::NullSpace is updated by the following procedure.
-       -# get task value \f$v\f$ and jacobian \f$J\f$ from \a inConstraint
-       -# compute residual task value: \f$ r \leftarrow v - J\delta q \f$
-       -# compute projected jacobian: \f$ \hat{J} \leftarrow JN \f$
-       -# singular value decomposition: \f$ S, U, V^t \leftarrow SVD(\hat{J}W\hat{J}^t) \f$
-       -# compute inverse:\f$ (\hat{J}W\hat{J}^t)^{-1} \leftarrow US^{-1}V^t \f$
-       -# compute pseudo inverse:\f$ \hat{J}^\# \leftarrow W\hat{J}^t(\hat{J}W\hat{J}^t)^{-1}\f$
-       -# update solution:\f$ \delta q \leftarrow \delta q + \hat{J}^\#r \f$
-       -# update null space:\f$ N \leftarrow N(I-\hat{J}^\#\hat{J}) \f$
-       \param inConstraint a constraint to be solved
-       \param inSRcoef if non-zero value is given, \f$ (\hat{J}W\hat{J}^t)^{-1} \f$ is computed using SR-Inverse.
-       \param computeHatJacobian set to true to project connstaint jacobian on nullspace
-       \param inComputeNullspace set to true to update null space projector ChppGikSolver::Nullspace
-    */
-    void solveOneConstraint(CjrlGikStateConstraint *inConstraint, 
-                            double inSRcoef=0.0, bool computeHatJacobian = true, bool inComputeNullspace = true);
-
-    /**
-    \brief add supporting leg's dofs to constraint's dofs
-    */
-    void computeConstraintDofs(CjrlGikStateConstraint* inConstraint);
-
-
-    unsigned int LongSize;
-    unsigned int LongSizeBackup;
-    unsigned int numDof;
-    unsigned int numJoints;
-    unsigned int xDefaultDim;
-    unsigned int xDim;
-    unsigned int Iteration;
-    double       ValueNorm;
-    bool         SatisfactorySolution;
-    CjrlJoint*  FixedJoint;
-    double      attSVDThreshold;
-    double      BrakingZone;
-    double      WindowStep;
-
-    unsigned int MaximumIteration;
-    vectorN PenroseMask;
-    vectorN PIWeights;
-    vectorN NextPIWeights;
-    vectorN Weights;
-    vectorN PIWeightsBackup;
-    vectorN JointUpperLimitWindow;
-
-
-    ublas::vector<unsigned int> UsedIndexes;
-    ublas::vector<unsigned int> NextUsedIndexes;
-    ublas::vector<unsigned int> UsedIndexesBackup;
-
+    vectorN attWeights, attSolution,attEulerSolution, attActive, attComputationWeights, attBackupConfig, attVals, attRate;
+    ChppGikSolverBasic* attSolver;
+    ChppGikBounder* attBounder;
+    CjrlJoint*  RootJoint;
     matrixNxP H0;
     matrixNxP Hif;
     matrixNxP Hf;
     matrixNxP InvHf;
     vectorN BaseEuler;
-
     vectorN CurFullConfig;
-    vectorN DeltaQ;
     vectorN ElementMask;
     
     std::vector<CjrlJoint*> supportJoints;
-    std::vector<unsigned int> supportJointsRanks;
-
-    vectorN   Residual;
-    ublas::matrix<double, ublas::column_major > IdentityMat;
-    ublas::matrix<double, ublas::column_major > HatJacobian;
-    ublas::matrix<double, ublas::column_major > WJt;
-    ublas::matrix<double, ublas::column_major > JWJt;
-    ublas::matrix<double, ublas::column_major > Jsharp;
-    ublas::matrix<double, ublas::column_major > NullSpace;
-    ublas::matrix<double, ublas::column_major > InverseJWJt;
-    ublas::matrix<double, ublas::column_major > CarvedJacobian;
-
-    
-    vectorN tempS;
-    ublas::matrix<double, ublas::column_major> tempU;
-    ublas::matrix<double, ublas::column_major> tempVt;
-
-    char jobU;
-    char jobVt;
-    
-    unsigned int Offset;
 };
 
 #endif

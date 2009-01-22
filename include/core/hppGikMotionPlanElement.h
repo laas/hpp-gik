@@ -66,6 +66,8 @@ public:
     \brief Clear stored references to constraints
     */
     void clear();
+    
+    void jacobianRoot( CjrlJoint& inJoint);
 
     /**
     \name Computations

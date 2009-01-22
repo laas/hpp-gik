@@ -3,7 +3,7 @@
 #include "hppGikTools.h"
 #include "motionplanners/elements/hppGikInterpolatedElement.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikInterpolatedElement::ChppGikInterpolatedElement(CjrlHumanoidDynamicRobot* inRobot, ChppGikVectorizableConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime, double inDuration, double inSamplingPeriod):ChppGikPrioritizedMotion(inRobot, inPriority+2, this)
 {
@@ -20,7 +20,7 @@ ChppGikInterpolatedElement::ChppGikInterpolatedElement(CjrlHumanoidDynamicRobot*
 
     if (attStartTime < 0.0)
         startTime( 0.0 );
-    attWorkingJoints = subrange(inTargetConstraint->influencingDofs(),6,inRobot->numberDof());
+    attWorkingJoints = inTargetConstraint->influencingDofs();
     attPlanSuccess = false;
 }
 
@@ -83,7 +83,7 @@ CjrlGikStateConstraint* ChppGikInterpolatedElement::stateConstraintAtTime ( doub
     
     if ( (i > 0) && (i < attInterpolationData.size2()) && attPlanSuccess)
     {
-        attSample = ublas::column ( attInterpolationData,i );
+        attSample = column ( attInterpolationData,i );
         attConstraint->vectorizedTarget ( attSample );
         //std::cout << "returning prioritized motion constraint with priority "<< attPriority-2<<"\n";
         return attConstraint;

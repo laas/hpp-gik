@@ -2,7 +2,7 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "core/hppGikMotionPlanRow.h"
 #include "hppGikTools.h"
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikMotionPlanRow::ChppGikMotionPlanRow(CjrlHumanoidDynamicRobot* inRobot,unsigned int inPriority)
 {
@@ -11,7 +11,7 @@ ChppGikMotionPlanRow::ChppGikMotionPlanRow(CjrlHumanoidDynamicRobot* inRobot,uns
     attStartTime = 0.0;
     attEndTime = attStartTime;
     attWorkElement = new ChppGikMotionPlanElement(inRobot,inPriority);
-    attVector = scalar_vector<double>(inRobot->numberDof()-6,0);
+    attVector = scalar_vector<double>(inRobot->numberDof(),0);
 }
 
 ChppGikMotionPlanRow::~ChppGikMotionPlanRow()

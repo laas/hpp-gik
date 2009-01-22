@@ -3,7 +3,7 @@
 #include "core/hppGikMotionPlan.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikMotionPlan::ChppGikMotionPlan(CjrlHumanoidDynamicRobot* inRobot)
 {
@@ -11,7 +11,7 @@ ChppGikMotionPlan::ChppGikMotionPlan(CjrlHumanoidDynamicRobot* inRobot)
     attStartTime = 0.0;
     attEndTime = 0.0;
     attWorkColumn = new ChppGikMotionPlanColumn(inRobot);
-    attVector = scalar_vector<double>(inRobot->numberDof()-6,0);
+    attVector = scalar_vector<double>(inRobot->numberDof(),0);
 }
 
 ChppGikMotionPlan::~ChppGikMotionPlan()

@@ -3,7 +3,7 @@
 #include "constraints/hppGikPointingConstraint.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint,  const vector3d& inLocalOrigin, const vector3d& inLocalVector, const vector3d& inTargetWorldPoint) :  ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
@@ -19,12 +19,10 @@ ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, 
     ChppGikTools::Vector3toUblas( attLocalVectorVector3,attLocalVector);
     ChppGikTools::Vector3toUblas( attWorldTargetVector3,attWorldTarget);
 
-    attJacobian.resize(3,attNumberActuatedDofs,false);
+    attJacobian.resize(3,robot().numberDof(),false);
     attValue.resize(3, false);
 
-    tempJacobian.resize(6,attNumberActuatedDofs,false);
-    tempJacobian0.resize(6,robot().numberDof(),false);
-    tempJacobian0.clear();
+    tempJacobian.resize(6,robot().numberDof(),false);
     tempRot.resize(3,3,false);
     matOP.resize(3,3,false);
     matOT.resize(3,3,false);
@@ -112,34 +110,7 @@ void ChppGikPointingConstraint::computeValue()
 
 void ChppGikPointingConstraint::computeJacobian()
 {
-    tempFixedJoint = &(robot().fixedJoint(0));
-    if (!tempFixedJoint)
-    {
-        std::cout << "ChppGikPointingConstraint::computeJacobian() expected a fixed joint on the robot.\n";
-        return;
-    }
-
-    tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-    if (!tempFixedJointJacobian)
-    {
-        std::cout << "ChppGikPointingConstraint::computeJacobian() could not retrieve partial jacobians.\n";
-        return;
-    }
-
-    joint()->getJacobianPointWrtConfig(attLocalOriginVector3,tempJacobian0);
-    tempJacobian = subrange(tempJacobian0,0,6,6,robot().numberDof()) - subrange(*tempFixedJointJacobian,0,6,6,robot().numberDof());
-
-    //build the jacobian of the joint wrt to fixed joint
-    ChppGikTools::HtoRT(joint()->currentTransformation(),jointrot,jointpos);
-    noalias(posO) = prod(jointrot,attLocalOrigin);//origin point in world
-    posO.plus_assign(jointpos);
-
-    ChppGikTools::HtoT(tempFixedJoint->currentTransformation(),posF);
-    vecFO = posO - posF;//origin point in world - ankle joint center in world
-
-    ChppGikTools::equivAsymMat(vecFO,matFO);
-
-    noalias(subrange(tempJacobian,0,3,0,attNumberActuatedDofs)) += prod(matFO,subrange(*tempFixedJointJacobian,3,6,6,robot().numberDof()));
+    robot().getJacobian( *attRootJoint,*joint(),attLocalOriginVector3,tempJacobian);
 
     //compute the jacobian of this constraint
     noalias(posP) =  prod(jointrot,attLocalVector);//second point in world
@@ -160,16 +131,8 @@ void ChppGikPointingConstraint::computeJacobian()
 
     noalias(tempRot) = prod(matOT,matOP);
 
-    //     std::cout << "tempRot\n";
-    //     ChppGikTools::printBlasMat( tempRot );
-
-    noalias(attJacobian) = prod(tempRot,subrange(tempJacobian,3,6,0,attNumberActuatedDofs));
-    noalias(attJacobian) -= prod(matOP,subrange(tempJacobian,0,3,0,attNumberActuatedDofs));
-
-    //     std::cout << "attJacobian\n";
-    //     ChppGikTools::printBlasMat( attJacobian );
-    //     std::cout << "Config of computations\n";
-    //     std::cout << robot().currentConfiguration() << std::endl ;
+    noalias(attJacobian) = prod(tempRot,subrange(tempJacobian,3,6,0,robot().numberDof()));
+    noalias(attJacobian) -= prod(matOP,subrange(tempJacobian,0,3,0,robot().numberDof()));
 }
 
 void ChppGikPointingConstraint::computeVectorizedState()

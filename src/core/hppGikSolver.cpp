@@ -1,474 +1,244 @@
-#include <time.h>
-#include <sys/time.h>
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "boost/numeric/ublas/operation.hpp"
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/bindings/traits/ublas_matrix.hpp>
-#include <boost/numeric/bindings/lapack/gesvd.hpp>
 #include "core/hppGikSolver.h"
-#include "constraints/hppGikConfigurationConstraint.h"
 #include "hppGikTools.h"
 
-namespace lapack = boost::numeric::bindings::lapack;
+using namespace boost::numeric::ublas;
 
-using namespace ublas;
-
-ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
+ChppGikSolver::ChppGikSolver(CjrlDynamicRobot& inRobot)
 {
-    attRobot = inRobot;
+    attRobot = &inRobot;
 
-    numDof = attRobot->numberDof();
-    if (attRobot->countFixedJoints() > 0)
+    attNumParams = inRobot.numberDof();
+    attSolver = new ChppGikSolverBasic(attNumParams);
+    attBounder = new ChppGikBounder(attNumParams);
+    for (unsigned int i=0;i<attNumParams;i++)
     {
-        numJoints = numDof-6;
-        Offset = 6;
+        attBounder->upperBound(i, attRobot->upperBoundDof(i));
+        attBounder->lowerBound(i, attRobot->lowerBoundDof(i));
     }
-    else
+    unsigned int rootRank = attRobot->rootJoint()->rankInConfiguration();
+    unsigned int rootNumDof = attRobot->rootJoint()->numberDof();
+    for (unsigned int i=rootRank;i<rootRank+rootNumDof;i++)
     {
-        numJoints = 6;
-        Offset = 0;
+        attBounder->upperBound(i, 1e10);
+        attBounder->lowerBound(i, -1e10);
     }
-
-    xDefaultDim = 6;
-    attSVDThreshold = 0.001;
-
-    LongSize = LongSizeBackup = numJoints;
-    scalar_vector<char> temp ( numJoints,1 );
-    PIWeights = temp;
-    NextPIWeights = temp;
-    PIWeightsBackup = temp;
-    Weights = temp;
-
-
-    UsedIndexes.resize ( numJoints,false );
-    NextUsedIndexes.resize ( numJoints,false );
-    UsedIndexesBackup.resize ( numJoints,false );
-
-    for ( unsigned int i=0; i<numJoints;i++ )
-    {
-        UsedIndexes ( i ) = i;
-        UsedIndexesBackup ( i ) = i;
-    }
-
-
-    identity_matrix<double> tempid ( numJoints );
-    IdentityMat.resize ( numJoints,numJoints,false );
-    IdentityMat = tempid;
-
-    resizeMatrices ( xDefaultDim );
-
-    CurFullConfig.resize ( numDof,false );
-
-    BaseEuler.resize ( 3,false );
+    attWeights = attComputationWeights = attActive = scalar_vector<double>(attNumParams,1);
+    attSolution = zero_vector<double>(attNumParams);
+    attEulerSolution = attSolution;
+    BaseEuler.resize( 3,false );
+    ElementMask.resize(attNumParams);
 
     H0.resize ( 4,4,false );
     Hf.resize ( 4,4,false );
     Hif.resize ( 4,4,false );
     InvHf.resize ( 4,4,false );
 
-    prepareBrakeWindow();
-
-    jobU = 'N';
-    jobVt = 'A';
-
-    FixedJoint = 0;
+    rootJoint(*(attRobot->rootJoint()));
 }
 
-
-void ChppGikSolver::resizeMatrices ( unsigned int inSize)
+void ChppGikSolver::rootJoint(CjrlJoint& inRootJoint)
 {
-    Residual.resize ( inSize,false );
-    PenroseMask.resize ( inSize,false );
-    tempS.resize(inSize, false);
-
-    CarvedJacobian.resize ( inSize,LongSize,false );
-    HatJacobian.resize ( inSize,LongSize,false );
-    WJt.resize ( LongSize,inSize,false );
-    JWJt.resize ( inSize,inSize,false );
-    Jsharp.resize ( LongSize,inSize,false );
-    InverseJWJt.resize ( inSize,inSize,false );
-
-    tempU.resize(inSize,inSize,false);
-    tempVt.resize(inSize,inSize,false);
-}
-
-
-void ChppGikSolver::prepareBrakeWindow()
-{
-    BrakingZone = 0.12;
-    WindowStep = 1e-3;
-
-    unsigned int extra = 10;
-    unsigned int sizeWindow = ChppGikTools::timetoRank ( 0.0,1.0,WindowStep ) +1 ;
-
-    JointUpperLimitWindow.resize ( sizeWindow,false );
-
-    ChppGikTools::minJerkCurve ( 1.0-WindowStep*extra,WindowStep,1.0,0.0,0.0,0.0,JointUpperLimitWindow );
-
-    subrange ( JointUpperLimitWindow, sizeWindow - extra, sizeWindow ) = zero_vector<double> ( extra );
-}
-
-
-double ChppGikSolver::brakeCoefForJoint ( const double& qVal,const double& lowerLimit, const double& upperLimit, const double& dq )
-{
-
-    if ( upperLimit ==lowerLimit )
-        return 0;
-
-    double qFraction = ( qVal-lowerLimit ) / ( upperLimit-lowerLimit );
-
-
-    if ( ( dq>0 ) && ( qFraction > 1 - BrakingZone ) )
+    if (RootJoint != &inRootJoint)
     {
-        double curve_Fraction = ( qFraction + BrakingZone - 1 ) /BrakingZone;
-        unsigned int windowTick = ChppGikTools::timetoRank ( 0.0, curve_Fraction, WindowStep );
-        if ( windowTick >= JointUpperLimitWindow.size() )
-            return 0;
-        return JointUpperLimitWindow ( windowTick );
+        RootJoint = &inRootJoint;
+        supportJoints = RootJoint->jointsFromRootToThis();
     }
-
-    if ( ( dq<0 ) && ( qFraction < BrakingZone ) )
-    {
-        double curve_Fraction = qFraction/BrakingZone;
-        unsigned int windowTick = ChppGikTools::timetoRank ( 0.0, curve_Fraction, WindowStep );
-        if (windowTick >= JointUpperLimitWindow.size())
-            return 0;
-
-        return JointUpperLimitWindow ( JointUpperLimitWindow.size()-1-windowTick );
-    }
-
-    return 1;
 }
 
 bool ChppGikSolver::weights ( vectorN& inWeights )
 {
-    if ( inWeights.size() == numJoints )
+    if ( inWeights.size() == attNumParams )
     {
-        Weights = inWeights;
+        attWeights = inWeights;
         return true;
     }
     else
+    {
+        std::cout << "ChppGikSolver::weights() incorrect size()"<<std::endl;
         return false;
+    }
 }
 
-
-void ChppGikSolver::accountForJointLimits()
-{
-    LongSizeBackup = 0;
-    unsigned int realrank;
-    double coefLjoint;
-    const vectorN& cfg = attRobot->currentConfiguration();
-    double q, ub, lb;
-
-    for ( unsigned int i=0; i<numJoints;i++ )
-        if ( Weights ( i ) >1e-2 )
-        {
-            realrank = Offset + i;
-
-            if (realrank >= 6)
-            {
-                q = attRobot->currentConfiguration()(realrank);
-                lb = attRobot->lowerBoundDof(realrank, cfg);
-                ub = attRobot->upperBoundDof(realrank, cfg);
-                coefLjoint =  brakeCoefForJoint(q,lb,ub,attRobot->currentVelocity()(realrank));
-            }
-            else
-            {
-                coefLjoint = 1.0;
-            }
-
-            UsedIndexesBackup ( LongSizeBackup ) = i;
-
-            PIWeightsBackup ( LongSizeBackup ) = Weights ( i ) * coefLjoint;
-
-            LongSizeBackup++;
-        }
-
-    //std::cout <<UsedIndexesBackup << "\n";
-}
-
-void ChppGikSolver::solveOneConstraint(CjrlGikStateConstraint *inConstraint,
-                                       double inSRcoef, bool inComputeHatJacobian, bool inComputeNullspace)
-{
-    //determin participating dofs
-    computeConstraintDofs(inConstraint);
-    //determin task dimension
-    xDim = inConstraint->dimension();
-    //resize matrices
-    resizeMatrices ( xDim );
-
-
-    ChppGikConfigurationConstraint* confc = dynamic_cast<ChppGikConfigurationConstraint*>(inConstraint);
-
-    if (confc)
-    {
-        unsigned int realInd,valInd = 0;
-        for ( unsigned int col = 0; col<LongSize;col++ )
-        {
-            realInd = UsedIndexes ( col ) + Offset;
-            if ( ElementMask ( realInd ) == 1)
-            {
-                Residual(col) = inConstraint->value()(valInd) - DeltaQ(col);
-                row(HatJacobian,valInd) = row(NullSpace,col);
-                valInd++;
-            }
-        }
-        noalias ( WJt ) = trans ( HatJacobian);
-        noalias ( JWJt ) = prod ( HatJacobian,  WJt );
-    }
-    else
-    {
-        //store used columns only
-        for ( unsigned int col = 0; col<LongSize;col++ )
-            noalias (column ( CarvedJacobian,col) )=  column ( inConstraint->jacobian(),UsedIndexes ( col ));
-
-        //update value according to previous tasks
-        noalias (Residual) = inConstraint->value();
-        noalias ( Residual) -= prod (CarvedJacobian,DeltaQ);
-
-        //slightly faster product to obtain projected jacobian on previous tasks nullspace
-        HatJacobian.clear();
-
-        if (inComputeHatJacobian)
-            for ( unsigned int d = 0; d<xDim;d++ )
-            {
-                for ( unsigned int col = 0; col<LongSize;col++ )
-                    if ( ElementMask ( UsedIndexes ( col ) + Offset ) == 1)
-                        noalias ( row (HatJacobian,d) ) += CarvedJacobian ( d,col ) * row ( NullSpace,col);
-            }
-        else
-            noalias (HatJacobian) = CarvedJacobian;
-
-        noalias ( WJt ) = trans ( HatJacobian);
-        for ( unsigned int lin=0;lin<LongSize;lin++ )
-            row ( WJt,lin ) *= PIWeights ( lin );
-
-        noalias ( JWJt ) = prod ( HatJacobian,  WJt );
-    }
-    //svd
-    if (inSRcoef != 0)
-    {
-        for ( unsigned int i=0;i<xDim;i++ )
-            JWJt(i,i) += inSRcoef;
-    }
-
-
-    lapack::gesvd ( jobU, jobVt, JWJt, tempS, tempU, tempVt );
-    tempU = trans ( tempVt );
-    PenroseMask.clear();
-    //Determin task value projection space
-    for ( unsigned int i=0;i<xDim;i++ )
-    {
-        if ( attSVDThreshold > tempS ( i ) )
-            row ( tempVt,i ) *= 0;
-        else
-        {
-            PenroseMask ( i ) =  1;
-            row ( tempVt,i ) /= tempS ( i );
-        }
-    }
-    if ( PenroseMask ( 0 ) ==0 )
-        return;
-
-    //inverse of JwJt
-    noalias ( InverseJWJt ) = prod ( tempU,tempVt );
-    //PseudoInverse Jsharp
-    noalias ( Jsharp ) = prod (WJt , InverseJWJt);
-    //Updated deltaQ
-    noalias ( DeltaQ ) += prod ( Jsharp, Residual );
-    //Updated null space
-    if (inComputeNullspace)
-        noalias (  NullSpace ) -= prod ( Jsharp, HatJacobian );
-}
-
-bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints)
+void ChppGikSolver::solve ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints)
 {
     std::vector<double> SRcoefs(inSortedConstraints.size(), 0);
-    return gradientStep(inSortedConstraints, SRcoefs);
+    solve(inSortedConstraints, SRcoefs);
 }
 
-void ChppGikSolver::computeConstraintDofs(CjrlGikStateConstraint* inConstraint)
+
+void ChppGikSolver::prepare(std::vector<CjrlGikStateConstraint*>& inTasks)
 {
-    ElementMask = inConstraint->influencingDofs();
-    //Take into account support Leg dofs
-    if (attRobot->countFixedJoints()>0)
+    for (unsigned int i=0;i<inTasks.size();i++)
     {
-        for(unsigned int em = 0; em < supportJointsRanks.size(); em++)
-            ElementMask(supportJointsRanks[em]) = 1;
+        inTasks[i]->jacobianRoot(*RootJoint);
+        inTasks[i]->computeJacobian();
+        inTasks[i]->computeValue();
     }
 }
 
-bool ChppGikSolver::gradientStep ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs )
+void ChppGikSolver::solve(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs)
 {
+    attSolution.clear();
     if (inSortedConstraints.empty())
-        return true;
-
-    LongSize = LongSizeBackup;
-    subrange ( PIWeights,0,LongSize ) = subrange ( PIWeightsBackup,0,LongSize );
-    subrange ( UsedIndexes,0,LongSize ) = subrange ( UsedIndexesBackup,0,LongSize );
-
-    if (attRobot->countFixedJoints()>0)
     {
-        if (FixedJoint != & ( attRobot->fixedJoint ( 0 ) ))
-        {
-            //store the fixed foot's tranformation (Hif)
-            FixedJoint = & ( attRobot->fixedJoint ( 0 ) );
-
-            //joints from root to fixed joint (including both)
-            supportJoints = FixedJoint->jointsFromRootToThis();
-            supportJointsRanks.clear();
-            for(unsigned int em = 0; em < supportJoints.size(); em++)
-                supportJointsRanks.push_back(supportJoints[em]->rankInConfiguration());
-        }
-        ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(), Hif );
-    }
-    else
-    {
-        FixedJoint = NULL;
+        std::cout << "ChppGikSolver::solve() nothing to do"<<std::endl;
+        return;
     }
 
     bool recompute = true;
+    unsigned int iC;
+    double ub, lb;
     std::vector<CjrlGikStateConstraint*>::iterator iter;
     std::vector<double>::iterator iter2;
+
+    attVals = attRobot->currentConfiguration();
+    attRate = attRobot->currentVelocity();
+    attComputationWeights = attWeights;
+    attBounder->modifyWeights( attVals, attRate, attComputationWeights );
+
     while ( recompute )
     {
-        NullSpace.resize ( LongSize, LongSize,false );
-        NullSpace = subrange ( IdentityMat,0,LongSize,0,LongSize );
-        DeltaQ.resize ( LongSize,false );
-        DeltaQ.clear();
+        if (!(attSolver->weights( attComputationWeights )))
+        {
+            std::cout << "ChppGikSolver::solve(): could not move" << std::endl;
+            return;
+        }
 
-        //Solve constraints
         iter = inSortedConstraints.begin();
         iter2 = inSRcoefs.begin();
+
+        attSolver->setActiveParameters((*iter)->influencingDofs());
         if (inSortedConstraints.size() == 1)
         {
-            solveOneConstraint(*iter, *iter2, false, false);
+            attSolver->solveTask(*iter, *iter2, false, false);
         }
         else
         {
-            solveOneConstraint(*iter, *iter2, false, true);
+            attSolver->solveTask(*iter, *iter2, false, true);
             iter++;
             iter2++;
             while (iter != inSortedConstraints.end()-1)
             {
-                solveOneConstraint(*iter, *iter2, true, true);
+                attSolver->setActiveParameters((*iter)->influencingDofs());
+                attSolver->solveTask(*iter, *iter2, true, true);
                 iter++;
                 iter2++;
             }
-            solveOneConstraint(*iter, *iter2, true, false);
+            attSolver->setActiveParameters((*iter)->influencingDofs());
+            attSolver->solveTask(*iter, *iter2, true, false);
         }
 
-        //compute new dof vector & perform a basic check on joint limits
-        CurFullConfig = attRobot->currentConfiguration();
-
-        //update dof config
-        unsigned int iC,realIndex, start;
-        if (attRobot->countFixedJoints()>0)
-        {
-            start = 0;
-        }
-        else
-        {
-            start = 6;
-            iC = 0;
-            while(iC < LongSize && UsedIndexes(iC)<3)
-            {
-                CurFullConfig(UsedIndexes(iC)) += DeltaQ(iC);
-                iC++;
-            }
-            matrixNxP R1(3,3), R2(3,3), R(3,3);
-            ChppGikTools::EulerZYXtoRot(CurFullConfig(3), CurFullConfig(4),
-                                        CurFullConfig(5), R1);
-            vectorN euler(3);
-            euler[0] = euler[1] = euler[2] = 0;
-            while(iC < LongSize && UsedIndexes(iC)<6)
-            {
-                euler(UsedIndexes(iC)-3) = DeltaQ(iC);
-                iC++;
-            }
-            ChppGikTools::EulerZYXtoRot(euler, R2);
-            R = prod(R2,R1);
-            ChppGikTools::RottoEulerZYX(R, euler);
-            CurFullConfig(3) = euler(0);
-            CurFullConfig(4) = euler(1);
-            CurFullConfig(5) = euler(2);
-        }
-        for ( iC=start; iC< LongSize; iC++ )
-        {
-            realIndex = Offset+UsedIndexes ( iC );
-            CurFullConfig ( realIndex ) += DeltaQ ( iC );
-        }
-
-        //joint limit checking
-        double ub, lb;
+        //update config and check joint limits
         recompute = false;
-        unsigned int NextLongSize = 0;
-        for ( iC=0; iC< LongSize; iC++ )
+        CurFullConfig = attRobot->currentConfiguration();
+        for ( iC=0; iC< attNumParams; iC++ )
         {
-            realIndex = Offset+UsedIndexes ( iC );
-            if (realIndex >= 6)
+            //update
+            if (attComputationWeights(iC) != 0)
             {
-                lb = attRobot->lowerBoundDof(realIndex, CurFullConfig);
-                ub = attRobot->upperBoundDof(realIndex, CurFullConfig);
-            }
-            //check for joint limits
-            if ( realIndex >= 6
-                    && (CurFullConfig ( realIndex ) < lb +1e-2
-                        || CurFullConfig ( realIndex ) > ub-1e-2 ))
-            {
-                recompute = true;
-            }
-            else
-            {
-                NextPIWeights ( NextLongSize ) = PIWeights ( iC );
-                NextUsedIndexes ( NextLongSize ) = UsedIndexes ( iC );
-                NextLongSize++;
+                attBounder->getLowerBound( iC, lb);
+                attBounder->getUpperBound( iC, ub);
+                CurFullConfig(iC) += attSolver->solution()(iC);
+                //threshold
+                if ((CurFullConfig(iC) < lb +1e-2 || CurFullConfig ( iC ) > ub-1e-2))
+                {
+                    recompute = true;
+                    attComputationWeights(iC) = 0;
+                }
             }
         }
-
-        if ( recompute )
-            if ( NextLongSize == 0 )
-            {
-                std::cout << "GradientStep(): could not move at all\n";
-                return true;
-            }
-            else
-            {
-                UsedIndexes = NextUsedIndexes;
-                LongSize = NextLongSize;
-                PIWeights = NextPIWeights;
-            }
     }
-    if (FixedJoint)
-    {
-        unsigned int iC;
-        //go to waist frame
-        for ( iC=0; iC< 6; iC++ )
-            CurFullConfig ( iC ) = 0;
-
-        attRobot->currentConfiguration( CurFullConfig );
-        attRobot->computeForwardKinematics();
-
-        //Compute new waist transformation
-        ChppGikTools::Matrix4toUblas ( FixedJoint->currentTransformation(),Hf );
-        ChppGikTools::invertTransformation ( Hf,InvHf );
-        noalias ( H0 ) = prod ( Hif, InvHf );
-
-        //Compute free flyer dofs (apparently the dynamic robot require euler XYZ)
-        ChppGikTools::RottoEulerZYX ( subrange ( H0,0,3,0,3 ),BaseEuler );
-        for ( iC=0; iC< 3; iC++ )
-            CurFullConfig ( iC ) = H0 ( iC,3 );
-        for ( iC=3; iC< 6; iC++ )
-            CurFullConfig ( iC ) = BaseEuler ( iC-3 );
-    }
-
-    attRobot->currentConfiguration( CurFullConfig );
-    attRobot->computeForwardKinematics();
-    return true;
+    return;
 }
 
+const vectorN& ChppGikSolver::solution()
+{
+    return attSolver->solution();
+}
+
+void ChppGikSolver::applySolution()
+{
+    convertFreeFlyerVelocity();
+    CurFullConfig = attRobot->currentConfiguration();
+    CurFullConfig.plus_assign(attEulerSolution);
+    attRobot->currentConfiguration( CurFullConfig );
+}
+
+void ChppGikSolver::convertFreeFlyerVelocity()
+{
+    attBackupConfig = CurFullConfig = attRobot->currentConfiguration();
+    attSolution = attEulerSolution = attSolver->solution();
+
+    unsigned int i;
+    bool changeRootPose = false;
+    bool changeRootJoint = (RootJoint!=attRobot->rootJoint());
+    if (attRobot->rootJoint()->numberDof()!=0)
+        for (i=0;i<6;i++)
+            if (attWeights(i)!=0)
+            {
+                changeRootPose = true;
+                break;
+            }
+    if (changeRootJoint)
+    {
+        ChppGikTools::Matrix4toUblas ( RootJoint->currentTransformation(), Hif );
+
+        //go to waist frame
+        for ( i =0; i< 6; i++ )
+            CurFullConfig ( i ) = 0;
+
+        for ( i=1; i< supportJoints.size(); i++  )
+            CurFullConfig(supportJoints[i]->rankInConfiguration()) += attSolution(supportJoints[i]->rankInConfiguration());
+
+        //update joints transformations from root to fixed joint in waist frame
+        for ( i=0; i< supportJoints.size(); i++ )
+            supportJoints[i]->updateTransformation ( CurFullConfig );
+
+        //Compute new waist transformation
+        ChppGikTools::Matrix4toUblas ( RootJoint->currentTransformation(),Hf );
+        ChppGikTools::invertTransformation ( Hf,InvHf );
+        noalias ( H0 ) = prod ( Hif, InvHf );
+    }
+
+    if (changeRootPose)
+    {
+        matrixNxP rootDeltaR,rootChange(4,4);
+        vectorN omega = subrange(attSolution,3,6);
+        ChppGikTools::OmegaToR( omega, rootDeltaR);
+        subrange(rootChange,0,3,0,3) = rootDeltaR;
+        rootChange(0,3) =  attSolution(0);
+        rootChange(1,3) =  attSolution(1);
+        rootChange(2,3) =  attSolution(2);
+        if (changeRootJoint)
+            H0 = prod ( rootChange, H0 );
+        else
+        {
+            ChppGikTools::Matrix4toUblas ( RootJoint->currentTransformation(),Hf );
+            noalias ( H0 ) = prod ( rootChange, Hf );
+        }
+    }
+
+    if (changeRootJoint || changeRootPose)
+    {
+        //Compute free flyer velocity update
+        ChppGikTools::RottoEulerZYX ( subrange ( H0,0,3,0,3 ),BaseEuler );
+        for ( i=0; i< 3; i++ )
+            attEulerSolution ( i ) = H0 ( i,3 ) - attBackupConfig(i);
+        for ( i=3; i< 6; i++ )
+            attEulerSolution ( i ) = BaseEuler ( i-3 ) - attBackupConfig(i);
+    }
+
+    if (changeRootJoint)
+        //Recover joints transformations from root to fixed joint in waist frame
+        for ( i=0; i< supportJoints.size(); i++ )
+            supportJoints[i]->updateTransformation ( attBackupConfig );
+
+}
 
 ChppGikSolver::~ChppGikSolver()
-{}
-
+{
+    delete attSolver;
+    delete attBounder;
+}

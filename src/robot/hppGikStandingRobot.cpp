@@ -4,6 +4,8 @@
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 #define V3_I  MAL_S3_VECTOR_ACCESS
 
+using namespace boost::numeric::ublas;
+
 ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):attMaskFactory(NULL)
 {
     attRobot = inRobot;
@@ -35,11 +37,6 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
     attRelativeCOM[1] = relcy;
     //std::cout << "relcx " << relcx <<"\n";
     //std::cout << "relcy " << relcy <<"\n";
-
-    if (attRobot->countFixedJoints()==0)
-    {
-        attRobot->addFixedJoint(attRobot->rightFoot());
-    }
 
     //hard coding for robot shapes
     ChppGik2DVertex vert;
@@ -452,8 +449,8 @@ vectorN ChppGikStandingRobot::computeConfigurationWrtFreeFlyer(CjrlJoint* inJoin
     vectorN vec(3), euler(3);
     ChppGikTools::HtoRT( newRoot, rot, vec);
     ChppGikTools::RottoEulerZYX( rot, euler);
-    ublas::subrange(config,0,3) = vec;
-    ublas::subrange(config,3,6) = euler;
+    subrange(config,0,3) = vec;
+    subrange(config,3,6) = euler;
 
     return config;
 }

@@ -12,7 +12,7 @@ ChppGikComMotion::ChppGikComMotion(CjrlHumanoidDynamicRobot* inRobot, double inS
     attStartTime = attEndTime = inStartTime;
     attSamplingPeriod = inSamplingPeriod;
     attEps = attSamplingPeriod/2;
-    if (inWorkingJoints.size() == inRobot->numberDof()-6)
+    if (inWorkingJoints.size() == inRobot->numberDof())
         attWorkingJoints = inWorkingJoints;
 }
 

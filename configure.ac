@@ -7,7 +7,7 @@ dnl
 dnl   Author: Florent Lamiraux LAAS-CNRS
 dnl
 
-AC_INIT([hppGik],[1.9.99],[openrobots@laas.fr])
+AC_INIT([hppGik],[2.0.99],[openrobots@laas.fr])
 AC_PREREQ(2.59)
 
 if test "$CFLAGS$CXXFLAGS" = ""; then
@@ -33,15 +33,20 @@ if test "$setdefaultflags" = "yes"; then
   fi
 fi
 
-define(abstractgiktask_reqd, [abstractGikTask >= 1.4])
+define(abstractgiktask_reqd, [abstractGikTask >= 2.0.99])
 AC_SUBST(ABSTRACTGIKTASK_REQD, "abstractgiktask_reqd")
 PKG_CHECK_MODULES(ABS_GIKTASK, abstractgiktask_reqd)
 ABS_GIKTASK_PREFIX=`$PKG_CONFIG abstractGikTask --variable=prefix`
-AC_SUBST(ABS_GIKTASK_PREFIX)
+AC_SUBST(ABS_GIKTASK_CFLAGS)
+AC_SUBST(ABS_GIKTASK_LIBS)
 
-define(dynamicsjrljapan_reqd, [dynamicsJRLJapan >= 1.8])
-AC_SUBST(DYNAMICSJRLJAPAN_REQD, "dynamicsjrljapan_reqd")
-PKG_CHECK_MODULES(DYNAMICSJRLJAPAN, dynamicsjrljapan_reqd)
+define(robotdynamics_reqd, [abstractRobotDynamics >= 1.11.99])
+AC_SUBST(ROBOTDYNAMICS_REQD, "robotdynamics_reqd")
+PKG_CHECK_MODULES(ROBOTDYNAMICS, robotdynamics_reqd)
+ROBOTDYNAMICS_PREFIX=`$PKG_CONFIG abstractRobotDynamics --variable=prefix`
+AC_SUBST(ROBOTDYNAMICS_CFLAGS)
+AC_SUBST(ROBOTDYNAMICS_LIBS)
+
 
 PKG_CHECK_MODULES(HRP2, hrp2Dynamics)
 HRP2_PREFIX=`$PKG_CONFIG hrp2Dynamics --variable=prefix`

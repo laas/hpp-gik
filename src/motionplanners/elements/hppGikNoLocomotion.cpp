@@ -42,7 +42,7 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
     attZMP(1) = pcom[1];
     attZMP(2) = 0.0;
 
-    if (inWorkingJoints.size() == inRobot->numberDof()-6)
+    if (inWorkingJoints.size() == inRobot->numberDof())
         attWorkingJoints = inWorkingJoints;
 }
 ChppGikNoLocomotion::~ChppGikNoLocomotion()

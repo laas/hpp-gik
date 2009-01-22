@@ -3,51 +3,43 @@
 #include "robot/hppGikMaskFactory.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikMaskFactory::ChppGikMaskFactory(CjrlHumanoidDynamicRobot* inRobot)
 {
     attRobot = inRobot;
-    attNumJoints = attRobot->numberDof()-6;
+    attNumJoints = attRobot->numberDof();
 
     //prepare joint masks
 
     attLegs.resize(attNumJoints,false);
     attLegs.clear();
+    subrange(attLegs,0,6) = scalar_vector<double>(6,1);
 
-    attUpperBody.resize(attNumJoints,false);
-    attUpperBody.clear();
-
-    attWholeBody.resize(attNumJoints,false);
-    attWholeBody.clear();
-
-    attChestAndArms.resize(attNumJoints,false);
-    attChestAndArms.clear();
-
-    attChestAndHead.resize(attNumJoints,false);
-    attChestAndHead.clear();
-
+    attUpperBody = attLegs;
+    attWholeBody = attLegs;
+    attChestAndArms = attLegs;
+    attChestAndHead= attLegs;
+    attLeftArm= attLegs;
+    attRightArm= attLegs;
 
     std::vector<CjrlJoint*> root2jointVector = (attRobot->leftFoot())->jointsFromRootToThis();
 
-
     for (unsigned int i =1; i< root2jointVector.size();i++)
-        attLegs(root2jointVector[i]->rankInConfiguration()-6) = (char)1;
-
-
+        attLegs(root2jointVector[i]->rankInConfiguration()) = (char)1;
 
     root2jointVector = attRobot->rightFoot()->jointsFromRootToThis();
 
     for (unsigned int i =1; i< root2jointVector.size();i++)
-        attLegs(root2jointVector[i]->rankInConfiguration()-6) = (char)1;
+        attLegs(root2jointVector[i]->rankInConfiguration()) = (char)1;
 
 
     root2jointVector = attRobot->leftWrist()->jointsFromRootToThis();
 
     for (unsigned int i =1; i< root2jointVector.size();i++)
     {
-        attChestAndArms(root2jointVector[i]->rankInConfiguration()-6) = (char)1;
-        attUpperBody(root2jointVector[i]->rankInConfiguration()-6) = (char)1;
+        attChestAndArms(root2jointVector[i]->rankInConfiguration()) = (char)1;
+        attUpperBody(root2jointVector[i]->rankInConfiguration()) = (char)1;
     }
 
 
@@ -55,8 +47,8 @@ ChppGikMaskFactory::ChppGikMaskFactory(CjrlHumanoidDynamicRobot* inRobot)
 
     for (unsigned int i =1; i< root2jointVector.size();i++)
     {
-        attChestAndArms(root2jointVector[i]->rankInConfiguration()-6) = (char)1;
-        attUpperBody(root2jointVector[i]->rankInConfiguration()-6) = (char)1;
+        attChestAndArms(root2jointVector[i]->rankInConfiguration()) = (char)1;
+        attUpperBody(root2jointVector[i]->rankInConfiguration()) = (char)1;
     }
 
 
@@ -64,33 +56,62 @@ ChppGikMaskFactory::ChppGikMaskFactory(CjrlHumanoidDynamicRobot* inRobot)
 
     for (unsigned int i =1; i< root2jointVector.size();i++)
     {
-        attChestAndHead(root2jointVector[i]->rankInConfiguration()-6) = (char)1;
-        attUpperBody(root2jointVector[i]->rankInConfiguration()-6) = (char)1;
+        attChestAndHead(root2jointVector[i]->rankInConfiguration()) = (char)1;
+        attUpperBody(root2jointVector[i]->rankInConfiguration()) = (char)1;
     }
-
-
 
     ChppGikTools::combineMasks( attLegs,attUpperBody,attWholeBody);
 
 
-    attWeightsDouble.resize(attNumJoints,false);
-    attWeightsLeftLegSupporting.resize(attNumJoints,false);
-    attWeightsRightLegSupporting.resize(attNumJoints,false);
+    root2jointVector = attRobot->rightWrist()->jointsFromRootToThis();
+    for (unsigned int i =3; i< root2jointVector.size();i++)
+        attRightArm(root2jointVector[i]->rankInConfiguration()) = (char)1;
 
+    root2jointVector = attRobot->leftWrist()->jointsFromRootToThis();
+    for (unsigned int i =3; i< root2jointVector.size();i++)
+        attLeftArm(root2jointVector[i]->rankInConfiguration()) = (char)1;
 
+    attWeightsDouble = attLegs;
+    attWeightsLeftLegSupporting = attLegs;
+    attWeightsRightLegSupporting = attLegs;
+    
     buildWeightVectors();
 
+    attCustomMask.resize(attNumJoints,false);
+    attCustomMask.clear();
+
+}
+
+vectorN& ChppGikMaskFactory::leftArmMask()
+{
+    return attLeftArm;
+}
+
+vectorN& ChppGikMaskFactory::customMask(CjrlJoint* inJoint, unsigned int rankOfFirstActivatedJoint)
+{
+    unsigned int i;
+    attCustomMask.clear();
+    subrange(attCustomMask,0,6)=scalar_vector<double>(6,1);
+    if (inJoint)
+    {
+        std::vector<CjrlJoint*> root2jointVector = inJoint->jointsFromRootToThis();
+
+        for ( i= rankOfFirstActivatedJoint; i< root2jointVector.size();i++)
+            attCustomMask(root2jointVector[i]->rankInConfiguration()) = (char)1;
+    }
+    return attCustomMask;
+}
+
+vectorN& ChppGikMaskFactory::rightArmMask()
+{
+    return attRightArm;
 }
 
 void ChppGikMaskFactory::buildWeightVectors()
 {
     //(WARNING! supposing that waist == root, and legs are simple kinematic chains (i.e not subtrees))
-    attWeightsLeftLegSupporting.clear();
 
-    attWeightsRightLegSupporting.clear();
-
-
-    ublas::vector<double> supportedMassVec(attNumJoints+1);
+    vectorN supportedMassVec(attNumJoints-6+1);
     supportedMassVec.clear();
 
     //determin the legs joint vectors
@@ -113,10 +134,10 @@ void ChppGikMaskFactory::buildWeightVectors()
         rankParent = rankInSupportedMassVector(*(iter-1));
         supportedMassVec(rankJoint) += (*(iter-1))->linkedBody()->mass() + supportedMassVec(rankParent);
     }
-    attWeightsRightLegSupporting = ublas::subrange(supportedMassVec,1,attNumJoints+1);
+    subrange(attWeightsRightLegSupporting,6,attNumJoints) = subrange(supportedMassVec,1,attNumJoints-6+1);
 
     double tempTotalMass = attRobot->mass()-attRobot->leftFoot()->linkedBody()->mass();
-    for (unsigned int i = 0; i< attWeightsRightLegSupporting.size(); i++)
+    for (unsigned int i = 6; i< attWeightsRightLegSupporting.size(); i++)
         attWeightsRightLegSupporting(i) = tempTotalMass/attWeightsRightLegSupporting(i);
 
     supportedMassVec.clear();
@@ -130,27 +151,26 @@ void ChppGikMaskFactory::buildWeightVectors()
         rankParent = rankInSupportedMassVector(*(iter-1));
         supportedMassVec(rankJoint) += (*(iter-1))->linkedBody()->mass() + supportedMassVec(rankParent);
     }
-    attWeightsLeftLegSupporting = ublas::subrange(supportedMassVec,1,attNumJoints+1);
+    
+    subrange(attWeightsLeftLegSupporting,6,attNumJoints) = subrange(supportedMassVec,1,attNumJoints-6+1);
 
-    for (unsigned int i = 0; i< attWeightsLeftLegSupporting.size(); i++)
+    for (unsigned int i = 6; i< attWeightsLeftLegSupporting.size(); i++)
         attWeightsLeftLegSupporting(i) = tempTotalMass/attWeightsLeftLegSupporting(i);
 
-//     //Double support
-//     attWeightsDouble = ublas::zero_vector<double>(attNumJoints);
-//     for (unsigned int i = 0; i<attNumJoints;i++)
-//     {
-//         if (attLegs(i) > 0.5)
-//             attWeightsDouble(i) = 1;
-//         else
-//             attWeightsDouble(i) = attWeightsLeftLegSupporting(i);//or right, same
-//     }
+    //     //Double support
+    //     attWeightsDouble = zero_vector<double>(attNumJoints);
+    //     for (unsigned int i = 0; i<attNumJoints;i++)
+    //     {
+    //         if (attLegs(i) > 0.5)
+    //             attWeightsDouble(i) = 1;
+    //         else
+    //             attWeightsDouble(i) = attWeightsLeftLegSupporting(i);//or right, same
+    //     }
     attWeightsDouble = attWeightsLeftLegSupporting;
     for( iter = rLeg.begin()+1; iter != rLeg.end(); iter++)
-        attWeightsDouble((*iter)->rankInConfiguration()-6) = pow(attWeightsRightLegSupporting((*iter)->rankInConfiguration()-6),4);
+        attWeightsDouble((*iter)->rankInConfiguration()) = pow(attWeightsRightLegSupporting((*iter)->rankInConfiguration()),4);
     for( iter = lLeg.begin()+1; iter != lLeg.end(); iter++)
-        attWeightsDouble((*iter)->rankInConfiguration()-6) = pow(attWeightsLeftLegSupporting((*iter)->rankInConfiguration()-6),4);
-    //std::cout << attWeightsDouble << std::endl;
-    
+        attWeightsDouble((*iter)->rankInConfiguration()) = pow(attWeightsLeftLegSupporting((*iter)->rankInConfiguration()),4);
 }
 
 void ChppGikMaskFactory::supportedMass(vectorN& massVec, const CjrlJoint* inJoint, CjrlJoint* excludedChild)
@@ -198,17 +218,17 @@ vectorN& ChppGikMaskFactory::maskForJoint(CjrlJoint* inJoint)
 {
     if (inJoint == attRobot->rootJoint())
         return attLegs;
-    
-    unsigned int rank = inJoint->rankInConfiguration() -6;    
+
+    unsigned int rank = inJoint->rankInConfiguration();
 
     if (attLegs(rank) == 1)
         return attLegs;
-    
+
     if (attChestAndHead(rank) == 1)
         return attChestAndHead;
     else
         return attChestAndArms;
-    
+
 }
 
 

@@ -8,9 +8,11 @@
 \brief This is a prioritized inverse kinematics solver. It can be used to solve a sequence of linear systems from highest to lowest priority. A linear system is provided by a CjrlGikStateConstraint object through its methods jacobian() and value(). These are assumed to be already computed.
 <br>
 Each linear system is solved by a pseudo inversion. The weighted pseudo inverse is used.
-
+ 
 \ingroup solver
 */
+
+using namespace  boost::numeric::ublas;
 
 class ChppGikSolverBasic
 {
@@ -48,11 +50,11 @@ public:
     -# update null space:\f$ N \leftarrow N(I-\hat{J}^\#\hat{J}) \f$
     \param inConstraint a constraint to be solved
     \param inSRcoef if non-zero value is given, \f$ (\hat{J}W\hat{J}^t)^{-1} \f$ is computed using SR-Inverse.
-    \param computeHatJacobian set to true to project connstaint jacobian on nullspace
+    \param projectJacobian set to true to project connstaint jacobian on nullspace
     \param inComputeNullspace set to true to update null space projector
     \return false if task  jacobian's size is not equal to number of parameters
      */
-    bool solveTask(CjrlGikStateConstraint *inConstraint, double inSRcoef=0.0, bool computeHatJacobian = false, bool inComputeNullspace = false);
+    bool solveTask(CjrlGikStateConstraint *inConstraint, double inSRcoef=0.0, bool projectJacobian = false, bool inComputeNullspace = false);
     /**
     \brief get the solution to last serie of calls of solveTask (up to last resetSolution call)
      */
@@ -77,7 +79,7 @@ private:
     unsigned int attNumberParam;
     void resizeMatrices(unsigned int inSubtaskDefaultSize);
     unsigned int LongSize;
-        unsigned int numDof;
+    unsigned int numDof;
     unsigned int numJoints;
     unsigned int xDefaultDim;
     unsigned int xDim;
@@ -86,25 +88,26 @@ private:
     vectorN PenroseMask;
     vectorN PIWeights;
     vectorN Weights;
-    ublas::vector<unsigned int> UsedIndexes;
+    boost::numeric::ublas::vector<unsigned int> UsedIndexes;
     vectorN CurFullConfig;
     vectorN DeltaQ, attSolution;
     vectorN ElementMask;
     vectorN   Residual;
-    ublas::matrix<double, ublas::column_major > IdentityMat;
-    ublas::matrix<double, ublas::column_major > HatJacobian;
-    ublas::matrix<double, ublas::column_major > WJt;
-    ublas::matrix<double, ublas::column_major > JWJt;
-    ublas::matrix<double, ublas::column_major > Jsharp;
-    ublas::matrix<double, ublas::column_major > NullSpace;
-    ublas::matrix<double, ublas::column_major > InverseJWJt;
-    ublas::matrix<double, ublas::column_major > CarvedJacobian;
+    vectorN deltaqComplete,valueComplete;
+    matrix<double, column_major > IdentityMat;
+    matrix<double, column_major > HatJacobian;
+    matrix<double, column_major > WJt;
+    matrix<double, column_major > JWJt;
+    matrix<double, column_major > Jsharp;
+    matrix<double, column_major > NullSpace;
+    matrix<double, column_major > InverseJWJt;
+    matrix<double, column_major > CarvedJacobian;
     vectorN tempS;
-    ublas::matrix<double, ublas::column_major> tempU;
-    ublas::matrix<double, ublas::column_major> tempVt;
+    matrix<double, column_major> tempU;
+    matrix<double, column_major> tempVt;
     char jobU;
     char jobVt;
-    
+
 };
 
 #endif

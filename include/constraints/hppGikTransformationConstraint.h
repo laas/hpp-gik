@@ -121,12 +121,11 @@ private:
     {@
      */
 
-    matrixNxP tempJacobian;
     vectorN temp3DVec;
     vectorN temp3DVec1;
     matrixNxP tempRot;
     matrixNxP tempGapRot;
-    CjrlJoint* tempFixedJoint;
+
     const matrixNxP* tempFixedJointJacobian;
     const matrixNxP* tempEffectorJointJacobian;
     /**

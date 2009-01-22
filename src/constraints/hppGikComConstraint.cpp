@@ -2,36 +2,33 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "constraints/hppGikComConstraint.h"
 #include "hppGikTools.h"
-
+#include <time.h>
+#include <sys/time.h>
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 
 
 ChppGikComConstraint::ChppGikComConstraint(CjrlDynamicRobot& inRobot, double inX, double inY)
 {
     attRobot = &inRobot;
-
-    attNumberActuatedDofs = inRobot.numberDof()-6;
-
+    attRootJoint = attRobot->rootJoint();
     attDimension = 2;
 
-    attJacobian.resize(attDimension,attNumberActuatedDofs,false);
+    attJacobian.resize(attDimension,attRobot->numberDof(),false);
     attValue.resize(attDimension, false);
     attWorldTarget.resize(attDimension,false);
     attWorldTarget(0) = inX;
     attWorldTarget(1) = inY;
 
-    //tempJacobian.resize(3,inRobot.numberDof(),false);
-    tempJacobian.resize(3,attNumberActuatedDofs,false);
-    tempJointJacobian.resize(6,inRobot.numberDof(),false);
+    tempJacobian.resize(3,attRobot->numberDof(),false);
 
     tempRot.resize(3,3,false);
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
 
-    attInfluencingDofs = ublas::scalar_vector<double>(inRobot.numberDof(), 1);
+    attInfluencingDofs = scalar_vector<double>(attRobot->numberDof(), 1);
 }
 
 CjrlGikStateConstraint* ChppGikComConstraint::clone() const
@@ -47,7 +44,7 @@ void ChppGikComConstraint::dimension(unsigned int inDim)
     {
 
         attDimension = inDim;
-        attJacobian.resize(attDimension,attNumberActuatedDofs,false);
+        attJacobian.resize(attDimension,attRobot->numberDof(),false);
         attValue.resize(attDimension, false);
         attWorldTarget.resize(attDimension,false);
     }
@@ -88,7 +85,7 @@ const vectorN& ChppGikComConstraint::worldTarget()
 void ChppGikComConstraint::computeValue()
 {
     ChppGikTools::Vector3toUblas( attRobot->positionCenterOfMass(), temp3DVec);
-    attValue = attWorldTarget - ublas::subrange(temp3DVec,0,attDimension);
+    attValue = attWorldTarget - subrange(temp3DVec,0,attDimension);
 }
 
 void ChppGikComConstraint::computeInfluencingDofs()
@@ -100,47 +97,22 @@ vectorN& ChppGikComConstraint::influencingDofs()
     return attInfluencingDofs;
 }
 
+void ChppGikComConstraint::jacobianRoot(CjrlJoint& inJoint)
+{
+    attRootJoint = &inJoint;
+}
+
 //certainly not optimal here. should be moved to Humanoid robot.
 void ChppGikComConstraint::computeJacobian()
 {
-    tempFixedJoint = &(attRobot->fixedJoint(0));
-
-    if (!tempFixedJoint)
+    if (attDimension ==2)
     {
-        std::cout << "ChppGikComConstraint::computeJacobian() expected a fixed joint on the robot.\n";
-        return;
+        robot().getJacobianCenterOfMass( *attRootJoint, tempJacobian);
+        noalias(row(attJacobian,0)) = row(tempJacobian,0);
+        noalias(row(attJacobian,1)) = row(tempJacobian,1);
     }
-
-    tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-    
-    if (!tempFixedJointJacobian )
-    {
-        std::cout << "ChppGikComConstraint::computeJacobian() could not retrieve partial jacobians.\n";
-        return;
-    }
-    
-    attRobot->computeJacobianCenterOfMass();
-    tempJacobian = subrange(attRobot->jacobianCenterOfMass(),0,3,6,attRobot->numberDof());
-
-    std::vector<CjrlJoint*> routeJoints;
-
-    unsigned int rank;
-    routeJoints = tempFixedJoint->jointsFromRootToThis();
-    for (unsigned int k= 1; k<routeJoints.size();k++)
-    {
-        rank = routeJoints[k]->rankInConfiguration(); 
-        for (unsigned int l=0; l<3;l++)
-            tempJacobian(l,rank-6) -= (*tempFixedJointJacobian)(l,rank);
-    }
-
-    ChppGikTools::Vector3toUblas( attRobot->positionCenterOfMass(), temp3DVec);
-    ChppGikTools::HtoRT(tempFixedJoint->currentTransformation(),tempRot,temp3DVec1);
-    temp3DVec.minus_assign(temp3DVec1);
-    ChppGikTools::equivAsymMat(temp3DVec,tempRot);
-    
-    ublas::noalias(tempJacobian) += ublas::prod(tempRot, ublas::subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
-
-    attJacobian = ublas::subrange(tempJacobian,0,attDimension,0,attNumberActuatedDofs);
+    else
+        robot().getJacobianCenterOfMass( *attRootJoint, attJacobian);
 }
 
 

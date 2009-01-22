@@ -117,11 +117,11 @@ protected:
     vectorN vecFO;
     vectorN vecOP;
     vectorN vecOT;
-    CjrlJoint* tempFixedJoint;
+
     const matrixNxP* tempFixedJointJacobian;
     const matrixNxP* tempEffectorJointJacobian;
     matrixNxP tempJacobian;
-    matrixNxP tempJacobian0;
+
     /**
     @}
      */

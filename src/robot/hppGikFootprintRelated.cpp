@@ -3,7 +3,7 @@
 #include "robot/hppGikFootprintRelated.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 //** ChppGikFootprint
 ChppGikFootprint::ChppGikFootprint ( double inX, double inY, double inTheta )
@@ -113,7 +113,7 @@ ChppGikFootprint*  ChppGikFootprint::cookFootprint ( const matrix4d& inTransform
 
     //assuming the planner ensures the flatness of the feet
     vectorN eulerZYX ( 3 );
-    ChppGikTools::RottoEulerZYX ( ublas::subrange ( ublasM4,0,3,0,3 ), eulerZYX );
+    ChppGikTools::RottoEulerZYX ( subrange ( ublasM4,0,3,0,3 ), eulerZYX );
     return new ChppGikFootprint ( ublasM4 ( 0,3 ),ublasM4 ( 1,3 ),eulerZYX ( 2 ) );
 }
 

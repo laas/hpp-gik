@@ -44,9 +44,9 @@ bool ChppGikHalfSittingTask::algorithmSolve()
     //Config constraint
     vectorN targetConfig = attStandingRobot->halfsittingConfiguration();
     ChppGikConfigurationConstraint confc( *(attStandingRobot->robot()), targetConfig, attStandingRobot->maskFactory()->wholeBodyMask());
-    
+   
     double duration = 4.0;
-    ChppGikInterpolatedElement* confe = new ChppGikInterpolatedElement(attStandingRobot->robot(), &confc, 1, 0.0, duration, attSamplingPeriod);
+    ChppGikInterpolatedElement* confe = new ChppGikInterpolatedElement(attStandingRobot->robot(), &confc, 3, 0.0, duration, attSamplingPeriod);
 
     attGenericTask->clearElements();
     attGenericTask->addElement( confe );

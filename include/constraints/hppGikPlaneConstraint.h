@@ -1,10 +1,3 @@
-/*
-        Research carried out within the scope of the Associated International Laboratory: Joint Japanese-French Robotics Laboratory (JRL)
- 
-        Authors: Oussama Kanoun (LAAS-CNRS)
- 
-*/
-
 #ifndef HPP_GIK_PLANE_CONSTRAINT_H
 #define HPP_GIK_PLANE_CONSTRAINT_H
 
@@ -117,9 +110,9 @@ private:
     vectorN temp3DVec;
     vectorN temp3DVec1;
     matrixNxP tempRot;
-    CjrlJoint* tempFixedJoint;
+
     const matrixNxP* tempFixedJointJacobian;
-    matrixNxP tempEffectorJointJacobian;
+    matrixNxP tempJacobian;
     matrixNxP tempJointPositionJacobian;
     /**
     @}

@@ -9,7 +9,7 @@
 
 
 /**
-\brief This is a wrapper for a jrlHumanoidDynamicRobot, its support polygon and related information
+\brief This is a wrapper for a jrlHumanoidDynamicRobot, its support polygon and related information.  Some returned data are hardcoded for hrp2 robot.
 \ingroup robot
 */
 class ChppGikStandingRobot

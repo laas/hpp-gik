@@ -11,7 +11,7 @@
 
 #define V3_I MAL_S3_VECTOR_ACCESS
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod, "GenericTask")
 {
@@ -21,7 +21,7 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
 
     attLocomotionPlan = new ChppGikLocomotionPlan( attMotionPlan, attStandingRobot, attSamplingPeriod);
 
-    attGikSolver = new ChppGikSolverRobotAttached(*attRobot);
+    attGikSolver = new ChppGikSolver(*attRobot);
 
     attUseDynamicWeights = true;
     attNeutralBodyOption = false;
@@ -110,7 +110,7 @@ bool ChppGikGenericTask::algorithmSolve()
     bool ok,atLeastOneZMPUnsafe = false, atLeastOneZMPEccentered = false;;
     double time, motionStartTime, motionEndTime, gapTime;
     CjrlJoint* supportJoint = 0;
-    vectorN gikWeights(attRobot->numberDof()-6);
+    vectorN gikWeights(attRobot->numberDof());
     std::vector<CjrlGikStateConstraint*> constraintStack;
     ChppGikMotionPlanColumn* columnInTime;
     vectorN uZMPworPla(3);
@@ -140,44 +140,27 @@ bool ChppGikGenericTask::algorithmSolve()
     motionEndTime = attMotionPlan->endTime()+attEps;
     time = motionStartTime;
     rank = 1;
-
-    //     std::cout << "motion startTime " << attMotionPlan->startTime() <<"\n";
-    //     std::cout << "motion end  Time " << attMotionPlan->endTime() <<"\n";
-
+    
     while (time < motionEndTime)
     {
-        //std::cout << "Time now         " << time <<"\n";
-        attRobot->clearFixedJoints();
         supportJoint = attLocomotionPlan->supportFootJoint(time);
-        attRobot->addFixedJoint(supportJoint);
-
         columnInTime = attMotionPlan->columnAtTime(time);
         constraintStack = columnInTime->constraints();
         computeGikWeights(time, columnInTime->workingJoints(), gikWeights);
+        
         attGikSolver->weights(gikWeights);
-
-        supportJoint->computeJacobianJointWrtConfig();
-        for (unsigned int i = 0; i< constraintStack.size();i++)
-        {
-            constraintStack[i]->computeValue();
-            constraintStack[i]->computeJacobian();
-        }
-        ok = attGikSolver->solve(constraintStack);
-
-        if (!ok)
-        {
-            std::cout <<"ChppGikGenericTask::gradientStep() Could not solve motion plan at time "<< time << "\n";
-            return false;
-        }
+        attGikSolver->rootJoint(*supportJoint);
+        attGikSolver->prepare( constraintStack );
+        attGikSolver->solve(constraintStack);
         attGikSolver->applySolution();
 
         attLocomotionPlan->getZMPAtTime(time, uZMPworPla);
         ChppGikTools::UblastoVector3(uZMPworPla, ZMPworPla);
         attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
         attSolutionMotion->appendSample(attStandingRobot->robot()->currentConfiguration(),ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs);
-
+        
         curSupportPolygon = attStandingRobot->supportPolygon();
-        if (!curSupportPolygon->isPointInsideSafeZone(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
+        if (!(curSupportPolygon->isPointInsideSafeZone(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1))))
         {
             if (!(attStandingRobot->isPointInsideSupportPolygon(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1),0.005)))
             {
@@ -193,8 +176,6 @@ bool ChppGikGenericTask::algorithmSolve()
         rank++;
     }
 
-   
-    
     ok = !atLeastOneZMPUnsafe;
     
     if (ok && atLeastOneZMPEccentered)
@@ -205,13 +186,14 @@ bool ChppGikGenericTask::algorithmSolve()
 
 void ChppGikGenericTask::computeGikWeights(double inTime, const vectorN& inActiveJoints, vectorN& outGikWeights)
 {
+    unsigned int i;
     //GIK weights
     if (attUseDynamicWeights)
         attLocomotionPlan->getWeightsAtTime( inTime, outGikWeights );
     else
         outGikWeights = attStandingRobot->maskFactory()->weightsDoubleSupport();
     if (attNeutralBodyOption)
-        for (unsigned int i=0; i< outGikWeights.size();i++)
+        for (i=0; i< outGikWeights.size();i++)
             if (attStandingRobot->maskFactory()->legsMask()(i) == 0)
                 outGikWeights(i) = 1;
     //Joints mask
@@ -220,8 +202,11 @@ void ChppGikGenericTask::computeGikWeights(double inTime, const vectorN& inActiv
     else
         jointsMask = inActiveJoints;
     //Combine
-    for (unsigned int i=0;i<jointsMask.size();i++)
+    for (i=0;i<jointsMask.size();i++)
         outGikWeights(i) *= jointsMask(i);
+    //disable freeflyer
+    for (i=0;i<6;i++)
+        outGikWeights(i) = 0.0;
 }
 
 
@@ -235,7 +220,6 @@ void ChppGikGenericTask::neutralUpperBody(bool inSwitch)
     attNeutralBodyOption = inSwitch;
 }
 
-
 void ChppGikGenericTask::automaticJointsMask(bool inSwitch, const  vectorN* inMask)
 {
     attUserDefinedMask = !inSwitch;
@@ -247,7 +231,7 @@ void ChppGikGenericTask::automaticJointsMask(bool inSwitch, const  vectorN* inMa
             attUserDefinedMask = false;
             return;
         }
-        if (inMask->size() != (attRobot->numberDof()-6))
+        if (inMask->size() != (attRobot->numberDof()))
         {
             std::cout << "ChppGikGenericTask::automaticJointsMask() invalid joints mask  \n";
             attUserDefinedMask = false;

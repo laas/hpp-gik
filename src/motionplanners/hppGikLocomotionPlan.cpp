@@ -1,3 +1,4 @@
+
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "motionplanners/hppGikLocomotionPlan.h"
@@ -5,6 +6,7 @@
 
 #include "hppGikTools.h"
 
+using namespace boost::numeric::ublas;
 
 ChppGikLocomotionPlan::ChppGikLocomotionPlan(ChppGikMotionPlan* inAssociatedMotionPlan, ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod)
 {
@@ -262,10 +264,10 @@ void ChppGikLocomotionPlan::prolongateZMP(double inDuration)
     unsigned int sizeNewChunk = (unsigned int)round(inDuration/attSamplingPeriod)-1;
     unsigned int previousSize = attPlannedZMP.size2();
     unsigned int newSize =  previousSize + sizeNewChunk;
-    vectorN paddingZMP = ublas::column(attPlannedZMP,previousSize-1);
+    vectorN paddingZMP = column(attPlannedZMP,previousSize-1);
     attPlannedZMP.resize(3,newSize,true);
     for (unsigned int i=previousSize; i<newSize; i++)
-        ublas::column(attPlannedZMP,i) = paddingZMP;
+        column(attPlannedZMP,i) = paddingZMP;
 }
 
 CjrlJoint* ChppGikLocomotionPlan::supportFootJoint(double inTime)
@@ -345,10 +347,12 @@ bool ChppGikLocomotionPlan::getWeightsAtTime(double inTime, vectorN& outWeights)
     {
         ChppGikStepElement* st = dynamic_cast<ChppGikStepElement*>(*iter);
         if (st)
+        {
             if (st->isRight())
                 outWeights = attStandingRobot->maskFactory()->weightsLeftLegSupporting();
             else
                 outWeights = attStandingRobot->maskFactory()->weightsRightLegSupporting();
+        }
 
         if (((*iter)->startTime() + epsilon < inTime) && (inTime < (*(iter))->endTime()))
             break;

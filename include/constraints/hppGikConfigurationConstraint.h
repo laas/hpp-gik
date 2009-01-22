@@ -14,7 +14,7 @@ class ChppGikConfigurationConstraint:public ChppGikVectorizableConstraint
 {
 public:
     /**
-    \brief Constructor. inTargetConfig is of size  inRobot.numberDof() and inMask of size inRobot.numberDof()-6 (i.e. excluding free flyer's dofs)
+    \brief Constructor. inTargetConfig is of size  inRobot.numberDof() and inMask of size inRobot.numberDof() (i.e. excluding free flyer's dofs)
      */
     ChppGikConfigurationConstraint(CjrlDynamicRobot& inRobot, const vectorN& inTargetConfig,  const vectorN& inMask);
 
@@ -44,8 +44,10 @@ public:
      */
     virtual unsigned int dimension() const;
 
-
-
+    /**
+    \brief no ionfluence
+    */
+    void jacobianRoot(CjrlJoint& inJoint);
     /**
         \brief Compute a binary vector whose size matches the robot cnfiguration's, where an element with value 1 indicates that the corresponding degree of freedom can modify the value of this constraint, and an element with value 0 cannot.
      */
@@ -98,7 +100,7 @@ public:
 private:
 
     CjrlDynamicRobot* attRobot;
-    unsigned int attNumberActuatedDofs, attDimension;
+    unsigned int attDimension;
     vectorN attTargetConfiguration, attTarget;
     vectorN attValue;
     vectorN attInfluencingDofs;

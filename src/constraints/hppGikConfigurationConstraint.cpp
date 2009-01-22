@@ -3,41 +3,40 @@
 #include "constraints/hppGikConfigurationConstraint.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 
 ChppGikConfigurationConstraint::ChppGikConfigurationConstraint(CjrlDynamicRobot& inRobot, const vectorN& inTargetConfig, const vectorN& inMask)
 {
-    if ((inTargetConfig.size() == inRobot.numberDof()) && (inMask.size() == inRobot.numberDof()-6))
+    if ((inTargetConfig.size() == inRobot.numberDof()) && (inMask.size() == inRobot.numberDof()))
     {
         attTargetConfiguration = inTargetConfig;
-        attInfluencingDofs = scalar_vector<double>(inRobot.numberDof(),1);
-        subrange(attInfluencingDofs,6,inRobot.numberDof()) = inMask;
+        attInfluencingDofs = inMask;
     }
     else
     {
+        std::cout << "ChppGikConfigurationConstraint:: incorrect sizes" <<std::endl;
         attTargetConfiguration = inRobot.currentConfiguration();
-        attInfluencingDofs = ublas::scalar_vector<double>(inRobot.numberDof(), 1);
+        attInfluencingDofs = scalar_vector<double>(inRobot.numberDof(), 1);
     }
 
     attRobot = &inRobot;
 
-    attNumberActuatedDofs = inRobot.numberDof()-6;
-
     attDimension = 0;
-    for (unsigned int i = 6; i< attRobot->numberDof();i++ )
+    for (unsigned int i = 0; i< attRobot->numberDof();i++ )
         if (attInfluencingDofs(i) == 1)
             attDimension++;
 
 
-    attJacobian.resize(attDimension,attNumberActuatedDofs);
+    attJacobian.resize(attDimension,attRobot->numberDof());
     attJacobian.clear();
     unsigned int line = 0;
-    for (unsigned int col = 6; col< attRobot->numberDof();col++ )
+
+    for (unsigned int col = 0; col< attRobot->numberDof();col++ )
     {
         if (attInfluencingDofs(col) == 1)
         {
-            attJacobian(line, col-6) = 1;
+            attJacobian(line, col) = 1;
             line++;
         }
     }
@@ -64,8 +63,7 @@ ChppGikConfigurationConstraint::~ChppGikConfigurationConstraint()
 
 CjrlGikStateConstraint* ChppGikConfigurationConstraint::clone() const
 {
-    vectorN mask = subrange(attInfluencingDofs,6,attRobot->numberDof());
-    return new ChppGikConfigurationConstraint(*attRobot,attTargetConfiguration, mask);
+    return new ChppGikConfigurationConstraint(*attRobot,attTargetConfiguration, attInfluencingDofs);
 }
 
 
@@ -74,12 +72,13 @@ CjrlDynamicRobot& ChppGikConfigurationConstraint::robot()
     return *attRobot;
 }
 
-
 unsigned int ChppGikConfigurationConstraint::dimension() const
 {
     return attDimension;
 }
 
+void ChppGikConfigurationConstraint::jacobianRoot(CjrlJoint& inJoint)
+{}
 
 void ChppGikConfigurationConstraint::computeInfluencingDofs()
 {}
@@ -93,9 +92,9 @@ vectorN& ChppGikConfigurationConstraint::influencingDofs()
 
 void ChppGikConfigurationConstraint::computeValue()
 {
-    noalias(attTarget) = attTargetConfiguration - attRobot->currentConfiguration();
+    noalias(attTarget) = attTargetConfiguration - robot().currentConfiguration();
     unsigned int k = 0;
-    for (unsigned int l = 6; l< attRobot->numberDof();l++ )
+    for (unsigned int l = 0; l< robot().numberDof();l++ )
         if (attInfluencingDofs(l) == 1)
         {
             attValue(k) =  attTarget(l);

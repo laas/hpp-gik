@@ -46,12 +46,8 @@ public:
     \brief User commands interpreter
     */
     void interprete();
-    
-    /**
-    \brief 
-    */
-    void springTest();
-    void accel();
+
+    void humanoids();
     
 
 private:

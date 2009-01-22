@@ -158,7 +158,7 @@ void ChppGikWholeBodyTask::defaultPlannerTaskMaker(double defaultStartTime,doubl
             attGenericTask->addElement(task);
         }
         else
-            std::cout << "An entered state constraint is ignored for not being of class CjrlGikJointStateConstraint\n";
+            std::cout << "An entered state constraint is ignored for not being of class ChppGikVectorizableConstraint\n";
     }
 }
 

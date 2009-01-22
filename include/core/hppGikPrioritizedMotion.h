@@ -19,7 +19,7 @@ public:
     {
         attRobot = inRobot;
         attPriority = inPriority;
-        attWorkingJoints.resize(inRobot->numberDof()-6);
+        attWorkingJoints.resize(inRobot->numberDof());
         attWorkingJoints.clear();
         attMotionConstraint = inMotionConstraint;
     }

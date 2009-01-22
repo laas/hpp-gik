@@ -2,26 +2,16 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "core/hppGikMotionPlanElement.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikMotionPlanElement::ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, unsigned int inPriority)
 {
     attDimension = 0;
     attPriority = inPriority;
     attRobot = inRobot;
-    unsigned int dof;
-    if (attRobot->countFixedJoints()>0)
-    {
-        dof = attRobot->numberDof()-6;
-    }
-    else
-    {
-        dof = 6;
-    }
-
-    attJacobian.resize(0,dof,false);
+    attJacobian.resize(0,attRobot->numberDof(),false);
     attInfluencingDofs.resize(attRobot->numberDof(),false);
-    attWorkingJoints = scalar_vector<double>(dof,0);
+    attWorkingJoints = scalar_vector<double>(attRobot->numberDof(),0);
 }
 
 
@@ -33,6 +23,12 @@ CjrlGikStateConstraint* ChppGikMotionPlanElement::clone() const
 CjrlDynamicRobot& ChppGikMotionPlanElement::robot()
 {
     return *attRobot;
+}
+
+void ChppGikMotionPlanElement::jacobianRoot( CjrlJoint& inJoint)
+{
+    for (unsigned int i =0; i<attConstraints.size();i++)
+        attConstraints[i]->jacobianRoot(inJoint);
 }
 
 unsigned int ChppGikMotionPlanElement::priority() const
@@ -136,7 +132,7 @@ void ChppGikMotionPlanElement::computeValue()
         {
             chunk_end = chunk_start+(*iter)->dimension();
             (*iter)->computeValue();
-            ublas::subrange(attValue, chunk_start, chunk_end) = (*iter)->value();
+            subrange(attValue, chunk_start, chunk_end) = (*iter)->value();
             chunk_start = chunk_end;
         }
     }
@@ -162,7 +158,7 @@ void ChppGikMotionPlanElement::computeJacobian()
         {
             chunk_end = chunk_start+(*iter)->dimension();
             (*iter)->computeJacobian();
-            ublas::subrange(attJacobian, chunk_start, chunk_end, 0, attJacobian.size2()) = (*iter)->jacobian();
+            subrange(attJacobian, chunk_start, chunk_end, 0, attJacobian.size2()) = (*iter)->jacobian();
             chunk_start = chunk_end;
         }
     }

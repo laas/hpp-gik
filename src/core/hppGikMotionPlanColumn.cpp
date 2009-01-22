@@ -1,10 +1,10 @@
 #include "core/hppGikMotionPlanColumn.h"
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikMotionPlanColumn::ChppGikMotionPlanColumn(CjrlHumanoidDynamicRobot* inRobot)
 {
     attRobot = inRobot;
-    attWorkingJoints = scalar_vector<double>(inRobot->numberDof()-6,0);
+    attWorkingJoints = scalar_vector<double>(inRobot->numberDof(),0);
 }
 
 

@@ -23,6 +23,11 @@ public :
     Same as RottoEulerZYX but from instantaneous rotation vector inOmega.
     */
     static bool OmegatoEulerZYX(const vectorN& inOmega, vectorN& outEuler);
+    
+    /**
+    Converts an angular velocity vector to a rotation
+     */
+    static bool OmegaToR(const vectorN& inOmega, matrixNxP& outR);
 
     /**
     Inverse of RottoEulerZYX

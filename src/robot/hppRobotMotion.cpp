@@ -5,6 +5,8 @@
 
 #define V3_I MAL_S3_VECTOR_ACCESS
 
+using namespace boost::numeric::ublas;
+
 ChppRobotMotionSample::ChppRobotMotionSample(const CjrlRobotConfiguration& inConfig, const vector3d& inZMPwstPla, const vector3d& inZMPwstObs,const vector3d& inZMPworPla, const vector3d& inZMPworObs)
 {
     configuration = inConfig;
@@ -100,7 +102,7 @@ bool ChppRobotMotion::velocityAtTime(double inTime, vectorN& outVector) const
 
 
     if (i == 0)
-        outVector = ublas::zero_vector<double>(attRobot->numberDof());
+        outVector = zero_vector<double>(attRobot->numberDof());
     else
     {
         listGetRange(i-1,2,resVec);
@@ -120,7 +122,7 @@ bool ChppRobotMotion::accelerationAtTime(double inTime, vectorN& outVector) cons
     std::vector<ChppRobotMotionSample> resVec;
 
     if (i == 0)
-        outVector = ublas::zero_vector<double>(attRobot->numberDof());
+        outVector = zero_vector<double>(attRobot->numberDof());
     else
         if (i == 1)
         {

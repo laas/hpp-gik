@@ -3,7 +3,7 @@
 #include "core/hppGikBounder.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikBounder::ChppGikBounder(unsigned int numberParam)
 {

@@ -3,7 +3,7 @@
 #include "constraints/hppGikRotationConstraint.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint,  const matrix3d& inTargetOrientation) :ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
@@ -12,7 +12,7 @@ ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, 
 
     ChppGikTools::Matrix3toUblas(attTargetOrientationMatrix3, attTargetOrientation);
 
-    attJacobian.resize(3,attNumberActuatedDofs,false);
+    attJacobian.resize(3,inRobot.numberDof(),false);
     attValue.resize(3, false);
 
     temp3DVec.resize(3,false);
@@ -52,25 +52,7 @@ void ChppGikRotationConstraint::computeValue()
 
 void ChppGikRotationConstraint::computeJacobian()
 {
-    tempFixedJoint = &(robot().fixedJoint(0));
-    if (!tempFixedJoint)
-    {
-        std::cout << "ChppGikRotationConstraint::computeJacobian() expected a fixed joint on the robot.\n";
-        return;
-    }
-
-    joint()->computeJacobianJointWrtConfig();
-    //tempFixedJoint->computeJacobianJointWrtConfig();
-
-    tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-    tempEffectorJointJacobian = &(joint()->jacobianJointWrtConfig());
-    if (!tempFixedJointJacobian || !tempEffectorJointJacobian)
-    {
-        std::cout << "ChppGikRotationConstraint::computeJacobian() could not retrieve partial jacobians.\n";
-        return;
-    }
-
-    noalias(attJacobian) = subrange(*tempEffectorJointJacobian,3,6,6,robot().numberDof()) - subrange(*tempFixedJointJacobian,3,6,6,robot().numberDof());
+    robot().getOrientationJacobian( *attRootJoint,*joint(),attJacobian);
 }
 
 void ChppGikRotationConstraint::computeVectorizedState()

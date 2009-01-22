@@ -2,42 +2,26 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "constraints/hppGikJointStateConstraint.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikJointStateConstraint::ChppGikJointStateConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, unsigned int inDimension) : attDimension(inDimension)
 {
     attJoint = &inJoint;
     attRobot = &inRobot;
+    attRootJoint = attRobot->rootJoint();
     attInfluencingDofs = zero_vector<double>(attRobot->numberDof());
-
-    if (attRobot->countFixedJoints()>0)
-    {
-        attNumberActuatedDofs = inRobot.numberDof()-6;
-    }
-    else
-    {
-        attNumberActuatedDofs = inRobot.numberDof();
-    }
-
     computeInfluencingDofs();
 }
 
 void ChppGikJointStateConstraint::computeInfluencingDofs()
 {
-    unsigned int i;
     attInfluencingDofs.clear();
-    std::vector<CjrlJoint *> joints;
+    std::vector<CjrlJoint*> vecJoints = attRobot->jointsBetween( *attRootJoint, *attJoint);
+    unsigned int i,j;
+    for (i=0;i<vecJoints.size();i++)
+        for (j=vecJoints[i]->rankInConfiguration();j<vecJoints[i]->rankInConfiguration()+vecJoints[i]->numberDof();j++)
+            attInfluencingDofs(j) = 1;
 
-    //Free flyer dofs
-    CjrlJoint *root = attRobot->rootJoint();
-    unsigned int start = root->rankInConfiguration();
-    for (i=0; i<root->numberDof(); i++)
-        attInfluencingDofs[start+i] = 1;
-
-    //Dofs from free flyer to effector joint
-    joints = attJoint->jointsFromRootToThis();
-    for(i=1; i< joints.size(); i++)
-        attInfluencingDofs(joints[i]->rankInConfiguration()) = 1;
 }
 
 vectorN& ChppGikJointStateConstraint::influencingDofs()
@@ -57,8 +41,22 @@ const matrixNxP& ChppGikJointStateConstraint::jacobian()
 
 void ChppGikJointStateConstraint::joint(CjrlJoint* inJoint)
 {
-    attJoint = inJoint;
-    computeInfluencingDofs();
+    if (attJoint!=inJoint)
+        ;
+    {
+        attJoint = inJoint;
+        computeInfluencingDofs();
+    }
+}
+
+void ChppGikJointStateConstraint::jacobianRoot(CjrlJoint& inJoint)
+{
+    if (attRootJoint!=&inJoint)
+        ;
+    {
+        attRootJoint = &inJoint;
+        computeInfluencingDofs();
+    }
 }
 
 unsigned int ChppGikJointStateConstraint::dimension() const

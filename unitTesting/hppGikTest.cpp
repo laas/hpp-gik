@@ -15,13 +15,17 @@
 #include "hppGikTools.h"
 #include "hrp2Dynamics/hrp2OptHumanoidDynamicRobot.h"
 
+#include "hppGik/constraints/hppGikConfigurationConstraint.h"
+#include "hppGik/tasks/hppGikGenericTask.h"
+#include "hppGik/motionplanners/elements/hppGikStepElement.h"
+#include "hppGik/motionplanners/elements/hppGikInterpolatedElement.h"
+#include "hppGik/tasks/hppGikReachTask.h"
+
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 #define V3_I  MAL_S3_VECTOR_ACCESS
 
-//#include "tasks/hppGikCmpTask.h"
-using namespace std;
-
+using namespace  boost::numeric::ublas;
 
 ChppGikTest::ChppGikTest() : attSamplingPeriod(5e-3)
 {
@@ -33,12 +37,10 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(5e-3)
     createHumanoidRobot();
 
     attWholeBodyTask = new ChppGikWholeBodyTask(attStandingRobot,attSamplingPeriod);
-    attWholeBodyTask->bringBackZMP( true, -2.0,2.0);
 
     attWholeBodyTask->showResolutionTime( true );
 
     attHalfSittingTask = new ChppGikHalfSittingTask(attStandingRobot, attSamplingPeriod);
-    attHalfSittingTask->bringBackZMP( true, -2.0,2.0);
 
     attHalfSittingTask->showResolutionTime( true );
 
@@ -59,167 +61,142 @@ ChppGikTest::~ChppGikTest()
     delete attMotion;
 }
 
-void ChppGikTest::accel()
+
+
+void ChppGikTest::humanoids()
 {
-    /**debug*/
+    ChppRobotMotion finalMotion(attRobot,0.0,attSamplingPeriod);
 
-    CjrlJoint* fixedFoot = attRobot->leftFoot();
-    attRobot->clearFixedJoints();
-    attRobot->addFixedJoint( fixedFoot );
-    ChppGikSolverRobotAttached gikSolver(*attRobot);
+    vector3d handTarget;
+    vector3d gazeTarget;
 
-    vector3d targetPoint, localPoint, p;
-    vector3d absZMPPla, absZMPObs, relZMPObs, relZMPPla;
-    vector3d normalVec;
+    handTarget[0] = 0.0;
+    handTarget[1] = 3.0;
+    handTarget[2] = 0.5;
 
-    std::vector<CjrlGikStateConstraint*> stack;
+    gazeTarget[0] = handTarget[0];
+    gazeTarget[1] = handTarget[1];
+    gazeTarget[2] = handTarget[2];
 
-    localPoint[0] = 0.0;
-    localPoint[1] = 0.0;
-    localPoint[2] = 0.0;
-    CjrlJoint& nsfJoint = *(attRobot->rightFoot());
-    matrix4d nsfTransform = nsfJoint.currentTransformation();
-    matrix4d sfTransform = fixedFoot->currentTransformation();
-    ChppGikTransformationConstraint nsfc(*attRobot, nsfJoint, localPoint, nsfTransform);
-    stack.push_back(&nsfc);
+    double footX,footY,footT;
+
+    footX = 0.0;
+    footY = 0.15;
+    footT = M_PI/2-0.5;
+
+    ChppGikFootprint targetFoot(footX,footY,footT);
+    ChppGikStepElement* stepElement = new ChppGikStepElement( attRobot, 1.6, &targetFoot, false, attSamplingPeriod , 0.2, 0.4, 0.4, 1.2);
+
+    vector3d lp, pn, pp;
+    lp[0] = lp[1] = lp[2] = 0;
+    pp = lp;
+    pn = lp;
+    pn[2] = 1;
+    pp[2] = attStandingRobot->halfsittingWaistHeight();
+    ChppGikPlaneConstraint waistConstraint (*attRobot, *(attRobot->waist()), lp, pp, pn );
+    ChppGikInterpolatedElement* waistElement = new ChppGikInterpolatedElement( attRobot, &waistConstraint, 2, 4.2, 4.0, attSamplingPeriod);
+
+    ChppGikParallelConstraint waistPConstraint (*attRobot, *(attRobot->waist()), pn, pn);
+    ChppGikInterpolatedElement* waistPElement = new ChppGikInterpolatedElement( attRobot, &waistPConstraint, 1, 0, 8.2, attSamplingPeriod);
+
+    ChppGikGazeConstraint gazeConstraint(*attRobot,gazeTarget);
+    ChppGikInterpolatedElement* gazeElement = new ChppGikInterpolatedElement( attRobot, &gazeConstraint, 2, 4.2, 4.0, attSamplingPeriod);
+
+    lp = attRobot->leftHand()->centerInWristFrame();
+    ChppGikPositionConstraint handConstraint( *attRobot,*attRobot->leftWrist(), lp, handTarget);
+    ChppGikInterpolatedElement* handElement = new ChppGikInterpolatedElement( attRobot, &handConstraint, 2, 4.2, 4.0, attSamplingPeriod);
+    delete handElement;
 
 
-    matrix4d m;
-    M4_IJ(m,0,3) = 0.0001;
-    M4_IJ(m,1,3) = 0;
-    M4_IJ(m,2,3) = 0.6487;
-    localPoint[0] = localPoint[1] = localPoint[2] = 0;
-    ChppGikTransformationConstraint trans (*(attStandingRobot->robot()), *(attStandingRobot->robot()->waist()), localPoint, m);
-    stack.push_back(&trans);
+    ChppGikGenericTask genericTask(attStandingRobot,attSamplingPeriod);
+    vectorN zeroVec1(46);
+    zeroVec1.clear();
+    vectorN leftArm = attStandingRobot->maskFactory()->customMask(attRobot->leftWrist(),6);
+    leftArm(28) = 0;
+    leftArm(27) = 0;
+    zeroVec1(32) = -M_PI/4-0.2;
+    ChppGikConfigurationConstraint configConstraint0(*attRobot,zeroVec1,leftArm);
+    ChppGikInterpolatedElement* configElement0 = new ChppGikInterpolatedElement( attRobot, &configConstraint0, 2, 0.0, 4.0, attSamplingPeriod);
 
 
-    vectorN activated =  attStandingRobot->maskFactory()->legsMask();
-    vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
-    vectorN combined = weights;
-    for (unsigned int i=0;i<combined.size();i++)
-        combined(i) *= activated(i);
-    ChppGikSupportPolygon* curSupportPolygon;
-    gikSolver.weights(combined);
+    genericTask.clearElements();
+    genericTask.addElement( configElement0 );
+    genericTask.solve();
+    ChppRobotMotion& motion = const_cast<ChppRobotMotion&>(genericTask.solutionMotion());
+    finalMotion.appendMotion( motion );
+    attStandingRobot->staticState( motion.lastSample()->configuration );
 
-    fixedFoot->computeJacobianJointWrtConfig();
-    for (unsigned int i = 0; i< stack.size();i++)
-    {
-        stack[i]->computeValue();
-        stack[i]->computeJacobian();
-    }
-    gikSolver.solve( stack );
-    gikSolver.applySolution();
+    genericTask.clearElements();
+    genericTask.addElement(stepElement);
+    genericTask.addElement(waistPElement);
 
-    attStandingRobot->updateDynamics(attSamplingPeriod, absZMPPla, absZMPObs, relZMPObs, relZMPPla);
+    genericTask.addElement(gazeElement);
+    genericTask.addElement(waistElement);
 
-    std::cout << absZMPObs << "\n";
-    std::cout << attRobot->currentConfiguration() << "\n";
+    genericTask.solve();
 
+
+
+    finalMotion.appendMotion( motion );
+    attStandingRobot->staticState( motion.lastSample()->configuration );
+
+    genericTask.clearElements();
+
+    vector3d newTarget;
+    newTarget[0] = -0.0;
+    newTarget[1] = 0.78;
+    newTarget[2] = 0.95;
+    handConstraint.worldTarget( newTarget );
+    ChppGikInterpolatedElement* handElement2 = new ChppGikInterpolatedElement( attRobot, &handConstraint, 1, 0.0, 4.0, attSamplingPeriod);
+
+    genericTask.addElement( handElement2);
+
+    genericTask.solve();
+    finalMotion.appendMotion( motion );
+    attStandingRobot->staticState( motion.lastSample()->configuration );
+
+    genericTask.clearElements();
+
+    vectorN zeroVec(46);
+    zeroVec.clear();
+    vectorN rightArm = attStandingRobot->maskFactory()->customMask(attRobot->rightWrist(),3);
+    zeroVec(25) = -M_PI/2+0.1;
+    zeroVec(22) = -0.1;
+    zeroVec(23) = -0.3;
+    zeroVec(27) = -M_PI/2+0.6;
+    ChppGikConfigurationConstraint configConstraint(*attRobot,zeroVec,rightArm);
+    ChppGikInterpolatedElement* configElement = new ChppGikInterpolatedElement( attRobot, &configConstraint, 2, 0.0, 4.0, attSamplingPeriod);
+
+    zeroVec.clear();
+    rightArm = attStandingRobot->maskFactory()->customMask(attRobot->leftWrist(),7);
+    rightArm(28) = 0;
+    zeroVec(33) = -M_PI/4-0.2;
+    ChppGikConfigurationConstraint configConstraint2(*attRobot,zeroVec,rightArm);
+    ChppGikInterpolatedElement* configElement2 = new ChppGikInterpolatedElement( attRobot, &configConstraint2, 2, 0.0, 4.0, attSamplingPeriod);
+    /*
+    zeroVec.clear();
+    rightArm = attStandingRobot->maskFactory()->customMask(attRobot->gazeJoint(),4);
+    zeroVec(21) = -0.1;
+    ChppGikConfigurationConstraint configConstraint3(*attRobot,zeroVec,rightArm);
+    ChppGikInterpolatedElement* configElement3 = new ChppGikInterpolatedElement( attRobot, &configConstraint3, 2, 0.0, 4.0, attSamplingPeriod);
+    genericTask.addElement(configElement3);
+    */
+
+    genericTask.addElement(configElement2);
+
+
+    genericTask.addElement(configElement);
+
+
+
+    genericTask.solve();
+    finalMotion.appendMotion( motion );
+    finalMotion.dumpTo("humanoids09");
 }
 
-void ChppGikTest::springTest()
-{
-    CjrlJoint* fixedFoot = attRobot->leftFoot();
-    attRobot->clearFixedJoints();
-    attRobot->addFixedJoint( fixedFoot );
-    ChppGikSolverRobotAttached gikSolver(*attRobot);
 
-    ChppRobotMotion motion(attRobot, 0.0 , attSamplingPeriod);
-    vector3d targetPoint, localPoint, p;
-    vector3d absZMPPla, absZMPObs, relZMPObs, relZMPPla;
 
-    localPoint[0] = 0.0;
-    localPoint[1] = 0.0;
-    localPoint[2] = 0.0;
-    CjrlJoint& nsfJoint = *(attRobot->rightFoot());
-    matrix4d nsfTransform = nsfJoint.currentTransformation();
-    matrix4d sfTransform = fixedFoot->currentTransformation();
-    ChppGikTransformationConstraint nsfc(*attRobot, nsfJoint, localPoint, nsfTransform);
 
-    vector3d com = attRobot->positionCenterOfMass();
-
-    double D = 3.0;
-    unsigned int n1 = ChppGikTools::timetoRank(0,D,attSamplingPeriod) +1;
-    unsigned int n2 = ChppGikTools::timetoRank(0,2*D,attSamplingPeriod) +1;
-    matrixNxP comData1(2,n1);
-    matrixNxP comData2(2,n2);
-    matrixNxP comDataAll(2,2*n1+n2);
-    vectorN interpolationdata1(n1);
-    vectorN interpolationdata2(n2);
-
-    ChppGikTools::minJerkCurve( D, attSamplingPeriod, com[0], 0, 0, M4_IJ(sfTransform,0,3),interpolationdata1 );
-    row(comData1,0) = interpolationdata1;
-    ChppGikTools::minJerkCurve( D, attSamplingPeriod, com[1], 0, 0, M4_IJ(sfTransform,1,3),interpolationdata1 );
-    row(comData1,1) = interpolationdata1;
-    subrange(comDataAll,0,2,0,n1) = comData1;
-
-    ChppGikTools::minJerkCurve( 2*D, attSamplingPeriod, M4_IJ(sfTransform,0,3), 0, 0, M4_IJ(nsfTransform,0,3),interpolationdata2 );
-    row(comData2,0) = interpolationdata2;
-    ChppGikTools::minJerkCurve( 2*D, attSamplingPeriod, M4_IJ(sfTransform,1,3), 0, 0, M4_IJ(nsfTransform,1,3),interpolationdata2 );
-    row(comData2,1) = interpolationdata2;
-    subrange(comDataAll,0,2,n1, n1+n2 ) = comData2;
-
-    ChppGikTools::minJerkCurve( D, attSamplingPeriod, M4_IJ(nsfTransform,0,3), 0, 0, com[0] ,interpolationdata1 );
-    row(comData1,0) = interpolationdata1;
-    ChppGikTools::minJerkCurve( D, attSamplingPeriod, M4_IJ(nsfTransform,1,3), 0, 0, com[1] ,interpolationdata1 );
-    row(comData1,1) = interpolationdata1;
-    subrange(comDataAll,0,2,n1+n2,2*n1+n2) = comData1;
-
-    ChppGikComConstraint comc(*attRobot, com[0], com[1]);
-
-    vector3d zAxis;
-    zAxis = localPoint;
-    zAxis[2] = 1;
-    ChppGikParallelConstraint parc(*attRobot,*(attRobot->waist()),zAxis, zAxis);
-
-    vector3d worldZ;
-    worldZ = localPoint;
-    worldZ[2] = 0.6487;
-    ChppGikPlaneConstraint plc(*attRobot,*(attRobot->waist()),localPoint, worldZ, zAxis);
-    std::vector<CjrlGikStateConstraint*> stack;
-
-    stack.push_back(&nsfc);
-    stack.push_back(&comc);
-    stack.push_back(&parc);
-    stack.push_back(&plc);
-
-    vectorN activated =  attStandingRobot->maskFactory()->legsMask();
-    vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
-    vectorN combined = weights;
-    for (unsigned int i=0;i<combined.size();i++)
-        combined(i) *= activated(i);
-    ChppGikSupportPolygon* curSupportPolygon;
-    gikSolver.weights(combined);
-    for (unsigned int j = 1; j< comDataAll.size2();j++)
-    {
-        comc.targetXY( comDataAll(0,j), comDataAll(1,j));
-        absZMPPla[0] = comDataAll(0,j);
-        absZMPPla[1] = comDataAll(1,j);
-
-        fixedFoot->computeJacobianJointWrtConfig();
-        for (unsigned int i = 0; i< stack.size();i++)
-        {
-            stack[i]->computeValue();
-            stack[i]->computeJacobian();
-        }
-        gikSolver.solve( stack );
-        gikSolver.applySolution();
-
-        attStandingRobot->updateDynamics(attSamplingPeriod, absZMPPla, absZMPObs, relZMPObs, relZMPPla);
-
-        curSupportPolygon = attStandingRobot->supportPolygon();
-        if (!curSupportPolygon->isPointInsideSafeZone(V3_I(absZMPObs,0), V3_I(absZMPObs,1)))
-        {
-            std::cout << "ZMP: " << V3_I(absZMPObs,0) <<" , "<< V3_I(absZMPObs,1) <<" out of polygon at iteration " << j << "\n";
-            curSupportPolygon->print();
-            return;
-        }
-
-        const vectorN& solutionConfig = attRobot->currentConfiguration();
-        motion.appendSample(solutionConfig,relZMPPla, relZMPObs,absZMPPla, absZMPObs );
-    }
-    motion.dumpTo( "SpringMotion" );
-}
 
 void ChppGikTest::createHumanoidRobot()
 {
@@ -287,7 +264,7 @@ void ChppGikTest::createHumanoidRobot()
     for(unsigned int i=6;i<nDof;i++)
         halfsittingConf(i) = dInitPos[i-6]*M_PI/180;
 
-    ublas::zero_vector<double> zeros(attRobot->numberDof());
+    zero_vector<double> zeros(attRobot->numberDof());
     attRobot->currentConfiguration(halfsittingConf);
     attRobot->currentVelocity(zeros);
     attRobot->currentAcceleration(zeros);
@@ -498,17 +475,6 @@ void  ChppGikTest::interprete()
             currentConfig = resultConfig;
         }
 
-        if (strcmp(command, "tamper")==0)
-        {
-         
-            if (!stream.eof())
-            {
-                std::cout << "check arguments\n";
-                continue;
-            }
-            tamperCOM(resultConfig);
-        }
-        
         if (strcmp(command, "apply")==0)
         {
             if (!stream.eof())
@@ -785,63 +751,6 @@ void ChppGikTest::halfsitting(const char* filename, vectorN& curConfig, vectorN&
     else
         std::cout <<"\nNot solved.\n";
 
-}
-
-void ChppGikTest::tamperCOM(vectorN& resultConfig)
-{
-    CjrlJoint* fixedFoot = attRobot->leftFoot();
-    attRobot->clearFixedJoints();
-    attRobot->addFixedJoint( fixedFoot );
-    ChppGikSolverRobotAttached gikSolver(*attRobot);
-
-    vector3d targetPoint, localPoint, p;
-    vector3d absZMPPla, absZMPObs, relZMPObs, relZMPPla;
-
-    localPoint[0] = 0.0;
-    localPoint[1] = 0.0;
-    localPoint[2] = 0.0;
-    CjrlJoint& nsfJoint = *(attRobot->rightFoot());
-    matrix4d nsfTransform = nsfJoint.currentTransformation();
-    ChppGikTransformationConstraint nsfc(*attRobot, nsfJoint, localPoint, nsfTransform);
-
-    vector3d com = attRobot->positionCenterOfMass();
-    ChppGikComConstraint comc(*attRobot, com[0], com[1]);
-    absZMPPla = com;
-
-    std::vector<CjrlGikStateConstraint*> stack;
-    stack.push_back(&nsfc);
-    stack.push_back(&comc);
-
-    vectorN activated =  attStandingRobot->maskFactory()->wholeBodyMask();
-    vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
-    vectorN combined = weights;
-    for (unsigned int i=0;i<combined.size();i++)
-        combined(i) *= activated(i);
-
-    for (unsigned int j = 0; j< 60;j++)
-    {
-        p = attRobot->positionCenterOfMass();
-        p[0] += 0.001;
-        comc.targetXY(p[0],p[1]);
-
-        gikSolver.weights(combined);
-
-        fixedFoot->computeJacobianJointWrtConfig();
-
-        for (unsigned int i = 0; i< stack.size();i++)
-        {
-            stack[i]->computeValue();
-            stack[i]->computeJacobian();
-        }
-
-        gikSolver.solve( stack );
-        gikSolver.applySolution();
-
-        attStandingRobot->updateDynamics(attSamplingPeriod, absZMPPla, absZMPObs, relZMPObs, relZMPPla);
-
-    }
-    resultConfig = attRobot->currentConfiguration();
-            
 }
 
 void  ChppGikTest::printMenu()

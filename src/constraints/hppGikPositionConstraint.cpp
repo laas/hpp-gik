@@ -3,7 +3,7 @@
 #include "constraints/hppGikPositionConstraint.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame) : ChppGikJointStateConstraint(inRobot, inJoint, 3)
 {
@@ -16,9 +16,8 @@ ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, 
     ChppGikTools::Vector3toUblas(attWorldTargetVector3, attWorldTarget);
 
 
-    attJacobian.resize(3,attNumberActuatedDofs,false);
+    attJacobian.resize(3,inRobot.numberDof(),false);
     tempJacobian.resize(6,inRobot.numberDof(),false);
-    tempJacobian.clear();
     attValue.resize(3, false);
 
     tempRot.resize(3,3,false);
@@ -70,35 +69,7 @@ void ChppGikPositionConstraint::computeValue()
 
 void ChppGikPositionConstraint::computeJacobian()
 {
-    joint()->getJacobianPointWrtConfig(attLocalPointVector3, tempJacobian);
-
-    int start = robot().numberDof() - attNumberActuatedDofs;
-    attJacobian = subrange(tempJacobian,0,3,start,robot().numberDof());
-
-
-    if (robot().countFixedJoints()>0)
-    {
-        tempFixedJoint = &(robot().fixedJoint(0));
-        tempFixedJointJacobian = &(tempFixedJoint->jacobianJointWrtConfig());
-        if (!tempFixedJointJacobian)
-        {
-            std::cout << "ChppGikPositionConstraint::computeJacobian() could not retrieve partial jacobians.\n";
-            return;
-        }
-        attJacobian.minus_assign(subrange(*tempFixedJointJacobian,
-                                          0,3,start,robot().numberDof()));
-
-        ChppGikTools::HtoRT(joint()->currentTransformation(),
-                            tempRot,temp3DVec);
-        noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
-        temp3DVec.plus_assign(temp3DVec1);//joint point in world
-
-        ChppGikTools::HtoT(tempFixedJoint->currentTransformation(),temp3DVec1);
-        temp3DVec.minus_assign(temp3DVec1);//joint point in world - ankle joint center in world
-
-        ChppGikTools::equivAsymMat(temp3DVec,tempRot);
-        noalias(attJacobian) += prod(tempRot,subrange(*tempFixedJointJacobian,3,6,start,robot().numberDof()));
-    }
+    robot().getPositionJacobian( *attRootJoint, *joint(), attLocalPointVector3,attJacobian);
 }
 
 

@@ -7,7 +7,7 @@
 
 
 /**
-\brief Build some joint masks and weighting vectors for the GIK solver.
+\brief Build some joint masks and weighting vectors for the GIK solver. Some returned data are hardcoded for hrp2 robot.
 \ingroup robot
  */
 class ChppGikMaskFactory
@@ -35,6 +35,18 @@ public:
     \brief Get the joint mask for the upper body
     */
     vectorN& upperBodyMask();
+    /**
+    \brief Get the joint mask for the left arm
+    */
+    vectorN& leftArmMask();
+    /**
+    \brief Get the joint mask for the right arm
+     */
+    vectorN& rightArmMask();
+    /**
+    \brief Get the joint mask for joints betwwen root and given joint, starting from joint with rank rankOfFirstActivatedJoint
+     */
+    vectorN& customMask(CjrlJoint* inJoint, unsigned int rankOfFirstActivatedJoint);
     /**
     \brief Get the joint mask for the trunc (chest + head + legs)
      */
@@ -76,10 +88,13 @@ private:
     unsigned int attNumJoints;
     vectorN attUpperBody;
     vectorN attLegs;
+    vectorN attLeftArm;
+    vectorN attRightArm;
     vectorN attChestAndArms;
     vectorN attChestAndHead;
     vectorN attWholeBody;
     vectorN attWeightsDouble;
+    vectorN attCustomMask;
     vectorN attWeightsLeftLegSupporting;
     vectorN attWeightsRightLegSupporting;
 

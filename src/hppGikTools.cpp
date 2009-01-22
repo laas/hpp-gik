@@ -9,21 +9,37 @@
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 #define V3_I  MAL_S3_VECTOR_ACCESS
 
-double ChppGikTools::attEps = 1e-15;
+double ChppGikTools::attEps = 1e-8;
+using namespace boost::numeric::ublas;
 
 void ChppGikTools::Rodrigues(const vectorN& inW, double inAngle, matrixNxP& outRot)
 {
-    double nor = ublas::norm_2(inW);
-    vectorN wn = inW / nor;
-    ublas::identity_matrix<double> id(3);
-
+    double nor = norm_2(inW);
+    identity_matrix<double> id(3);
     if (nor < attEps)
+    {
         outRot = id;
+    }
     else
     {
+        vectorN wn = inW / nor;
         equivAsymMat(wn,outRot);
-        outRot = id + sin(inAngle)*outRot + (1-cos(inAngle)) * ublas::prod(outRot,outRot);
+        outRot = id + sin(inAngle)*outRot + (1-cos(inAngle)) * prod(outRot,outRot);
     }
+}
+
+bool ChppGikTools::OmegaToR(const vectorN& inOmega, matrixNxP& outR)
+{
+    if (inOmega.size()!=3)
+        return false;
+    outR = identity_matrix<double>(3);
+    double angle = norm_2(inOmega);
+    if (angle > attEps)
+    {
+        vectorN axis =  inOmega/angle;
+        Rodrigues(axis, angle, outR);
+    }
+    return true;
 }
 
 void ChppGikTools::EulerZYXtoRot(const vectorN& inEuler, matrixNxP& outRot)
@@ -86,7 +102,7 @@ bool ChppGikTools::OmegatoEulerZYX(const vectorN& inOmega, vectorN& outEuler)
 {
     matrixNxP attR(3,3);
 
-    double th = ublas::norm_2(inOmega);
+    double th = norm_2(inOmega);
     Rodrigues(inOmega,th,attR);
     return RottoEulerZYX(attR, outEuler);
 }
@@ -118,11 +134,11 @@ void ChppGikTools::RottoOmega(const matrixNxP& inRot, vectorN& outVec)
 void ChppGikTools::invertTransformation(const matrixNxP& inH, matrixNxP& outH)
 {
 
-    ublas::subrange(outH,0,3,0,3) = ublas::trans(ublas::subrange(inH,0,3,0,3));
+    subrange(outH,0,3,0,3) = trans(subrange(inH,0,3,0,3));
 
     vectorN attT(3);
 
-    attT = ublas::prod(ublas::subrange(outH,0,3,0,3),ublas::subrange(ublas::column(inH,3),0,3));
+    attT = prod(subrange(outH,0,3,0,3),subrange(column(inH,3),0,3));
     for (unsigned int i=0; i< 3; i++)
         outH(i,3) = -attT(i);
 
@@ -136,8 +152,8 @@ void ChppGikTools::flyerTransformation(const vectorN& inDof, matrixNxP& outH)
 {
     matrixNxP attR(3,3);
 
-    EulerZYXtoRot(ublas::subrange(inDof,3,6),attR);
-    ublas::subrange(outH,0,3,0,3) = attR;
+    EulerZYXtoRot(subrange(inDof,3,6),attR);
+    subrange(outH,0,3,0,3) = attR;
     for (unsigned int i=0; i< 3; i++)
         outH(i,3) = inDof(i);
     outH(3,0) = 0;
@@ -270,7 +286,7 @@ bool ChppGikTools::sinFilter(vectorN& inSignal, double inSamplingPeriod, vectorN
         extendedSignal(i) = inSignal(0);
         extendedSignal(filter_n+i+inSignal.size()) = inSignal(inSignal.size()-1);
     }
-    ublas::subrange(extendedSignal,filter_n,filter_n+inSignal.size()) = inSignal;
+    subrange(extendedSignal,filter_n,filter_n+inSignal.size()) = inSignal;
 
 
     result.clear();
@@ -451,8 +467,8 @@ void ChppGikTools::targetTransformationU(const matrixNxP& referenceBase, const m
     //warning, no size checks, expects 4 homogeneous matrices !
     matrixNxP inverseRefBase(4,4);
     ChppGikTools::invertTransformation(referenceBase, inverseRefBase);
-    noalias(outNowTarget) = ublas::prod(inverseRefBase, referenceTarget);
-    outNowTarget = ublas::prod(nowBase,outNowTarget);
+    noalias(outNowTarget) = prod(inverseRefBase, referenceTarget);
+    outNowTarget = prod(nowBase,outNowTarget);
 }
 
 void ChppGikTools::targetTransformationM(const matrix4d& referenceBase, const matrix4d& referenceTarget, const matrix4d& nowBase, matrix4d& outNowTarget)
@@ -543,8 +559,8 @@ bool ChppGikTools::overlapConcat(matrixNxP& data, const matrixNxP& addedData, un
     if (data.size1() != addedData.size1())
         return false;
 
-    
-    
+
+
     data.resize(data.size1(), data.size2() + addedData.size2()- overlap, true);
     subrange(data, 0, data.size1(), data.size2()-addedData.size2(),data.size2()) = addedData;
     return true;

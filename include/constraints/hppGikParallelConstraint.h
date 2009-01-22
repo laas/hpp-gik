@@ -104,10 +104,10 @@ private:
     matrixNxP tempRot3;
     vectorN temp3DVec;
     vectorN temp3DVec1;
-    CjrlJoint* tempFixedJoint;
+
     const matrixNxP* tempFixedJointJacobian;
     const matrixNxP* tempEffectorJointJacobian;
-    matrixNxP tempJointOrientJacobian;
+    matrixNxP tempJointOrientJacobian,tempJacobian;
     /**
     @}
      */

@@ -173,15 +173,12 @@ If \c r is controlled properly through iterations, the above algorithm yields a 
 
 Given the tasks, the user should implement CjrlGikStateConstraint objects that compute the jacobians and values correponding to the respective tasks.
 To solve the linear systems implied by step (3) ChppGikSolverBasic can be used.\n
-However, a problem arises for a robot: joint limits. Joint limits are inequality constraints on the joint values that must constantly be verified. ChppGikSolverRobotFree and ChppGikSolverRobotAttached are prioritized linear system solvers based on ChppGikSolverBasic, which use a ChppGikBounder object to enforce joint limits. See these objects' documentation for more details.\n
-Both solvers are constructed by giving a reference to a CjrlDynamicRobot object.\n
-The difference lies in the way the solution is computed. ChppGikSolverRobotFree treats the robot as a kinematic tree whose root is a freeflying joint, whereas ChppGikSolverRobotAttached 
-treats the robot like a kinematic tree whose root is fixed in the ground via a body of the robot. The second solver gives significant computation speedup, so it should be preferred when applicable.\n
+However, a problem arises for a robot: joint limits. Joint limits are inequality constraints on the joint values that must constantly be verified. ChppGikSolver is a prioritized linear system solver based on ChppGikSolverBasic, it uses a ChppGikBounder object to enforce joint limits. See these objects' documentation for more details.\n
 
 First construct a solver and pile up CjrlGikStateConstraint objects in a priority-decreasing vector:
 
 \code
-ChppGikSolverRobotFree solver(robot);
+ChppGikSolver solver(robot);
 std::vector<CjrlGikStateConstraint*> stack;
 stack.push_back(highest_priority_constraint);
 stack.push_back(mid_priority_constraint);
@@ -206,9 +203,9 @@ if (norm_2(solver.solution()) < 1e-5)
 robot.computeForwardKinematics();
 \endcode
 
-There is a variation of ChppGikSolverRobotFree::solve() to add damping factors. See documentation for details.\n
+There is a variation of ChppGikSolver::solve() to add damping factors. See documentation for details.\n
 
-See \ref example1_page for a source code using ChppGikSolverRobotAttached.
+See \ref example1_page for a source code using ChppGikSolver.
 
 \n\n
 \section plan2_section Plan motion for your humanoid robot
@@ -244,7 +241,7 @@ Solve and retrieve solution if successful:
 \code
 bool ok = genericTask.solve();
 if (ok)
-    motion = genericTask.solution();
+    motion = genericTask.solutionMotion();
 \endcode
 
 \n

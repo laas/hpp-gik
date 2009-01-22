@@ -21,8 +21,6 @@ libhppGik_la_SOURCES = \
 	core/hppGikBounder.cpp \
 	core/hppGikSolver.cpp \
 	core/hppGikSolverBasic.cpp \
-	core/hppGikSolverRobotFree.cpp \
-	core/hppGikSolverRobotAttached.cpp \
 	core/hppGikMotionPlanColumn.cpp \
 	core/hppGikMotionPlanElement.cpp \
 	core/hppGikMotionPlan.cpp \

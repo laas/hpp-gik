@@ -4,7 +4,7 @@
 #include "hppGikTools.h"
 
 
-using namespace ublas;
+using namespace boost::numeric::ublas;
 
 ChppGikWalkElement::ChppGikWalkElement(CjrlHumanoidDynamicRobot* inRobot, double inSamplingPeriod,double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps):ChppGikLocomotionElement( inRobot, inStartTime, 0, inSamplingPeriod)
 {

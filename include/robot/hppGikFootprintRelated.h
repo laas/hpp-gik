@@ -9,7 +9,7 @@
 class ChppGikFootprint;
 /**
 \brief This object describes a footprint on a flat floor, by its (x,y) position and its rotation in world frame. A local frame is associated with a footprint: The local frame is set as follows: axis OX points ahead (to the toes), axis OY points to the left and axis OZ points upwards.<br>
-The footprint has a circular shape of radius (hardcoded 5cm, to be replaced after description of a footprint shape in CjrlHumanoidDynamicRobot).
+The footprint has a circular shape of radius (hardcoded 5cm, to be replaced after description of a footprint shape in CjrlHumanoidDynamicRobot). 
 
 \ingroup robot
  */
