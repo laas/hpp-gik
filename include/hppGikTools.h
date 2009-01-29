@@ -16,13 +16,13 @@ public :
 
     /**
     Get euler angles stored thetaX, thetaY, thetaZ inside outEuler. The entered rotation matrix is: inRot = Rot(vecZ,thetaZ) * Rot(vecY',thetaY) * Rot(vecX'',thetaX)
-    \return true if no singularity was encoutered, false otherwise
      */
-    static bool RottoEulerZYX(const matrixNxP& inRot, vectorN& outEuler);
+    static void RottoEulerZYX(const matrixNxP& inRot, vectorN& outEuler);
+    static void M3toEulerZYX(matrix3d& inRot, vector3d& outEuler);
     /**
     Same as RottoEulerZYX but from instantaneous rotation vector inOmega.
     */
-    static bool OmegatoEulerZYX(const vectorN& inOmega, vectorN& outEuler);
+    static void OmegatoEulerZYX(const vectorN& inOmega, vectorN& outEuler);
     
     /**
     Converts an angular velocity vector to a rotation
@@ -40,6 +40,8 @@ public :
     static void EulerZYXtoRot(double inThetaX, double inThetaY,
                               double inThetaZ, matrixNxP& outRot);
 
+    /**Convert the first 6 values of first argument vector into a matrix4d object. */
+    static bool Matrix4dFromVec(const vectorN& inVec, matrix4d& outH);
     //inH and outH are supposed distinct
     static void invertTransformation(const matrixNxP& inH, matrixNxP& outH);
 
@@ -52,6 +54,8 @@ public :
 
     static void HtoT(const matrix4d& inH, vectorN& outT);
 
+    static void splitM4(const matrix4d& inM, matrix3d& outR, vector3d& outV);
+            
     static void HtoRT(const matrix4d& inH, matrixNxP& outRot, vectorN& outT);
 
     static void equivAsymMat(const vectorN& inVec, matrixNxP& outH);

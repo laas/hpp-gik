@@ -9,6 +9,21 @@
 
 
 /**
+A rigid body
+*/
+class ChppGikBody
+{
+public:
+    matrix3d R;
+    vector3d w, dw;
+    vector3d p, v, dv;
+    
+    matrix3d pastR;
+    vector3d pastw;
+    vector3d pastp, pastv;
+};
+
+/**
 \brief This is a wrapper for a jrlHumanoidDynamicRobot, its support polygon and related information.  Some returned data are hardcoded for hrp2 robot.
 \ingroup robot
 */
@@ -81,36 +96,6 @@ public:
     double halfsittingWaistHeight();
 
     /**
-    \brief Get the transformation of the waist in halfsitting stance, in world frame
-     */
-    matrix4d& halfsittingWaistTransformation();
-
-    /**
-    \brief Get the transformation of the left wrist in halfsitting stance, in world frame
-     */
-    matrix4d& halfsittingLeftWristTransformation();
-
-    /**
-    \brief Get the transformation of the right wrist in halfsitting stance, in world frame
-     */
-    matrix4d& halfsittingRightWristTransformation();
-
-    /**
-    \brief Get the transformation of the right foot in halfsitting stance, in world frame
-     */
-    matrix4d& halfsittingRightFootTransformation();
-
-    /**
-    \brief Get the transformation of the left foot in halfsitting stance, in world frame
-     */
-    matrix4d& halfsittingLeftFootTransformation();
-
-    /**
-    \brief Get the transformation of the head in halfsitting stance, in world frame
-     */
-    matrix4d& halfsittingHeadTransformation();
-
-    /**
     \brief apply the static half sitting configuration to the robot
     */
     void staticHalfsitting();
@@ -118,49 +103,49 @@ public:
     /**
     @}
      */
-
-
+    
     /**
     \brief Get the associated mask factory
      */
     ChppGikMaskFactory* maskFactory();
 
     /**
-    \brief apply a static configuration on the robot
+    \brief compute the transformation of the root body based on the desired transformation of a body in the world and return the corresponding robot configuration.
+     */
+    vectorN computeConfigurationWrtFreeFlyer(CjrlJoint* inJoint, matrix4d& inFreeFlyerInWorld);
+
+    /**
+    \name Robot State Update
+    @{
+     */
+    /**
+    \brief Apply a static configuration on the robot
     */
     bool staticState(const vectorN& inConfig);
-    
-    /**
-    \brief update velocity and acceleration of joints in robot
-    */
-    void updateJointVA(double inSamplingPeriod);
-    /**
-    \brief Simulate the application of a configuration to the robot (uses the Finite Difference control scheme). The ZMP resulting from the motion is computed in world frame and in waist frame. This method also computes the planned ZMP position in waist frame based on the position in world frame.
-    \return false if the provided configuration does not meet requirements of method FiniteDifferenceStateUpdate() in jrl robot.
-    */
-    void updateDynamics(double inSamplingPeriod, const vector3d& inZMPworPla, vector3d& outZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla);
-
 
     /**
-    \brief compute the transformation of the root body based on the desired transformation of a body in the world and return the corresponding robot configuration.
+    \brief Update robot kinematics(cartesian positions, velocities and accelerations of bodies + center of mass) and dynamics(ZMP) based on given root and other joints configurations.
     */
-    vectorN computeConfigurationWrtFreeFlyer(CjrlJoint* inJoint, matrix4d& inFreeFlyerInWorld);
+    void updateRobot(const matrix4d& inRootPose, const vectorN& inJoints, double inTimeStep);
+    /**
+    @}
+    */
 
     /**
     \brief 
     */
     const ChppGik2DShape& supportPolygonShape();
-    
+
     /**
     \brief 
      */
     bool isPointInsideSupportPolygon(double inX, double inY,double safetyMargin = 0.01);
-    
+
     /**
     \brief 
     */
     void computeFeet2DConvexHull(std::vector<const ChppGikLinkedVertex*>& outVertices);
-    
+
     /**
     \brief Destructor
     */
@@ -173,14 +158,18 @@ private:
     vectorN attSupportPolygonConfig;
     vector3d attRelativeCOM;
     vectorN attHalfSittingConfig;
-    matrix4d attLWrist, attRWrist, attHead, attWaist, attLFoot, attRFoot;
+    matrix4d attWaist, attLFoot, attRFoot;
     ChppGik2DShape attWaistShape,attLeftFootShape, attRightFootShape;
     vector3d tempVec;
     matrix4d tempInv, tempM4;
-    vectorN attPreviousVelocity;
-    vectorN attPreviousConfiguration, attAcceleration, attVelocity;
+    vectorN attPreviousConfiguration, attConfiguration, attVelocity, attPreviousVelocity, attAcceleration;
     ChppGik2DShape attSPShape;
     std::vector<ChppGikLinkedVertex> attElements;
+    
+
+    vector3d FD_tmp,FD_tmp2,FD_tmp3,FD_w;
+    matrix3d FD_Ro,FD_Roo,FD_Rt;
+
 };
 
 #endif

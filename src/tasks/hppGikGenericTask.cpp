@@ -152,19 +152,26 @@ bool ChppGikGenericTask::algorithmSolve()
         attGikSolver->rootJoint(*supportJoint);
         attGikSolver->prepare( constraintStack );
         attGikSolver->solve(constraintStack);
-        attGikSolver->applySolution();
 
+        attStandingRobot->updateRobot(attGikSolver->solutionRootPose(),attGikSolver->solutionJointConfiguration(),attSamplingPeriod);
+        ZMPworObs = attRobot->zeroMomentumPoint();
+        
         attLocomotionPlan->getZMPAtTime(time, uZMPworPla);
         ChppGikTools::UblastoVector3(uZMPworPla, ZMPworPla);
-        attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
-        attSolutionMotion->appendSample(attStandingRobot->robot()->currentConfiguration(),ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs);
+        zmpInWaist( ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
+        attSolutionMotion->appendSample(attRobot->currentConfiguration(),ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs);
         
         curSupportPolygon = attStandingRobot->supportPolygon();
+        if (!curSupportPolygon)
+        {
+            std::cout << "Produced a \"jumping\" configuration. Aborting."<<std::cout;
+            return false;
+        }
         if (!(curSupportPolygon->isPointInsideSafeZone(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1))))
         {
             if (!(attStandingRobot->isPointInsideSupportPolygon(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1),0.005)))
             {
-                std::cout << "BAD ZMP: "<< V3_I(ZMPworObs,0) <<" , "<< V3_I(ZMPworObs,1) <<" at time " << time << "\n";
+                std::cout << "BAD ZMP: "<< V3_I(ZMPworObs,0) <<" , "<< V3_I(ZMPworObs,1) <<" at time " << time <<std::endl;
                 curSupportPolygon->print();
                 atLeastOneZMPUnsafe = true;
             }
@@ -253,4 +260,12 @@ ChppGikGenericTask::~ChppGikGenericTask()
     delete attMotionPlan;
     delete attGikSolver;
     cleanUp();
+}
+
+void ChppGikGenericTask::zmpInWaist(const vector3d& inZMPworPla, const vector3d& inZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
+{
+    tempM4 =attRobot->waist()->currentTransformation();
+    MAL_S4x4_INVERSE(tempM4,tempInv,double);
+    MAL_S4x4_C_eq_A_by_B(outZMPwstObs,tempInv,inZMPworObs);
+    MAL_S4x4_C_eq_A_by_B(outZMPwstPla,tempInv,inZMPworPla);
 }

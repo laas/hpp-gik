@@ -28,6 +28,58 @@ void ChppGikTools::Rodrigues(const vectorN& inW, double inAngle, matrixNxP& outR
     }
 }
 
+
+void ChppGikTools::splitM4(const matrix4d& inM, matrix3d& outR, vector3d& outV)
+{
+    unsigned int i,j;
+    for (i=0;i<3;i++)
+    {
+        for (j=0;j<3;j++)
+            M3_IJ(outR,i,j) = M4_IJ(inM,i,j);
+        V3_I(outV,i) = M4_IJ(inM,i,3);
+    }
+}
+
+bool ChppGikTools::Matrix4dFromVec(const vectorN& inVec, matrix4d& outH)
+{
+    if (inVec.size()<6)
+        return false;
+
+    vector3d NE_wn;
+    V3_I(NE_wn,0) = inVec(3);
+    V3_I(NE_wn,1) = inVec(4);
+    V3_I(NE_wn,2) = inVec(5);
+    
+    double th = MAL_S3_VECTOR_NORM(NE_wn);
+    
+    if (th< attEps)
+    {
+        MAL_S4x4_MATRIX_SET_IDENTITY(outH);
+    }
+    else
+    {
+        NE_wn = NE_wn / th;
+        double ct = cos(th);
+        double lct= (1-ct);
+        double st = sin(th);
+        M4_IJ(outH,0,0) = ct + NE_wn[0]*NE_wn[0]* lct;
+        M4_IJ(outH,0,1) = NE_wn[0]*NE_wn[1]*lct-NE_wn[2]*st;
+        M4_IJ(outH,0,2) = NE_wn[1] * st+NE_wn[0]*NE_wn[2]*lct;
+        M4_IJ(outH,1,0) = NE_wn[2]*st +NE_wn[0]*NE_wn[1]*lct;
+        M4_IJ(outH,1,1) = ct + NE_wn[1]*NE_wn[1]*lct;
+        M4_IJ(outH,1,2) = -NE_wn[0]*st+NE_wn[1]*NE_wn[2]*lct;
+        M4_IJ(outH,2,0) = -NE_wn[1]*st+NE_wn[0]*NE_wn[2]*lct;
+        M4_IJ(outH,2,1) = NE_wn[0]*st + NE_wn[1]*NE_wn[2]*lct;
+        M4_IJ(outH,2,2) = ct + NE_wn[2]*NE_wn[2]*lct;
+    }
+
+    M4_IJ(outH,0,3) = inVec(0);
+    M4_IJ(outH,1,3) = inVec(1);
+    M4_IJ(outH,2,3) = inVec(2);
+    
+    return true;
+}
+
 bool ChppGikTools::OmegaToR(const vectorN& inOmega, matrixNxP& outR)
 {
     if (inOmega.size()!=3)
@@ -73,7 +125,7 @@ void ChppGikTools::EulerZYXtoRot(double inThetaX, double inThetaY,
     outRot(2,2) =cx*cy;
 }
 
-bool ChppGikTools::RottoEulerZYX(const matrixNxP& inRot, vectorN& outEuler)
+void ChppGikTools::RottoEulerZYX(const matrixNxP& inRot, vectorN& outEuler)
 {
     double qz = atan2(inRot(1,0),inRot(0,0));
     double cz = cos(qz);
@@ -94,17 +146,37 @@ bool ChppGikTools::RottoEulerZYX(const matrixNxP& inRot, vectorN& outEuler)
     outEuler(0) = qx;
     outEuler(1) = qy;
     outEuler(2) = qz;
-
-    return true;
 }
 
-bool ChppGikTools::OmegatoEulerZYX(const vectorN& inOmega, vectorN& outEuler)
+void ChppGikTools::M3toEulerZYX(matrix3d& inRot, vector3d& outEuler)
+{
+    double qz = atan2(M3_IJ(inRot,1,0),M3_IJ(inRot,0,0));
+    double cz = cos(qz);
+    double sz = sin(qz);
+    double qx = atan2(M3_IJ(inRot,0,2)*sz - M3_IJ(inRot,1,2)*cz, -M3_IJ(inRot,0,1)*sz + M3_IJ(inRot,1,1)*cz);
+
+    if (fabs(qx) > M_PI/2)
+    {
+        int sig = (qx>0)? 1 : -1;
+        qz = qz - sig*M_PI;
+        qx = qx - sig*M_PI;
+        cz = -cz;
+        sz = -sz;
+    }
+    double qy = atan2(-M3_IJ(inRot,2,0),M3_IJ(inRot,0,0)*cz + M3_IJ(inRot,1,0)*sz);
+
+    outEuler[0] = qx;
+    outEuler[1] = qy;
+    outEuler[2] = qz;
+}
+
+void ChppGikTools::OmegatoEulerZYX(const vectorN& inOmega, vectorN& outEuler)
 {
     matrixNxP attR(3,3);
 
     double th = norm_2(inOmega);
     Rodrigues(inOmega,th,attR);
-    return RottoEulerZYX(attR, outEuler);
+    RottoEulerZYX(attR, outEuler);
 }
 
 

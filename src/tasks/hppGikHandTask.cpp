@@ -60,8 +60,9 @@ bool ChppGikHandTask::algorithmSolve()
     if (!contn)
         return false;
 
-    bool atLeastOneZMPUnsafe = false;
+    //bool atLeastOneZMPUnsafe = false;
     vector3d ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs;
+    vectorN jointConfig(attStandingRobot->robot()->numberDof()-6) ;
     double staticZMPx,staticZMPy;
 
     ChppGikSupportPolygon* curSupportPolygon = attStandingRobot->supportPolygon();
@@ -80,7 +81,10 @@ bool ChppGikHandTask::algorithmSolve()
             if (val < 1e-5)
                 val = 1e-5;
         attStandingRobot->robot()->setHandClench( attHand, val);
-        attStandingRobot->updateDynamics(attSamplingPeriod, ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
+        jointConfig = subrange(attStandingRobot->robot()->currentConfiguration(), 6, attStandingRobot->robot()->numberDof());
+        attStandingRobot->updateRobot( attStandingRobot->robot()->rootJoint()->currentTransformation(),jointConfig, attSamplingPeriod);
+        ZMPworObs = attStandingRobot->robot()->zeroMomentumPoint();
+        zmpInWaist( ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
 
         /*
         if (!curSupportPolygon->isPointInsideSafeZone(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
@@ -102,4 +106,12 @@ bool ChppGikHandTask::algorithmSolve()
 ChppGikHandTask::~ChppGikHandTask()
 {
     cleanUp();
+}
+
+void ChppGikHandTask::zmpInWaist(const vector3d& inZMPworPla, const vector3d& inZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
+{
+    tempM4 =attStandingRobot->robot()->waist()->currentTransformation();
+    MAL_S4x4_INVERSE(tempM4,tempInv,double);
+    MAL_S4x4_C_eq_A_by_B(outZMPwstObs,tempInv,inZMPworObs);
+    MAL_S4x4_C_eq_A_by_B(outZMPwstPla,tempInv,inZMPworPla);
 }

@@ -95,5 +95,7 @@ private:
     bool attBringBackZmp;
     double attBringStart,attBringDuration,attBringEnd;
     bool planZMPBack();
+    void zmpInWaist(const vector3d& inZMPworPla, const vector3d& inZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla);
+    matrix4d  tempM4,tempInv; 
 };
 #endif

@@ -220,9 +220,16 @@ void ChppGikTest::createHumanoidRobot()
     std::string aName="./HRP2Specificities.xml";
     aHDMB->SetHumanoidSpecificitiesFile(aName);
     aHDMB->SetTimeStep(attSamplingPeriod);
+    aHDMB->setComputeVelocity(true);
+    aHDMB->setComputeMomentum(true);
+    aHDMB->setComputeCoM(true);
     aHDMB->setComputeAcceleration(true);
-    aHDMB->setComputeBackwardDynamics(false);
     aHDMB->setComputeZMP(true);
+    
+    aHDMB->setComputeSkewCoM(false);
+    aHDMB->setComputeAccelerationCoM(false);
+    aHDMB->setComputeBackwardDynamics(false);
+    
 
 
     unsigned int nDof = attRobot->numberDof();

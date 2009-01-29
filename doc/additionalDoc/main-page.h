@@ -199,8 +199,7 @@ solver.solve( stack );
 if (norm_2(solver.solution()) < 1e-5)
     return;
 //Step (5)
-//apply new configuration vector to robot and call:
-robot.computeForwardKinematics();
+//Compute new configuration/velocity/acceleration vectors of robot and apply them
 \endcode
 
 There is a variation of ChppGikSolver::solve() to add damping factors. See documentation for details.\n

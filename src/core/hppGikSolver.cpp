@@ -3,6 +3,8 @@
 #include "core/hppGikSolver.h"
 #include "hppGikTools.h"
 
+#define V3_I  MAL_S3_VECTOR_ACCESS
+
 using namespace boost::numeric::ublas;
 
 ChppGikSolver::ChppGikSolver(CjrlDynamicRobot& inRobot)
@@ -25,17 +27,20 @@ ChppGikSolver::ChppGikSolver(CjrlDynamicRobot& inRobot)
         attBounder->lowerBound(i, -1e10);
     }
     attWeights = attComputationWeights = attActive = scalar_vector<double>(attNumParams,1);
-    attSolution = zero_vector<double>(attNumParams);
-    attEulerSolution = attSolution;
-    BaseEuler.resize( 3,false );
-    ElementMask.resize(attNumParams);
-
-    H0.resize ( 4,4,false );
-    Hf.resize ( 4,4,false );
-    Hif.resize ( 4,4,false );
-    InvHf.resize ( 4,4,false );
-
+    attSolution = zero_vector<double>(attNumParams-6);
+    attFullSolution = zero_vector<double>(attNumParams);
     rootJoint(*(attRobot->rootJoint()));
+    
+    H0 =  RootJoint->currentTransformation();
+    solutionRootConfiguration();
+    for(unsigned int i=0; i<3;i++)
+    {
+        attFullSolution(i) = V3_I(attRetPair.first,i);
+        attFullSolution(3+i) = V3_I(attRetPair.second,i);
+    }
+    
+    attChangeRootPose = false;
+    attChangeRootJoint = false;
 }
 
 void ChppGikSolver::rootJoint(CjrlJoint& inRootJoint)
@@ -45,6 +50,7 @@ void ChppGikSolver::rootJoint(CjrlJoint& inRootJoint)
         RootJoint = &inRootJoint;
         supportJoints = RootJoint->jointsFromRootToThis();
     }
+    attChangeRootJoint = (RootJoint!=attRobot->rootJoint());
 }
 
 bool ChppGikSolver::weights ( vectorN& inWeights )
@@ -52,6 +58,13 @@ bool ChppGikSolver::weights ( vectorN& inWeights )
     if ( inWeights.size() == attNumParams )
     {
         attWeights = inWeights;
+        attChangeRootPose = false;
+        for (unsigned int i=0;i<6;i++)
+            if (attWeights(i)!=0)
+            {
+                attChangeRootPose = true;
+                break;
+            }
         return true;
     }
     else
@@ -80,7 +93,7 @@ void ChppGikSolver::prepare(std::vector<CjrlGikStateConstraint*>& inTasks)
 
 void ChppGikSolver::solve(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs)
 {
-    attSolution.clear();
+    attBackupConfig = attRobot->currentConfiguration();
     if (inSortedConstraints.empty())
     {
         std::cout << "ChppGikSolver::solve() nothing to do"<<std::endl;
@@ -150,91 +163,88 @@ void ChppGikSolver::solve(std::vector<CjrlGikStateConstraint*>& inSortedConstrai
             }
         }
     }
-    return;
+    
+    computeRobotSolution();
+}
+
+
+const matrix4d& ChppGikSolver::solutionRootPose()
+{
+    return H0;
+}
+
+const vectorN& ChppGikSolver::solutionJointConfiguration()
+{
+    attSolution = subrange(CurFullConfig,6,attNumParams);
+    return attSolution;
 }
 
 const vectorN& ChppGikSolver::solution()
 {
-    return attSolver->solution();
-}
-
-void ChppGikSolver::applySolution()
-{
-    convertFreeFlyerVelocity();
-    CurFullConfig = attRobot->currentConfiguration();
-    CurFullConfig.plus_assign(attEulerSolution);
-    attRobot->currentConfiguration( CurFullConfig );
-}
-
-void ChppGikSolver::convertFreeFlyerVelocity()
-{
-    attBackupConfig = CurFullConfig = attRobot->currentConfiguration();
-    attSolution = attEulerSolution = attSolver->solution();
-
-    unsigned int i;
-    bool changeRootPose = false;
-    bool changeRootJoint = (RootJoint!=attRobot->rootJoint());
-    if (attRobot->rootJoint()->numberDof()!=0)
-        for (i=0;i<6;i++)
-            if (attWeights(i)!=0)
-            {
-                changeRootPose = true;
-                break;
-            }
-    if (changeRootJoint)
+    attFullSolution = CurFullConfig;
+    solutionRootConfiguration();
+    for(unsigned int i=0; i<3;i++)
     {
-        ChppGikTools::Matrix4toUblas ( RootJoint->currentTransformation(), Hif );
+        attFullSolution(i) = V3_I(attRetPair.first,i);
+        attFullSolution(3+i) = V3_I(attRetPair.second,i);
+    }
+    return attFullSolution;
+}
 
-        //go to waist frame
+
+void ChppGikSolver::computeRobotSolution()
+{
+    CurFullConfig = attBackupConfig;
+    CurFullConfig.plus_assign(attSolver->solution());
+    
+    if (!attChangeRootJoint && !attChangeRootPose)
+    {
+        H0 =  RootJoint->currentTransformation();
+        return;
+    }
+    
+    unsigned int i;
+    if (attChangeRootJoint)
+    {
+        Hif = RootJoint->currentTransformation();
+        //Let everything be expressed in robot root frame
         for ( i =0; i< 6; i++ )
-            CurFullConfig ( i ) = 0;
+            CurFullConfig ( i ) = 0.0;
 
-        for ( i=1; i< supportJoints.size(); i++  )
-            CurFullConfig(supportJoints[i]->rankInConfiguration()) += attSolution(supportJoints[i]->rankInConfiguration());
-
-        //update joints transformations from root to fixed joint in waist frame
+        //update joints transformations from robot root to jacobian root
         for ( i=0; i< supportJoints.size(); i++ )
             supportJoints[i]->updateTransformation ( CurFullConfig );
 
-        //Compute new waist transformation
-        ChppGikTools::Matrix4toUblas ( RootJoint->currentTransformation(),Hf );
-        ChppGikTools::invertTransformation ( Hf,InvHf );
-        noalias ( H0 ) = prod ( Hif, InvHf );
+        //Compute robot root transformation change due to chain of joints between robot root and jacobian root
+        Hf = RootJoint->currentTransformation();
+        MAL_S4x4_INVERSE(Hf,InvHf,double);
+        H0 = Hif * InvHf;
     }
 
-    if (changeRootPose)
+    if (attChangeRootPose)
     {
-        matrixNxP rootDeltaR,rootChange(4,4);
-        vectorN omega = subrange(attSolution,3,6);
-        ChppGikTools::OmegaToR( omega, rootDeltaR);
-        subrange(rootChange,0,3,0,3) = rootDeltaR;
-        rootChange(0,3) =  attSolution(0);
-        rootChange(1,3) =  attSolution(1);
-        rootChange(2,3) =  attSolution(2);
-        if (changeRootJoint)
-            H0 = prod ( rootChange, H0 );
+        //Compute robot root transformation change due to jacobian root transformation change
+        ChppGikTools::Matrix4dFromVec(attSolver->solution(), HRC);
+        if (attChangeRootJoint)
+            H0 = HRC * H0;
         else
         {
-            ChppGikTools::Matrix4toUblas ( RootJoint->currentTransformation(),Hf );
-            noalias ( H0 ) = prod ( rootChange, Hf );
+            H0 = RootJoint->currentTransformation();
+            H0 = HRC * H0;
         }
     }
 
-    if (changeRootJoint || changeRootPose)
-    {
-        //Compute free flyer velocity update
-        ChppGikTools::RottoEulerZYX ( subrange ( H0,0,3,0,3 ),BaseEuler );
-        for ( i=0; i< 3; i++ )
-            attEulerSolution ( i ) = H0 ( i,3 ) - attBackupConfig(i);
-        for ( i=3; i< 6; i++ )
-            attEulerSolution ( i ) = BaseEuler ( i-3 ) - attBackupConfig(i);
-    }
-
-    if (changeRootJoint)
+    if (attChangeRootJoint)
         //Recover joints transformations from root to fixed joint in waist frame
         for ( i=0; i< supportJoints.size(); i++ )
             supportJoints[i]->updateTransformation ( attBackupConfig );
+}
 
+const std::pair<vector3d,vector3d>& ChppGikSolver::solutionRootConfiguration()
+{
+    ChppGikTools::splitM4(H0, TmpR, attRetPair.first);
+    ChppGikTools::M3toEulerZYX( TmpR, attRetPair.second);
+    return attRetPair;
 }
 
 ChppGikSolver::~ChppGikSolver()

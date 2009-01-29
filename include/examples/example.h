@@ -80,7 +80,11 @@ Build the weights used in solving the pseudo inverse kinematics
     for (unsigned int i=0;i<6;i++)
         combined(i) = 0.0; // the absolute trnasformation (freeflyer) of the robot is not controlled
 \endcode
- 
+
+Set the weights in the solver
+\code
+        gikSolver.weights(combined);
+\endcode
  
 Start the loop where we continuously change the desired target position of the hand, thus generating a motion:
 \code
@@ -95,34 +99,19 @@ Change the target position for the hand slightly:
         pc->worldTarget(p);
 \endcode
 Attempt solve with a single one step:
-Set the weights in the solver
-\code
-        gikSolver.weights(combined);
-\endcode
 Prepare the constraints (jacobian and value computation)
 \code
         gikSolver.prepare(stack);
 \endcode
-        Solve and increment robot configuration with solution velocity
+        Solve
 \code
         gikSolver.solve( stack );
-        gikSolver.applySolution();
 \endcode
-        Forward kinematics and update robot dynamics based on new and past configurations
+        Apply solution to robot
 \code
-        attStandingRobot->updateDynamics(attSamplingPeriod, absZMPPla, absZMPObs, relZMPObs, relZMPPla);
-\endcode
-        Store the solution configuration and ZMP info in the ChppRobotMotion object
-\code
-        const vectorN& solutionConfig = attRobot->currentConfiguration();
-        attSolutionMotion.appendSample(solutionConfig,absZMPPla, absZMPObs, relZMPPla, relZMPObs);
+        attStandingRobot->updateRobot(gikSolver.solutionRootPose(), gikSolver.solutionJointConfiguration(), attSamplingPeriod);
     }
 \endcode
-Dump computed motion in a set of files readable by OpenHRP
-\code
-    attSolutionMotion.dumpTo( "ExampleMotion" );
-\endcode
- 
 */
 
 

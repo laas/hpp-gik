@@ -3,6 +3,7 @@
 
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 #define V3_I  MAL_S3_VECTOR_ACCESS
+#define M3_IJ  MAL_S3x3_MATRIX_ACCESS_I_J
 
 using namespace boost::numeric::ublas;
 
@@ -21,9 +22,7 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
     attWaist = attRobot->waist()->currentTransformation();
     attRFoot = attRobot->rightFoot()->currentTransformation();
     attLFoot = attRobot->leftFoot()->currentTransformation();
-    attRWrist = attRobot->rightWrist()->currentTransformation();
-    attLWrist = attRobot->leftWrist()->currentTransformation();
-    attHead = attRobot->gazeJoint()->currentTransformation();
+
 
     attRelativeCOM = attRobot->positionCenterOfMass();
     for (unsigned int i=0; i < 3; i++)
@@ -73,17 +72,8 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot):at
     vert.x = 0.135;
     attRightFootShape.vertices.push_back(vert);
 
-    attPreviousConfiguration.resize(attRobot->numberDof());
-    attPreviousConfiguration.clear();
-    attPreviousVelocity.resize(attRobot->numberDof());
-    attPreviousVelocity.clear();
-    attAcceleration.resize(attRobot->numberDof());
-    attAcceleration.clear();
-    attVelocity.resize(attRobot->numberDof());
-    attVelocity.clear();
-
+    attConfiguration.resize(attRobot->numberDof());
 }
-
 
 const ChppGik2DShape& ChppGikStandingRobot::supportPolygonShape()
 {
@@ -196,7 +186,7 @@ void ChppGikStandingRobot::computeFeet2DConvexHull(std::vector<const ChppGikLink
     sortedfeet.push_back(feet[0]);
     sortedangles.push_back(0);
     sorteddist.push_back(normAxis);
-    
+
     double norm,dx,dy,cs,sn, ang;
     std::vector<double>::iterator iterangle;
     std::vector<double>::iterator iterdist;
@@ -214,13 +204,13 @@ void ChppGikStandingRobot::computeFeet2DConvexHull(std::vector<const ChppGikLink
         cs = dx*axis.x + dy*axis.y;
         sn = dy*axis.x - dx*axis.y;
         ang = atan2(sn,cs);
-        
+
         iterangle = sortedangles.begin();
         itervert = sortedpoints.begin();
         iterlocalvert = sortedlocalpoints.begin();
         iterfoot = sortedfeet.begin();
         iterdist = sorteddist.begin();
-        
+
         inserted = false;
         while(iterangle != sortedangles.end())
         {
@@ -265,7 +255,7 @@ void ChppGikStandingRobot::computeFeet2DConvexHull(std::vector<const ChppGikLink
     double dxnext,dxprev,dynext,dyprev;
 
     attElements.clear();
-    
+
     ChppGikLinkedVertex lv;
     iterlocalvert = sortedlocalpoints.begin();
     iterfoot = sortedfeet.begin();
@@ -293,7 +283,7 @@ void ChppGikStandingRobot::computeFeet2DConvexHull(std::vector<const ChppGikLink
     ChppGikLinkedVertex* currentVertex = &(attElements[0]);
     unsigned int nelements = attElements.size(), checked = 0;
 
-   
+
     while (checked!=nelements)
     {
         dxprev= currentVertex->prev->world.x - currentVertex->world.x;
@@ -307,16 +297,16 @@ void ChppGikStandingRobot::computeFeet2DConvexHull(std::vector<const ChppGikLink
         norm = sqrt(dxnext*dxnext + dynext*dynext);
         dxnext /= norm;
         dynext /= norm;
-        
+
         currentVertex->ntonext.x = dxnext;
         currentVertex->ntonext.y = dynext;
-        
+
         currentVertex->nout.x = dynext;
         currentVertex->nout.y = -dxnext;
-        
+
         currentVertex->b = currentVertex->nout.x * currentVertex->world.x + currentVertex->nout.y * currentVertex->world.y;
-        
-        
+
+
         currentVertex->dtonext = norm;
 
         sn = dxnext*dyprev - dxprev*dynext;
@@ -361,20 +351,6 @@ const ChppGik2DShape& ChppGikStandingRobot::rightFootShape()const
     return attRightFootShape;
 }
 
-bool ChppGikStandingRobot::staticState(const vectorN& inConfig)
-{
-    if (inConfig.size() != attRobot->numberDof())
-        return false;
-
-    attRobot->currentConfiguration( inConfig );
-    attPreviousConfiguration = inConfig;
-    attPreviousVelocity.clear();
-    attRobot->currentVelocity( attPreviousVelocity );
-    attRobot->currentAcceleration( attPreviousVelocity );
-    attRobot->computeForwardKinematics();
-    return true;
-}
-
 bool ChppGikStandingRobot::isPointInsideSupportPolygon(double inX, double inY,double safetyMargin)
 {
     double msfm = (safetyMargin>0.0)?safetyMargin:0.0;
@@ -384,49 +360,10 @@ bool ChppGikStandingRobot::isPointInsideSupportPolygon(double inX, double inY,do
     for (unsigned int i = 0; i<vertices.size();i++)
     {
         if (vertices[i]->nout.x * inX + vertices[i]->nout.y * inY > vertices[i]->b - msfm)
-                    oneIsOut = true;
+            oneIsOut = true;
         break;
     }
     return !oneIsOut;
-}
-
-void ChppGikStandingRobot::updateJointVA(double inSamplingPeriod)
-{
-    //Update kinematics (standard method)
-    attVelocity = attRobot->currentConfiguration();
-    for (unsigned int i=3; i<6;i++)
-    {
-        if (attPreviousConfiguration(i) > 0)
-        {
-            if (attVelocity(i) < attPreviousConfiguration(i) - M_PI)
-                attVelocity(i) += 2*M_PI;
-        }
-        else
-        {
-            if (attVelocity(i) > attPreviousConfiguration(i) + M_PI)
-                attVelocity(i) -= 2*M_PI;
-        }
-    }
-    attVelocity.minus_assign(attPreviousConfiguration);
-    attVelocity /= inSamplingPeriod;
-
-    attRobot->currentVelocity( attVelocity );
-    noalias(attAcceleration) = (attVelocity - attPreviousVelocity)/inSamplingPeriod;
-    attRobot->currentAcceleration( attAcceleration );
-    attPreviousConfiguration = attRobot->currentConfiguration();
-    attPreviousVelocity = attVelocity;
-}
-
-void ChppGikStandingRobot::updateDynamics(double inSamplingPeriod, const vector3d& inZMPworPla, vector3d& outZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
-{
-    updateJointVA(inSamplingPeriod);
-    attRobot->computeForwardKinematics();
-    //Dump Observed ZMP, planned ZMP in waist and world frames
-    outZMPworObs = attRobot->zeroMomentumPoint();
-    tempM4 =attRobot->waist()->currentTransformation();
-    MAL_S4x4_INVERSE(tempM4,tempInv,double);
-    MAL_S4x4_C_eq_A_by_B(outZMPwstObs,tempInv,outZMPworObs);
-    MAL_S4x4_C_eq_A_by_B(outZMPwstPla,tempInv,inZMPworPla);
 }
 
 CjrlHumanoidDynamicRobot* ChppGikStandingRobot::robot()const
@@ -559,42 +496,6 @@ double ChppGikStandingRobot::halfsittingWaistHeight()
     return M4_IJ(attWaist,2,3);
 }
 
-
-matrix4d& ChppGikStandingRobot::halfsittingWaistTransformation()
-{
-    return attWaist;
-}
-
-
-matrix4d& ChppGikStandingRobot::halfsittingLeftWristTransformation()
-{
-    return attLWrist;
-}
-
-
-matrix4d& ChppGikStandingRobot::halfsittingRightWristTransformation()
-{
-    return attRWrist;
-}
-
-
-matrix4d& ChppGikStandingRobot::halfsittingRightFootTransformation()
-{
-    return attRFoot;
-}
-
-
-matrix4d& ChppGikStandingRobot::halfsittingLeftFootTransformation()
-{
-    return attLFoot;
-}
-
-
-matrix4d& ChppGikStandingRobot::halfsittingHeadTransformation()
-{
-    return attHead;
-}
-
 void ChppGikStandingRobot::staticHalfsitting()
 {
     staticState( attHalfSittingConfig );
@@ -605,4 +506,67 @@ ChppGikStandingRobot::~ChppGikStandingRobot()
     delete attCurrentSupportPolygon;
     delete attMaskFactory;
     delete attRobot;
+}
+
+
+bool ChppGikStandingRobot::staticState(const vectorN& inConfig)
+{
+    if (inConfig.size() != attRobot->numberDof())
+        return false;
+
+    attRobot->currentConfiguration( inConfig );
+    attRobot->currentVelocity( zero_vector<double>(attRobot->numberDof()) );
+    attRobot->currentAcceleration( zero_vector<double>(attRobot->numberDof()));
+    attRobot->computeForwardKinematics();
+    attRobot->computeForwardKinematics();
+
+    return true;
+}
+
+void ChppGikStandingRobot::updateRobot(const matrix4d& inRootPose, const vectorN& inJoints, double inTimeStep)
+{
+    unsigned int i;
+
+    //compute root Pose with euler angle
+    ChppGikTools::splitM4(inRootPose, FD_Ro, FD_tmp);
+    ChppGikTools::M3toEulerZYX( FD_Ro, FD_tmp2 );
+
+    //Compute root's V and Omega
+    ChppGikTools::splitM4(attRobot->rootJoint()->currentTransformation(),FD_Rt,FD_tmp3);
+    FD_Roo = FD_Ro - FD_Rt;
+    FD_Rt = MAL_S3x3_RET_TRANSPOSE(FD_Ro);
+    FD_Ro = FD_Roo * FD_Rt;
+    FD_w[0]  = M3_IJ(FD_Ro,2,1);
+    FD_w[1]  = M3_IJ(FD_Ro,0,2);
+    FD_w[2]  = M3_IJ(FD_Ro,1,0);
+
+    //Build Configuration vector
+    for (i=0;i<3;i++)
+    {
+        attConfiguration(i) = FD_tmp[i];
+        attConfiguration(i+3) = FD_tmp2[i];
+    }
+    subrange(attConfiguration,6,attRobot->numberDof()) = inJoints;
+
+
+    //Build Velocity vector
+    attVelocity = attConfiguration;
+    attVelocity.minus_assign(attRobot->currentConfiguration());
+    for (i=0;i<3;i++)
+        attVelocity(i+3) = FD_w[i];
+
+    attVelocity /= inTimeStep;
+
+
+    //Build Acceleration vector
+    attAcceleration = attVelocity;
+    attAcceleration.minus_assign(attRobot->currentVelocity());
+    attAcceleration /= inTimeStep;
+
+    //Put state vectors in jrl robot
+    attRobot->currentConfiguration( attConfiguration);
+    attRobot->currentVelocity(attVelocity);
+    attRobot->currentAcceleration(attAcceleration);
+    
+    attRobot->computeForwardKinematics();
 }
