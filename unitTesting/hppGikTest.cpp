@@ -20,6 +20,7 @@
 #include "hppGik/motionplanners/elements/hppGikStepElement.h"
 #include "hppGik/motionplanners/elements/hppGikInterpolatedElement.h"
 #include "hppGik/tasks/hppGikReachTask.h"
+#include "hppGik/tasks/hppGikStepTask.h"
 
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
@@ -388,6 +389,34 @@ void  ChppGikTest::interprete()
             continue;
         }
 
+        if (strcmp(command, "step")==0)
+        {
+
+            if (!determineSide(stream, SideIsRight))
+                continue;
+            
+            for (unsigned int k=0; k<3;k++)
+            {
+                if (!stream.eof())
+                    stream >> position[k];
+                else
+                {
+                    std::cout << "Incorrect number of arguments\n";
+                    continue;
+                }
+            }
+
+
+            if (!stream.eof())
+            {
+                std::cout << "check arguments\n";
+                continue;
+            }
+
+            step(SideIsRight,position,motion_file.c_str(),currentConfig, resultConfig);
+            continue;
+        }
+        
         if (strcmp(command, "lookhand")==0)
         {
 
@@ -744,6 +773,39 @@ void ChppGikTest::stepback(const char* filename, vectorN& curConfig, vectorN& re
         std::cout <<"\nNot solved.\n";
 }
 
+void ChppGikTest::step(bool inForRight, const vector3d& targetFoot, const char* filename, vectorN& curConfig, vectorN& resultConfig)
+{
+    attLastRobotTask = attStepBackTask;
+
+    //the robot is static at the current configuration
+    attStandingRobot->staticState(curConfig);
+    
+    ChppGikSupportPolygon* curSP = attStandingRobot->supportPolygon();
+    if (!curSP)
+    {
+        std::cout << "Could not step, incorrect support polygon" << std::endl;
+        return;
+    }
+    if (!(curSP->isDoubleSupport()))
+    {
+        std::cout << "Could not step, support polygon not double" << std::endl;
+        return;
+    }
+
+    ChppGikStepTask stepTask(attStandingRobot,attSamplingPeriod,inForRight,targetFoot[0],targetFoot[1],targetFoot[2]);
+    
+    stepTask.showResolutionTime( true );
+    bool solved = stepTask.solve();
+
+    if (solved)
+    {
+        if (!stepTask.solutionMotion().empty())
+            dumpFilesAndGetLastConfig(&stepTask,filename, resultConfig);
+    }
+    else
+        std::cout <<"\nNot solved.\n";
+}
+
 void ChppGikTest::halfsitting(const char* filename, vectorN& curConfig, vectorN& resultConfig)
 {
     attLastRobotTask = attHalfSittingTask;
@@ -782,6 +844,7 @@ void  ChppGikTest::printMenu()
     std::cout << "- closehand r/l T\n";
     std::cout << "- openhand r/l\n";
     std::cout << "- stepback\n";
+    std::cout << "- step r/l dx dy dtheta\n";
     std::cout << "- halfsitting\n";
     std::cout << "------------------------------\n";
     std::cout << "- hrp\n";
@@ -815,6 +878,8 @@ void  ChppGikTest::printHelp()
     std::cout << "- use \"openhand r(l)\" to open the selected hand\n";
     std::cout << "-------------------\n";
     std::cout << "- use \"stepback\" to make the robot step back using the indicated foot\n";
+    std::cout << "-------------------\n";
+    std::cout << "- use \"step r/l dx dy dtheta\" to make the robot step with right/left foot to given coordinates in left/right frame\n";
     std::cout << "-------------------\n";
     std::cout << "- use \"halfsitting\" to go to half sitting stance\n";
     std::cout << "-------------------\n";

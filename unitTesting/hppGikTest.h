@@ -73,6 +73,8 @@ private:
     void halfsitting(const char* filename, vectorN& curConfig, vectorN& resultConfig);
 
     void stepback(const char* filename, vectorN& curConfig, vectorN& outLastConfig);
+    
+    void step(bool inForRoght, const vector3d& targetFoot, const char* filename, vectorN& curConfig, vectorN& resultConfig);
 
     void handGrasp(bool taskIsForRightHand, double valTighten, const char* filename, vectorN& curConfig, vectorN& outLastConfig);
 
