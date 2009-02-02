@@ -39,7 +39,7 @@ ChppGikSolver::ChppGikSolver(CjrlDynamicRobot& inRobot)
         attFullSolution(3+i) = V3_I(attRetPair.second,i);
     }
     
-    attChangeRootPose = false;
+    attChangeRootPose = true;
     attChangeRootJoint = false;
 }
 
