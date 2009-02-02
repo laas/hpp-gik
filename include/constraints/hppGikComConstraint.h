@@ -117,6 +117,9 @@ public:
     virtual ~ChppGikComConstraint()
     {}
     
+    /**
+    Set the jacobian root
+    */
     void jacobianRoot(CjrlJoint& inJoint);
 
 private:
@@ -125,7 +128,7 @@ private:
 
     CjrlDynamicRobot* attRobot;
 
-    CjrlJoint* attJoint,*attRootJoint;
+    CjrlJoint *attRootJoint;
 
     unsigned int attDimension;
 
@@ -140,9 +143,6 @@ private:
     matrixNxP attJacobian;
 
     vectorN temp3DVec;
-    vectorN temp3DVec1;
-    matrixNxP tempRot;
-    const matrixNxP* tempFixedJointJacobian;
     matrixNxP tempJacobian;
     /**
     @}

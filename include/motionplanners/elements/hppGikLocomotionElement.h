@@ -18,6 +18,7 @@ public:
     */
     ChppGikLocomotionElement(CjrlHumanoidDynamicRobot* inRobot, double inStartTime, double inDuration, double inSamplingPeriod):ChppGikPrioritizedMotion( inRobot, 0, this)
     {
+        attHumanoidRobot = inRobot;
         attStartTime = attModifiedStart = inStartTime;
         attDuration = (inDuration>=0.0)?inDuration:0.0;
         attEndTime = attModifiedEnd = attStartTime + attDuration;
@@ -136,6 +137,7 @@ protected:
     CjrlJoint* attSupportFoot, *attConstrainedFoot;
     bool attPlanSuccess;
     matrixNxP attZMPmotion;
+    CjrlHumanoidDynamicRobot* attHumanoidRobot;
 };
 
 

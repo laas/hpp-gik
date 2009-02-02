@@ -86,8 +86,6 @@ private:
     matrixNxP tempGapRot;
     vectorN temp3DVec;
 
-    const matrixNxP* tempFixedJointJacobian;
-    const matrixNxP* tempEffectorJointJacobian;
     /**
     @}
      */

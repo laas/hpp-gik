@@ -82,7 +82,7 @@ private:
     ChppGikTransformationConstraint* attFootConstraint;
     ChppGikMotionPlanElement* attConstraint;
     CjrlJoint* attSupportFoot;
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlHumanoidDynamicRobot* attHumanoidRobot;
     double attStartTime, attEndTime;
     vectorN attZMP;
 };

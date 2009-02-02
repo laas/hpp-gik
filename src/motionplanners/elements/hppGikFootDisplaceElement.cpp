@@ -17,13 +17,13 @@ ChppGikFootDisplaceElement::ChppGikFootDisplaceElement(CjrlHumanoidDynamicRobot*
 
     if (attIsRight)
     {
-        attSupportFoot = attRobot->leftFoot();
-        attConstrainedFoot         = attRobot->rightFoot();
+        attSupportFoot = attHumanoidRobot->leftFoot();
+        attConstrainedFoot = attHumanoidRobot->rightFoot();
     }
     else
     {
-        attSupportFoot = attRobot->rightFoot();
-        attConstrainedFoot = attRobot->leftFoot();
+        attSupportFoot = attHumanoidRobot->rightFoot();
+        attConstrainedFoot = attHumanoidRobot->leftFoot();
     }
 
     vector3d zer;
@@ -204,7 +204,7 @@ bool ChppGikFootDisplaceElement::planFeet()
 
 CjrlGikMotionConstraint* ChppGikFootDisplaceElement::clone() const
 {
-    ChppGikFootDisplaceElement* fde = new ChppGikFootDisplaceElement(attRobot, attStartTime, attTargetFootprint, attIsRight, attDuration, attSamplingPeriod, attHeight);
+    ChppGikFootDisplaceElement* fde = new ChppGikFootDisplaceElement(attHumanoidRobot, attStartTime, attTargetFootprint, attIsRight, attDuration, attSamplingPeriod, attHeight);
 
     fde->postProlongate( attPostProlongation );
     fde->preProlongate( attPreProlongation );

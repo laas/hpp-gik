@@ -99,11 +99,7 @@ private:
      */
     vectorN temp3DVec;
     vectorN temp3DVec1;
-    matrixNxP tempRot,tempJacobian;
-
-    const matrixNxP* tempFixedJointJacobian;
-    const matrixNxP* tempEffectorJointJacobian;
-
+    matrixNxP tempRot;
     /**
     @}
      */

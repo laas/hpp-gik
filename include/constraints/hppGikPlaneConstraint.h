@@ -111,7 +111,6 @@ private:
     vectorN temp3DVec1;
     matrixNxP tempRot;
 
-    const matrixNxP* tempFixedJointJacobian;
     matrixNxP tempJacobian;
     matrixNxP tempJointPositionJacobian;
     /**

@@ -20,7 +20,6 @@ ChppGikParallelConstraint::ChppGikParallelConstraint(CjrlDynamicRobot& inRobot, 
     attTargetVector =  attTargetVector/norm_2(attTargetVector);
 
     tempJointOrientJacobian.resize(3,inRobot.numberDof(),false);
-    tempJacobian.resize(6,inRobot.numberDof(),false);
     attJacobian.resize(3,inRobot.numberDof(),false);
     attValue.resize(3, false);
 

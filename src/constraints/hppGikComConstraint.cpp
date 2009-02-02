@@ -24,9 +24,7 @@ ChppGikComConstraint::ChppGikComConstraint(CjrlDynamicRobot& inRobot, double inX
 
     tempJacobian.resize(3,attRobot->numberDof(),false);
 
-    tempRot.resize(3,3,false);
     temp3DVec.resize(3,false);
-    temp3DVec1.resize(3,false);
 
     attInfluencingDofs = scalar_vector<double>(attRobot->numberDof(), 1);
 }

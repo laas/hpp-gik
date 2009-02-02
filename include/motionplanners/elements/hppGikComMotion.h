@@ -15,7 +15,7 @@ class ChppGikComMotion:public ChppGikPrioritizedMotion, public CjrlGikMotionCons
         \brief Constructor
         \note given times should be superior to 0.0
      */
-        ChppGikComMotion(CjrlHumanoidDynamicRobot* inRobot, double inStartTime, double inSamplingPeriod, const vectorN& inWorkingJoints, unsigned int inPriority);
+        ChppGikComMotion(CjrlDynamicRobot* inRobot, double inStartTime, double inSamplingPeriod, const vectorN& inWorkingJoints, unsigned int inPriority);
 
     /**
         \brief Get a pointer to associated robot

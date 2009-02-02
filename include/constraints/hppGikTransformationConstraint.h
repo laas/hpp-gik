@@ -125,9 +125,6 @@ private:
     vectorN temp3DVec1;
     matrixNxP tempRot;
     matrixNxP tempGapRot;
-
-    const matrixNxP* tempFixedJointJacobian;
-    const matrixNxP* tempEffectorJointJacobian;
     /**
     @}
      */

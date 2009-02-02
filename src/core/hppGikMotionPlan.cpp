@@ -5,7 +5,7 @@
 
 using namespace boost::numeric::ublas;
 
-ChppGikMotionPlan::ChppGikMotionPlan(CjrlHumanoidDynamicRobot* inRobot)
+ChppGikMotionPlan::ChppGikMotionPlan(CjrlDynamicRobot* inRobot)
 {
     attRobot = inRobot;
     attStartTime = 0.0;
@@ -149,7 +149,7 @@ void ChppGikMotionPlan::updateEndTime()
     attEndTime = newEndTime;
 }
 
-CjrlHumanoidDynamicRobot* ChppGikMotionPlan::robot()
+CjrlDynamicRobot* ChppGikMotionPlan::robot()
 {
     return attRobot;
 }

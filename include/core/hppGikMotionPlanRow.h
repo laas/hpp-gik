@@ -19,7 +19,7 @@ public:
     /**
     \brief Constructor
      */
-    ChppGikMotionPlanRow(CjrlHumanoidDynamicRobot* inRobot, unsigned int priority);
+    ChppGikMotionPlanRow(CjrlDynamicRobot* inRobot, unsigned int priority);
     /**
     \brief Get the priority.
     */
@@ -64,7 +64,7 @@ private:
 
     void updateStartTime();
     void updateEndTime();
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
     double attEndTime;
     double attStartTime;
     std::vector<ChppGikPrioritizedMotion*> attMotions;

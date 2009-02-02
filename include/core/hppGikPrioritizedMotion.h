@@ -15,7 +15,7 @@ public:
     /**
     \brief Constructor
     */
-    ChppGikPrioritizedMotion(CjrlHumanoidDynamicRobot* inRobot, unsigned int inPriority, CjrlGikMotionConstraint* inMotionConstraint)
+    ChppGikPrioritizedMotion(CjrlDynamicRobot* inRobot, unsigned int inPriority, CjrlGikMotionConstraint* inMotionConstraint)
     {
         attRobot = inRobot;
         attPriority = inPriority;
@@ -50,7 +50,7 @@ public:
     /**
     \brief Get the robot for this motion
      */
-    CjrlHumanoidDynamicRobot* robot()
+    CjrlDynamicRobot* robot()
     {
         return attRobot;
     }
@@ -75,7 +75,7 @@ protected:
     CjrlGikMotionConstraint* attMotionConstraint;
     vectorN attWorkingJoints;
     unsigned int attPriority;
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
 
 
 };

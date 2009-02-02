@@ -40,14 +40,6 @@ ABS_GIKTASK_PREFIX=`$PKG_CONFIG abstractGikTask --variable=prefix`
 AC_SUBST(ABS_GIKTASK_CFLAGS)
 AC_SUBST(ABS_GIKTASK_LIBS)
 
-define(robotdynamics_reqd, [abstractRobotDynamics >= 1.11.99])
-AC_SUBST(ROBOTDYNAMICS_REQD, "robotdynamics_reqd")
-PKG_CHECK_MODULES(ROBOTDYNAMICS, robotdynamics_reqd)
-ROBOTDYNAMICS_PREFIX=`$PKG_CONFIG abstractRobotDynamics --variable=prefix`
-AC_SUBST(ROBOTDYNAMICS_CFLAGS)
-AC_SUBST(ROBOTDYNAMICS_LIBS)
-
-
 PKG_CHECK_MODULES(HRP2, hrp2Dynamics)
 HRP2_PREFIX=`$PKG_CONFIG hrp2Dynamics --variable=prefix`
 AC_SUBST(HRP2_CFLAGS)

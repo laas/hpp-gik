@@ -17,7 +17,7 @@ ChppGikWalkElement::ChppGikWalkElement(CjrlHumanoidDynamicRobot* inRobot, double
     attModifiedEnd = attEndTime;
 
     for (unsigned int i=0;i<inAbsoluteSteps.size();i++)
-        attSteps.push_back(new ChppGikStepElement(attRobot, attStartTime+attStepDuration*i, &(inAbsoluteSteps[i]->footprint()), inAbsoluteSteps[i]->isForRight(), attSamplingPeriod , 0.5,  attZMPend, attZMPstart, attFootFlight));
+        attSteps.push_back(new ChppGikStepElement(attHumanoidRobot, attStartTime+attStepDuration*i, &(inAbsoluteSteps[i]->footprint()), inAbsoluteSteps[i]->isForRight(), attSamplingPeriod , 0.5,  attZMPend, attZMPstart, attFootFlight));
     
     for (unsigned int i=0;i<inAbsoluteSteps.size();i++)
         attStepTargets.push_back(new ChppGikStepTarget(*(inAbsoluteSteps[i])));
@@ -76,7 +76,7 @@ bool ChppGikWalkElement::plan(ChppGikSupportPolygon& supportPolygon, vector3d& Z
 
 CjrlGikMotionConstraint* ChppGikWalkElement::clone() const
 {
-    return new ChppGikWalkElement(attRobot,attSamplingPeriod,attStartTime,attStepTargets);
+    return new ChppGikWalkElement(attHumanoidRobot,attSamplingPeriod,attStartTime,attStepTargets);
 }
 
 

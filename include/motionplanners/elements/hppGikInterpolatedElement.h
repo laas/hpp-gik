@@ -16,7 +16,7 @@ public:
     /**
         \brief constructor
      */
-    ChppGikInterpolatedElement(CjrlHumanoidDynamicRobot* inRobot, ChppGikVectorizableConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime, double inDuration, double inSamplingPeriod);
+    ChppGikInterpolatedElement(CjrlDynamicRobot* inRobot, ChppGikVectorizableConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime, double inDuration, double inSamplingPeriod);
 
     /**
     \brief Get a pointer to associated robot

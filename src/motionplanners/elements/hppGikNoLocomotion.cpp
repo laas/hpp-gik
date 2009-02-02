@@ -5,6 +5,7 @@
 
 ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, CjrlJoint* inSupportFoot, double inStartTime, double inEndTime, const vectorN& inWorkingJoints, unsigned int inPriority):ChppGikPrioritizedMotion(inRobot, inPriority, this)
 {
+    attHumanoidRobot = inRobot;
     attConstraint = new ChppGikMotionPlanElement(inRobot, 0);
     vector3d pcom = inRobot->positionCenterOfMass();
     attComConstraint = new ChppGikComConstraint(*inRobot, pcom[0], pcom[1]);
@@ -59,7 +60,7 @@ CjrlGikMotionConstraint* ChppGikNoLocomotion::motionConstraint()
 
 CjrlGikMotionConstraint* ChppGikNoLocomotion::clone() const
 {
-    return (CjrlGikMotionConstraint*) new ChppGikNoLocomotion(attRobot, attSupportFoot, attStartTime, attEndTime, attWorkingJoints, attPriority);
+    return (CjrlGikMotionConstraint*) new ChppGikNoLocomotion(attHumanoidRobot, attSupportFoot, attStartTime, attEndTime, attWorkingJoints, attPriority);
 }
 
 CjrlDynamicRobot* ChppGikNoLocomotion::robot()

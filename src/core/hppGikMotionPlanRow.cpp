@@ -4,7 +4,7 @@
 #include "hppGikTools.h"
 using namespace boost::numeric::ublas;
 
-ChppGikMotionPlanRow::ChppGikMotionPlanRow(CjrlHumanoidDynamicRobot* inRobot,unsigned int inPriority)
+ChppGikMotionPlanRow::ChppGikMotionPlanRow(CjrlDynamicRobot* inRobot,unsigned int inPriority)
 {
     attRobot = inRobot;
     attPriority = inPriority;

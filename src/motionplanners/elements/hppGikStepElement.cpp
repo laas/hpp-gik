@@ -34,20 +34,20 @@ ChppGikStepElement::ChppGikStepElement(CjrlHumanoidDynamicRobot* inRobot, const 
 void ChppGikStepElement::init(double inFootMotionDuration, bool isRight, double inHeight, const ChppGikFootprint* inFootprint,double inStartShiftTime, double inEndShiftTime)
 {
     vector3d dum;
-    attShift1 = new ChppGikZMPshiftElement( attRobot, dum, attStartTime, inStartShiftTime, attSamplingPeriod);
-    attShift2 = new ChppGikZMPshiftElement( attRobot, dum, attStartTime + inStartShiftTime + inFootMotionDuration, inEndShiftTime, attSamplingPeriod);
+    attShift1 = new ChppGikZMPshiftElement( attHumanoidRobot, dum, attStartTime, inStartShiftTime, attSamplingPeriod);
+    attShift2 = new ChppGikZMPshiftElement( attHumanoidRobot, dum, attStartTime + inStartShiftTime + inFootMotionDuration, inEndShiftTime, attSamplingPeriod);
 
-    attFootDisplace = new ChppGikFootDisplaceElement( attRobot, attStartTime + inStartShiftTime, inFootprint, isRight, inFootMotionDuration, attSamplingPeriod, inHeight);
+    attFootDisplace = new ChppGikFootDisplaceElement( attHumanoidRobot, attStartTime + inStartShiftTime, inFootprint, isRight, inFootMotionDuration, attSamplingPeriod, inHeight);
 
     if (isRight)
     {
-        attSupportFoot = attRobot->leftFoot();
-        attConstrainedFoot = attRobot->rightFoot();
+        attSupportFoot = attHumanoidRobot->leftFoot();
+        attConstrainedFoot = attHumanoidRobot->rightFoot();
     }
     else
     {
-        attSupportFoot = attRobot->rightFoot();
-        attConstrainedFoot = attRobot->leftFoot();
+        attSupportFoot = attHumanoidRobot->rightFoot();
+        attConstrainedFoot = attHumanoidRobot->leftFoot();
     }
 }
 
@@ -145,11 +145,11 @@ CjrlGikMotionConstraint* ChppGikStepElement::clone() const
     ChppGikStepElement* el = 0;
     if (attUseZMPcoefficient)
     {
-        el = new ChppGikStepElement(attRobot,attStartTime, attFootDisplace->targetFootprint(), attFootDisplace->isRight(), attSamplingPeriod, attFinalZMPCoef, attShift2->duration(), attShift1->duration(), attFootDisplace->duration(), attFootDisplace->height());
+        el = new ChppGikStepElement(attHumanoidRobot,attStartTime, attFootDisplace->targetFootprint(), attFootDisplace->isRight(), attSamplingPeriod, attFinalZMPCoef, attShift2->duration(), attShift1->duration(), attFootDisplace->duration(), attFootDisplace->height());
     }
     else
     {
-        el = new ChppGikStepElement(attRobot, attFootDisplace->targetFootprint(), attStartTime, attFootDisplace->isRight(), attRfoot2TargetZMPX, attRfoot2TargetZMPY, attSamplingPeriod, attShift2->duration(),  attShift1->duration(), attFootDisplace->duration(), attFootDisplace->height());
+        el = new ChppGikStepElement(attHumanoidRobot, attFootDisplace->targetFootprint(), attStartTime, attFootDisplace->isRight(), attRfoot2TargetZMPX, attRfoot2TargetZMPY, attSamplingPeriod, attShift2->duration(),  attShift1->duration(), attFootDisplace->duration(), attFootDisplace->height());
     }
 
     el->postProlongate( attPostProlongation );

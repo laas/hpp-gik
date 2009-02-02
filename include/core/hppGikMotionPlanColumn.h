@@ -18,7 +18,7 @@ public:
     /**
         \brief Constructor
      */
-    ChppGikMotionPlanColumn(CjrlHumanoidDynamicRobot* inRobot);
+    ChppGikMotionPlanColumn(CjrlDynamicRobot* inRobot);
     /**
         \brief Add a motion plan element (task).
         The task is automatically inserted at the adequate rank of the storing vector according to the priority.
@@ -60,7 +60,7 @@ public:
 
 private:
 
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
     std::vector<ChppGikMotionPlanElement*> attTaskStack;
     vectorN attWorkingJoints;
 

@@ -1,7 +1,7 @@
 #include "core/hppGikMotionPlanColumn.h"
 using namespace boost::numeric::ublas;
 
-ChppGikMotionPlanColumn::ChppGikMotionPlanColumn(CjrlHumanoidDynamicRobot* inRobot)
+ChppGikMotionPlanColumn::ChppGikMotionPlanColumn(CjrlDynamicRobot* inRobot)
 {
     attRobot = inRobot;
     attWorkingJoints = scalar_vector<double>(inRobot->numberDof(),0);

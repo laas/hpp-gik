@@ -16,7 +16,7 @@ public:
     /**
     \brief Constructor
      */
-    ChppGikMotionPlan(CjrlHumanoidDynamicRobot* inRobot);
+    ChppGikMotionPlan(CjrlDynamicRobot* inRobot);
     /**
     \brief Destructor
      */
@@ -24,7 +24,7 @@ public:
     /**
     \brief Return associated robot
      */
-    CjrlHumanoidDynamicRobot* robot();
+    CjrlDynamicRobot* robot();
 
     /**
     \brief Add a prioritized motion constraint.
@@ -75,7 +75,7 @@ private:
 
     void updateEndTime();
     void updateStartTime();
-    CjrlHumanoidDynamicRobot* attRobot;
+    CjrlDynamicRobot* attRobot;
     double attEndTime;
     double attStartTime;
     std::vector<ChppGikMotionPlanRow*> attRows;

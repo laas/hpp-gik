@@ -118,8 +118,6 @@ protected:
     vectorN vecOP;
     vectorN vecOT;
 
-    const matrixNxP* tempFixedJointJacobian;
-    const matrixNxP* tempEffectorJointJacobian;
     matrixNxP tempJacobian;
 
     /**

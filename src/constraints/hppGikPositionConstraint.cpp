@@ -17,7 +17,6 @@ ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, 
 
 
     attJacobian.resize(3,inRobot.numberDof(),false);
-    tempJacobian.resize(6,inRobot.numberDof(),false);
     attValue.resize(3, false);
 
     tempRot.resize(3,3,false);
