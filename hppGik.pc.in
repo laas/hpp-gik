@@ -10,4 +10,4 @@ Description: Implementation of abstract interface for Generalized Inverse Kinema
 Version: @VERSION@
 Requires: @ABSTRACTGIKTASK_REQD@
 Libs: -L${libdir} @ABS_GIKTASK_LIBS@ -lhppGik
-Cflags: -I@ABS_GIKTASK_CFLAGS@ ${includedir}/hppGik 
+Cflags: @ABS_GIKTASK_CFLAGS@ -I${includedir}/hppGik 
