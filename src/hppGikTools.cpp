@@ -13,16 +13,16 @@ double ChppGikTools::attEps = 1e-15;
 
 void ChppGikTools::Rodrigues(const vectorN& inW, double inAngle, matrixNxP& outRot)
 {
-    double nor = ublas::norm_2(inW);
+    double nor = boost_ublas::norm_2(inW);
     vectorN wn = inW / nor;
-    ublas::identity_matrix<double> id(3);
+    boost_ublas::identity_matrix<double> id(3);
 
     if (nor < attEps)
         outRot = id;
     else
     {
         equivAsymMat(wn,outRot);
-        outRot = id + sin(inAngle)*outRot + (1-cos(inAngle)) * ublas::prod(outRot,outRot);
+        outRot = id + sin(inAngle)*outRot + (1-cos(inAngle)) * boost_ublas::prod(outRot,outRot);
     }
 }
 
@@ -86,7 +86,7 @@ bool ChppGikTools::OmegatoEulerZYX(const vectorN& inOmega, vectorN& outEuler)
 {
     matrixNxP attR(3,3);
 
-    double th = ublas::norm_2(inOmega);
+    double th = boost_ublas::norm_2(inOmega);
     Rodrigues(inOmega,th,attR);
     return RottoEulerZYX(attR, outEuler);
 }
@@ -118,11 +118,11 @@ void ChppGikTools::RottoOmega(const matrixNxP& inRot, vectorN& outVec)
 void ChppGikTools::invertTransformation(const matrixNxP& inH, matrixNxP& outH)
 {
 
-    ublas::subrange(outH,0,3,0,3) = ublas::trans(ublas::subrange(inH,0,3,0,3));
+    boost_ublas::subrange(outH,0,3,0,3) = boost_ublas::trans(boost_ublas::subrange(inH,0,3,0,3));
 
     vectorN attT(3);
 
-    attT = ublas::prod(ublas::subrange(outH,0,3,0,3),ublas::subrange(ublas::column(inH,3),0,3));
+    attT = boost_ublas::prod(boost_ublas::subrange(outH,0,3,0,3),boost_ublas::subrange(boost_ublas::column(inH,3),0,3));
     for (unsigned int i=0; i< 3; i++)
         outH(i,3) = -attT(i);
 
@@ -136,8 +136,8 @@ void ChppGikTools::flyerTransformation(const vectorN& inDof, matrixNxP& outH)
 {
     matrixNxP attR(3,3);
 
-    EulerZYXtoRot(ublas::subrange(inDof,3,6),attR);
-    ublas::subrange(outH,0,3,0,3) = attR;
+    EulerZYXtoRot(boost_ublas::subrange(inDof,3,6),attR);
+    boost_ublas::subrange(outH,0,3,0,3) = attR;
     for (unsigned int i=0; i< 3; i++)
         outH(i,3) = inDof(i);
     outH(3,0) = 0;
@@ -270,7 +270,7 @@ bool ChppGikTools::sinFilter(vectorN& inSignal, double inSamplingPeriod, vectorN
         extendedSignal(i) = inSignal(0);
         extendedSignal(filter_n+i+inSignal.size()) = inSignal(inSignal.size()-1);
     }
-    ublas::subrange(extendedSignal,filter_n,filter_n+inSignal.size()) = inSignal;
+    boost_ublas::subrange(extendedSignal,filter_n,filter_n+inSignal.size()) = inSignal;
 
 
     result.clear();
@@ -451,8 +451,8 @@ void ChppGikTools::targetTransformationU(const matrixNxP& referenceBase, const m
     //warning, no size checks, expects 4 homogeneous matrices !
     matrixNxP inverseRefBase(4,4);
     ChppGikTools::invertTransformation(referenceBase, inverseRefBase);
-    noalias(outNowTarget) = ublas::prod(inverseRefBase, referenceTarget);
-    outNowTarget = ublas::prod(nowBase,outNowTarget);
+    noalias(outNowTarget) = boost_ublas::prod(inverseRefBase, referenceTarget);
+    outNowTarget = boost_ublas::prod(nowBase,outNowTarget);
 }
 
 void ChppGikTools::targetTransformationM(const matrix4d& referenceBase, const matrix4d& referenceTarget, const matrix4d& nowBase, matrix4d& outNowTarget)

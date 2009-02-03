@@ -3,7 +3,7 @@
 #include "constraints/hppGikRotationConstraint.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikRotationConstraint::ChppGikRotationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const matrix3d& inTargetOrientation):ChppGikJointStateConstraint(inRobot, inJoint)
 {

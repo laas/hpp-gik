@@ -189,8 +189,8 @@ vectorN ChppGikStandingRobot::computeConfigurationWrtFreeFlyer(CjrlJoint* inJoin
     vectorN vec(3), euler(3);
     ChppGikTools::HtoRT( newRoot, rot, vec);
     ChppGikTools::RottoEulerZYX( rot, euler);
-    ublas::subrange(config,0,3) = vec;
-    ublas::subrange(config,3,6) = euler;
+    boost_ublas::subrange(config,0,3) = vec;
+    boost_ublas::subrange(config,3,6) = euler;
 
     return config;
 }

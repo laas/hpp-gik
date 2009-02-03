@@ -253,10 +253,10 @@ void ChppGikLocomotionPlan::prolongateZMP(double inDuration)
     unsigned int sizeNewChunk = (unsigned int)round(inDuration/attSamplingPeriod)-1;
     unsigned int previousSize = attPlannedZMP.size2();
     unsigned int newSize =  previousSize + sizeNewChunk;
-    vectorN paddingZMP = ublas::column(attPlannedZMP,previousSize-1);
+    vectorN paddingZMP = boost_ublas::column(attPlannedZMP,previousSize-1);
     attPlannedZMP.resize(3,newSize,true);
     for (unsigned int i=previousSize; i<newSize; i++)
-        ublas::column(attPlannedZMP,i) = paddingZMP;
+        boost_ublas::column(attPlannedZMP,i) = paddingZMP;
 }
 
 CjrlJoint* ChppGikLocomotionPlan::supportFootJoint(double inTime)

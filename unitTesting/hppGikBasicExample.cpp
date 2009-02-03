@@ -202,7 +202,7 @@ void ChppGikBasicExample::createStandingRobot()
     for(unsigned int i=6;i<nDof;i++)
         halfsittingConf(i) = dInitPos[i-6]*M_PI/180;
 
-    ublas::zero_vector<double> zeros(attRobot->numberDof());
+    boost_ublas::zero_vector<double> zeros(attRobot->numberDof());
     attRobot->currentConfiguration(halfsittingConf);
     attRobot->currentVelocity(zeros);
     attRobot->currentAcceleration(zeros);

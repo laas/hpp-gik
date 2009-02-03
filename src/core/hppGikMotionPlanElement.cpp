@@ -2,7 +2,7 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "core/hppGikMotionPlanElement.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikMotionPlanElement::ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, unsigned int inPriority)
 {
@@ -125,7 +125,7 @@ void ChppGikMotionPlanElement::computeValue()
         {
             chunk_end = chunk_start+(*iter)->dimension();
             (*iter)->computeValue();
-            ublas::subrange(attValue, chunk_start, chunk_end) = (*iter)->value();
+            boost_ublas::subrange(attValue, chunk_start, chunk_end) = (*iter)->value();
             chunk_start = chunk_end;
         }
     }
@@ -151,7 +151,7 @@ void ChppGikMotionPlanElement::computeJacobian()
         {
             chunk_end = chunk_start+(*iter)->dimension();
             (*iter)->computeJacobian();
-            ublas::subrange(attJacobian, chunk_start, chunk_end, 0, attJacobian.size2()) = (*iter)->jacobian();
+            boost_ublas::subrange(attJacobian, chunk_start, chunk_end, 0, attJacobian.size2()) = (*iter)->jacobian();
             chunk_start = chunk_end;
         }
     }

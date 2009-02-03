@@ -10,7 +10,7 @@
 
 #define V3_I MAL_S3_VECTOR_ACCESS
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod, "GenericTask")
 {

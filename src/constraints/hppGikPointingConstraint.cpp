@@ -3,7 +3,7 @@
 #include "constraints/hppGikPointingConstraint.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikPointingConstraint::ChppGikPointingConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inLocalOrigin, const vector3d& inLocalVector, const vector3d& inTargetWorldPoint):ChppGikJointStateConstraint(inRobot, inJoint)
 {

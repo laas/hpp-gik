@@ -229,7 +229,6 @@ private:
 
 
 #include "boost/numeric/ublas/matrix.hpp"
-namespace ublas = boost::numeric::ublas;
 
 /**
 \brief This is a support polygon motion class. The successive support polygons are atored in a vector and the corresponding start and end times are stored in a separate vector.

@@ -2,7 +2,7 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "core/hppGikMotionPlanRow.h"
 #include "hppGikTools.h"
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikMotionPlanRow::ChppGikMotionPlanRow(CjrlHumanoidDynamicRobot* inRobot,unsigned int inPriority)
 {

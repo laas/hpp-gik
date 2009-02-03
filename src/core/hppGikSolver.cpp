@@ -12,7 +12,7 @@
 
 namespace lapack = boost::numeric::bindings::lapack;
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot* inRobot )
 {

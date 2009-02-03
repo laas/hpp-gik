@@ -4,7 +4,7 @@
 #include "hppGikTools.h"
 
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikFootDisplaceElement::ChppGikFootDisplaceElement(CjrlHumanoidDynamicRobot* inRobot, double inStartTime, const ChppGikFootprint * inTargetFootprint, bool isRight, double inDuration, double inSamplingPeriod, double inHeight):ChppGikLocomotionElement( inRobot, inStartTime, inDuration, inSamplingPeriod)
 {

@@ -3,7 +3,7 @@
 #include "core/hppGikMotionPlan.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikMotionPlan::ChppGikMotionPlan(CjrlHumanoidDynamicRobot* inRobot)
 {

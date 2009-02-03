@@ -2,7 +2,7 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "constraints/hppGikJointStateConstraint.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikJointStateConstraint::ChppGikJointStateConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint)
 {

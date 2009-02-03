@@ -133,9 +133,9 @@ private:
     vectorN JointUpperLimitWindow;
 
 
-    ublas::vector<unsigned int> UsedIndexes;
-    ublas::vector<unsigned int> NextUsedIndexes;
-    ublas::vector<unsigned int> UsedIndexesBackup;
+    boost_ublas::vector<unsigned int> UsedIndexes;
+    boost_ublas::vector<unsigned int> NextUsedIndexes;
+    boost_ublas::vector<unsigned int> UsedIndexesBackup;
 
     matrixNxP H0;
     matrixNxP Hif;
@@ -151,19 +151,19 @@ private:
     std::vector<unsigned int> supportJointsRanks;
 
     vectorN   Residual;
-    ublas::matrix<double, ublas::column_major > IdentityMat;
-    ublas::matrix<double, ublas::column_major > HatJacobian;
-    ublas::matrix<double, ublas::column_major > WJt;
-    ublas::matrix<double, ublas::column_major > JWJt;
-    ublas::matrix<double, ublas::column_major > Jsharp;
-    ublas::matrix<double, ublas::column_major > NullSpace;
-    ublas::matrix<double, ublas::column_major > InverseJWJt;
-    ublas::matrix<double, ublas::column_major > CarvedJacobian;
+    boost_ublas::matrix<double, boost_ublas::column_major > IdentityMat;
+    boost_ublas::matrix<double, boost_ublas::column_major > HatJacobian;
+    boost_ublas::matrix<double, boost_ublas::column_major > WJt;
+    boost_ublas::matrix<double, boost_ublas::column_major > JWJt;
+    boost_ublas::matrix<double, boost_ublas::column_major > Jsharp;
+    boost_ublas::matrix<double, boost_ublas::column_major > NullSpace;
+    boost_ublas::matrix<double, boost_ublas::column_major > InverseJWJt;
+    boost_ublas::matrix<double, boost_ublas::column_major > CarvedJacobian;
 
     
     vectorN tempS;
-    ublas::matrix<double, ublas::column_major> tempU;
-    ublas::matrix<double, ublas::column_major> tempVt;
+    boost_ublas::matrix<double, boost_ublas::column_major> tempU;
+    boost_ublas::matrix<double, boost_ublas::column_major> tempVt;
 
     char jobU;
     char jobVt;

@@ -5,7 +5,7 @@
 
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 
-using namespace ublas;
+using namespace boost_ublas;
 
 
 
@@ -31,7 +31,7 @@ ChppGikComConstraint::ChppGikComConstraint(CjrlDynamicRobot& inRobot, double inX
     temp3DVec.resize(3,false);
     temp3DVec1.resize(3,false);
 
-    attInfluencingDofs = ublas::scalar_vector<double>(inRobot.numberDof(), 1);
+    attInfluencingDofs = boost_ublas::scalar_vector<double>(inRobot.numberDof(), 1);
 }
 
 CjrlGikStateConstraint* ChppGikComConstraint::clone() const
@@ -88,7 +88,7 @@ const vectorN& ChppGikComConstraint::worldTarget()
 void ChppGikComConstraint::computeValue()
 {
     ChppGikTools::Vector3toUblas( attRobot->positionCenterOfMass(), temp3DVec);
-    attValue = attWorldTarget - ublas::subrange(temp3DVec,0,attDimension);
+    attValue = attWorldTarget - boost_ublas::subrange(temp3DVec,0,attDimension);
 }
 
 void ChppGikComConstraint::computeInfluencingDofs()
@@ -138,9 +138,9 @@ void ChppGikComConstraint::computeJacobian()
     temp3DVec.minus_assign(temp3DVec1);
     ChppGikTools::equivAsymMat(temp3DVec,tempRot);
     
-    ublas::noalias(tempJacobian) += ublas::prod(tempRot, ublas::subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
+    boost_ublas::noalias(tempJacobian) += boost_ublas::prod(tempRot, boost_ublas::subrange(*tempFixedJointJacobian,3,6,6,attRobot->numberDof()));
 
-    attJacobian = ublas::subrange(tempJacobian,0,attDimension,0,attNumberActuatedDofs);
+    attJacobian = boost_ublas::subrange(tempJacobian,0,attDimension,0,attNumberActuatedDofs);
 }
 
 

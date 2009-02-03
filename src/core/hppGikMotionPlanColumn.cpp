@@ -1,5 +1,5 @@
 #include "core/hppGikMotionPlanColumn.h"
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikMotionPlanColumn::ChppGikMotionPlanColumn(CjrlHumanoidDynamicRobot* inRobot)
 {

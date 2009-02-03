@@ -3,7 +3,7 @@
 #include "hppGikTools.h"
 #include "motionplanners/elements/hppGikZMPshiftElement.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikZMPshiftElement::ChppGikZMPshiftElement( CjrlHumanoidDynamicRobot* inRobot, const vector3d& targetZMP, double inStartTime, double inDuration, double inSamplingPeriod):ChppGikLocomotionElement( inRobot, inStartTime, inDuration, inSamplingPeriod)
 {

@@ -3,7 +3,7 @@
 #include "constraints/hppGikPositionConstraint.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikPositionConstraint::ChppGikPositionConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame):ChppGikJointStateConstraint(inRobot, inJoint)
 {

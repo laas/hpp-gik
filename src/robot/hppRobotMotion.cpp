@@ -100,7 +100,7 @@ bool ChppRobotMotion::velocityAtTime(double inTime, vectorN& outVector) const
 
 
     if (i == 0)
-        outVector = ublas::zero_vector<double>(attRobot->numberDof());
+        outVector = boost_ublas::zero_vector<double>(attRobot->numberDof());
     else
     {
         listGetRange(i-1,2,resVec);
@@ -120,7 +120,7 @@ bool ChppRobotMotion::accelerationAtTime(double inTime, vectorN& outVector) cons
     std::vector<ChppRobotMotionSample> resVec;
 
     if (i == 0)
-        outVector = ublas::zero_vector<double>(attRobot->numberDof());
+        outVector = boost_ublas::zero_vector<double>(attRobot->numberDof());
     else
         if (i == 1)
         {

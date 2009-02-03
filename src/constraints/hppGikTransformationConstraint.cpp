@@ -5,7 +5,7 @@
 
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikTransformationConstraint::ChppGikTransformationConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inPointInWorldFrame, const matrix3d& inTargetOrientation):ChppGikJointStateConstraint(inRobot, inJoint)
 {

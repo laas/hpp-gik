@@ -3,7 +3,7 @@
 #include "constraints/hppGikPlaneConstraint.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikPlaneConstraint::ChppGikPlaneConstraint(CjrlDynamicRobot& inRobot, CjrlJoint& inJoint, const vector3d& inPointInBodyLocalFrame, const vector3d& inWorldPlanePoint, const vector3d& inWorldPlaneNormal):ChppGikJointStateConstraint(inRobot, inJoint)
 {
@@ -63,7 +63,7 @@ void  ChppGikPlaneConstraint::worldPlaneNormal(const vector3d& inPlaneNormal)
 {
     attWorldPlaneNormalVector3 = inPlaneNormal;
     ChppGikTools::Vector3toUblas(attWorldPlaneNormalVector3, attWorldPlaneNormal);
-    attWorldPlaneNormal /=  ublas::norm_2(attWorldPlaneNormal);
+    attWorldPlaneNormal /=  boost_ublas::norm_2(attWorldPlaneNormal);
     ChppGikTools::UblastoVector3(attWorldPlaneNormal,attWorldPlaneNormalVector3);
     for (unsigned int i=0; i<attWorldPlaneNormal.size(); i++)
     {

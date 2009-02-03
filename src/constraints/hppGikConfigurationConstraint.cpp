@@ -3,7 +3,7 @@
 #include "constraints/hppGikConfigurationConstraint.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 
 ChppGikConfigurationConstraint::ChppGikConfigurationConstraint(CjrlDynamicRobot& inRobot, const vectorN& inTargetConfig, const vectorN& inMask)
@@ -16,7 +16,7 @@ ChppGikConfigurationConstraint::ChppGikConfigurationConstraint(CjrlDynamicRobot&
     else
     {
         attTargetConfiguration = inRobot.currentConfiguration();
-        attInfluencingDofs = ublas::scalar_vector<double>(inRobot.numberDof(), 1);
+        attInfluencingDofs = boost_ublas::scalar_vector<double>(inRobot.numberDof(), 1);
     }
 
     attRobot = &inRobot;

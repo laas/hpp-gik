@@ -77,7 +77,7 @@ private:
     vectorN attSample;
     ChppGikMotionPlanRow* attMotionRow;
     ChppGikVectorizableConstraint* attConstraint;
-    ublas::matrix<double, ublas::column_major > attInterpolationData;
+    boost_ublas::matrix<double, boost_ublas::column_major > attInterpolationData;
     vectorN attInterpolationLine;
     bool attPlanSuccess;
 

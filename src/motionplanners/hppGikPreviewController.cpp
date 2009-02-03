@@ -6,7 +6,7 @@
 #include <fstream>
 #include <string>
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikPreviewController::ChppGikPreviewController(double inSamplingPeriod)
 {
@@ -133,7 +133,7 @@ bool ChppGikPreviewController::loadGains(const char* inFileName)
     }
 
     systemA.resize(3,3,false);
-    systemA = ublas::identity_matrix<double>(3);
+    systemA = boost_ublas::identity_matrix<double>(3);
 
     systemA(0,1) = attSamplingPeriod;
     systemA(1,2) = attSamplingPeriod;
@@ -176,7 +176,7 @@ bool ChppGikPreviewController::ZMPtoCOM(const matrixNxP& inZMP, matrixNxP& outCO
     outCOM.resize(2, ZMPlength-attNumberPreviewSamples+1, false);
 
     matrixNxP ZMPChunk(attNumberPreviewSamples,2);
-    matrixNxP currentComState = ublas::zero_matrix<double>(3,2);
+    matrixNxP currentComState = boost_ublas::zero_matrix<double>(3,2);
     tempoCalc = currentComState;
     matrixNxP plannedZMPError(1,2);
     plannedZMPError(0,0) = 0;
@@ -192,7 +192,7 @@ bool ChppGikPreviewController::ZMPtoCOM(const matrixNxP& inZMP, matrixNxP& outCO
 
     for (unsigned int i=0;i < ZMPlength-attNumberPreviewSamples+1;i++)
     {
-        ZMPChunk = ublas::subrange(ZMPref,i,i+attNumberPreviewSamples,0,2);
+        ZMPChunk = boost_ublas::subrange(ZMPref,i,i+attNumberPreviewSamples,0,2);
         singleZMPtoCOMState(ZMPChunk, currentComState, plannedZMPError);
         outCOM(0,i) = currentComState(0,0) + startZMPoffsetX;
         outCOM(1,i) = currentComState(0,1) + startZMPoffsetY;

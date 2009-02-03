@@ -3,7 +3,7 @@
 #include "robot/hppGikMaskFactory.h"
 #include "hppGikTools.h"
 
-using namespace ublas;
+using namespace boost_ublas;
 
 ChppGikMaskFactory::ChppGikMaskFactory(CjrlHumanoidDynamicRobot* inRobot)
 {
@@ -90,7 +90,7 @@ void ChppGikMaskFactory::buildWeightVectors()
     attWeightsRightLegSupporting.clear();
 
 
-    ublas::vector<double> supportedMassVec(attNumJoints+1);
+    boost_ublas::vector<double> supportedMassVec(attNumJoints+1);
     supportedMassVec.clear();
 
     //determin the legs joint vectors
@@ -113,7 +113,7 @@ void ChppGikMaskFactory::buildWeightVectors()
         rankParent = rankInSupportedMassVector(*(iter-1));
         supportedMassVec(rankJoint) += (*(iter-1))->linkedBody()->mass() + supportedMassVec(rankParent);
     }
-    attWeightsRightLegSupporting = ublas::subrange(supportedMassVec,1,attNumJoints+1);
+    attWeightsRightLegSupporting = boost_ublas::subrange(supportedMassVec,1,attNumJoints+1);
 
     double tempTotalMass = attRobot->mass()-attRobot->leftFoot()->linkedBody()->mass();
     for (unsigned int i = 0; i< attWeightsRightLegSupporting.size(); i++)
@@ -130,13 +130,13 @@ void ChppGikMaskFactory::buildWeightVectors()
         rankParent = rankInSupportedMassVector(*(iter-1));
         supportedMassVec(rankJoint) += (*(iter-1))->linkedBody()->mass() + supportedMassVec(rankParent);
     }
-    attWeightsLeftLegSupporting = ublas::subrange(supportedMassVec,1,attNumJoints+1);
+    attWeightsLeftLegSupporting = boost_ublas::subrange(supportedMassVec,1,attNumJoints+1);
 
     for (unsigned int i = 0; i< attWeightsLeftLegSupporting.size(); i++)
         attWeightsLeftLegSupporting(i) = tempTotalMass/attWeightsLeftLegSupporting(i);
 
 //     //Double support
-//     attWeightsDouble = ublas::zero_vector<double>(attNumJoints);
+//     attWeightsDouble = boost_ublas::zero_vector<double>(attNumJoints);
 //     for (unsigned int i = 0; i<attNumJoints;i++)
 //     {
 //         if (attLegs(i) > 0.5)

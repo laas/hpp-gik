@@ -4,7 +4,7 @@
 #include "hppGikTools.h"
 
 
-using namespace ublas;
+using namespace boost_ublas;
 
 
 ChppGikStepElement::ChppGikStepElement(CjrlHumanoidDynamicRobot* inRobot,double inStartTime, const ChppGikFootprint* inFootprint, bool isRightFoot, double inSamplingPeriod, double inFinalZMPCoefficient, double inEndShiftTime, double inStartZMPShiftTime, double inFootMotionDuration, double inStepHeight):ChppGikLocomotionElement( inRobot, inStartTime, inFootMotionDuration+inStartZMPShiftTime+inEndShiftTime, inSamplingPeriod)
