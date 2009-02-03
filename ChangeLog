@@ -1,4 +1,6 @@
-$Id: ChangeLog 2008/06/17 14:15:37 mallet $
+hppGik 1.9.1 released Tue 3 Feb 2009
+
+	48. Replace namespace ublas by boost_ublas.
 
 hppGik 1.9 released Tue 17 Jun 2008
 
