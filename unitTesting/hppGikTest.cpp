@@ -15,12 +15,12 @@
 #include "hppGikTools.h"
 #include "hrp2Dynamics/hrp2OptHumanoidDynamicRobot.h"
 
-#include "hppGik/constraints/hppGikConfigurationConstraint.h"
-#include "hppGik/tasks/hppGikGenericTask.h"
-#include "hppGik/motionplanners/elements/hppGikStepElement.h"
-#include "hppGik/motionplanners/elements/hppGikInterpolatedElement.h"
-#include "hppGik/tasks/hppGikReachTask.h"
-#include "hppGik/tasks/hppGikStepTask.h"
+#include "constraints/hppGikConfigurationConstraint.h"
+#include "tasks/hppGikGenericTask.h"
+#include "motionplanners/elements/hppGikStepElement.h"
+#include "motionplanners/elements/hppGikInterpolatedElement.h"
+#include "tasks/hppGikReachTask.h"
+#include "tasks/hppGikStepTask.h"
 
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
