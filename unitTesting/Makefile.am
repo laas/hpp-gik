@@ -14,8 +14,8 @@ testhppGik_SOURCES=\
 
 
 testhppGik_CPPFLAGS=\
-	-I$(includedir)/hppGik		\
+	-I$(top_srcdir)/include		\
 	$(ABS_GIKTASK_CFLAGS)		\
 	$(HRP2_CFLAGS)
 
-testhppGik_LDFLAGS = $(ABS_GIKTASK_LIBS) $(HRP2_LIBS) -lhppGik -lm
+testhppGik_LDFLAGS = $(ABS_GIKTASK_LIBS) $(HRP2_LIBS) $(top_builddir)/src/libhppGik.la -lm
