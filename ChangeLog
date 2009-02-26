@@ -1,3 +1,13 @@
+hppGik 2.2 released Thu 26 Feb 2009
+
+	56. Improved ChppGikSolver API
+	55. Renamed ChppGikStandingRobot::updateDynamics to  ChppGikStandingRobot::updateRobot and changed input arguments.
+	54. Fixed free flyer velocity computation (within ChppGikStandingRobot). This should influence ZMP computaion results.
+	53. Removed all usage of FixedJoint-related methods from abstract robot interface. 
+	52. Allowed virtual change of robot root in constraints.
+	51. Optimized jacobian computations in constraints.
+	50. Split ChppGikSolver in ChppGikSolverBasic (for any linear systems) and ChppGikSolver(for inverse kinematics performed on CjrlDynamicRobot objects). Added class ChppGikBounder for smooth parameter limits observation.
+	49. Created hppGik overview documentation and commented code example.
 	48. Moved some attribute in private area of ChppGikJointStateConstraint.
 
 hppGik 1.9 released Tue 17 Jun 2008
