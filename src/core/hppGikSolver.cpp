@@ -91,7 +91,7 @@ void ChppGikSolver::prepare(std::vector<CjrlGikStateConstraint*>& inTasks)
     }
 }
 
-void ChppGikSolver::solve(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, std::vector<double>& inSRcoefs)
+void ChppGikSolver::solve(std::vector<CjrlGikStateConstraint*>& inSortedConstraints, const std::vector<double>& inSRcoefs)
 {
     attBackupConfig = attRobot->currentConfiguration();
     if (inSortedConstraints.empty())
@@ -104,7 +104,7 @@ void ChppGikSolver::solve(std::vector<CjrlGikStateConstraint*>& inSortedConstrai
     unsigned int iC;
     double ub, lb;
     std::vector<CjrlGikStateConstraint*>::iterator iter;
-    std::vector<double>::iterator iter2;
+    std::vector<double>::const_iterator iter2;
 
     attVals = attRobot->currentConfiguration();
     attRate = attRobot->currentVelocity();
@@ -113,9 +113,12 @@ void ChppGikSolver::solve(std::vector<CjrlGikStateConstraint*>& inSortedConstrai
 
     while ( recompute )
     {
+        CurFullConfig = attRobot->currentConfiguration();
+        
         if (!(attSolver->weights( attComputationWeights )))
         {
-            std::cout << "ChppGikSolver::solve(): could not move" << std::endl;
+            //std::cout << "ChppGikSolver::solve(): could not move" << std::endl;
+            H0 =  RootJoint->currentTransformation();
             return;
         }
 
@@ -145,7 +148,6 @@ void ChppGikSolver::solve(std::vector<CjrlGikStateConstraint*>& inSortedConstrai
 
         //update config and check joint limits
         recompute = false;
-        CurFullConfig = attRobot->currentConfiguration();
         for ( iC=0; iC< attNumParams; iC++ )
         {
             //update

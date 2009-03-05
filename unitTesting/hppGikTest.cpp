@@ -50,6 +50,12 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod(5e-3)
     attStepBackTask = new ChppGikStepBackTask(attStandingRobot, attSamplingPeriod);
 
     attMotion = new ChppRobotMotion(attRobot, 0.0, attSamplingPeriod);
+    
+    
+    
+    
+    
+   // elementReach(true,vector3d(0.8,-0.2,1.0),vector3d(0.8,-0.2,1.0));
 }
 
 ChppGikTest::~ChppGikTest()
@@ -62,142 +68,122 @@ ChppGikTest::~ChppGikTest()
     delete attMotion;
 }
 
-
-
-void ChppGikTest::humanoids()
+void ChppGikTest::elementReach(bool taskIsForRightHand,
+                              const vector3d& inReachTarget,
+                              const vector3d& inGazeTarget)
 {
-    ChppRobotMotion finalMotion(attRobot,0.0,attSamplingPeriod);
+    vectorN BackupConfig = attStandingRobot->robot()->currentConfiguration();
+    
+    std::vector<CjrlGikStateConstraint*> tasks;
+    CjrlJoint* joint;
+    vector3d lpoint;
+    CjrlHand* hand;
+    if (taskIsForRightHand)
+    {
+        joint = attStandingRobot->robot()->rightWrist();
+        hand =  attStandingRobot->robot()->rightHand();
 
-    vector3d handTarget;
-    vector3d gazeTarget;
+    }
+    else
+    {
+        joint = attStandingRobot->robot()->leftWrist();
+        hand =  attStandingRobot->robot()->leftHand();
+    }
+    lpoint = hand->centerInWristFrame();
 
-    handTarget[0] = 0.0;
-    handTarget[1] = 3.0;
-    handTarget[2] = 0.5;
+    
+    tasks.push_back(new ChppGikTransformationConstraint(*(attStandingRobot->robot()),*attStandingRobot->robot()->rightFoot(),vector3d(0,0,0),attStandingRobot->robot()->rightFoot()->currentTransformation()) );
+    
+    tasks.push_back(new ChppGikComConstraint( *(attStandingRobot->robot()),attStandingRobot->robot()->positionCenterOfMass()[0],attStandingRobot->robot()->positionCenterOfMass()[1]) );
+    
+    tasks.push_back(new ChppGikPositionConstraint(*(attStandingRobot->robot()),*joint,lpoint,inReachTarget) );
 
-    gazeTarget[0] = handTarget[0];
-    gazeTarget[1] = handTarget[1];
-    gazeTarget[2] = handTarget[2];
+    tasks.push_back(new ChppGikGazeConstraint(*(attStandingRobot->robot()), inGazeTarget));
 
-    double footX,footY,footT;
+    std::vector<double> dampers(tasks.size(),1.0);
+    //dampers[0] = dampers[1] = 0.0;
+    solveStack( tasks, dampers );
 
-    footX = 0.0;
-    footY = 0.15;
-    footT = M_PI/2-0.5;
-
-    ChppGikFootprint targetFoot(footX,footY,footT);
-    ChppGikStepElement* stepElement = new ChppGikStepElement( attRobot, 1.6, &targetFoot, false, attSamplingPeriod , 0.2, 0.4, 0.4, 1.2);
-
-    vector3d lp, pn, pp;
-    lp[0] = lp[1] = lp[2] = 0;
-    pp = lp;
-    pn = lp;
-    pn[2] = 1;
-    pp[2] = attStandingRobot->halfsittingWaistHeight();
-    ChppGikPlaneConstraint waistConstraint (*attRobot, *(attRobot->waist()), lp, pp, pn );
-    ChppGikInterpolatedElement* waistElement = new ChppGikInterpolatedElement( attRobot, &waistConstraint, 2, 4.2, 4.0, attSamplingPeriod);
-
-    ChppGikParallelConstraint waistPConstraint (*attRobot, *(attRobot->waist()), pn, pn);
-    ChppGikInterpolatedElement* waistPElement = new ChppGikInterpolatedElement( attRobot, &waistPConstraint, 1, 0, 8.2, attSamplingPeriod);
-
-    ChppGikGazeConstraint gazeConstraint(*attRobot,gazeTarget);
-    ChppGikInterpolatedElement* gazeElement = new ChppGikInterpolatedElement( attRobot, &gazeConstraint, 2, 4.2, 4.0, attSamplingPeriod);
-
-    lp = attRobot->leftHand()->centerInWristFrame();
-    ChppGikPositionConstraint handConstraint( *attRobot,*attRobot->leftWrist(), lp, handTarget);
-    ChppGikInterpolatedElement* handElement = new ChppGikInterpolatedElement( attRobot, &handConstraint, 2, 4.2, 4.0, attSamplingPeriod);
-    delete handElement;
-
-
-    ChppGikGenericTask genericTask(attStandingRobot,attSamplingPeriod);
-    vectorN zeroVec1(46);
-    zeroVec1.clear();
-    vectorN leftArm = attStandingRobot->maskFactory()->customMask(attRobot->leftWrist(),6);
-    leftArm(28) = 0;
-    leftArm(27) = 0;
-    zeroVec1(32) = -M_PI/4-0.2;
-    ChppGikConfigurationConstraint configConstraint0(*attRobot,zeroVec1,leftArm);
-    ChppGikInterpolatedElement* configElement0 = new ChppGikInterpolatedElement( attRobot, &configConstraint0, 2, 0.0, 4.0, attSamplingPeriod);
-
-
-    genericTask.clearElements();
-    genericTask.addElement( configElement0 );
-    genericTask.solve();
-    ChppRobotMotion& motion = const_cast<ChppRobotMotion&>(genericTask.solutionMotion());
-    finalMotion.appendMotion( motion );
-    attStandingRobot->staticState( motion.lastSample()->configuration );
-
-    genericTask.clearElements();
-    genericTask.addElement(stepElement);
-    genericTask.addElement(waistPElement);
-
-    genericTask.addElement(gazeElement);
-    genericTask.addElement(waistElement);
-
-    genericTask.solve();
-
-
-
-    finalMotion.appendMotion( motion );
-    attStandingRobot->staticState( motion.lastSample()->configuration );
-
-    genericTask.clearElements();
-
-    vector3d newTarget;
-    newTarget[0] = -0.0;
-    newTarget[1] = 0.78;
-    newTarget[2] = 0.95;
-    handConstraint.worldTarget( newTarget );
-    ChppGikInterpolatedElement* handElement2 = new ChppGikInterpolatedElement( attRobot, &handConstraint, 1, 0.0, 4.0, attSamplingPeriod);
-
-    genericTask.addElement( handElement2);
-
-    genericTask.solve();
-    finalMotion.appendMotion( motion );
-    attStandingRobot->staticState( motion.lastSample()->configuration );
-
-    genericTask.clearElements();
-
-    vectorN zeroVec(46);
-    zeroVec.clear();
-    vectorN rightArm = attStandingRobot->maskFactory()->customMask(attRobot->rightWrist(),3);
-    zeroVec(25) = -M_PI/2+0.1;
-    zeroVec(22) = -0.1;
-    zeroVec(23) = -0.3;
-    zeroVec(27) = -M_PI/2+0.6;
-    ChppGikConfigurationConstraint configConstraint(*attRobot,zeroVec,rightArm);
-    ChppGikInterpolatedElement* configElement = new ChppGikInterpolatedElement( attRobot, &configConstraint, 2, 0.0, 4.0, attSamplingPeriod);
-
-    zeroVec.clear();
-    rightArm = attStandingRobot->maskFactory()->customMask(attRobot->leftWrist(),7);
-    rightArm(28) = 0;
-    zeroVec(33) = -M_PI/4-0.2;
-    ChppGikConfigurationConstraint configConstraint2(*attRobot,zeroVec,rightArm);
-    ChppGikInterpolatedElement* configElement2 = new ChppGikInterpolatedElement( attRobot, &configConstraint2, 2, 0.0, 4.0, attSamplingPeriod);
-    /*
-    zeroVec.clear();
-    rightArm = attStandingRobot->maskFactory()->customMask(attRobot->gazeJoint(),4);
-    zeroVec(21) = -0.1;
-    ChppGikConfigurationConstraint configConstraint3(*attRobot,zeroVec,rightArm);
-    ChppGikInterpolatedElement* configElement3 = new ChppGikInterpolatedElement( attRobot, &configConstraint3, 2, 0.0, 4.0, attSamplingPeriod);
-    genericTask.addElement(configElement3);
-    */
-
-    genericTask.addElement(configElement2);
-
-
-    genericTask.addElement(configElement);
-
-
-
-    genericTask.solve();
-    finalMotion.appendMotion( motion );
-    finalMotion.dumpTo("humanoids09");
+    for (unsigned int i=0;i<tasks.size();i++)
+        delete tasks[i];
+    
+    
+    attStandingRobot->staticState( BackupConfig );
 }
+        
+void ChppGikTest::solveStack(std::vector<CjrlGikStateConstraint*>& inConstraints, const std::vector<double>& inDamp)
+{
+    ChppRobotMotion gMotion(attStandingRobot->robot(),0.0,attSamplingPeriod);
+    vector3d dummy;
+    std::vector<double> prevVals, curVals;
+    std::vector<double> dampers = inDamp;
+
+    
+
+    ChppGikSolver attGikSolver(*attStandingRobot->robot());
+    
+    attGikSolver.rootJoint( *attStandingRobot->robot()->leftFoot() );
+    
+    vectorN weights = attStandingRobot->maskFactory()->wholeBodyMask();
+    subrange(weights,0,6) = zero_vector<double>(6);
+    attGikSolver.weights( weights );
+            
+    attGikSolver.prepare( inConstraints );
+
+    bool breakLoop = false;
+    double minProgress = 1e-4;
+    while (!breakLoop)
+    {
+        for (unsigned int i = 0; i<inConstraints.size();i++)
+        {
+            prevVals.push_back(norm_2(inConstraints[i]->value()));
+            curVals.push_back(prevVals[i]);
+        }
+
+        //attGikSolver->solve( inConstraints );
+        attGikSolver.solve( inConstraints, dampers);
+        attStandingRobot->updateRobot(attGikSolver.solutionRootPose(), attGikSolver.solutionJointConfiguration(), attSamplingPeriod);
+        gMotion.appendSample( attStandingRobot->robot()->currentConfiguration() ,dummy,dummy,dummy,dummy);
+        for (unsigned int i = 0; i<inConstraints.size();i++)
+        {
+            inConstraints[i]->computeValue();
+            inConstraints[i]->value();
+            curVals[i] = norm_2(inConstraints[i]->value());
+        }
+
+        if (norm_2(attStandingRobot->robot()->currentVelocity())<1e-4)
+            breakLoop = true;
+        else
+            breakLoop = false;
+        
+        /*
+        breakLoop = true;
+        for (unsigned int i = 0; i<inConstraints.size();i++)
+        {
+            if (curVals[i] > prevVals[i])//diverges
+            {
+                break;
+            }
+            else if (curVals[i] < prevVals[i] - minProgress) //significant progress
+            {
+                breakLoop = false;
+                break;
+            }
+        }
+        if (breakLoop)
+        {
+            std::cout << "Diverged." << std::endl;
+            break;
+        }
+
+        breakLoop = true;
+        */
+    }
 
 
 
-
+    gMotion.dumpTo( "damped" );
+}
 
 void ChppGikTest::createHumanoidRobot()
 {
@@ -226,11 +212,11 @@ void ChppGikTest::createHumanoidRobot()
     aHDMB->setComputeCoM(true);
     aHDMB->setComputeAcceleration(true);
     aHDMB->setComputeZMP(true);
-    
+
     aHDMB->setComputeSkewCoM(false);
     aHDMB->setComputeAccelerationCoM(false);
     aHDMB->setComputeBackwardDynamics(false);
-    
+
 
 
     unsigned int nDof = attRobot->numberDof();
@@ -394,7 +380,7 @@ void  ChppGikTest::interprete()
 
             if (!determineSide(stream, SideIsRight))
                 continue;
-            
+
             for (unsigned int k=0; k<3;k++)
             {
                 if (!stream.eof())
@@ -416,7 +402,7 @@ void  ChppGikTest::interprete()
             step(SideIsRight,position,motion_file.c_str(),currentConfig, resultConfig);
             continue;
         }
-        
+
         if (strcmp(command, "lookhand")==0)
         {
 
@@ -779,7 +765,7 @@ void ChppGikTest::step(bool inForRight, const vector3d& targetFoot, const char* 
 
     //the robot is static at the current configuration
     attStandingRobot->staticState(curConfig);
-    
+
     ChppGikSupportPolygon* curSP = attStandingRobot->supportPolygon();
     if (!curSP)
     {
@@ -793,7 +779,7 @@ void ChppGikTest::step(bool inForRight, const vector3d& targetFoot, const char* 
     }
 
     ChppGikStepTask stepTask(attStandingRobot,attSamplingPeriod,inForRight,targetFoot[0],targetFoot[1],targetFoot[2]);
-    
+
     stepTask.showResolutionTime( true );
     bool solved = stepTask.solve();
 

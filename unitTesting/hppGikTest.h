@@ -47,7 +47,11 @@ public:
     */
     void interprete();
 
-    void humanoids();
+    void elementReach(bool taskIsForRightHand,
+                                   const vector3d& inReachTarget,
+                                   const vector3d& inGazeTarget);
+    
+    void solveStack(std::vector<CjrlGikStateConstraint*>& inConstraints, const std::vector<double>& inDamp);
     
 
 private:

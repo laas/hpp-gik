@@ -54,7 +54,7 @@ public:
     /**
         \brief Compute a solution to the entered vector of linear systems. the linear systems(CjrlGikStateConstraint objects) should already be computed. The order in the vector of tasks follows decreasing priority.
      */
-    void solve(std::vector<CjrlGikStateConstraint*>& inTasks, std::vector<double>& inSRcoefs);
+    void solve(std::vector<CjrlGikStateConstraint*>& inTasks, const std::vector<double>& inSRcoefs);
     /**
         \brief Same as previous without damping
      */
