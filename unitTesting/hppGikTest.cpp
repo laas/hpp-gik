@@ -28,34 +28,109 @@
 
 using namespace  boost::numeric::ublas;
 
-ChppGikTest::ChppGikTest() : attSamplingPeriod(5e-3)
+ChppGikTest::ChppGikTest() : attSamplingPeriod ( 5e-3 )
 {
 
     attLastRobotTask = 0;
 
-    strcpy(attMotionName,"usermotion");
+    strcpy ( attMotionName,"usermotion" );
 
     createHumanoidRobot();
 
-    attWholeBodyTask = new ChppGikWholeBodyTask(attStandingRobot,attSamplingPeriod);
+    attWholeBodyTask = new ChppGikWholeBodyTask ( attStandingRobot,attSamplingPeriod );
 
-    attWholeBodyTask->showResolutionTime( true );
+    attWholeBodyTask->showResolutionTime ( true );
 
-    attHalfSittingTask = new ChppGikHalfSittingTask(attStandingRobot, attSamplingPeriod);
+    attHalfSittingTask = new ChppGikHalfSittingTask ( attStandingRobot, attSamplingPeriod );
 
-    attHalfSittingTask->showResolutionTime( true );
+    attHalfSittingTask->showResolutionTime ( true );
 
-    attHandTask = new ChppGikHandTask(attStandingRobot,attSamplingPeriod);
+    attHandTask = new ChppGikHandTask ( attStandingRobot,attSamplingPeriod );
 
-    attStepBackTask = new ChppGikStepBackTask(attStandingRobot, attSamplingPeriod);
+    attStepBackTask = new ChppGikStepBackTask ( attStandingRobot, attSamplingPeriod );
 
-    attMotion = new ChppRobotMotion(attRobot, 0.0, attSamplingPeriod);
-    
-    
-    
-    
-    
-   // elementReach(true,vector3d(0.8,-0.2,1.0),vector3d(0.8,-0.2,1.0));
+    attMotion = new ChppRobotMotion ( attRobot, 0.0, attSamplingPeriod );
+
+/*
+
+
+
+    //elementReach(true,vector3d(0.8,-0.2,1.0),vector3d(1.8,-0.2,1.0));
+
+
+    ChppGikSolver solver ( *attRobot );
+    vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport();
+    subrange ( weights,0,6 ) = zero_vector<double> ( 6 );
+    for ( unsigned int i=0;i<46;i++ )
+        if ( attStandingRobot->maskFactory()->wholeBodyMask() ( i ) ==0 )
+            weights ( i ) =0;
+    solver.weights ( weights );
+    solver.rootJoint ( *attRobot->rightFoot() );
+
+    double config[] =
+        {2.61043,-0.0101041,0.59099,-0.473436,1.0366,-2.85369,-0.373352,0.214087,-1.28175,0.65467,-0.284436,0.43532,-0.447899,0.535548,-0.707108,2.17918,-0.115944,-0.187288,0.0690899,0.327885,-0.515242,0.483151,-1.71429,-1.29046,-1.16917,-1.48978,0.972735,0.703203,0,0.128455,0.799528,1.21547,-2.15955,-0.350344,-1.00442,0,0,0,0,0,0,0,0,0,0,0};
+
+    double velo[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+    vectorN strConfig ( 46 );
+    vectorN strVelo ( 46 );
+    for ( unsigned int i=0;i<46;i++ )
+    {
+        strConfig ( i ) = config[i];
+        strVelo ( i ) = velo[i];
+    }
+
+    attRobot->currentConfiguration ( strConfig );
+    attRobot->currentVelocity ( strVelo );
+    attRobot->computeForwardKinematics();
+
+    matrix4d m;
+    M4_IJ ( m,0,0 ) = -0.954725;
+    M4_IJ ( m,0,1 ) =  0.297489;
+    M4_IJ ( m,0,2 ) = 5.55654e-18;
+    M4_IJ ( m,0,3 ) =  2.5253;
+
+    M4_IJ ( m,1,0 ) = -0.297489;
+    M4_IJ ( m,1,1 ) =  -0.954725;
+    M4_IJ ( m,1,2 ) = 0;
+    M4_IJ ( m,1,3 ) =  0.104594;
+
+    M4_IJ ( m,2,0 ) = -5.55654e-18;
+    M4_IJ ( m,2,1 ) =  0;
+    M4_IJ ( m,2,2 ) = 1;
+    M4_IJ ( m,2,3 ) =  0.104998;
+
+
+
+    std::vector<CjrlGikStateConstraint*> tasks;
+    ChppGikTransformationConstraint fc ( *attRobot,*attRobot->leftFoot(),vector3d ( 0,0,0 ),m );
+    tasks.push_back ( &fc );
+    ChppGikComConstraint comc ( *attRobot,2.49362,0.192589 );
+    tasks.push_back ( &comc );
+
+    ChppGikPositionConstraint posc ( *attRobot,*attRobot->rightWrist(),vector3d ( 0,0,-0.17 ),vector3d ( 1.78656,0,0.0294494 ) );
+    tasks.push_back ( &posc );
+
+
+    double cfgcstr[] = {3.44955,0.147283,0.668866,0,1.27224,0,-0.373352,0.214087,-1.28175,0.65467,-0.284436,0.43532,-0.447899,0.535548,-0.707108,2.17918,-0.115944,-0.187288,0.0690899,0.327885,-0.515242,0.483151,-1.71429,-1.29046,-1.16917,-1.48978,0.972735,0.703203,0,0.128455,0.799528,1.21547,-2.15955,-0.350344,-1.00442,0,0,0,0,0,0,0,0,0,0,0};
+
+    vectorN cfcConfig ( 46 );
+    for ( unsigned int i=0;i<46;i++ )
+cfcConfig ( i ) = cfgcstr[i];
+
+ChppGikConfigurationConstraint cfc ( *attRobot, cfcConfig, attStandingRobot->maskFactory()->wholeBodyMask() );
+    tasks.push_back ( &cfc );
+
+
+    solver.prepare ( tasks );
+    solver.solve ( tasks );
+
+//    attStandingRobot->updateRobot ( solver.solutionRootPose(),solver.solutionJointConfiguration(),0.005 );
+    attRobot->currentConfiguration(solver.solution());
+    attRobot->computeForwardKinematics();
+
+    std::cout << attRobot->currentConfiguration() << std::endl;
+    */
 }
 
 ChppGikTest::~ChppGikTest()
@@ -68,17 +143,17 @@ ChppGikTest::~ChppGikTest()
     delete attMotion;
 }
 
-void ChppGikTest::elementReach(bool taskIsForRightHand,
-                              const vector3d& inReachTarget,
-                              const vector3d& inGazeTarget)
+void ChppGikTest::elementReach ( bool taskIsForRightHand,
+                                 const vector3d& inReachTarget,
+                                 const vector3d& inGazeTarget )
 {
     vectorN BackupConfig = attStandingRobot->robot()->currentConfiguration();
-    
+
     std::vector<CjrlGikStateConstraint*> tasks;
     CjrlJoint* joint;
     vector3d lpoint;
     CjrlHand* hand;
-    if (taskIsForRightHand)
+    if ( taskIsForRightHand )
     {
         joint = attStandingRobot->robot()->rightWrist();
         hand =  attStandingRobot->robot()->rightHand();
@@ -91,71 +166,72 @@ void ChppGikTest::elementReach(bool taskIsForRightHand,
     }
     lpoint = hand->centerInWristFrame();
 
-    
-    tasks.push_back(new ChppGikTransformationConstraint(*(attStandingRobot->robot()),*attStandingRobot->robot()->rightFoot(),vector3d(0,0,0),attStandingRobot->robot()->rightFoot()->currentTransformation()) );
-    
-    tasks.push_back(new ChppGikComConstraint( *(attStandingRobot->robot()),attStandingRobot->robot()->positionCenterOfMass()[0],attStandingRobot->robot()->positionCenterOfMass()[1]) );
-    
-    tasks.push_back(new ChppGikPositionConstraint(*(attStandingRobot->robot()),*joint,lpoint,inReachTarget) );
 
-    tasks.push_back(new ChppGikGazeConstraint(*(attStandingRobot->robot()), inGazeTarget));
+    tasks.push_back ( new ChppGikTransformationConstraint ( * ( attStandingRobot->robot() ),*attStandingRobot->robot()->rightFoot(),vector3d ( 0,0,0 ),attStandingRobot->robot()->rightFoot()->currentTransformation() ) );
 
-    std::vector<double> dampers(tasks.size(),1.0);
-    //dampers[0] = dampers[1] = 0.0;
-    solveStack( tasks, dampers );
+    tasks.push_back ( new ChppGikComConstraint ( * ( attStandingRobot->robot() ),attStandingRobot->robot()->positionCenterOfMass() [0],attStandingRobot->robot()->positionCenterOfMass() [1] ) );
 
-    for (unsigned int i=0;i<tasks.size();i++)
+    tasks.push_back ( new ChppGikPositionConstraint ( * ( attStandingRobot->robot() ),*joint,lpoint,inReachTarget ) );
+
+    tasks.push_back ( new ChppGikGazeConstraint ( * ( attStandingRobot->robot() ), inGazeTarget ) );
+
+    std::vector<double> dampers ( tasks.size(),1.0 );
+    dampers[0] = dampers[1] = 0.0;
+
+    solveStack ( tasks, dampers );
+
+    for ( unsigned int i=0;i<tasks.size();i++ )
         delete tasks[i];
-    
-    
-    attStandingRobot->staticState( BackupConfig );
+
+
+    attStandingRobot->staticState ( BackupConfig );
 }
-        
-void ChppGikTest::solveStack(std::vector<CjrlGikStateConstraint*>& inConstraints, const std::vector<double>& inDamp)
+
+void ChppGikTest::solveStack ( std::vector<CjrlGikStateConstraint*>& inConstraints, const std::vector<double>& inDamp )
 {
-    ChppRobotMotion gMotion(attStandingRobot->robot(),0.0,attSamplingPeriod);
+    ChppRobotMotion gMotion ( attStandingRobot->robot(),0.0,attSamplingPeriod );
     vector3d dummy;
     std::vector<double> prevVals, curVals;
     std::vector<double> dampers = inDamp;
 
-    
 
-    ChppGikSolver attGikSolver(*attStandingRobot->robot());
-    
-    attGikSolver.rootJoint( *attStandingRobot->robot()->leftFoot() );
-    
+
+    ChppGikSolver attGikSolver ( *attStandingRobot->robot() );
+
+    attGikSolver.rootJoint ( *attStandingRobot->robot()->leftFoot() );
+
     vectorN weights = attStandingRobot->maskFactory()->wholeBodyMask();
-    subrange(weights,0,6) = zero_vector<double>(6);
-    attGikSolver.weights( weights );
-            
-    attGikSolver.prepare( inConstraints );
+    subrange ( weights,0,6 ) = zero_vector<double> ( 6 );
+    attGikSolver.weights ( weights );
+
+    attGikSolver.prepare ( inConstraints );
 
     bool breakLoop = false;
     double minProgress = 1e-4;
-    while (!breakLoop)
+    while ( !breakLoop )
     {
-        for (unsigned int i = 0; i<inConstraints.size();i++)
+        for ( unsigned int i = 0; i<inConstraints.size();i++ )
         {
-            prevVals.push_back(norm_2(inConstraints[i]->value()));
-            curVals.push_back(prevVals[i]);
+            prevVals.push_back ( norm_2 ( inConstraints[i]->value() ) );
+            curVals.push_back ( prevVals[i] );
         }
 
         //attGikSolver->solve( inConstraints );
-        attGikSolver.solve( inConstraints, dampers);
-        attStandingRobot->updateRobot(attGikSolver.solutionRootPose(), attGikSolver.solutionJointConfiguration(), attSamplingPeriod);
-        gMotion.appendSample( attStandingRobot->robot()->currentConfiguration() ,dummy,dummy,dummy,dummy);
-        for (unsigned int i = 0; i<inConstraints.size();i++)
+        attGikSolver.solve ( inConstraints, dampers );
+        attStandingRobot->updateRobot ( attGikSolver.solutionRootPose(), attGikSolver.solutionJointConfiguration(), attSamplingPeriod );
+        gMotion.appendSample ( attStandingRobot->robot()->currentConfiguration() ,dummy,dummy,dummy,dummy );
+        for ( unsigned int i = 0; i<inConstraints.size();i++ )
         {
             inConstraints[i]->computeValue();
             inConstraints[i]->value();
-            curVals[i] = norm_2(inConstraints[i]->value());
+            curVals[i] = norm_2 ( inConstraints[i]->value() );
         }
 
-        if (norm_2(attStandingRobot->robot()->currentVelocity())<1e-4)
+        if ( norm_2 ( attStandingRobot->robot()->currentVelocity() ) <1e-4 )
             breakLoop = true;
         else
             breakLoop = false;
-        
+
         /*
         breakLoop = true;
         for (unsigned int i = 0; i<inConstraints.size();i++)
@@ -182,7 +258,7 @@ void ChppGikTest::solveStack(std::vector<CjrlGikStateConstraint*>& inConstraints
 
 
 
-    gMotion.dumpTo( "damped" );
+    gMotion.dumpTo ( "damped" );
 }
 
 void ChppGikTest::createHumanoidRobot()
@@ -199,69 +275,69 @@ void ChppGikTest::createHumanoidRobot()
     attRobot = jrlRobotFactory.createhumanoidDynamicRobot();
 
     dynamicsJRLJapan::HumanoidDynamicMultiBody *aHDMB;
-    aHDMB = (dynamicsJRLJapan::HumanoidDynamicMultiBody*) attRobot;
+    aHDMB = ( dynamicsJRLJapan::HumanoidDynamicMultiBody* ) attRobot;
 
     std::string path = "./";
     std::string name = "HRP2.wrl";
-    aHDMB->parserVRML(path,name,"./HRP2LinkJointRank.xml");
+    aHDMB->parserVRML ( path,name,"./HRP2LinkJointRank.xml" );
     std::string aName="./HRP2Specificities.xml";
-    aHDMB->SetHumanoidSpecificitiesFile(aName);
-    aHDMB->SetTimeStep(attSamplingPeriod);
-    aHDMB->setComputeVelocity(true);
-    aHDMB->setComputeMomentum(true);
-    aHDMB->setComputeCoM(true);
-    aHDMB->setComputeAcceleration(true);
-    aHDMB->setComputeZMP(true);
+    aHDMB->SetHumanoidSpecificitiesFile ( aName );
+    aHDMB->SetTimeStep ( attSamplingPeriod );
+    aHDMB->setComputeVelocity ( true );
+    aHDMB->setComputeMomentum ( true );
+    aHDMB->setComputeCoM ( true );
+    aHDMB->setComputeAcceleration ( true );
+    aHDMB->setComputeZMP ( true );
 
-    aHDMB->setComputeSkewCoM(false);
-    aHDMB->setComputeAccelerationCoM(false);
-    aHDMB->setComputeBackwardDynamics(false);
+    aHDMB->setComputeSkewCoM ( false );
+    aHDMB->setComputeAccelerationCoM ( false );
+    aHDMB->setComputeBackwardDynamics ( false );
 
 
 
     unsigned int nDof = attRobot->numberDof();
-    vectorN halfsittingConf(nDof);
+    vectorN halfsittingConf ( nDof );
 
     //Half sitting
     double dInitPos[40] =
-        {
-            0.0, 0.0, -26.0, 50.0, -24.0, 0.0, // right leg
+    {
+        0.0, 0.0, -26.0, 50.0, -24.0, 0.0, // right leg
 
-            0.0, 0.0, -26.0, 50.0, -24.0, 0.0, // left leg
+        0.0, 0.0, -26.0, 50.0, -24.0, 0.0, // left leg
 
-            0.0, 0.0, // chest
+        0.0, 0.0, // chest
 
-            0.0, 0.0, // head
+        0.0, 0.0, // head
 
-            15.0, -10.0, 0.0, -30.0, 0.0, 0.0, // right arm
+        15.0, -10.0, 0.0, -30.0, 0.0, 0.0, // right arm
 
-            10.0, // right hand clench
+        10.0, // right hand clench
 
-            15.0,  10.0, 0.0, -30.0, 0.0, 0.0, // left arm
+        15.0,  10.0, 0.0, -30.0, 0.0, 0.0, // left arm
 
-            10.0, // left hand clench
+        10.0, // left hand clench
 
-            -10.0, 10.0, -10.0, 10.0, -10.0, // right hand parallel mechanism
-            -10.0, 10.0, -10.0, 10.0, -10.0  // left hand parallel mechanism
-        };
+        -10.0, 10.0, -10.0, 10.0, -10.0, // right hand parallel mechanism
+        -10.0, 10.0, -10.0, 10.0, -10.0  // left hand parallel mechanism
+    };
 
     //waist x y z
-    halfsittingConf(0) = 0.0;
-    halfsittingConf(1) = 0.0;
-    halfsittingConf(2) = 0.6487;
+    halfsittingConf ( 0 ) = 0.0;
+    halfsittingConf ( 1 ) = 0.0;
+    halfsittingConf ( 2 ) = 0.6487;
     //waist roll pitch yaw
-    halfsittingConf(3) = 0.0;
-    halfsittingConf(4) = 0.0;
-    halfsittingConf(5) = 0.0;
+    halfsittingConf ( 3 ) = 0.0;
+    halfsittingConf ( 4 ) = 0.0;
+    halfsittingConf ( 5 ) = 0.0;
 
     //joints
-    for(unsigned int i=6;i<nDof;i++)
-        halfsittingConf(i) = dInitPos[i-6]*M_PI/180;
+    for ( unsigned int i=6;i<nDof;i++ )
+        halfsittingConf ( i ) = dInitPos[i-6]*M_PI/180;
 
-    zero_vector<double> zeros(attRobot->numberDof());
-    attRobot->currentConfiguration(halfsittingConf);
-    attRobot->currentVelocity(zeros);
-    attRobot->currentAcceleration(zeros);
+    zero_vector<double> zeros ( attRobot->numberDof() );
+    attRobot->currentConfiguration ( halfsittingConf );
+    attRobot->currentVelocity ( zeros );
+    attRobot->currentAcceleration ( zeros );
     attRobot->computeForwardKinematics();
 
     //set gaze origin and direction
@@ -274,13 +350,13 @@ void ChppGikTest::createHumanoidRobot()
     gazeOrigin[1] = 0;
     gazeOrigin[2] = 0.118;
 
-    aHDMB->gaze((const vector3d&)gazeDir,(const vector3d&)gazeOrigin);
+    aHDMB->gaze ( ( const vector3d& ) gazeDir, ( const vector3d& ) gazeOrigin );
 
-    attStandingRobot = new ChppGikStandingRobot(attRobot);
-    attStandingRobot->staticState(halfsittingConf);
+    attStandingRobot = new ChppGikStandingRobot ( attRobot );
+    attStandingRobot->staticState ( halfsittingConf );
 }
 
-void ChppGikTest::waist2worldPosition(vector3d& inWaistPosition, vector3d& outWorldPosition)
+void ChppGikTest::waist2worldPosition ( vector3d& inWaistPosition, vector3d& outWorldPosition )
 {
     matrix4d m;
 
@@ -288,22 +364,22 @@ void ChppGikTest::waist2worldPosition(vector3d& inWaistPosition, vector3d& outWo
     outWorldPosition = m * inWaistPosition;
 }
 
-void ChppGikTest::leftFoot2worldPosition(vector3d& inLFootPosition, vector3d& outWorldPosition)
+void ChppGikTest::leftFoot2worldPosition ( vector3d& inLFootPosition, vector3d& outWorldPosition )
 {
     matrix4d m = attRobot->leftFoot()->currentTransformation();
-    MAL_S4x4_MATRIX_ACCESS_I_J(m,2,3) = MAL_S4x4_MATRIX_ACCESS_I_J(m,2,3) - attRobot->footHeight();
+    MAL_S4x4_MATRIX_ACCESS_I_J ( m,2,3 ) = MAL_S4x4_MATRIX_ACCESS_I_J ( m,2,3 ) - attRobot->footHeight();
     outWorldPosition = m * inLFootPosition;
 }
 
-void ChppGikTest::dumpFilesAndGetLastConfig(ChppGikRobotTask* robotTask,const char* inFilename, vectorN& outLastConfig)
+void ChppGikTest::dumpFilesAndGetLastConfig ( ChppGikRobotTask* robotTask,const char* inFilename, vectorN& outLastConfig )
 {
     //dump files
-    robotTask->solutionMotion().dumpTo( inFilename );
+    robotTask->solutionMotion().dumpTo ( inFilename );
 
     double eT = robotTask->solutionMotion().endTime();
-    bool assertion = robotTask->solutionMotion().configAtTime(eT, outLastConfig);
+    bool assertion = robotTask->solutionMotion().configAtTime ( eT, outLastConfig );
 
-    if (!assertion)
+    if ( !assertion )
         std::cout << "Mysterious debug: an unexpected problem happended !! abort now !!\n";
 
 }
@@ -328,62 +404,62 @@ void  ChppGikTest::interprete()
 
     string motion_file = "GIK_motion";
 
-    while (!do_quit)
+    while ( !do_quit )
     {
-        if (printit)
+        if ( printit )
             printMenu();
         printit = true;
 
-        getline(cin,line);
+        getline ( cin,line );
         stream.clear();
-        stream.str(line);
+        stream.str ( line );
         stream >> command;
 
-        if (strcmp(command, "look")==0)
+        if ( strcmp ( command, "look" ) ==0 )
         {
-            if (!read3coordinates(stream, position))
+            if ( !read3coordinates ( stream, position ) )
                 continue;
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
             }
-            lookat(position,motion_file.c_str(),currentConfig, resultConfig);
+            lookat ( position,motion_file.c_str(),currentConfig, resultConfig );
             continue;
         }
 
-        if (strcmp(command, "hand")==0)
+        if ( strcmp ( command, "hand" ) ==0 )
         {
 
-            if (!determineSide(stream, SideIsRight))
+            if ( !determineSide ( stream, SideIsRight ) )
                 continue;
-            if (!read3coordinates(stream, position))
+            if ( !read3coordinates ( stream, position ) )
                 continue;
 
             bool doOrientation = !stream.eof();
-            if (doOrientation)
-                if (!read3coordinates(stream, orientation))
+            if ( doOrientation )
+                if ( !read3coordinates ( stream, orientation ) )
                     continue;
 
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
             }
 
-            handat(SideIsRight,doOrientation,position,orientation,motion_file.c_str(),currentConfig, resultConfig);
+            handat ( SideIsRight,doOrientation,position,orientation,motion_file.c_str(),currentConfig, resultConfig );
             continue;
         }
 
-        if (strcmp(command, "step")==0)
+        if ( strcmp ( command, "step" ) ==0 )
         {
 
-            if (!determineSide(stream, SideIsRight))
+            if ( !determineSide ( stream, SideIsRight ) )
                 continue;
 
-            for (unsigned int k=0; k<3;k++)
+            for ( unsigned int k=0; k<3;k++ )
             {
-                if (!stream.eof())
+                if ( !stream.eof() )
                     stream >> position[k];
                 else
                 {
@@ -393,98 +469,98 @@ void  ChppGikTest::interprete()
             }
 
 
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
             }
 
-            step(SideIsRight,position,motion_file.c_str(),currentConfig, resultConfig);
+            step ( SideIsRight,position,motion_file.c_str(),currentConfig, resultConfig );
             continue;
         }
 
-        if (strcmp(command, "lookhand")==0)
+        if ( strcmp ( command, "lookhand" ) ==0 )
         {
 
-            if (!determineSide(stream, SideIsRight))
+            if ( !determineSide ( stream, SideIsRight ) )
                 continue;
-            if (!read3coordinates(stream, position))
+            if ( !read3coordinates ( stream, position ) )
                 continue;
 
             bool doOrientation = !stream.eof();
-            if (doOrientation)
-                if (!read3coordinates(stream, orientation))
+            if ( doOrientation )
+                if ( !read3coordinates ( stream, orientation ) )
                     continue;
 
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
             }
 
-            lookhandat(SideIsRight,doOrientation,position,orientation,motion_file.c_str(),currentConfig, resultConfig);
+            lookhandat ( SideIsRight,doOrientation,position,orientation,motion_file.c_str(),currentConfig, resultConfig );
             continue;
         }
 
-        if (strcmp(command, "closehand")==0)
+        if ( strcmp ( command, "closehand" ) ==0 )
         {
-            if (!determineSide(stream, SideIsRight))
+            if ( !determineSide ( stream, SideIsRight ) )
                 continue;
-            if (stream.eof())
+            if ( stream.eof() )
                 continue;
 
             double valTighten;
             stream >> valTighten;
 
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
             }
 
-            handGrasp(SideIsRight, valTighten, motion_file.c_str(),currentConfig, resultConfig);
+            handGrasp ( SideIsRight, valTighten, motion_file.c_str(),currentConfig, resultConfig );
             continue;
         }
 
-        if (strcmp(command, "openhand")==0)
+        if ( strcmp ( command, "openhand" ) ==0 )
         {
-            if (!determineSide(stream, SideIsRight))
+            if ( !determineSide ( stream, SideIsRight ) )
                 continue;
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
             }
             double valTighten = 0.0;
-            handGrasp(SideIsRight, valTighten,motion_file.c_str(),currentConfig, resultConfig);
+            handGrasp ( SideIsRight, valTighten,motion_file.c_str(),currentConfig, resultConfig );
             continue;
         }
 
-        if (strcmp(command, "stepback")==0)
+        if ( strcmp ( command, "stepback" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
             }
-            stepback(motion_file.c_str(),currentConfig, resultConfig);
+            stepback ( motion_file.c_str(),currentConfig, resultConfig );
             continue;
         }
 
-        if (strcmp(command, "halfsitting")==0)
+        if ( strcmp ( command, "halfsitting" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
             }
-            halfsitting(motion_file.c_str(),currentConfig, resultConfig);
+            halfsitting ( motion_file.c_str(),currentConfig, resultConfig );
             continue;
         }
 
-        if (strcmp(command, "hrp")==0)
+        if ( strcmp ( command, "hrp" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
@@ -492,14 +568,14 @@ void  ChppGikTest::interprete()
             string cmd;
 
             cmd = "scp " + motion_file + ".* hrp2014c:/home/okanoun/Demo16Avril2007/.";
-            system(cmd.c_str());
+            system ( cmd.c_str() );
 
             currentConfig = resultConfig;
         }
 
-        if (strcmp(command, "apply")==0)
+        if ( strcmp ( command, "apply" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
@@ -507,9 +583,9 @@ void  ChppGikTest::interprete()
             currentConfig = resultConfig;
         }
 
-        if (strcmp(command, "switch")==0)
+        if ( strcmp ( command, "switch" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
@@ -517,9 +593,9 @@ void  ChppGikTest::interprete()
             attModeWaist = !attModeWaist;
         }
 
-        if (strcmp(command, "motionclear")==0)
+        if ( strcmp ( command, "motionclear" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
@@ -527,9 +603,9 @@ void  ChppGikTest::interprete()
             clearMotion();
         }
 
-        if (strcmp(command, "motiondump")==0)
+        if ( strcmp ( command, "motiondump" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
@@ -537,9 +613,9 @@ void  ChppGikTest::interprete()
             dumpMotion();
         }
 
-        if (strcmp(command, "motionkeep")==0)
+        if ( strcmp ( command, "motionkeep" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
@@ -547,15 +623,15 @@ void  ChppGikTest::interprete()
             keepMotion();
         }
 
-        if (strcmp(command, "motionname")==0)
+        if ( strcmp ( command, "motionname" ) ==0 )
         {
-            setMotionName(stream);
+            setMotionName ( stream );
         }
 
 
-        if (strcmp(command, "help")==0)
+        if ( strcmp ( command, "help" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
@@ -565,9 +641,9 @@ void  ChppGikTest::interprete()
             continue;
         }
 
-        if (strcmp(command, "quit")==0)
+        if ( strcmp ( command, "quit" ) ==0 )
         {
-            if (!stream.eof())
+            if ( !stream.eof() )
             {
                 std::cout << "check arguments\n";
                 continue;
@@ -580,45 +656,45 @@ void  ChppGikTest::interprete()
 
 
 
-void ChppGikTest::lookat(vector3d& targetPoint, const char* filename, vectorN& curConfig, vectorN& resultConfig)
+void ChppGikTest::lookat ( vector3d& targetPoint, const char* filename, vectorN& curConfig, vectorN& resultConfig )
 {
     attLastRobotTask = attWholeBodyTask;
 
     unsigned int priority;
     //the robot is static at the current configuration
-    attStandingRobot->staticState(curConfig);
+    attStandingRobot->staticState ( curConfig );
     //Reset planner
     attWholeBodyTask->reset();
 
-    CjrlGikGazeConstraint* gc = attGikFactory.createGazeConstraint(*attRobot, targetPoint);
+    CjrlGikGazeConstraint* gc = attGikFactory.createGazeConstraint ( *attRobot, targetPoint );
     priority = 1;
 
-    attWholeBodyTask->addStateConstraint(gc,priority);
+    attWholeBodyTask->addStateConstraint ( gc,priority );
 
     bool solved = attWholeBodyTask->solve();
 
-    if(solved)
-        dumpFilesAndGetLastConfig(attWholeBodyTask, filename, resultConfig);
+    if ( solved )
+        dumpFilesAndGetLastConfig ( attWholeBodyTask, filename, resultConfig );
     else
         std::cout << "\nNot solved.\n";
 
     delete gc;
 }
 
-void ChppGikTest::handat(bool taskIsForRightHand, bool doOrientation,vector3d& targetPoint, vector3d& targetOrientation,const char* filename, vectorN& curConfig, vectorN& resultConfig)
+void ChppGikTest::handat ( bool taskIsForRightHand, bool doOrientation,vector3d& targetPoint, vector3d& targetOrientation,const char* filename, vectorN& curConfig, vectorN& resultConfig )
 {
     attLastRobotTask = attWholeBodyTask;
 
     unsigned int priority;
     //the robot is static at the current configuration
-    attStandingRobot->staticState(curConfig);
+    attStandingRobot->staticState ( curConfig );
     //Reset planner
     attWholeBodyTask->reset();
 
     CjrlJoint* joint = 0;
     CjrlHand* hand = 0;
 
-    if (taskIsForRightHand)
+    if ( taskIsForRightHand )
     {
         joint = attRobot->rightWrist();
         hand = attRobot->rightHand();
@@ -637,21 +713,21 @@ void ChppGikTest::handat(bool taskIsForRightHand, bool doOrientation,vector3d& t
     CjrlGikPositionConstraint* psc = 0;
     CjrlGikParallelConstraint* poc = 0;
 
-    psc = attGikFactory.createPositionConstraint(*attRobot,*joint,lpoint,targetPoint);
+    psc = attGikFactory.createPositionConstraint ( *attRobot,*joint,lpoint,targetPoint );
     priority = 1;
-    attWholeBodyTask->addStateConstraint(psc,priority);
+    attWholeBodyTask->addStateConstraint ( psc,priority );
 
-    if (doOrientation)
+    if ( doOrientation )
     {
-        poc = attGikFactory.createParallelConstraint(*attRobot,*joint,laxis,targetOrientation);
+        poc = attGikFactory.createParallelConstraint ( *attRobot,*joint,laxis,targetOrientation );
         priority = 1;
-        attWholeBodyTask->addStateConstraint(poc,priority);
+        attWholeBodyTask->addStateConstraint ( poc,priority );
     }
 
     bool solved = attWholeBodyTask->solve();
 
-    if(solved)
-        dumpFilesAndGetLastConfig(attWholeBodyTask,filename, resultConfig);
+    if ( solved )
+        dumpFilesAndGetLastConfig ( attWholeBodyTask,filename, resultConfig );
     else
         std::cout<< "\nNot solved.\n";
 
@@ -660,20 +736,20 @@ void ChppGikTest::handat(bool taskIsForRightHand, bool doOrientation,vector3d& t
 
 }
 
-void ChppGikTest::lookhandat(bool taskIsForRightHand, bool doOrientation,vector3d& targetPoint, vector3d& targetOrientation,const char* filename, vectorN& curConfig, vectorN& resultConfig)
+void ChppGikTest::lookhandat ( bool taskIsForRightHand, bool doOrientation,vector3d& targetPoint, vector3d& targetOrientation,const char* filename, vectorN& curConfig, vectorN& resultConfig )
 {
     attLastRobotTask = attWholeBodyTask;
 
     unsigned int priority;
     //the robot is static at the current configuration
-    attStandingRobot->staticState(curConfig);
+    attStandingRobot->staticState ( curConfig );
     //Reset planner
     attWholeBodyTask->reset();
 
     CjrlJoint* joint = 0;
     CjrlHand* hand = 0;
 
-    if (taskIsForRightHand)
+    if ( taskIsForRightHand )
     {
         joint = attRobot->rightWrist();
         hand = attRobot->rightHand();
@@ -692,26 +768,26 @@ void ChppGikTest::lookhandat(bool taskIsForRightHand, bool doOrientation,vector3
     CjrlGikPositionConstraint* psc = 0;
     CjrlGikParallelConstraint* poc = 0;
 
-    psc = attGikFactory.createPositionConstraint(*attRobot,*joint,lpoint,targetPoint);
+    psc = attGikFactory.createPositionConstraint ( *attRobot,*joint,lpoint,targetPoint );
     priority = 1;
-    attWholeBodyTask->addStateConstraint(psc,priority);
+    attWholeBodyTask->addStateConstraint ( psc,priority );
 
-    if (doOrientation)
+    if ( doOrientation )
     {
-        poc = attGikFactory.createParallelConstraint(*attRobot,*joint,laxis,targetOrientation);
+        poc = attGikFactory.createParallelConstraint ( *attRobot,*joint,laxis,targetOrientation );
         priority = 1;
-        attWholeBodyTask->addStateConstraint(poc,priority);
+        attWholeBodyTask->addStateConstraint ( poc,priority );
     }
 
     //add gaze constraint: look at the hand target
-    CjrlGikGazeConstraint* gc = attGikFactory.createGazeConstraint(*attRobot, targetPoint);
+    CjrlGikGazeConstraint* gc = attGikFactory.createGazeConstraint ( *attRobot, targetPoint );
     priority = 2;
-    attWholeBodyTask->addStateConstraint(gc,priority);
+    attWholeBodyTask->addStateConstraint ( gc,priority );
 
     bool solved = attWholeBodyTask->solve();
 
-    if(solved)
-        dumpFilesAndGetLastConfig(attWholeBodyTask,filename, resultConfig);
+    if ( solved )
+        dumpFilesAndGetLastConfig ( attWholeBodyTask,filename, resultConfig );
     else
         std::cout<< "\nNot solved.\n";
 
@@ -722,87 +798,87 @@ void ChppGikTest::lookhandat(bool taskIsForRightHand, bool doOrientation,vector3
 }
 
 
-void ChppGikTest::handGrasp(bool taskIsForRightHand, double valTighten, const char* filename, vectorN& curConfig, vectorN& resultConfig)
+void ChppGikTest::handGrasp ( bool taskIsForRightHand, double valTighten, const char* filename, vectorN& curConfig, vectorN& resultConfig )
 {
     attLastRobotTask = attHandTask;
 
     //the robot is static at the current configuration
-    attStandingRobot->staticState(curConfig);
+    attStandingRobot->staticState ( curConfig );
 
-    attHandTask->forRightHand(taskIsForRightHand);
-    attHandTask->targetClench(valTighten);
+    attHandTask->forRightHand ( taskIsForRightHand );
+    attHandTask->targetClench ( valTighten );
 
     bool solved = attHandTask->solve();
 
-    if(solved)
-        dumpFilesAndGetLastConfig(attHandTask, filename, resultConfig);
+    if ( solved )
+        dumpFilesAndGetLastConfig ( attHandTask, filename, resultConfig );
     else
         std::cout <<"\nNot solved.\n";
 }
 
 
-void ChppGikTest::stepback(const char* filename, vectorN& curConfig, vectorN& resultConfig)
+void ChppGikTest::stepback ( const char* filename, vectorN& curConfig, vectorN& resultConfig )
 {
     attLastRobotTask = attStepBackTask;
 
     //the robot is static at the current configuration
-    attStandingRobot->staticState(curConfig);
+    attStandingRobot->staticState ( curConfig );
 
     bool solved = attStepBackTask->solve();
 
-    if (solved)
+    if ( solved )
     {
-        if (!attStepBackTask->solutionMotion().empty())
-            dumpFilesAndGetLastConfig(attStepBackTask,filename, resultConfig);
+        if ( !attStepBackTask->solutionMotion().empty() )
+            dumpFilesAndGetLastConfig ( attStepBackTask,filename, resultConfig );
     }
     else
         std::cout <<"\nNot solved.\n";
 }
 
-void ChppGikTest::step(bool inForRight, const vector3d& targetFoot, const char* filename, vectorN& curConfig, vectorN& resultConfig)
+void ChppGikTest::step ( bool inForRight, const vector3d& targetFoot, const char* filename, vectorN& curConfig, vectorN& resultConfig )
 {
     attLastRobotTask = attStepBackTask;
 
     //the robot is static at the current configuration
-    attStandingRobot->staticState(curConfig);
+    attStandingRobot->staticState ( curConfig );
 
     ChppGikSupportPolygon* curSP = attStandingRobot->supportPolygon();
-    if (!curSP)
+    if ( !curSP )
     {
         std::cout << "Could not step, incorrect support polygon" << std::endl;
         return;
     }
-    if (!(curSP->isDoubleSupport()))
+    if ( ! ( curSP->isDoubleSupport() ) )
     {
         std::cout << "Could not step, support polygon not double" << std::endl;
         return;
     }
 
-    ChppGikStepTask stepTask(attStandingRobot,attSamplingPeriod,inForRight,targetFoot[0],targetFoot[1],targetFoot[2]);
+    ChppGikStepTask stepTask ( attStandingRobot,attSamplingPeriod,inForRight,targetFoot[0],targetFoot[1],targetFoot[2] );
 
-    stepTask.showResolutionTime( true );
+    stepTask.showResolutionTime ( true );
     bool solved = stepTask.solve();
 
-    if (solved)
+    if ( solved )
     {
-        if (!stepTask.solutionMotion().empty())
-            dumpFilesAndGetLastConfig(&stepTask,filename, resultConfig);
+        if ( !stepTask.solutionMotion().empty() )
+            dumpFilesAndGetLastConfig ( &stepTask,filename, resultConfig );
     }
     else
         std::cout <<"\nNot solved.\n";
 }
 
-void ChppGikTest::halfsitting(const char* filename, vectorN& curConfig, vectorN& resultConfig)
+void ChppGikTest::halfsitting ( const char* filename, vectorN& curConfig, vectorN& resultConfig )
 {
     attLastRobotTask = attHalfSittingTask;
 
     //the robot is static at the current configuration
-    attStandingRobot->staticState(curConfig);
+    attStandingRobot->staticState ( curConfig );
 
     bool solved = attHalfSittingTask->solve();
 
-    if (solved)
-        dumpFilesAndGetLastConfig(attHalfSittingTask, filename, resultConfig);
+    if ( solved )
+        dumpFilesAndGetLastConfig ( attHalfSittingTask, filename, resultConfig );
     else
         std::cout <<"\nNot solved.\n";
 
@@ -815,7 +891,7 @@ void  ChppGikTest::printMenu()
 
     std::cout << "\n------------------------------\n";
 
-    if (attModeWaist)
+    if ( attModeWaist )
         std::cout <<  "-- Coordinates in: WAIST -----\n";
     else
         std::cout <<  "-- Coordinates in: LEFTFOOT --\n";
@@ -886,13 +962,13 @@ void  ChppGikTest::printHelp()
     std::cout << "\n";
 }
 
-bool ChppGikTest::read3coordinates(std::istringstream& stream, vector3d& coordinates)
+bool ChppGikTest::read3coordinates ( std::istringstream& stream, vector3d& coordinates )
 {
     vector3d inputVec;
     //read target point in waist frame
-    for (unsigned int i=0; i<3;i++)
+    for ( unsigned int i=0; i<3;i++ )
     {
-        if (!stream.eof())
+        if ( !stream.eof() )
             stream >> inputVec[i];
         else
         {
@@ -901,19 +977,19 @@ bool ChppGikTest::read3coordinates(std::istringstream& stream, vector3d& coordin
         }
     }
 
-    if (attModeWaist)
-        waist2worldPosition(inputVec, coordinates);
+    if ( attModeWaist )
+        waist2worldPosition ( inputVec, coordinates );
     else
-        leftFoot2worldPosition(inputVec, coordinates);
+        leftFoot2worldPosition ( inputVec, coordinates );
 
     return true;
 }
 
 
-bool ChppGikTest::determineSide(std::istringstream& stream, bool& isRight)
+bool ChppGikTest::determineSide ( std::istringstream& stream, bool& isRight )
 {
     char whichside[16];
-    if (!stream.eof())
+    if ( !stream.eof() )
         stream >> whichside;
     else
     {
@@ -921,9 +997,9 @@ bool ChppGikTest::determineSide(std::istringstream& stream, bool& isRight)
         return false;
     }
 
-    if (strcmp(whichside, "r")==0)
+    if ( strcmp ( whichside, "r" ) ==0 )
         isRight =  true;
-    else if (strcmp(whichside, "l")==0)
+    else if ( strcmp ( whichside, "l" ) ==0 )
         isRight = false;
     else
         return false;
@@ -937,21 +1013,21 @@ void ChppGikTest::clearMotion()
 
 void ChppGikTest::keepMotion()
 {
-    if (attLastRobotTask)
+    if ( attLastRobotTask )
     {
-        attMotion->appendMotion(attLastRobotTask->solutionMotion());
+        attMotion->appendMotion ( attLastRobotTask->solutionMotion() );
         attLastRobotTask = 0;
     }
 }
 
 void ChppGikTest::dumpMotion()
 {
-    attMotion->dumpTo(attMotionName);
+    attMotion->dumpTo ( attMotionName );
 }
 
-void ChppGikTest::setMotionName(std::istringstream& stream)
+void ChppGikTest::setMotionName ( std::istringstream& stream )
 {
-    if (!stream.eof())
+    if ( !stream.eof() )
         stream >> attMotionName;
     else
     {
@@ -960,26 +1036,26 @@ void ChppGikTest::setMotionName(std::istringstream& stream)
     }
 }
 
-void ChppGikTest::goDownChain(const CjrlJoint* startJoint)
+void ChppGikTest::goDownChain ( const CjrlJoint* startJoint )
 {
     std::cout << "joint ranked " << startJoint->rankInConfiguration() << std::endl;
     std::cout << startJoint->currentTransformation() << std::endl;
 
-    if (startJoint->countChildJoints() != 0)
+    if ( startJoint->countChildJoints() != 0 )
     {
-        const CjrlJoint* childJoint = startJoint->childJoint(0);
-        goDownChain(childJoint);
+        const CjrlJoint* childJoint = startJoint->childJoint ( 0 );
+        goDownChain ( childJoint );
     }
 }
 
-void ChppGikTest::goDownTree(const CjrlJoint* startJoint)
+void ChppGikTest::goDownTree ( const CjrlJoint* startJoint )
 {
     std::cout << "joint ranked " << startJoint->rankInConfiguration() << std::endl;
     std::cout << startJoint->currentTransformation() << std::endl;
 
-    for (unsigned int i = 0; i<startJoint->countChildJoints(); i++)
+    for ( unsigned int i = 0; i<startJoint->countChildJoints(); i++ )
     {
-        const CjrlJoint* childJoint = startJoint->childJoint(i);
-        goDownTree(childJoint);
+        const CjrlJoint* childJoint = startJoint->childJoint ( i );
+        goDownTree ( childJoint );
     }
 }

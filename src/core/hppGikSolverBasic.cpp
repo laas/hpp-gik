@@ -153,7 +153,6 @@ bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
                 valInd++;
             }
         }
-
         noalias ( DeltaQ ) += prod ( NullSpace, Residual );
         if (inComputeNullspace)
         {
