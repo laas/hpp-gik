@@ -158,7 +158,8 @@ SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   
 #---------------------------------------------------------------------------
-TAGFILES               = @ABS_GIKTASK_PREFIX@/share/doc/doxytag/abstractGikTask.doxytag=@ABS_GIKTASK_PREFIX@/share/doc/abstractGikTask \
+TAGFILES               = @ABS_GIKTASK_DOCDIR@/html/abstractGikTask.doxytag=@ABS_GIKTASK_DOCDIR@/html \
+	@HRP2_DOCDIR@/html/hrp2Dynamics.doxytag=@HRP2_DOCDIR@/html
 
 GENERATE_TAGFILE       = hppGik.doxytag
 ALLEXTERNALS           = NO

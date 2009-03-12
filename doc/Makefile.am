@@ -5,7 +5,7 @@
 # Author: Florent Lamiraux
 #
 
-hppGikdir = $(datadir)/doc/hppGik
+hppGikdir = $(datadir)/doc/hppGik/html
 
 EXTRA_DIST = \
 	header.html \
@@ -20,8 +20,7 @@ install: html-doc
 	$(INSTALL_DATA) html/* $(hppGikdir)
 	mkdir -p $(hppGikdir)/pictures
 	$(INSTALL_DATA) $(srcdir)/pictures/* $(hppGikdir)/pictures
-	mkdir -p $(datadir)/doc/doxytag
-	$(INSTALL_DATA) hppGik.doxytag $(datadir)/doc/doxytag
+	$(INSTALL_DATA) hppGik.doxytag $(hppGikdir)
 
 html-doc: hpp.dox
 	doxygen $<

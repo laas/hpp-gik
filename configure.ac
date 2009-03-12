@@ -37,11 +37,14 @@ define(abstractgiktask_reqd, [abstractGikTask >= 2.0.99])
 AC_SUBST(ABSTRACTGIKTASK_REQD, "abstractgiktask_reqd")
 PKG_CHECK_MODULES(ABS_GIKTASK, abstractgiktask_reqd)
 ABS_GIKTASK_PREFIX=`$PKG_CONFIG abstractGikTask --variable=prefix`
+ABS_GIKTASK_DOCDIR=`$PKG_CONFIG abstractGikTask --variable=docdir`
 AC_SUBST(ABS_GIKTASK_CFLAGS)
 AC_SUBST(ABS_GIKTASK_LIBS)
+AC_SUBST(ABS_GIKTASK_DOCDIR)
 
 PKG_CHECK_MODULES(HRP2, hrp2Dynamics)
-HRP2_PREFIX=`$PKG_CONFIG hrp2Dynamics --variable=prefix`
+HRP2_DOCDIR=`$PKG_CONFIG hrp2Dynamics --variable=docdir`
+AC_SUBST(HRP2_DOCDIR)
 AC_SUBST(HRP2_CFLAGS)
 AC_SUBST(HRP2_LIBS)
 
