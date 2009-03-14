@@ -1,3 +1,9 @@
+hppGik 2.3 released March 14, 2009
+	
+	59. Removed extra flags in .pc file
+	58. Updated documentation build and install
+	57. Fixed bugs
+
 hppGik 2.2 released Thu 26 Feb 2009
 
 	56. Improved ChppGikSolver API
