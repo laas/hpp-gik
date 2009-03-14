@@ -54,6 +54,6 @@ libhppGik_la_CPPFLAGS=\
 	-I$(srcdir)/../include		\
 	$(ABS_GIKTASK_CFLAGS)		\
 	-DGAINDIR='"${datadir}/gik"'
-	
+
 libhppGik_la_LDFLAGS= $(ABS_GIKTASK_LIBS)	\
 	-release ${PACKAGE_VERSION}

@@ -8,6 +8,6 @@ docdir=@datadir@/doc/@PACKAGE_NAME@
 Name: @PACKAGE@
 Description: Implementation of abstract interface for Generalized Inverse Kinematics
 Version: @VERSION@
-Requires: @ABSTRACTGIKTASK_REQD@
-Libs: -L${libdir} @ABS_GIKTASK_LIBS@ -lhppGik
-Cflags: @ABS_GIKTASK_CFLAGS@ -I${includedir}/hppGik 
+Requires: @HRP2DYNAMICS_REQD@, @ABSTRACTGIKTASK_REQD@
+Libs: -L${libdir} -lhppGik
+Cflags: -I${includedir}/hppGik 
