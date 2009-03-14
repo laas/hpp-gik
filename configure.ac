@@ -7,7 +7,7 @@ dnl
 dnl   Author: Florent Lamiraux LAAS-CNRS
 dnl
 
-AC_INIT([hppGik],[2.2.99],[openrobots@laas.fr])
+AC_INIT([hppGik],[2.3],[openrobots@laas.fr])
 AC_PREREQ(2.59)
 
 if test "$CFLAGS$CXXFLAGS" = ""; then
@@ -33,7 +33,7 @@ if test "$setdefaultflags" = "yes"; then
   fi
 fi
 
-define(abstractgiktask_reqd, [abstractGikTask >= 2.0.99])
+define(abstractgiktask_reqd, [abstractGikTask >= 2.4])
 AC_SUBST(ABSTRACTGIKTASK_REQD, "abstractgiktask_reqd")
 PKG_CHECK_MODULES(ABS_GIKTASK, abstractgiktask_reqd)
 ABS_GIKTASK_PREFIX=`$PKG_CONFIG abstractGikTask --variable=prefix`
@@ -42,7 +42,9 @@ AC_SUBST(ABS_GIKTASK_CFLAGS)
 AC_SUBST(ABS_GIKTASK_LIBS)
 AC_SUBST(ABS_GIKTASK_DOCDIR)
 
-PKG_CHECK_MODULES(HRP2, hrp2Dynamics)
+define(hrp2dynamics_reqd, [hrp2Dynamics >= 1.1])
+AC_SUBST(HRP2DYNAMICS_REQD, "hrp2dynamics_reqd")
+PKG_CHECK_MODULES(HRP2, hrp2dynamics_reqd)
 HRP2_DOCDIR=`$PKG_CONFIG hrp2Dynamics --variable=docdir`
 AC_SUBST(HRP2_DOCDIR)
 AC_SUBST(HRP2_CFLAGS)
