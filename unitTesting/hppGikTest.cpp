@@ -352,7 +352,31 @@ void ChppGikTest::createHumanoidRobot()
 
     aHDMB->gaze ( ( const vector3d& ) gazeDir, ( const vector3d& ) gazeOrigin );
 
-    attStandingRobot = new ChppGikStandingRobot ( attRobot );
+    ChppGik2DShape leftFootShape, rightFootShape;
+    
+    ChppGik2DVertex vert;
+
+    vert.x = 0.135;
+    vert.y = 0.079;
+    leftFootShape.vertices.push_back ( vert );
+    vert.x = -0.105;
+    leftFootShape.vertices.push_back ( vert );
+    vert.y = -0.059;
+    leftFootShape.vertices.push_back ( vert );
+    vert.x = 0.135;
+    leftFootShape.vertices.push_back ( vert );
+    
+    vert.x = 0.135;
+    vert.y = 0.059;
+    rightFootShape.vertices.push_back ( vert );
+    vert.x = -0.105;
+    rightFootShape.vertices.push_back ( vert );
+    vert.y = -0.079;
+    rightFootShape.vertices.push_back ( vert );
+    vert.x = 0.135;
+    rightFootShape.vertices.push_back ( vert );
+    
+    attStandingRobot = new ChppGikStandingRobot ( *attRobot, leftFootShape, rightFootShape );
     attStandingRobot->staticState ( halfsittingConf );
 }
 

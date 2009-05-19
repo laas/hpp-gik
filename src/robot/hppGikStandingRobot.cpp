@@ -7,10 +7,12 @@
 
 using namespace boost::numeric::ublas;
 
-ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot* inRobot ) :attMaskFactory ( NULL )
+ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot, ChppGik2DShape& inLeftFootprintShape, ChppGik2DShape& inRightFootprintShape ) :attMaskFactory ( NULL )
 {
-    attRobot = inRobot;
-
+    attRobot = &inRobot;
+    attLeftFootShape = inLeftFootprintShape;
+    attRightFootShape = inRightFootprintShape;
+    
     attSupportPolygonConfig.resize ( attRobot->numberDof(),false );
 
     attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon ( attRobot->leftFoot()->currentTransformation(),attRobot->rightFoot()->currentTransformation(),attRobot->footHeight() );
@@ -28,49 +30,11 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot* inRobot )
     for ( unsigned int i=0; i < 3; i++ )
         attRelativeCOM[i] = attRelativeCOM[i] - M4_IJ ( attRFoot,i,3 );
     double yaw = atan2 ( M4_IJ ( attRFoot,1,0 ), M4_IJ ( attRFoot,0,0 ) );
-    //std::cout << "yaw "<< yaw <<"\n";
-    //std::cout << "attRelativeCOM " << attRelativeCOM <<"\n";
+
     double relcx = cos ( yaw ) * attRelativeCOM[0] + sin ( yaw ) * attRelativeCOM[1];
     double relcy = cos ( yaw ) * attRelativeCOM[1] - sin ( yaw ) * attRelativeCOM[0];
     attRelativeCOM[0] = relcx;
     attRelativeCOM[1] = relcy;
-    //std::cout << "relcx " << relcx <<"\n";
-    //std::cout << "relcy " << relcy <<"\n";
-
-    //hard coding for robot shapes
-    ChppGik2DVertex vert;
-    vert.x = 0.05;
-    vert.y = 0.05;
-    attWaistShape.vertices.push_back ( vert );
-    vert.x = -0.05;
-    vert.y = 0.07;
-    attWaistShape.vertices.push_back ( vert );
-    vert.y = -0.07;
-    attWaistShape.vertices.push_back ( vert );
-    vert.x = 0.05;
-    vert.y = -0.05;
-    attWaistShape.vertices.push_back ( vert );
-
-
-    vert.x = 0.135;
-    vert.y = 0.079;
-    attLeftFootShape.vertices.push_back ( vert );
-    vert.x = -0.105;
-    attLeftFootShape.vertices.push_back ( vert );
-    vert.y = -0.059;
-    attLeftFootShape.vertices.push_back ( vert );
-    vert.x = 0.135;
-    attLeftFootShape.vertices.push_back ( vert );
-
-    vert.x = 0.135;
-    vert.y = 0.059;
-    attRightFootShape.vertices.push_back ( vert );
-    vert.x = -0.105;
-    attRightFootShape.vertices.push_back ( vert );
-    vert.y = -0.079;
-    attRightFootShape.vertices.push_back ( vert );
-    vert.x = 0.135;
-    attRightFootShape.vertices.push_back ( vert );
 
     attConfiguration.resize ( attRobot->numberDof() );
 }
@@ -334,17 +298,10 @@ void ChppGikStandingRobot::computeFeet2DConvexHull ( std::vector<const ChppGikLi
     }
 }
 
-const ChppGik2DShape& ChppGikStandingRobot::waistShape() const
-{
-    return attWaistShape;
-}
-
-
 const ChppGik2DShape& ChppGikStandingRobot::leftFootShape() const
 {
     return attLeftFootShape;
 }
-
 
 const ChppGik2DShape& ChppGikStandingRobot::rightFootShape() const
 {
@@ -414,8 +371,6 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
 
     if ( !idem )
     {
-
-
         delete attCurrentSupportPolygon;
 
         attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon ( attRobot->leftFoot()->currentTransformation(),attRobot->rightFoot()->currentTransformation(),attRobot->footHeight() );

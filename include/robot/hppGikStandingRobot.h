@@ -33,7 +33,7 @@ public:
     /**
     \brief constructor. The passed robot should be in half sitting configuration. The world frame has its center on the ground on the middle of ankle projections, x axis pointing ahead, y axis to the left foot of the robot and z axis up.
     */
-    ChppGikStandingRobot(CjrlHumanoidDynamicRobot* inRobot);
+    ChppGikStandingRobot(CjrlHumanoidDynamicRobot& inRobot, ChppGik2DShape& inLeftFootprintShape, ChppGik2DShape& inRightFootprintShape);
 
     /**
     \brief Get the jrl robot
@@ -54,11 +54,6 @@ public:
     \brief Test position of left foot against right
     */
     bool leftFootAhead();
-
-    /**
-    \brief get the 2DShape representing the robot's waist seen from above
-    */
-    const ChppGik2DShape& waistShape()const;
 
     /**
     \brief get the 2DShape representing the robot's left foot seen from above. HRP2 feet dimensions hard coded
@@ -159,7 +154,7 @@ private:
     vector3d attRelativeCOM;
     vectorN attHalfSittingConfig;
     matrix4d attWaist, attLFoot, attRFoot;
-    ChppGik2DShape attWaistShape,attLeftFootShape, attRightFootShape;
+    ChppGik2DShape attLeftFootShape, attRightFootShape;
     vector3d tempVec;
     matrix4d tempInv, tempM4;
     vectorN attPreviousConfiguration, attConfiguration, attVelocity, attPreviousVelocity, attAcceleration;
