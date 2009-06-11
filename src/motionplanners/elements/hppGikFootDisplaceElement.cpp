@@ -236,6 +236,29 @@ CjrlGikStateConstraint* ChppGikFootDisplaceElement::stateConstraintAtTime(double
         return 0;
 }
 
+ChppGikTransformationConstraint* ChppGikFootDisplaceElement::footConstraintAtTime ( double inTime )
+{
+    if (!attPlanSuccess)
+        return 0;
+
+    unsigned int i = ChppGikTools::timetoRank(attModifiedStart,inTime,attSamplingPeriod);
+
+    if (i == 1)
+        if (!planFeet())
+    {
+        std::cout << "failed to plan feet in footdisplace element\n";
+        return 0;
+    }
+
+    if ((i > 0) && (i < attFootMotion.size2()) )
+    {
+        attVectorizedTarget = column(attFootMotion,i);
+        attConstraint->vectorizedTarget( attVectorizedTarget );
+        return attConstraint;
+    }
+    else
+        return 0;
+}
 
 CjrlJoint* ChppGikFootDisplaceElement::supportFootAtTime(double inTime)
 {

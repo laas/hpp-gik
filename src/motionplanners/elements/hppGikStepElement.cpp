@@ -176,7 +176,24 @@ CjrlGikStateConstraint* ChppGikStepElement::stateConstraintAtTime(double inTime)
     return retC;
 }
 
+ChppGikTransformationConstraint* ChppGikStepElement::footConstraintAtTime ( double inTime )
+{
+    if (!attPlanSuccess)
+        return 0;
+    ChppGikTransformationConstraint* retC = 0;
+    retC = attShift1->footConstraintAtTime( inTime );
+    if (!retC)
+    {
+        retC = attFootDisplace->footConstraintAtTime( inTime );
+        if (!retC)
+        {
+            retC = attShift2->footConstraintAtTime( inTime );
+        }
+    }
 
+    return retC;
+}
+        
 CjrlJoint* ChppGikStepElement::supportFootAtTime(double inTime)
 {
     if (!attPlanSuccess)

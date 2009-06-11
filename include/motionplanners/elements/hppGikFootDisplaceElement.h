@@ -52,6 +52,11 @@ public:
     virtual CjrlGikStateConstraint* stateConstraintAtTime(double inTime);
 
     /**
+    \brief Get foot transformation constraint at given time
+     */
+    virtual ChppGikTransformationConstraint* footConstraintAtTime ( double inTime );
+    
+    /**
         \brief Get the support foot joint at time inTime
         \return 0 if the time is out of definition bounds
      */

@@ -6,11 +6,11 @@
 
 using namespace boost::numeric::ublas;
 
-ChppGikWalkElement::ChppGikWalkElement(CjrlHumanoidDynamicRobot* inRobot, double inSamplingPeriod,double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps):ChppGikLocomotionElement( inRobot, inStartTime, 0, inSamplingPeriod)
+ChppGikWalkElement::ChppGikWalkElement(CjrlHumanoidDynamicRobot* inRobot, double inSamplingPeriod,double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps, double inZMPstart, double inFoot, double inZMPEnd):ChppGikLocomotionElement( inRobot, inStartTime, 0, inSamplingPeriod)
 {
-    attZMPstart = 0.1;
-    attZMPend = 0.1;
-    attFootFlight = 1.2;
+    attZMPstart = inZMPstart;
+    attZMPend = inZMPEnd;
+    attFootFlight = inFoot;
     attStepDuration = attZMPstart+attZMPend+attFootFlight;
     attDuration = attStepDuration*inAbsoluteSteps.size();
     attEndTime = attDuration + attStartTime;
@@ -96,6 +96,21 @@ CjrlGikStateConstraint* ChppGikWalkElement::stateConstraintAtTime(double inTime)
     return retC;
 }
 
+ChppGikTransformationConstraint* ChppGikWalkElement::footConstraintAtTime ( double inTime )
+{
+    if (!attPlanSuccess)
+        return 0;
+    ChppGikTransformationConstraint* retC = 0;
+    
+    for (unsigned int i=0;i<attSteps.size();i++)
+    {
+        retC = attSteps[i]->footConstraintAtTime( inTime );
+        if (retC)
+            break;
+    }
+    
+    return retC;
+}
 
 CjrlJoint* ChppGikWalkElement::supportFootAtTime(double inTime)
 {

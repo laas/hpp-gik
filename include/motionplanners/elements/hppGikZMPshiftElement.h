@@ -10,69 +10,74 @@
  */
 class ChppGikZMPshiftElement:public ChppGikLocomotionElement
 {
-public:
+    public:
 
-    /**
-        \brief Constructor
-     */
-    ChppGikZMPshiftElement(CjrlHumanoidDynamicRobot* inRobot, const vector3d& targetZMP, double inStartTime, double inDuration, double inSamplingPeriod);
-    
-    /**
-        \brief Set target ZMP
-     */
-    void targetZMP(const vector3d& targetZMP)
-    {
-        attTargetZMP = targetZMP;
-    }
-    
-    /**
-        \brief Get target ZMP
-     */
-    const vector3d& targetZMP()
-    {
-        return attTargetZMP;
-    }
+        /**
+            \brief Constructor
+         */
+        ChppGikZMPshiftElement ( CjrlHumanoidDynamicRobot* inRobot, const vector3d& targetZMP, double inStartTime, double inDuration, double inSamplingPeriod );
 
-    /**
-        \brief Clone constructor
-     */
-    virtual CjrlGikMotionConstraint* clone() const;
+        /**
+            \brief Set target ZMP
+         */
+        void targetZMP ( const vector3d& targetZMP )
+        {
+            attTargetZMP = targetZMP;
+        }
 
-    /**
-        \brief Get state constraint at a given time.
-     */
-    virtual CjrlGikStateConstraint* stateConstraintAtTime(double inTime);
+        /**
+            \brief Get target ZMP
+         */
+        const vector3d& targetZMP()
+        {
+            return attTargetZMP;
+        }
 
-    /**
-        \brief Get the support foot joint at time inTime
-        \return 0 if the time is out of definition bounds
-     */
-    virtual CjrlJoint* supportFootAtTime(double inTime);
+        /**
+            \brief Clone constructor
+         */
+        virtual CjrlGikMotionConstraint* clone() const;
 
-    /**
-    \brief Plan stability-consistent ZMP and update given arguments in case of success.
-    \param supportPolygon used and modified by this element according to purpose
-    \param ZMP used and modified by this element according to purpose
-    \return false conditions required by implemented planning algorithms not met
-     */
-    virtual bool plan(ChppGikSupportPolygon& supportPolygon, vector3d& ZMP);
+        /**
+            \brief Get state constraint at a given time.
+         */
+        virtual CjrlGikStateConstraint* stateConstraintAtTime ( double inTime );
 
-    /**
-    \brief enable/disable the checking of the initial ZMP inside supportPolygon
-    */
-    void startZMPCheck(bool inChoice);
+        /**
+        \brief Get foot transformation constraint at given time
+         */
+        ChppGikTransformationConstraint* footConstraintAtTime ( double inTime );
 
-    /**
-        \brief Destructor
-     */
-    ~ChppGikZMPshiftElement();
+        /**
+            \brief Get the support foot joint at time inTime
+            \return 0 if the time is out of definition bounds
+         */
+        virtual CjrlJoint* supportFootAtTime ( double inTime );
+
+        /**
+        \brief Plan stability-consistent ZMP and update given arguments in case of success.
+        \param supportPolygon used and modified by this element according to purpose
+        \param ZMP used and modified by this element according to purpose
+        \return false conditions required by implemented planning algorithms not met
+         */
+        virtual bool plan ( ChppGikSupportPolygon& supportPolygon, vector3d& ZMP );
+
+        /**
+        \brief enable/disable the checking of the initial ZMP inside supportPolygon
+        */
+        void startZMPCheck ( bool inChoice );
+
+        /**
+            \brief Destructor
+         */
+        ~ChppGikZMPshiftElement();
 
 
-private:
+    private:
 
-    vector3d attTargetZMP;
-    ChppGikTransformationConstraint* attConstraint;
-    bool attStartZMPCheck;
+        vector3d attTargetZMP;
+        ChppGikTransformationConstraint* attConstraint;
+        bool attStartZMPCheck;
 };
 
 #endif

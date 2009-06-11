@@ -36,6 +36,11 @@ class ChppGikComMotion:public ChppGikPrioritizedMotion, public CjrlGikMotionCons
         \brief Get state constraint at a given time.
      */
         CjrlGikStateConstraint* stateConstraintAtTime(double inTime);
+        
+        /**
+        \brief Get center of mass constraint at given time
+         */
+        ChppGikComConstraint* comConstraintAtTime ( double inTime );
 
     /**
         \brief Set lower bound of definition interval.

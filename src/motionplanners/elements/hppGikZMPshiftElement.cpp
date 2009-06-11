@@ -51,6 +51,20 @@ CjrlGikStateConstraint* ChppGikZMPshiftElement::stateConstraintAtTime(double inT
     return attConstraint;
 }
 
+ChppGikTransformationConstraint* ChppGikZMPshiftElement::footConstraintAtTime ( double inTime )
+{
+    if (!attPlanSuccess)
+        return 0;
+
+    if ((inTime < attModifiedStart + attEps) || (inTime > attModifiedEnd + attEps))
+        return 0;
+
+    unsigned int i = ChppGikTools::timetoRank( attModifiedStart, inTime, attSamplingPeriod );
+    if (i==1)
+        attConstraint->targetTransformation( attConstrainedFoot->currentTransformation() );
+
+    return attConstraint;
+}
 
 CjrlJoint* ChppGikZMPshiftElement::supportFootAtTime(double inTime)
 {

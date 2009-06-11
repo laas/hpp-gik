@@ -73,6 +73,16 @@ CjrlGikStateConstraint* ChppGikNoLocomotion::stateConstraintAtTime(double inTime
     return attConstraint;
 }
 
+ChppGikTransformationConstraint* ChppGikNoLocomotion::footConstraint()
+{
+    return attFootConstraint;
+}
+
+ChppGikComConstraint* ChppGikNoLocomotion::comConstraint()
+{
+    return attComConstraint;
+}
+
 void ChppGikNoLocomotion::startTime(double inStartTime)
 {
     attStartTime = (inStartTime<attEndTime && inStartTime>0.0)?inStartTime:attStartTime;

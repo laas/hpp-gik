@@ -52,6 +52,18 @@ CjrlGikStateConstraint* ChppGikComMotion::stateConstraintAtTime(double inTime)
         return 0;
 }
 
+ChppGikComConstraint* ChppGikComMotion::comConstraintAtTime ( double inTime )
+{
+    unsigned int i = ChppGikTools::timetoRank(attStartTime,inTime,attSamplingPeriod);
+    
+    if ((i > 0) && (i < attSamples.size2()))
+    {
+        attComConstraint->targetXY( attSamples(0,i), attSamples(1,i));
+        return attComConstraint;
+    }
+    else
+        return 0;
+}
 
 void ChppGikComMotion::startTime(double inStartTime)
 {

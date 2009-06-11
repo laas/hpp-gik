@@ -40,6 +40,15 @@ public:
     CjrlGikStateConstraint* stateConstraintAtTime(double inTime);
 
     /**
+    \brief Get foot transformation constraint
+    */
+    ChppGikTransformationConstraint* footConstraint () ;
+    /**
+    \brief Get center of mass constraint
+     */
+    ChppGikComConstraint* comConstraint( );
+    
+    /**
         \brief Set lower bound of definition interval.
         \note inStartTime must be between 0.0 and endTime()
      */
