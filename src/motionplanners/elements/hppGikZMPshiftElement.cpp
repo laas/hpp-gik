@@ -82,9 +82,11 @@ void ChppGikZMPshiftElement::startZMPCheck(bool inChoice)
 
 bool ChppGikZMPshiftElement::plan(ChppGikSupportPolygon& supportPolygon, vector3d& ZMP)
 {
-    attPlanSuccess = false;
+    
 
     //std::cout << "shift ZMP from " << ZMP <<  " to " << attTargetZMP << "\n";
+    /*
+    attPlanSuccess = false;
     if (attStartZMPCheck)
     {
         if (!supportPolygon.isPointInsideSafeZone(ZMP[0], ZMP[1]))
@@ -102,6 +104,7 @@ bool ChppGikZMPshiftElement::plan(ChppGikSupportPolygon& supportPolygon, vector3
         supportPolygon.print();
         return false;
     }
+    */
 
     attPlanSuccess = true;
 

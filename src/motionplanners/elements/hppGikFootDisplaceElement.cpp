@@ -49,15 +49,16 @@ bool ChppGikFootDisplaceElement::plan(ChppGikSupportPolygon& supportPolygon, vec
     {
         if (!supportPolygon.isLeftLegSupporting())
         {
-            std::cout << "ChppGikZMPshiftElement::plan() bad initial Supoport Polygon\n";
+            std::cout << "ChppGikFootDisplaceElement::plan() bad initial Supoport Polygon\n";
             return false;
         }
-
+/*
         if (!supportPolygon.leftFootprint()->isPointInsideSafeZone(ZMP[0], ZMP[1]))
         {
-            std::cout << "ChppGikZMPshiftElement::plan() bad initial ZMP\n";
+            std::cout << "ChppGikFootDisplaceElement::plan() bad initial ZMP\n";
             return false;
         }
+        */
     }
     else
     {
@@ -66,12 +67,13 @@ bool ChppGikFootDisplaceElement::plan(ChppGikSupportPolygon& supportPolygon, vec
             std::cout << "ChppGikZMPshiftElement::plan() bad initial Supoport Polygon\n";
             return false;
         }
-
+        /*
         if (!supportPolygon.rightFootprint()->isPointInsideSafeZone(ZMP[0], ZMP[1]))
         {
             std::cout << "ChppGikZMPshiftElement::plan() bad initial ZMP\n";
             return false;
         }
+        */
     }
 
     unsigned int nsamples = ChppGikTools::timetoRank( attModifiedStart,attModifiedEnd,attSamplingPeriod)+1;

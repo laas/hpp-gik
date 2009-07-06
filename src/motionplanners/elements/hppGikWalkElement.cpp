@@ -21,6 +21,33 @@ ChppGikWalkElement::ChppGikWalkElement(CjrlHumanoidDynamicRobot* inRobot, double
     
     for (unsigned int i=0;i<inAbsoluteSteps.size();i++)
         attStepTargets.push_back(new ChppGikStepTarget(*(inAbsoluteSteps[i])));
+    
+    attUseZMPcoefficient = true;
+}
+
+
+ChppGikWalkElement::ChppGikWalkElement(double rightfoot2TargetZMPX, double rightfoot2TargetZMPY, double zmplasttime, CjrlHumanoidDynamicRobot* inRobot, double inSamplingPeriod,double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps, double inZMPstart, double inFoot, double inZMPEnd):ChppGikLocomotionElement( inRobot, inStartTime, 0, inSamplingPeriod)
+{
+    attZMPlasttime = zmplasttime;
+    attRightfoot2TargetZMPX = rightfoot2TargetZMPX;
+    attRightfoot2TargetZMPY = rightfoot2TargetZMPY;
+    attZMPstart = inZMPstart;
+    attZMPend = inZMPEnd;
+    attFootFlight = inFoot;
+    attStepDuration = attZMPstart+attZMPend+attFootFlight;
+    attDuration = attStepDuration*inAbsoluteSteps.size();
+    attEndTime = attDuration + attStartTime;
+    attModifiedEnd = attEndTime;
+
+    for (unsigned int i=0;i<inAbsoluteSteps.size()-1;i++)
+        attSteps.push_back(new ChppGikStepElement(attHumanoidRobot, attStartTime+attStepDuration*i, &(inAbsoluteSteps[i]->footprint()), inAbsoluteSteps[i]->isForRight(), attSamplingPeriod , 0.5,  attZMPend, attZMPstart, attFootFlight));
+    
+    attSteps.push_back(new ChppGikStepElement(attHumanoidRobot, &inAbsoluteSteps[inAbsoluteSteps.size()-1]->footprint(), attStartTime+attStepDuration*(inAbsoluteSteps.size()-1),inAbsoluteSteps[inAbsoluteSteps.size()-1]->isForRight(), rightfoot2TargetZMPX, rightfoot2TargetZMPY, inSamplingPeriod, zmplasttime, attZMPstart, attFootFlight));
+    
+    for (unsigned int i=0;i<inAbsoluteSteps.size();i++)
+        attStepTargets.push_back(new ChppGikStepTarget(*(inAbsoluteSteps[i])));
+    
+    attUseZMPcoefficient = false;
 }
 
 
@@ -40,13 +67,13 @@ bool ChppGikWalkElement::plan(ChppGikSupportPolygon& supportPolygon, vector3d& Z
     attZMPmotion.resize(3,1);
     for (unsigned int i = 0 ; i<3; i++)
         attZMPmotion(i,0) = ZMP[i];
-
+/*
     if (!supportPolygon.isPointInsideSafeZone(ZMP[0], ZMP[1]))
     {
         std::cout << "ChppGikZMPshiftElement::plan() bad initial ZMP\n";
         return attPlanSuccess;
     }
-
+*/
     if (!supportPolygon.isDoubleSupport())
     {
         std::cout << "ChppGikZMPshiftElement::plan() bad initial Supoport Polygon\n";
@@ -76,7 +103,23 @@ bool ChppGikWalkElement::plan(ChppGikSupportPolygon& supportPolygon, vector3d& Z
 
 CjrlGikMotionConstraint* ChppGikWalkElement::clone() const
 {
-    return new ChppGikWalkElement(attHumanoidRobot,attSamplingPeriod,attStartTime,attStepTargets);
+    ChppGikWalkElement* el = 0;
+    
+
+    if (attUseZMPcoefficient)
+    {
+        el = new ChppGikWalkElement(attHumanoidRobot,attSamplingPeriod,attStartTime,attStepTargets,attZMPend, attZMPstart, attFootFlight);
+    }
+    else
+    {
+        el = new ChppGikWalkElement( attRightfoot2TargetZMPX,attRightfoot2TargetZMPY,attZMPlasttime, attHumanoidRobot,attSamplingPeriod,attStartTime,attStepTargets,attZMPend, attZMPstart, attFootFlight);
+    }
+
+    el->postProlongate( attPostProlongation );
+    el->preProlongate( attPreProlongation );
+    
+    
+    return el;
 }
 
 

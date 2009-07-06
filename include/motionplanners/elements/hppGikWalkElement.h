@@ -16,6 +16,11 @@ class ChppGikWalkElement: public ChppGikLocomotionElement
             \brief Constructor. The minimum time for the step motion (i.e parameter inFlightTime) is 0.5. So if the user constructs a step with anything below, it gets automatically thresholded.
          */
         ChppGikWalkElement ( CjrlHumanoidDynamicRobot* inRobot, double inSamplingPeriod, double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps, double inZMPstart = 0.1, double inFoot = 1.2, double inZMPEnd = 0.1);
+        
+        /**
+        \brief Constructor. The minimum time for the step motion (i.e parameter inFlightTime) is 0.5. So if the user constructs a step with anything below, it gets automatically thresholded.
+         */
+        ChppGikWalkElement ( double rightfoot2TargetZMPX, double rightfoot2TargetZMPY ,double zmplasttime, CjrlHumanoidDynamicRobot* inRobot, double inSamplingPeriod, double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps, double inZMPstart = 0.1 , double inFoot = 1.2, double inZMPEnd = 0.1);
 
         /**
             \brief Clone constructor
@@ -63,9 +68,12 @@ class ChppGikWalkElement: public ChppGikLocomotionElement
         ~ChppGikWalkElement();
 
     private:
-        double attZMPstart,attZMPend,attFootFlight,attStepDuration;
+        double attZMPstart,attZMPend,attFootFlight,attStepDuration,attZMPlasttime;
         std::vector<ChppGikStepElement*> attSteps;
         std::vector<ChppGikStepTarget*> attStepTargets;
+        bool attUseZMPcoefficient;
+        double attRightfoot2TargetZMPX;
+        double attRightfoot2TargetZMPY;
 };
 
 
