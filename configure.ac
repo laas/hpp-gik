@@ -7,7 +7,7 @@ dnl
 dnl   Author: Florent Lamiraux LAAS-CNRS
 dnl
 
-AC_INIT([hppGik],[2.4.0],[openrobots@laas.fr])
+AC_INIT([hppGik],[2.4.0.99],[openrobots@laas.fr])
 AC_PREREQ(2.59)
 
 if test "$CFLAGS$CXXFLAGS" = ""; then
