@@ -12,8 +12,6 @@ Each linear system is solved by a pseudo inversion. The weighted pseudo inverse 
 \ingroup solver
 */
 
-using namespace  boost::numeric::ublas;
-
 class ChppGikSolverBasic
 {
 public:
@@ -94,17 +92,17 @@ private:
     vectorN ElementMask;
     vectorN   Residual;
     vectorN deltaqComplete,valueComplete;
-    matrix<double, column_major > IdentityMat;
-    matrix<double, column_major > HatJacobian;
-    matrix<double, column_major > WJt;
-    matrix<double, column_major > JWJt;
-    matrix<double, column_major > Jsharp;
-    matrix<double, column_major > NullSpace;
-    matrix<double, column_major > InverseJWJt;
-    matrix<double, column_major > CarvedJacobian;
+    boost::numeric::ublas::matrix<double, column_major > IdentityMat;
+    boost::numeric::ublas::matrix<double, column_major > HatJacobian;
+    boost::numeric::ublas::matrix<double, column_major > WJt;
+    boost::numeric::ublas::matrix<double, column_major > JWJt;
+    boost::numeric::ublas::matrix<double, column_major > Jsharp;
+    boost::numeric::ublas::matrix<double, column_major > NullSpace;
+    boost::numeric::ublas::matrix<double, column_major > InverseJWJt;
+    boost::numeric::ublas::matrix<double, column_major > CarvedJacobian;
     vectorN tempS;
-    matrix<double, column_major> tempU;
-    matrix<double, column_major> tempVt;
+    boost::numeric::ublas::matrix<double, column_major> tempU;
+    boost::numeric::ublas::matrix<double, column_major> tempVt;
     char jobU;
     char jobVt;
 
