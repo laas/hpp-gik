@@ -13,6 +13,7 @@
 
 #include "hppGikTest.h"
 #include "hppGikTools.h"
+#include "dynamicsJRLJapan/dynamicsJRLJapanFactory.h"
 #include "hrp2Dynamics/hrp2OptHumanoidDynamicRobot.h"
 
 #include "constraints/hppGikConfigurationConstraint.h"
@@ -25,6 +26,8 @@
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 #define V3_I  MAL_S3_VECTOR_ACCESS
+
+dynamicsJRLJapan::ObjectFactory jrlRobotFactory;
 
 using namespace  boost::numeric::ublas;
 
@@ -103,7 +106,7 @@ ChppGikTest::ChppGikTest() : attSamplingPeriod ( 5e-3 )
 
 
     std::vector<CjrlGikStateConstraint*> tasks;
-    ChppGikTransformationConstraint fc ( *attRobot,*attRobot->leftFoot(),vector3d ( 0,0,0 ),m );
+    ChppGikTransformationConstraint fc ( *attRobot,*attRobot->leftAnkle(),vector3d ( 0,0,0 ),m );
     tasks.push_back ( &fc );
     ChppGikComConstraint comc ( *attRobot,2.49362,0.192589 );
     tasks.push_back ( &comc );
@@ -164,14 +167,25 @@ void ChppGikTest::elementReach ( bool taskIsForRightHand,
         joint = attStandingRobot->robot()->leftWrist();
         hand =  attStandingRobot->robot()->leftHand();
     }
-    lpoint = hand->centerInWristFrame();
+    hand->getCenter(lpoint);
 
 
-    tasks.push_back ( new ChppGikTransformationConstraint ( * ( attStandingRobot->robot() ),*attStandingRobot->robot()->rightFoot(),vector3d ( 0,0,0 ),attStandingRobot->robot()->rightFoot()->currentTransformation() ) );
+    tasks.push_back
+      (new ChppGikTransformationConstraint
+       (*(attStandingRobot->robot()), *attStandingRobot->robot()->rightAnkle(),
+	vector3d(0,0,0),
+	attStandingRobot->robot()->rightAnkle()->currentTransformation()));
 
-    tasks.push_back ( new ChppGikComConstraint ( * ( attStandingRobot->robot() ),attStandingRobot->robot()->positionCenterOfMass() [0],attStandingRobot->robot()->positionCenterOfMass() [1] ) );
+    tasks.push_back
+      (new ChppGikComConstraint(*(attStandingRobot->robot()),
+				attStandingRobot->robot()->
+				positionCenterOfMass()[0],
+				attStandingRobot->robot()->
+				positionCenterOfMass()[1]));
 
-    tasks.push_back ( new ChppGikPositionConstraint ( * ( attStandingRobot->robot() ),*joint,lpoint,inReachTarget ) );
+    tasks.push_back
+      (new ChppGikPositionConstraint(*(attStandingRobot->robot()),
+				     *joint,lpoint,inReachTarget));
 
     tasks.push_back ( new ChppGikGazeConstraint ( * ( attStandingRobot->robot() ), inGazeTarget ) );
 
@@ -198,7 +212,7 @@ void ChppGikTest::solveStack ( std::vector<CjrlGikStateConstraint*>& inConstrain
 
     ChppGikSolver attGikSolver ( *attStandingRobot->robot() );
 
-    attGikSolver.rootJoint ( *attStandingRobot->robot()->leftFoot() );
+    attGikSolver.rootJoint ( *attStandingRobot->robot()->leftAnkle() );
 
     vectorN weights = attStandingRobot->maskFactory()->wholeBodyMask();
     subrange ( weights,0,6 ) = zero_vector<double> ( 6 );
@@ -263,37 +277,25 @@ void ChppGikTest::solveStack ( std::vector<CjrlGikStateConstraint*>& inConstrain
 
 void ChppGikTest::createHumanoidRobot()
 {
-    CjrlRobotDynamicsObjectConstructor<
-    dynamicsJRLJapan::DynamicMultiBody,
-    //dynamicsJRLJapan::HumanoidDynamicMultiBody,
-    Chrp2OptHumanoidDynamicRobot,
-    dynamicsJRLJapan::JointFreeflyer,
-    dynamicsJRLJapan::JointRotation,
-    dynamicsJRLJapan::JointTranslation,
-    dynamicsJRLJapan::Body> jrlRobotFactory;
+    attRobot = new Chrp2OptHumanoidDynamicRobot(&jrlRobotFactory);
 
-    attRobot = jrlRobotFactory.createhumanoidDynamicRobot();
+    std::string linkJointRankFile("./HRP2LinkJointRank.xml");
+    std::string specificityFile("./HRP2Specificities.xml");
+    std::string robotFile("./HRP2.wrl");
+    dynamicsJRLJapan::parseOpenHRPVRMLFile(*attRobot, robotFile,
+					   linkJointRankFile,
+					   specificityFile);
 
-    dynamicsJRLJapan::HumanoidDynamicMultiBody *aHDMB;
-    aHDMB = ( dynamicsJRLJapan::HumanoidDynamicMultiBody* ) attRobot;
+    std::string inProperty0="ComputeZMP"; std::string aValue="true";
+    attRobot->setProperty(inProperty0,aValue);
+    std::string inProperty1[4]={"TimeStep","ComputeAcceleration",
+				"ComputeBackwardDynamics", "ComputeZMP"};
+    std::string inValue[4]={"0.005","false","false","true"};
+    for(unsigned int i=0;i<4;i++)
+      attRobot->setProperty(inProperty1[i],inValue[i]);
 
-    std::string path = "./";
-    std::string name = "HRP2.wrl";
-    aHDMB->parserVRML ( path,name,"./HRP2LinkJointRank.xml" );
-    std::string aName="./HRP2Specificities.xml";
-    aHDMB->SetHumanoidSpecificitiesFile ( aName );
-    aHDMB->SetTimeStep ( attSamplingPeriod );
-    aHDMB->setComputeVelocity ( true );
-    aHDMB->setComputeMomentum ( true );
-    aHDMB->setComputeCoM ( true );
-    aHDMB->setComputeAcceleration ( true );
-    aHDMB->setComputeZMP ( true );
-
-    aHDMB->setComputeSkewCoM ( false );
-    aHDMB->setComputeAccelerationCoM ( false );
-    aHDMB->setComputeBackwardDynamics ( false );
-
-
+    // TODO I did not find an equivalent command for this line
+    // aHDMB->SetTimeStep ( attSamplingPeriod );
 
     unsigned int nDof = attRobot->numberDof();
     vectorN halfsittingConf ( nDof );
@@ -350,7 +352,7 @@ void ChppGikTest::createHumanoidRobot()
     gazeOrigin[1] = 0;
     gazeOrigin[2] = 0.118;
 
-    aHDMB->gaze ( ( const vector3d& ) gazeDir, ( const vector3d& ) gazeOrigin );
+    attRobot->gaze((const vector3d&) gazeDir, (const vector3d&) gazeOrigin );
 
     ChppGik2DShape leftFootShape, rightFootShape;
     
@@ -390,7 +392,7 @@ void ChppGikTest::waist2worldPosition ( vector3d& inWaistPosition, vector3d& out
 
 void ChppGikTest::leftFoot2worldPosition ( vector3d& inLFootPosition, vector3d& outWorldPosition )
 {
-    matrix4d m = attRobot->leftFoot()->currentTransformation();
+    matrix4d m = attRobot->leftAnkle()->currentTransformation();
     MAL_S4x4_MATRIX_ACCESS_I_J ( m,2,3 ) = MAL_S4x4_MATRIX_ACCESS_I_J ( m,2,3 ) - attRobot->footHeight();
     outWorldPosition = m * inLFootPosition;
 }
@@ -416,7 +418,7 @@ void  ChppGikTest::interprete()
     bool do_quit = false, printit = true;
     char command[256];
     bool SideIsRight=true;
-    string line;
+    std::string line;
     std::istringstream stream;
 
     //store half sitting configuration
@@ -426,7 +428,7 @@ void  ChppGikTest::interprete()
     vector3d position;
     vector3d orientation;
 
-    string motion_file = "GIK_motion";
+    std::string motion_file = "GIK_motion";
 
     while ( !do_quit )
     {
@@ -434,7 +436,7 @@ void  ChppGikTest::interprete()
             printMenu();
         printit = true;
 
-        getline ( cin,line );
+        getline ( std::cin,line );
         stream.clear();
         stream.str ( line );
         stream >> command;
@@ -589,7 +591,7 @@ void  ChppGikTest::interprete()
                 std::cout << "check arguments\n";
                 continue;
             }
-            string cmd;
+	    std::string cmd;
 
             cmd = "scp " + motion_file + ".* hrp2014c:/home/okanoun/Demo16Avril2007/.";
             system ( cmd.c_str() );
@@ -731,8 +733,8 @@ void ChppGikTest::handat ( bool taskIsForRightHand, bool doOrientation,vector3d&
 
     vector3d lpoint,laxis;
 
-    lpoint = hand->centerInWristFrame();
-    laxis = hand->okayAxisInWristFrame();
+    hand->getCenter(lpoint);
+    hand->getThumbAxis(laxis);
 
     CjrlGikPositionConstraint* psc = 0;
     CjrlGikParallelConstraint* poc = 0;
@@ -786,8 +788,8 @@ void ChppGikTest::lookhandat ( bool taskIsForRightHand, bool doOrientation,vecto
 
     vector3d lpoint,laxis;
 
-    lpoint = hand->centerInWristFrame();
-    laxis = hand->okayAxisInWristFrame();
+    hand->getCenter(lpoint);
+    hand->getThumbAxis(laxis);
 
     CjrlGikPositionConstraint* psc = 0;
     CjrlGikParallelConstraint* poc = 0;

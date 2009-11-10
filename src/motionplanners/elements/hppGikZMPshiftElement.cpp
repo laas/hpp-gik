@@ -11,7 +11,12 @@ ChppGikZMPshiftElement::ChppGikZMPshiftElement( CjrlHumanoidDynamicRobot* inRobo
 
     vector3d zer;
     zer[0] = zer[1] = zer[2] = 0;
-    attConstraint = new ChppGikTransformationConstraint(*attRobot, *(attHumanoidRobot->rightFoot()), zer, attHumanoidRobot->rightFoot()->currentTransformation());
+    attConstraint =
+      new ChppGikTransformationConstraint(*attRobot,
+					  *(attHumanoidRobot->rightAnkle()),
+					  zer,
+					  attHumanoidRobot->rightAnkle()->
+					  currentTransformation());
 
     attMotionConstraint = this;
     attStartZMPCheck = true;
@@ -110,13 +115,13 @@ bool ChppGikZMPshiftElement::plan(ChppGikSupportPolygon& supportPolygon, vector3
 
     if (supportPolygon.isRightLegSupporting())
     {
-        attSupportFoot = attHumanoidRobot->rightFoot();
-        attConstrainedFoot = attHumanoidRobot->leftFoot();
+        attSupportFoot = attHumanoidRobot->rightAnkle();
+        attConstrainedFoot = attHumanoidRobot->leftAnkle();
     }
     else
     {
-        attSupportFoot = attHumanoidRobot->leftFoot();
-        attConstrainedFoot = attHumanoidRobot->rightFoot();
+        attSupportFoot = attHumanoidRobot->leftAnkle();
+        attConstrainedFoot = attHumanoidRobot->rightAnkle();
     }
 
     attConstraint->joint(attConstrainedFoot);

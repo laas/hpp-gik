@@ -9,7 +9,6 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "robotDynamics/jrlRobotDynamicsObjectConstructor.h"
-#include "dynamicsJRLJapan/HumanoidDynamicMultiBody.h"
 #include "gikTask/jrlGikObjectConstructor.h"
 
 #include "constraints/hppGikPlaneConstraint.h"

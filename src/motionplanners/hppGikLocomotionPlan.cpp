@@ -158,8 +158,12 @@ bool ChppGikLocomotionPlan::solve()
     {
         attModifiedStartTime = attStartTime;
         attModifiedEndTime = attEndTime + attExtraEndTime;
-        attNoElementCase = new ChppGikNoLocomotion ( attRobot, attRobot->rightFoot(), attModifiedStartTime, attModifiedEndTime, attStandingRobot->maskFactory()->legsMask(),0 );
-        attNoElementRow = attAssociatedMotionPlan->addMotion ( attNoElementCase );
+        attNoElementCase = 
+	  new ChppGikNoLocomotion (attRobot, attRobot->rightAnkle(),
+				   attModifiedStartTime, attModifiedEndTime,
+				   attStandingRobot->maskFactory()->legsMask(),
+				   0);
+        attNoElementRow = attAssociatedMotionPlan->addMotion(attNoElementCase);
     }
     else
     {

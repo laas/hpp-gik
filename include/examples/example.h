@@ -43,7 +43,7 @@ First priority: Foot on the ground
     localPoint[0] = 0.0;
     localPoint[1] = 0.0;
     localPoint[2] = 0.0;
-    CjrlJoint& nsfJoint = *(attRobot->leftFoot());
+    CjrlJoint& nsfJoint = *(attRobot->leftAnkle());
     matrix4d nsfTransform = nsfJoint.currentTransformation();
     ChppGikTransformationConstraint nsfc(*attRobot, nsfJoint, localPoint, nsfTransform);
 \endcode

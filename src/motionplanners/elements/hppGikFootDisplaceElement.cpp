@@ -17,13 +17,13 @@ ChppGikFootDisplaceElement::ChppGikFootDisplaceElement(CjrlHumanoidDynamicRobot*
 
     if (attIsRight)
     {
-        attSupportFoot = attHumanoidRobot->leftFoot();
-        attConstrainedFoot = attHumanoidRobot->rightFoot();
+        attSupportFoot = attHumanoidRobot->leftAnkle();
+        attConstrainedFoot = attHumanoidRobot->rightAnkle();
     }
     else
     {
-        attSupportFoot = attHumanoidRobot->rightFoot();
-        attConstrainedFoot = attHumanoidRobot->leftFoot();
+        attSupportFoot = attHumanoidRobot->rightAnkle();
+        attConstrainedFoot = attHumanoidRobot->leftAnkle();
     }
 
     vector3d zer;
