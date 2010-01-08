@@ -235,13 +235,13 @@ bool ChppGikLocomotionPlan::planElementsZMP()
             std::cout << "Failed 0\n";
             return false;
         }
-
+/*
         if ( !supportPolygon.isPointInsideSafeZone ( ZMP[0],ZMP[1] ) )
         {
             std::cout << "Planned ZMP out of support polygon. Aborting Locomotion planning\n";
             return false;
         }
-
+*/
         ChppGikTools::overlapConcat ( attPlannedZMP, ( *iter )->ZMPmotion(),  1 );
     }
 
