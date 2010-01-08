@@ -28,6 +28,7 @@ ChppGikWholeBodyTask::ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot
     {
         attGenericTask = new ChppGikGenericTask(inStandingRobot, inSamplingPeriod);
     }
+    attTasksDuration = 4.0;
 }
 
 CjrlHumanoidDynamicRobot& ChppGikWholeBodyTask::robot()const
@@ -138,7 +139,7 @@ bool ChppGikWholeBodyTask::basicSolve()
     }
 
     double defaultStartTime = attStartTime;
-    double defaultTaskDuration = 4.0; //in seconds
+    double defaultTaskDuration = attTasksDuration; //in seconds
 
     defaultPlannerTaskMaker(defaultStartTime,defaultTaskDuration);
 
@@ -221,7 +222,7 @@ bool ChppGikWholeBodyTask::onestepSolve()
     attGenericTask->dynamicWeights(false);
 
     double otherTasksStartTime = stepStartTime + 1.8;
-    double otherTasksDuration = 4.0;
+    double otherTasksDuration = attTasksDuration;
 
     bool isSolved =false;
     ChppGikStepElement* stepTask = 0;

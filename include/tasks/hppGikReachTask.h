@@ -62,6 +62,14 @@ public:
     }
 
     /**
+    \brief Modify reaching motion duration
+    */
+    void tasksDuration ( double inDuration )
+    {
+        attWholeBodyTask->tasksDuration(inDuration);
+    }
+    
+    /**
         \brief Destructor
      */
     ~ChppGikReachTask();
