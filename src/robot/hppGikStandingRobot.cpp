@@ -15,11 +15,13 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot, 
     
     attSupportPolygonConfig.resize ( attRobot->numberDof(),false );
 
-    // TODO build support polygon using object CjrlFoot
+    vector3d anklePos;
+    attRobot->rightFoot()->getAnklePositionInLocalFrame(anklePos);
+    attAnklePos = anklePos[2];
     attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
       (attRobot->leftAnkle()->currentTransformation(),
        attRobot->rightAnkle()->currentTransformation(),
-       attRobot->footHeight());
+       attAnklePos);
 
     attSupportPolygonConfig = attRobot->currentConfiguration();
 
@@ -377,11 +379,11 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     {
         delete attCurrentSupportPolygon;
 	
-	// TODO build support polygon using object CjrlFoot
+       
         attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
 	  (attRobot->leftAnkle()->currentTransformation(),
 	   attRobot->rightAnkle()->currentTransformation(),
-	   attRobot->footHeight());
+	   attAnklePos);
 
         attSupportPolygonConfig = attRobot->currentConfiguration();
     }

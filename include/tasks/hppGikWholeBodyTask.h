@@ -3,8 +3,9 @@
 
 #include  <vector>
 #include "tasks/hppGikGenericTask.h"
-#include "constraints/hppGikPrioritizedStateConstraint.h"
-#include "motionplanners/elements/hppGikReadyElement.h"
+class ChppGikPrioritizedStateConstraint;
+class ChppGikReadyElement;
+
 
 /**
 \brief Implementation of the Humanoid2006 papers by E.Yoshida.
@@ -106,7 +107,7 @@ class ChppGikWholeBodyTask: public ChppGikRobotTask
         /**
         \brief Used by oneStep solve to find the projection of the furthest position or tranformation target from the vertical axis between the footprints
         */
-        void furthestTargetProjection ( double centerX, double centerY, double& outX, double& outY, double& outDistance );
+        void furthestTargetProjection ( double centerX, double centerY, double& outX, double& outY, double& outDistance, bool& ats );
 
         /**
         \brief Used by onestepSolve().

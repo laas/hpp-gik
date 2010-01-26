@@ -4,6 +4,8 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 
 #include "tasks/hppGikWholeBodyTask.h"
+#include "constraints/hppGikPrioritizedStateConstraint.h"
+#include "motionplanners/elements/hppGikReadyElement.h"
 #include "motionplanners/elements/hppGikInterpolatedElement.h"
 #include "motionplanners/elements/hppGikStepElement.h"
 #include "constraints/hppGikPositionConstraint.h"
@@ -28,6 +30,7 @@ ChppGikWholeBodyTask::ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot
     {
         attGenericTask = new ChppGikGenericTask(inStandingRobot, inSamplingPeriod);
     }
+    
     attTasksDuration = 4.0;
 }
 
@@ -93,12 +96,11 @@ bool ChppGikWholeBodyTask::algorithmSolve()
     if (attEnableStep)
     {
         double targetX, targetY, distance,centerX,centerY;
-
         attStandingRobot->supportPolygon()->center ( centerX,centerY );
+        bool ata;
+        furthestTargetProjection ( centerX,centerY,targetX, targetY, distance, ata );
 
-        furthestTargetProjection ( centerX,centerY,targetX, targetY, distance );
-
-        if ( distance > 0.7 )
+        if ( ata && distance > 0.7 )
             tryBasic =  false;
     }
 
@@ -177,16 +179,21 @@ bool ChppGikWholeBodyTask::onestepSolve()
     //get initial support polygon
     if (!attStandingRobot->supportPolygon()->isDoubleSupport())
     {
-        std::cout << "ChppGikWholeBodyTask::onestepSolve() : failed to identify a double support polygon on the current robot configuration\n";
+        std::cout << "ChppGikWholeBodyTask::onestepSolve Failed to identify a double support polygon on the current robot configuration" << std::endl;
         return false;
     }
 
     double centerX, centerY, targetX, targetY, distance;
-
+    bool abletoact;
     attStandingRobot->supportPolygon()->center(centerX,centerY);
 
-    furthestTargetProjection(centerX,centerY,targetX, targetY, distance);
+    furthestTargetProjection(centerX,centerY,targetX, targetY, distance,abletoact);
 
+    if (!abletoact)
+    {
+        std::cout << "ChppGikWholeBodyTask::onestepSolve I do not know how to step for these tasks" << std::endl;
+        return false; 
+    }
     //Determin moving foot
     bool whichFoot = true;
     const ChppGikFootprint* movingFootprint = 0;
@@ -264,7 +271,7 @@ bool ChppGikWholeBodyTask::onestepSolve()
     return isSolved;
 }
 
-void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double centerY,double& outX, double& outY, double& outDistance)
+void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double centerY,double& outX, double& outY, double& outDistance, bool& abletoact)
 {
     outDistance = 0.0;
     outX = centerX;
@@ -274,7 +281,7 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
     vectorN target(3), vectorizedTarget(6);
     bool check = false;
     double temp;
-
+    abletoact = false;
 
     std::vector<ChppGikPrioritizedStateConstraint*>::iterator iter;
     for( iter = attUserStateTasks.begin(); iter != attUserStateTasks.end(); iter++)
@@ -299,6 +306,7 @@ void ChppGikWholeBodyTask::furthestTargetProjection(double centerX, double cente
         }
         if (check)
         {
+            abletoact = true;
             temp = sqrt(pow((target(0)-centerX),2)+pow((target(1)-centerY),2));
             if ( temp > maxDist)
             {

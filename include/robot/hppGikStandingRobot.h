@@ -160,7 +160,7 @@ private:
     vectorN attPreviousConfiguration, attConfiguration, attVelocity, attPreviousVelocity, attAcceleration;
     ChppGik2DShape attSPShape;
     std::vector<ChppGikLinkedVertex> attElements;
-    
+    double attAnklePos;
 
     vector3d FD_tmp,FD_tmp2,FD_tmp3,FD_w;
     matrix3d FD_Ro,FD_Roo,FD_Rt;

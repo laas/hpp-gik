@@ -22,7 +22,7 @@ Create a Gik solver
 
 Select the root of the robot at the right foot (reduces computation complexity)
 \code
-    gikSolver.rootJoint(attRobot->rightFoot());
+    gikSolver.rootJoint(attRobot->rightAnkle());
 \endcode
 
 Create a ChppRobotMotion (where the successive configurations will be stored)
@@ -59,7 +59,7 @@ Third priority: A position constraint on a point in the right wrist frame
 \code
     matrix4d curT=  attRobot->rightWrist()->currentTransformation();
     CjrlJoint& rwJoint = *(attRobot->rightWrist());
-    localPoint = attRobot->rightHand()->centerInWristFrame();
+    attRobot->rightHand()->getCenter(localPoint);
     ChppGikPositionConstraint pc(*attRobot,rwJoint,localPoint, curT*localPoint);
 \endcode
 Stack the constraints in a vector

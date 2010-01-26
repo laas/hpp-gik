@@ -173,8 +173,6 @@ void ChppGikPointingConstraint::computeVectorizedState()
     subrange(attVectorizedState,0,3) = curpos;
     subrange(attVectorizedState,3,6) = curvel;
     subrange(attVectorizedState,6,9) = curaccel;
-
-
 }
 
 bool ChppGikPointingConstraint::vectorizedTarget ( const vectorN& inVector )

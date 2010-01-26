@@ -88,7 +88,7 @@ bool ChppGikReachTask::algorithmSolve()
     bool solved;
     attWholeBodyTask->reset();
     vector3d lpoint,laxis;
-    lpoint = hand->centerInWristFrame();
+    hand->getCenter(lpoint);
     CjrlGikPositionConstraint* psc = 0;
     CjrlGikParallelConstraint* poc = 0;
     CjrlGikGazeConstraint* gc = 0;
@@ -97,7 +97,7 @@ bool ChppGikReachTask::algorithmSolve()
     attWholeBodyTask->addStateConstraint(psc,priority);
     if (attEnableOrientation)
     {
-        laxis = hand->okayAxisInWristFrame();
+        hand->getThumbAxis(laxis);
         poc = new ChppGikParallelConstraint(*(attStandingRobot->robot()),*joint,laxis,attHandTargetAxis);
         priority = 2;
         attWholeBodyTask->addStateConstraint(poc,priority);
