@@ -13,22 +13,38 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
     vector3d zer;
     zer[0] = zer[1] = zer[2] = 0;
 
-    if (( inSupportFoot != inRobot->rightFoot()) &&( inSupportFoot != inRobot->leftFoot()))
+    if (( inSupportFoot != inRobot->rightAnkle()) &&
+	( inSupportFoot != inRobot->leftAnkle()))
     {
-        attFootConstraint = new ChppGikTransformationConstraint(*inRobot, *(inRobot->rightFoot()), zer, inRobot->rightFoot()->currentTransformation());
-        attSupportFoot = inRobot->leftFoot();
+        attFootConstraint = 
+	  new ChppGikTransformationConstraint(*inRobot,
+					      *(inRobot->rightAnkle()),
+					      zer,
+					      inRobot->rightAnkle()->
+					      currentTransformation());
+        attSupportFoot = inRobot->leftAnkle();
     }
     else
     {
-        if ( inSupportFoot == inRobot->rightFoot() )
+        if ( inSupportFoot == inRobot->rightAnkle() )
         {
-            attFootConstraint = new ChppGikTransformationConstraint(*inRobot, *(inRobot->leftFoot()), zer, inRobot->leftFoot()->currentTransformation());
-            attSupportFoot = inRobot->rightFoot();
+            attFootConstraint = 
+	      new ChppGikTransformationConstraint(*inRobot,
+						  *(inRobot->leftAnkle()),
+						  zer,
+						  inRobot->leftAnkle()->
+						  currentTransformation());
+            attSupportFoot = inRobot->rightAnkle();
         }
         else
         {
-            attFootConstraint = new ChppGikTransformationConstraint(*inRobot, *(inRobot->rightFoot()), zer, inRobot->rightFoot()->currentTransformation());
-            attSupportFoot = inRobot->leftFoot();
+            attFootConstraint = 
+	      new ChppGikTransformationConstraint(*inRobot,
+						  *(inRobot->rightAnkle()),
+						  zer,
+						  inRobot->rightAnkle()->
+						  currentTransformation());
+            attSupportFoot = inRobot->leftAnkle();
         }
     }
 

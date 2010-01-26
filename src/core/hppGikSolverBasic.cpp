@@ -10,7 +10,7 @@
 #include "hppGikTools.h"
 
 namespace lapack = boost::numeric::bindings::lapack;
-
+using namespace boost::numeric::ublas;
 
 
 ChppGikSolverBasic::ChppGikSolverBasic(unsigned int numberParam)

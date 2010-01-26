@@ -41,13 +41,13 @@ void ChppGikStepElement::init(double inFootMotionDuration, bool isRight, double 
 
     if (isRight)
     {
-        attSupportFoot = attHumanoidRobot->leftFoot();
-        attConstrainedFoot = attHumanoidRobot->rightFoot();
+        attSupportFoot = attHumanoidRobot->leftAnkle();
+        attConstrainedFoot = attHumanoidRobot->rightAnkle();
     }
     else
     {
-        attSupportFoot = attHumanoidRobot->rightFoot();
-        attConstrainedFoot = attHumanoidRobot->leftFoot();
+        attSupportFoot = attHumanoidRobot->rightAnkle();
+        attConstrainedFoot = attHumanoidRobot->leftAnkle();
     }
 }
 

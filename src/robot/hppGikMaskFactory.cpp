@@ -23,12 +23,13 @@ ChppGikMaskFactory::ChppGikMaskFactory(CjrlHumanoidDynamicRobot* inRobot)
     attLeftArm= attLegs;
     attRightArm= attLegs;
 
-    std::vector<CjrlJoint*> root2jointVector = (attRobot->leftFoot())->jointsFromRootToThis();
+    std::vector<CjrlJoint*> root2jointVector = 
+      (attRobot->leftAnkle())->jointsFromRootToThis();
 
     for (unsigned int i =1; i< root2jointVector.size();i++)
         attLegs(root2jointVector[i]->rankInConfiguration()) = (char)1;
 
-    root2jointVector = attRobot->rightFoot()->jointsFromRootToThis();
+    root2jointVector = attRobot->rightAnkle()->jointsFromRootToThis();
 
     for (unsigned int i =1; i< root2jointVector.size();i++)
         attLegs(root2jointVector[i]->rankInConfiguration()) = (char)1;
@@ -115,9 +116,11 @@ void ChppGikMaskFactory::buildWeightVectors()
     supportedMassVec.clear();
 
     //determin the legs joint vectors
-    std::vector<CjrlJoint*> lLeg = attRobot->leftFoot()->jointsFromRootToThis();
+    std::vector<CjrlJoint*> lLeg = 
+      attRobot->leftAnkle()->jointsFromRootToThis();
 
-    std::vector<CjrlJoint*> rLeg = attRobot->rightFoot()->jointsFromRootToThis();
+    std::vector<CjrlJoint*> rLeg = 
+      attRobot->rightAnkle()->jointsFromRootToThis();
 
 
     //right leg supporting
@@ -136,7 +139,8 @@ void ChppGikMaskFactory::buildWeightVectors()
     }
     subrange(attWeightsRightLegSupporting,6,attNumJoints) = subrange(supportedMassVec,1,attNumJoints-6+1);
 
-    double tempTotalMass = attRobot->mass()-attRobot->leftFoot()->linkedBody()->mass();
+    double tempTotalMass = attRobot->mass()-attRobot->leftAnkle()->
+      linkedBody()->mass();
     for (unsigned int i = 6; i< attWeightsRightLegSupporting.size(); i++)
         attWeightsRightLegSupporting(i) = tempTotalMass/attWeightsRightLegSupporting(i);
 
