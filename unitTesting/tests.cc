@@ -4,7 +4,7 @@
 * All rights reserved.
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <unistd.h>
 #include <string.h>
 #include <iostream>
@@ -39,8 +39,9 @@ CjrlHumanoidDynamicRobot* attRobot = 0;
 dynamicsJRLJapan::ObjectFactory jrlRobotFactory;
 
 void createHRP2 ( const std::string& inPath );
-void solveAndDump ();
 void resetRobot ();
+void test1 ();
+void test2 ();
 
 void resetRobot ()
 {
@@ -116,12 +117,17 @@ void createHRP2 ( const std::string& inPath )
 
     dynamicsJRLJapan::parseOpenHRPVRMLFile ( *attRobot, modelname,linkJointFname,specificitiesFile );
 
-    std::string inProperty0="ComputeZMP"; std::string aValue="true";
-    attRobot->setProperty ( inProperty0,aValue );
-    std::string inProperty1[4]={"TimeStep","ComputeAccelerationCoM","ComputeBackwardDynamics","ComputeZMP"};
-    std::string inValue[4]={"0.005","false","false","true"};
-    for ( unsigned int i=0;i<4;i++ )
-        attRobot->setProperty ( inProperty1[i],inValue[i] );
+    std::string property,value;
+    property="ComputeZMP"; value="true";attRobot->setProperty ( property,value );
+    property="TimeStep"; value="0.005";attRobot->setProperty ( property,value );
+    property="ComputeAccelerationCoM"; value="false";attRobot->setProperty ( property,value );
+    property="ComputeBackwardDynamics"; value="false";attRobot->setProperty ( property,value );
+    property="ComputeMomentum"; value="true";attRobot->setProperty ( property,value );
+    property="ComputeAcceleration"; value="true";attRobot->setProperty ( property,value );
+    property="ComputeVelocity"; value="true";attRobot->setProperty ( property,value );
+    property="ComputeSkewCoM"; value="false";attRobot->setProperty ( property,value );
+    property="ComputeCoM"; value="true";attRobot->setProperty ( property,value );
+    
     unsigned int nDof = attRobot->numberDof();
     vectorN halfsittingConf ( nDof );
 
@@ -162,8 +168,8 @@ void createHRP2 ( const std::string& inPath )
     //set gaze origin and direction
     vector3d gazeDir,gazeOrigin;
     gazeDir[0] = 0;
-    gazeDir[1] = 1;//cos(10*M_PI/180);
-    gazeDir[2] = 0;//sin(10*M_PI/180);
+    gazeDir[1] = cos(10*M_PI/180);
+    gazeDir[2] = sin(10*M_PI/180);
 
     gazeOrigin[0] = 0;
     gazeOrigin[1] = 0;
@@ -204,7 +210,7 @@ int main ( int argc, char** argv )
 {
     if ( argc !=2 )
     {
-        std::cout << "Usage: test1 [Path to folder containing files HRP2.wrl, HRP2LinkJointRank.xml and HRP2Specificities.xml]" <<std::endl;
+        std::cout << "Usage: tests [Path to folder containing files HRP2.wrl, HRP2LinkJointRank.xml and HRP2Specificities.xml]" <<std::endl;
         return  -1;
     }
 
