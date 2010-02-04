@@ -81,7 +81,7 @@ void ChppGikPlaneConstraint::computeValue()
     ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
     noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
     temp3DVec += temp3DVec1;
-    attValue(0) = inner_prod(attWorldPlanePoint - temp3DVec, attWorldPlaneNormal);
+    attValue(0) = inner_prod(temp3DVec-attWorldPlanePoint, attWorldPlaneNormal);
 }
 
 //certainly not optimal here. should be moved to Humanoid robot.

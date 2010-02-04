@@ -72,7 +72,7 @@ void ChppGikParallelConstraint::computeValue()
     //std::cout << "local vector "<< attLocalVector << "\n";
     temp3DVec =  prod(tempRot,attLocalVector);
     //std::cout << "current world vector "<< temp3DVec << "\n";
-    ChppGikTools::CrossProduct(attTargetVector,temp3DVec,attValue);
+    ChppGikTools::CrossProduct(temp3DVec,attTargetVector,attValue);
     //std::cout << "attValue "<< attValue << "\n";
 }
 

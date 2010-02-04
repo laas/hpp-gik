@@ -104,7 +104,7 @@ void ChppGikPointingConstraint::computeValue()
         vecOP /= normOP;
     if (normOT != 0)
         vecOT /= normOT;
-    ChppGikTools::CrossProduct(vecOT,vecOP,attValue);
+    ChppGikTools::CrossProduct(vecOP,vecOT,attValue);
 }
 
 

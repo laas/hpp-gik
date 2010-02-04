@@ -124,14 +124,14 @@ void ChppGikTransformationConstraint::computeValue()
 
     noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
 
-    subrange(attValue,0,3) =  attWorldTarget;
-    subrange(attValue,0,3).minus_assign(temp3DVec1);
-    subrange(attValue,0,3).minus_assign(temp3DVec);
+    subrange(attValue,0,3) = -attWorldTarget;
+    subrange(attValue,0,3).plus_assign(temp3DVec1);
+    subrange(attValue,0,3).plus_assign(temp3DVec);
 
     noalias(tempGapRot) =  prod(trans(tempRot),attTargetOrientation);
     ChppGikTools::RottoOmega(tempGapRot,temp3DVec);
 
-    noalias(subrange(attValue,3,6)) = prod(tempRot,temp3DVec);
+    noalias(subrange(attValue,3,6)) = -prod(tempRot,temp3DVec);
 }
 
 void ChppGikTransformationConstraint::computeJacobian()

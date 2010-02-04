@@ -92,7 +92,7 @@ vectorN& ChppGikConfigurationConstraint::influencingDofs()
 
 void ChppGikConfigurationConstraint::computeValue()
 {
-    noalias(attTarget) = attTargetConfiguration - robot().currentConfiguration();
+    noalias(attTarget) = robot().currentConfiguration()-attTargetConfiguration;
     unsigned int k = 0;
     for (unsigned int l = 0; l< robot().numberDof();l++ )
         if (attInfluencingDofs(l) == 1)

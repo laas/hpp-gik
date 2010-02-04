@@ -46,7 +46,7 @@ void ChppGikRotationConstraint::computeValue()
     ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
     noalias(tempGapRot) =  prod(trans(tempRot),attTargetOrientation);
     ChppGikTools::RottoOmega(tempGapRot,temp3DVec);
-    noalias(attValue) = prod(tempRot,temp3DVec);
+    noalias(attValue) = -prod(tempRot,temp3DVec);
 }
 
 

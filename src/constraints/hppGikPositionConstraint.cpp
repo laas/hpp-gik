@@ -59,10 +59,10 @@ const vector3d& ChppGikPositionConstraint::worldTarget()
 void ChppGikPositionConstraint::computeValue()
 {
     ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
-    attValue = attWorldTarget;
-    attValue -= temp3DVec;
+    attValue = -attWorldTarget;
+    attValue += temp3DVec;
     noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
-    attValue -= temp3DVec1;
+    attValue += temp3DVec1;
 
 }
 

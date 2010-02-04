@@ -83,7 +83,7 @@ const vectorN& ChppGikComConstraint::worldTarget()
 void ChppGikComConstraint::computeValue()
 {
     ChppGikTools::Vector3toUblas( attRobot->positionCenterOfMass(), temp3DVec);
-    attValue = attWorldTarget - subrange(temp3DVec,0,attDimension);
+    attValue = subrange(temp3DVec,0,attDimension) - attWorldTarget ;
 }
 
 void ChppGikComConstraint::computeInfluencingDofs()

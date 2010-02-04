@@ -137,7 +137,7 @@ bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
         {
             if (inConstraint->influencingDofs()(li)==1)
             {
-                valueComplete(li) = inConstraint->value()(valInd);
+                valueComplete(li) = -inConstraint->value()(valInd);
                 valInd++;
             }
             else
@@ -174,7 +174,7 @@ bool ChppGikSolverBasic::solveTask(CjrlGikStateConstraint *inConstraint, double 
         for ( unsigned int col = 0; col<LongSize;col++ )
             noalias (column ( CarvedJacobian,col) )=  column ( inConstraint->jacobian(),UsedIndexes ( col ));
         //update value according to previous tasks
-        noalias (Residual) = inConstraint->value();
+        noalias (Residual) = -inConstraint->value();
         noalias (Residual) -= prod (CarvedJacobian,DeltaQ);
         HatJacobian.clear();
         if (inComputeHatJacobian)
