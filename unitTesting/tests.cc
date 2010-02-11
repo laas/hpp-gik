@@ -66,6 +66,7 @@ void test1 ()
     priority = 2;
     attWholeBodyTask.addStateConstraint ( &gc,priority );
     bool solved = attWholeBodyTask.solve();
+    attWholeBodyTask.solutionMotion().dumpTo ( "test1" );
     if (  solved )
     {
         attWholeBodyTask.solutionMotion().dumpTo ( "test1" );
@@ -96,6 +97,7 @@ void test2 ()
     ChppGikGazeConstraint gc ( *attRobot, targetPoint );
     priority = 2;
     attWholeBodyTask.addStateConstraint ( &gc,priority );
+    attWholeBodyTask.solutionMotion().dumpTo ( "test2" );
     bool solved = attWholeBodyTask.solve();
     if ( solved )
     {

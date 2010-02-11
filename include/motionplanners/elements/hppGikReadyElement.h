@@ -11,7 +11,7 @@ class ChppGikReadyElement:public ChppGikPrioritizedMotion
 {
     public:
 
-        ChppGikReadyElement(CjrlHumanoidDynamicRobot* inRobot, CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority, vectorN& inWorkingJoints):ChppGikPrioritizedMotion( inRobot, inPriority, NULL)
+        ChppGikReadyElement(CjrlHumanoidDynamicRobot* inRobot, CjrlGikMotionConstraint* inMotionConstraint, unsigned int inPriority, const vectorN& inWorkingJoints):ChppGikPrioritizedMotion( inRobot, inPriority, NULL)
         {
             attMotionConstraint =  inMotionConstraint->clone();
             if(inWorkingJoints.size() == attWorkingJoints.size())

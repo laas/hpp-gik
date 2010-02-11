@@ -14,23 +14,23 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot, 
     attRightFootShape = inRightFootprintShape;
     
     attSupportPolygonConfig.resize ( attRobot->numberDof(),false );
-
     vector3d anklePos;
+
     attRobot->rightFoot()->getAnklePositionInLocalFrame(anklePos);
+
+
     attAnklePos = anklePos[2];
     attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
       (attRobot->leftAnkle()->currentTransformation(),
        attRobot->rightAnkle()->currentTransformation(),
        attAnklePos);
-
-    attSupportPolygonConfig = attRobot->currentConfiguration();
+attSupportPolygonConfig = attRobot->currentConfiguration();
 
     attHalfSittingConfig = attRobot->currentConfiguration();
 
     attWaist = attRobot->waist()->currentTransformation();
     attRFoot = attRobot->rightAnkle()->currentTransformation();
     attLFoot = attRobot->leftAnkle()->currentTransformation();
-
 
     attRelativeCOM = attRobot->positionCenterOfMass();
     for ( unsigned int i=0; i < 3; i++ )

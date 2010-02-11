@@ -21,52 +21,43 @@ public:
     /**
     \brief Get the joint mask for the given joint
      */
-    vectorN& maskForJoint(CjrlJoint* inJoint);
-    /**
-    \brief Activate a joint in the given mask
-    \return false in inoutMask incorrectly sized
-     */
-    bool activateJointInMask(CjrlJoint* inJoint, vectorN& inoutMask);
+    const vectorN& maskForJointsBetween(CjrlJoint* inStartJoint,CjrlJoint* inEndJoint);
     /**
     \brief Get the joint mask for the legs
      */
-    vectorN& legsMask();
+    const vectorN& legsMask();
     /**
     \brief Get the joint mask for the upper body
     */
-    vectorN& upperBodyMask();
+    const vectorN& upperBodyMask();
     /**
     \brief Get the joint mask for the left arm
     */
-    vectorN& leftArmMask();
+    const vectorN& leftArmMask();
     /**
     \brief Get the joint mask for the right arm
      */
-    vectorN& rightArmMask();
+    const vectorN& rightArmMask();
     /**
     \brief Get the joint mask for joints betwwen root and given joint, starting from joint with rank rankOfFirstActivatedJoint
      */
-    vectorN& customMask(CjrlJoint* inJoint, unsigned int rankOfFirstActivatedJoint);
-    /**
-    \brief Get the joint mask for the trunc (chest + head + legs)
-     */
-    vectorN& truncMask();
+    const vectorN& customMask(CjrlJoint* inJoint, unsigned int rankOfFirstActivatedJoint);
     /**
     \brief Get the joint mask for the whole body
      */
-    vectorN& wholeBodyMask();
+    const vectorN& wholeBodyMask();
     /**
     \brief Get the contribution weights of joints for the double support case
      */
-    vectorN& weightsDoubleSupport();
+    const vectorN& weightsDoubleSupport();
     /**
     \brief Get the contribution weights when only the left leg is supporting
      */
-    vectorN& weightsLeftLegSupporting();
+    const vectorN& weightsLeftLegSupporting();
     /**
     \brief Get the contribution weights when only the right leg is supporting
      */
-    vectorN& weightsRightLegSupporting();
+    const vectorN& weightsRightLegSupporting();
     
     /**
     \brief Destructor
@@ -74,12 +65,12 @@ public:
     ~ChppGikMaskFactory();
 
 private:
-    
-    void buildWeightVectors();
             
     bool containsJoint(CjrlJoint* inJoint,std::vector<CjrlJoint*>& inVec);
     
     unsigned int rankInSupportedMassVector(const CjrlJoint* inJoint);
+    
+    void algoWeights(CjrlJoint* supportJoint, vectorN& outWeights );
     
     void supportedMass(vectorN& massVec, const CjrlJoint* inJoint, CjrlJoint* excludedChild);
 
@@ -88,10 +79,9 @@ private:
     unsigned int attNumJoints;
     vectorN attUpperBody;
     vectorN attLegs;
+    vectorN attMaskForJoint;
     vectorN attLeftArm;
     vectorN attRightArm;
-    vectorN attChestAndArms;
-    vectorN attChestAndHead;
     vectorN attWholeBody;
     vectorN attWeightsDouble;
     vectorN attCustomMask;

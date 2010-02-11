@@ -5,280 +5,235 @@
 
 using namespace boost::numeric::ublas;
 
-ChppGikMaskFactory::ChppGikMaskFactory(CjrlHumanoidDynamicRobot* inRobot)
+ChppGikMaskFactory::ChppGikMaskFactory ( CjrlHumanoidDynamicRobot* inRobot )
 {
     attRobot = inRobot;
     attNumJoints = attRobot->numberDof();
 
     //prepare joint masks
 
-    attLegs.resize(attNumJoints,false);
+    attLegs.resize ( attNumJoints,false );
     attLegs.clear();
-    subrange(attLegs,0,6) = scalar_vector<double>(6,1);
+    subrange ( attLegs,0,6 ) = scalar_vector<double> ( 6,1 );
 
     attUpperBody = attLegs;
     attWholeBody = attLegs;
-    attChestAndArms = attLegs;
-    attChestAndHead= attLegs;
-    attLeftArm= attLegs;
-    attRightArm= attLegs;
-
-    std::vector<CjrlJoint*> root2jointVector = 
-      (attRobot->leftAnkle())->jointsFromRootToThis();
-
-    for (unsigned int i =1; i< root2jointVector.size();i++)
-        attLegs(root2jointVector[i]->rankInConfiguration()) = (char)1;
-
-    root2jointVector = attRobot->rightAnkle()->jointsFromRootToThis();
-
-    for (unsigned int i =1; i< root2jointVector.size();i++)
-        attLegs(root2jointVector[i]->rankInConfiguration()) = (char)1;
+    attRightArm = attLegs;
+    attLeftArm = attLegs;
 
 
-    root2jointVector = attRobot->leftWrist()->jointsFromRootToThis();
+    std::vector<CjrlJoint*> gaze2waist = attRobot->jointsBetween ( *attRobot->gazeJoint(),*attRobot->waist() );
 
-    for (unsigned int i =1; i< root2jointVector.size();i++)
-    {
-        attChestAndArms(root2jointVector[i]->rankInConfiguration()) = (char)1;
-        attUpperBody(root2jointVector[i]->rankInConfiguration()) = (char)1;
-    }
+    std::vector<CjrlJoint*> joints = attRobot->jointsBetween ( *attRobot->rightAnkle(),*attRobot->leftAnkle() );
+    for ( unsigned int i =0; i< joints.size();i++ )
+        if ( joints[i] != attRobot->rootJoint() )
+            attLegs ( joints[i]->rankInConfiguration() ) = ( char ) 1;
 
+    joints = attRobot->jointsBetween ( *attRobot->gazeJoint(),*attRobot->leftWrist() );
+    for ( unsigned int i =0; i< joints.size();i++ )
+        if ( joints[i] != attRobot->rootJoint() )
+            attLeftArm ( joints[i]->rankInConfiguration() ) = ( char ) 1;
+    for ( unsigned int i =0; i< gaze2waist.size();i++ )
+        if ( gaze2waist[i] != attRobot->rootJoint() )
+            attLeftArm ( gaze2waist[i]->rankInConfiguration() ) = ( char ) 0;
 
-    root2jointVector = attRobot->rightWrist()->jointsFromRootToThis();
+    joints = attRobot->jointsBetween ( *attRobot->gazeJoint(),*attRobot->rightWrist() );
+    for ( unsigned int i =0; i< joints.size();i++ )
+        if ( joints[i] != attRobot->rootJoint() )
+            attRightArm ( joints[i]->rankInConfiguration() ) = ( char ) 1;
+    for ( unsigned int i =0; i< gaze2waist.size();i++ )
+        if ( gaze2waist[i] != attRobot->rootJoint() )
+            attRightArm ( gaze2waist[i]->rankInConfiguration() ) = ( char ) 0;
 
-    for (unsigned int i =1; i< root2jointVector.size();i++)
-    {
-        attChestAndArms(root2jointVector[i]->rankInConfiguration()) = (char)1;
-        attUpperBody(root2jointVector[i]->rankInConfiguration()) = (char)1;
-    }
+    joints = attRobot->jointsBetween ( *attRobot->leftWrist(),*attRobot->rightWrist() );
+    for ( unsigned int i =0; i< joints.size();i++ )
+        if ( joints[i] != attRobot->rootJoint() )
+            attUpperBody ( joints[i]->rankInConfiguration() ) = ( char ) 1;
+    for ( unsigned int i =0; i< gaze2waist.size();i++ )
+        if ( gaze2waist[i] != attRobot->rootJoint() )
+            attUpperBody ( gaze2waist[i]->rankInConfiguration() ) = ( char ) 1;
+/*
+    std::cout << attLegs << std::endl;
+    std::cout << attLeftArm << std::endl;
+    std::cout << attRightArm << std::endl;
+    std::cout << attUpperBody << std::endl;
+*/
 
+    ChppGikTools::combineMasks ( attLegs,attUpperBody,attWholeBody );
 
-    root2jointVector = attRobot->gazeJoint()->jointsFromRootToThis();
-
-    for (unsigned int i =1; i< root2jointVector.size();i++)
-    {
-        attChestAndHead(root2jointVector[i]->rankInConfiguration()) = (char)1;
-        attUpperBody(root2jointVector[i]->rankInConfiguration()) = (char)1;
-    }
-
-    ChppGikTools::combineMasks( attLegs,attUpperBody,attWholeBody);
-
-
-    root2jointVector = attRobot->rightWrist()->jointsFromRootToThis();
-    for (unsigned int i =3; i< root2jointVector.size();i++)
-        attRightArm(root2jointVector[i]->rankInConfiguration()) = (char)1;
-
-    root2jointVector = attRobot->leftWrist()->jointsFromRootToThis();
-    for (unsigned int i =3; i< root2jointVector.size();i++)
-        attLeftArm(root2jointVector[i]->rankInConfiguration()) = (char)1;
-
+    attMaskForJoint.resize(attRobot->numberDof());
     attWeightsDouble = attLegs;
     attWeightsLeftLegSupporting = attLegs;
     attWeightsRightLegSupporting = attLegs;
+
+    algoWeights ( attRobot->leftAnkle(), attWeightsLeftLegSupporting );
+    algoWeights ( attRobot->rightAnkle(), attWeightsRightLegSupporting );
+
+    attWeightsDouble = attWeightsLeftLegSupporting;
+    for (unsigned int i = 6; i<attRobot->numberDof();i++)
+        if (attLegs(i) == 1)
+            attWeightsDouble(i) = 1;
     
-    buildWeightVectors();
-
-    attCustomMask.resize(attNumJoints,false);
+    attCustomMask.resize ( attNumJoints,false );
     attCustomMask.clear();
-
+    /*
+    std::cout << attWeightsDouble << std::endl;*/
 }
 
-vectorN& ChppGikMaskFactory::leftArmMask()
+const vectorN& ChppGikMaskFactory::leftArmMask()
 {
     return attLeftArm;
 }
 
-vectorN& ChppGikMaskFactory::customMask(CjrlJoint* inJoint, unsigned int rankOfFirstActivatedJoint)
-{
-    unsigned int i;
-    attCustomMask.clear();
-    subrange(attCustomMask,0,6)=scalar_vector<double>(6,1);
-    if (inJoint)
-    {
-        std::vector<CjrlJoint*> root2jointVector = inJoint->jointsFromRootToThis();
-
-        for ( i= rankOfFirstActivatedJoint; i< root2jointVector.size();i++)
-            attCustomMask(root2jointVector[i]->rankInConfiguration()) = (char)1;
-    }
-    return attCustomMask;
-}
-
-vectorN& ChppGikMaskFactory::rightArmMask()
+const vectorN& ChppGikMaskFactory::rightArmMask()
 {
     return attRightArm;
 }
 
-void ChppGikMaskFactory::buildWeightVectors()
+const vectorN& ChppGikMaskFactory::customMask ( CjrlJoint* inJoint, unsigned int rankOfFirstActivatedJoint )
 {
-    //(WARNING! supposing that waist == root, and legs are simple kinematic chains (i.e not subtrees))
-
-    vectorN supportedMassVec(attNumJoints-6+1);
-    supportedMassVec.clear();
-
-    //determin the legs joint vectors
-    std::vector<CjrlJoint*> lLeg = 
-      attRobot->leftAnkle()->jointsFromRootToThis();
-
-    std::vector<CjrlJoint*> rLeg = 
-      attRobot->rightAnkle()->jointsFromRootToThis();
-
-
-    //right leg supporting
-    CjrlJoint* inJoint = *(rLeg.begin()+1);
-    supportedMass(supportedMassVec, attRobot->rootJoint(), inJoint);
-
-    supportedMassVec(0) -= attRobot->rootJoint()->linkedBody()->mass();
-    unsigned int rankJoint, rankParent;
-    std::vector<CjrlJoint*>::iterator iter;
-
-    for( iter = rLeg.begin()+1; iter != rLeg.end(); iter++)
+    unsigned int i;
+    attCustomMask.clear();
+    subrange ( attCustomMask,0,6 ) =scalar_vector<double> ( 6,1 );
+    if ( inJoint )
     {
-        rankJoint = rankInSupportedMassVector(*iter);
-        rankParent = rankInSupportedMassVector(*(iter-1));
-        supportedMassVec(rankJoint) += (*(iter-1))->linkedBody()->mass() + supportedMassVec(rankParent);
+        std::vector<CjrlJoint*> root2jointVector = inJoint->jointsFromRootToThis();
+
+        for ( i= rankOfFirstActivatedJoint; i< root2jointVector.size();i++ )
+            attCustomMask ( root2jointVector[i]->rankInConfiguration() ) = ( char ) 1;
     }
-    subrange(attWeightsRightLegSupporting,6,attNumJoints) = subrange(supportedMassVec,1,attNumJoints-6+1);
-
-    double tempTotalMass = attRobot->mass()-attRobot->leftAnkle()->
-      linkedBody()->mass();
-    for (unsigned int i = 6; i< attWeightsRightLegSupporting.size(); i++)
-        attWeightsRightLegSupporting(i) = tempTotalMass/attWeightsRightLegSupporting(i);
-
-    supportedMassVec.clear();
-
-    //left leg supporting
-    supportedMass(supportedMassVec, attRobot->rootJoint(), *(lLeg.begin()+1));
-    supportedMassVec(0) -= attRobot->rootJoint()->linkedBody()->mass();
-    for( iter = lLeg.begin()+1; iter != lLeg.end(); iter++)
-    {
-        rankJoint = rankInSupportedMassVector(*iter);
-        rankParent = rankInSupportedMassVector(*(iter-1));
-        supportedMassVec(rankJoint) += (*(iter-1))->linkedBody()->mass() + supportedMassVec(rankParent);
-    }
-    
-    subrange(attWeightsLeftLegSupporting,6,attNumJoints) = subrange(supportedMassVec,1,attNumJoints-6+1);
-
-    for (unsigned int i = 6; i< attWeightsLeftLegSupporting.size(); i++)
-        attWeightsLeftLegSupporting(i) = tempTotalMass/attWeightsLeftLegSupporting(i);
-
-    //     //Double support
-    //     attWeightsDouble = zero_vector<double>(attNumJoints);
-    //     for (unsigned int i = 0; i<attNumJoints;i++)
-    //     {
-    //         if (attLegs(i) > 0.5)
-    //             attWeightsDouble(i) = 1;
-    //         else
-    //             attWeightsDouble(i) = attWeightsLeftLegSupporting(i);//or right, same
-    //     }
-    attWeightsDouble = attWeightsLeftLegSupporting;
-    for( iter = rLeg.begin()+1; iter != rLeg.end(); iter++)
-        attWeightsDouble((*iter)->rankInConfiguration()) = pow(attWeightsRightLegSupporting((*iter)->rankInConfiguration()),4);
-    for( iter = lLeg.begin()+1; iter != lLeg.end(); iter++)
-        attWeightsDouble((*iter)->rankInConfiguration()) = pow(attWeightsLeftLegSupporting((*iter)->rankInConfiguration()),4);
+    return attCustomMask;
 }
 
-void ChppGikMaskFactory::supportedMass(vectorN& massVec, const CjrlJoint* inJoint, CjrlJoint* excludedChild)
+
+void ChppGikMaskFactory::algoWeights ( CjrlJoint* supportJoint, vectorN& outWeights )
+{
+    vectorN supportedMassVec ( attNumJoints-6+1 );
+    supportedMassVec.clear();
+
+    std::vector<CjrlJoint*> backbone = attRobot->jointsBetween ( *supportJoint,  *attRobot->rootJoint() );
+    if ( backbone.size() >1 )
+    {
+        supportedMass ( supportedMassVec, attRobot->rootJoint(), backbone[backbone.size()-2] );
+        //std::cout << supportedMassVec << std::endl;
+        supportedMassVec ( rankInSupportedMassVector ( attRobot->rootJoint() ) ) -= attRobot->rootJoint()->linkedBody()->mass();//remove root mass from backbone
+        //std::cout << supportedMassVec << std::endl;
+        for ( unsigned int i = 1; i< backbone.size()-1;i++ )
+            if ( backbone[i]->countChildJoints() > 1 )
+            {
+                //Sum subtree for this node except for branch belonging to backbone
+                supportedMass ( supportedMassVec, backbone[i], backbone[i-1] );
+                //remove node mass
+                supportedMassVec ( rankInSupportedMassVector ( backbone[i] ) ) -= backbone[i]->linkedBody()->mass();
+                //forward subtree mass to child in backbone
+                supportedMassVec (rankInSupportedMassVector ( backbone[i-1] ) )= supportedMassVec (rankInSupportedMassVector ( backbone[i] ));
+                //cancel this node supported mass
+                supportedMassVec (rankInSupportedMassVector ( backbone[i] ) )= 0;
+          //      std::cout << supportedMassVec << std::endl;
+            }
+        for ( int i = backbone.size()-2; i>-1;i-- )
+        {
+            supportedMassVec ( rankInSupportedMassVector ( backbone[i] ) ) += supportedMassVec(rankInSupportedMassVector ( backbone[i+1] )) + backbone[i+1]->linkedBody()->mass();//subtrees and backbone links masses here ok
+            //std::cout << supportedMassVec << std::endl;
+        }
+    }
+    else
+    {
+        supportedMass ( supportedMassVec, attRobot->rootJoint(), 0 );
+    }
+    //remove link mass from backbone
+    supportedMassVec ( rankInSupportedMassVector ( backbone[0] ) ) -= backbone[0]->linkedBody()->mass();
+    subrange ( outWeights,6,attNumJoints ) = subrange ( supportedMassVec,1,attNumJoints-6+1 );
+    for (unsigned int i = 6; i< outWeights.size(); i++)
+    {
+        if (outWeights(i)!=0)
+            outWeights(i) = attRobot->mass()/outWeights(i);
+    }
+    
+    
+    //std::cout << "                "<<outWeights << std::endl;
+}
+
+void ChppGikMaskFactory::supportedMass ( vectorN& massVec, const CjrlJoint* inJoint, CjrlJoint* excludedChild )
 {
     unsigned int rankJoint, rankChildJoint;
-    rankJoint = rankInSupportedMassVector(inJoint);
+    rankJoint = rankInSupportedMassVector ( inJoint );
     //std::cout << "rankjoint      "<<rankJoint <<"\n";
-    massVec(rankJoint) += inJoint->linkedBody()->mass();
+    massVec ( rankJoint ) += inJoint->linkedBody()->mass();
 
-    for (unsigned int i = 0; i<inJoint->countChildJoints(); i++)
+    for ( unsigned int i = 0; i<inJoint->countChildJoints(); i++ )
     {
-        const CjrlJoint* childJoint = inJoint->childJoint(i);
-        rankChildJoint = rankInSupportedMassVector(childJoint);
+        const CjrlJoint* childJoint = inJoint->childJoint ( i );
+        rankChildJoint = rankInSupportedMassVector ( childJoint );
         //std::cout << "rankchildjoint "<< rankChildJoint <<"\n";
 
-        if (childJoint == excludedChild)
+        if ( childJoint == excludedChild )
         {
             //std::cout << "excluded \n";
             continue;
         }
 
-        supportedMass(massVec, childJoint, 0);
-        massVec(rankJoint) += massVec(rankChildJoint);
+        supportedMass ( massVec, childJoint, 0 );
+        massVec ( rankJoint ) += massVec ( rankChildJoint );
     }
 }
 
-unsigned int ChppGikMaskFactory::rankInSupportedMassVector(const CjrlJoint* inJoint)
+unsigned int ChppGikMaskFactory::rankInSupportedMassVector ( const CjrlJoint* inJoint )
 {
-    if (inJoint == attRobot->rootJoint())
+    if ( inJoint == attRobot->rootJoint() )
         return 0;
     else
         return inJoint->rankInConfiguration()-5;
 }
 
-bool ChppGikMaskFactory::containsJoint(CjrlJoint* inJoint,std::vector<CjrlJoint*>& inVec)
+bool ChppGikMaskFactory::containsJoint ( CjrlJoint* inJoint,std::vector<CjrlJoint*>& inVec )
 {
     std::vector<CjrlJoint*>::iterator iter;
-    for( iter = inVec.begin(); iter != inVec.end(); iter++)
-        if ((*iter) == inJoint)
+    for ( iter = inVec.begin(); iter != inVec.end(); iter++ )
+        if ( ( *iter ) == inJoint )
             return true;
     return false;
 }
 
-vectorN& ChppGikMaskFactory::maskForJoint(CjrlJoint* inJoint)
+const vectorN& ChppGikMaskFactory::maskForJointsBetween(CjrlJoint* inStartJoint,CjrlJoint* inEndJoint)
 {
-    if (inJoint == attRobot->rootJoint())
-        return attLegs;
+    attMaskForJoint.clear();
+    std::vector<CjrlJoint*> vecJoints = attRobot->jointsBetween(*inStartJoint, *inEndJoint);
+    unsigned int i,j;
+    for (i=0;i<vecJoints.size();i++)
+        for (j=vecJoints[i]->rankInConfiguration();j<vecJoints[i]->rankInConfiguration()+vecJoints[i]->numberDof();j++)
+            attMaskForJoint(j) = 1;
 
-    unsigned int rank = inJoint->rankInConfiguration();
-
-    if (attLegs(rank) == 1)
-        return attLegs;
-
-    if (attChestAndHead(rank) == 1)
-        return attChestAndHead;
-    else
-        return attChestAndArms;
-
+    return attMaskForJoint;
+    //return attWholeBody;
 }
 
-
-bool ChppGikMaskFactory::activateJointInMask(CjrlJoint* inJoint, vectorN& inoutMask)
-{
-    if (inoutMask.size() != attNumJoints)
-    {
-        std::cout <<"ChppGikMaskFactory::activateJointInMask() input mask incorrectly sized\n";
-        return false;
-    }
-
-    ChppGikTools::combineMasks(maskForJoint(inJoint), inoutMask, inoutMask);
-    return true;
-}
-
-vectorN& ChppGikMaskFactory::legsMask()
+const vectorN& ChppGikMaskFactory::legsMask()
 {
     return attLegs;
 }
 
-vectorN& ChppGikMaskFactory::upperBodyMask()
+const vectorN& ChppGikMaskFactory::upperBodyMask()
 {
     return attUpperBody;
 }
 
-vectorN& ChppGikMaskFactory::truncMask()
-{
-    return attChestAndHead;
-}
-
-vectorN& ChppGikMaskFactory::wholeBodyMask()
+const vectorN& ChppGikMaskFactory::wholeBodyMask()
 {
     return attWholeBody;
 }
 
-vectorN& ChppGikMaskFactory::weightsDoubleSupport()
+const vectorN& ChppGikMaskFactory::weightsDoubleSupport()
 {
     return attWeightsDouble;
 }
 
-vectorN& ChppGikMaskFactory::weightsLeftLegSupporting()
+const vectorN& ChppGikMaskFactory::weightsLeftLegSupporting()
 {
     return attWeightsLeftLegSupporting;
 }
 
-vectorN& ChppGikMaskFactory::weightsRightLegSupporting()
+const vectorN& ChppGikMaskFactory::weightsRightLegSupporting()
 {
     return attWeightsRightLegSupporting;
 }
@@ -286,3 +241,4 @@ vectorN& ChppGikMaskFactory::weightsRightLegSupporting()
 
 ChppGikMaskFactory::~ChppGikMaskFactory()
 {}
+

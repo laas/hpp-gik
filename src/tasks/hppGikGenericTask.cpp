@@ -52,7 +52,7 @@ bool ChppGikGenericTask::addElement(ChppGikPrioritizedMotion* inMotion)
         if (jntc)
         {
             CjrlJoint* joint = jntc->joint();
-            interp->workingJoints( attStandingRobot->maskFactory()->maskForJoint(joint) );
+            interp->workingJoints( attStandingRobot->maskFactory()->maskForJointsBetween(attRobot->waist(),joint) );
         }
     }
 
@@ -199,6 +199,7 @@ void ChppGikGenericTask::computeGikWeights(double inTime, const vectorN& inActiv
         attLocomotionPlan->getWeightsAtTime( inTime, outGikWeights );
     else
         outGikWeights = attStandingRobot->maskFactory()->weightsDoubleSupport();
+
     if (attNeutralBodyOption)
         for (i=0; i< outGikWeights.size();i++)
             if (attStandingRobot->maskFactory()->legsMask()(i) == 0)

@@ -88,6 +88,12 @@ bool ChppGikWholeBodyTask::algorithmSolve()
         return false;
     }
 
+    if (!attStandingRobot->supportPolygon())
+    {
+        std::cout << "ChppGikWholeBodyTask::algorithmSolve did not find double support polygon. Aborting."<< std::endl;
+        return false;
+    }
+            
     attHadToStep = false;
 
     bool tryBasic = true;
@@ -136,7 +142,7 @@ bool ChppGikWholeBodyTask::basicSolve()
     //get initial support polygon
     if (!attStandingRobot->supportPolygon()->isDoubleSupport())
     {
-        std::cout << "ChppGikWholeBodyTask::basicSolve() : failed to identify a double support polygon on the current robot configuration\n";
+        std::cout << "ChppGikWholeBodyTask::basicSolve : failed to identify a double support polygon on the current robot configuration\n";
         return false;
     }
 
