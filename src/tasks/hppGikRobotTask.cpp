@@ -46,13 +46,12 @@ const ChppRobotMotion& ChppGikRobotTask::solutionMotion() const
 
 void ChppGikRobotTask::cropMotion(ChppGikRobotTask* inRobotTask)
 {
-    vectorN config(attStandingRobot->robot()->numberDof());
-    
     if (!inRobotTask->solutionMotion().empty())
     {
         attSolutionMotion->appendMotion(inRobotTask->solutionMotion());
-        attSolutionMotion->configAtTime(attSolutionMotion->endTime(),config);
-        attStandingRobot->staticState(config);
+        ChppRobotMotionSample msample;
+        attSolutionMotion->getSampleAtTime(attSolutionMotion->endTime(),msample);
+        attStandingRobot->staticState(msample.configuration);
     }
 }
 

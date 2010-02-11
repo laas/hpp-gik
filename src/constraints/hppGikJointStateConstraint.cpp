@@ -52,7 +52,6 @@ void ChppGikJointStateConstraint::joint(CjrlJoint* inJoint)
 void ChppGikJointStateConstraint::jacobianRoot(CjrlJoint& inJoint)
 {
     if (attRootJoint!=&inJoint)
-        ;
     {
         attRootJoint = &inJoint;
         computeInfluencingDofs();

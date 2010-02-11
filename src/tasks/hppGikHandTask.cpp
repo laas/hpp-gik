@@ -71,6 +71,8 @@ bool ChppGikHandTask::algorithmSolve()
     V3_I(ZMPworPla,1) = staticZMPy;
     V3_I(ZMPworPla,2) = 0.0;
 
+    ChppRobotMotionSample motionsample;
+    motionsample.rootpose = attStandingRobot->robot()->rootJoint()->currentTransformation();
     for (unsigned int i=0; i<nSamples; i++)
     {
         double val;
@@ -90,7 +92,16 @@ bool ChppGikHandTask::algorithmSolve()
         if (!curSupportPolygon->isPointInsideSafeZone(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1)))
             atLeastOneZMPUnsafe = true;
         */
-        attSolutionMotion->appendSample(attStandingRobot->robot()->currentConfiguration(), ZMPwstPla, ZMPwstObs, ZMPworPla, ZMPworObs);
+        
+        motionsample.configuration = attStandingRobot->robot()->currentConfiguration();
+        motionsample.velocity = attStandingRobot->robot()->currentVelocity();
+        motionsample.acceleration = attStandingRobot->robot()->currentAcceleration();
+        motionsample.ZMPwstPla = ZMPwstPla;
+        motionsample.ZMPwstObs = ZMPwstObs;
+        motionsample.ZMPworPla = ZMPworPla;
+        motionsample.ZMPworObs = ZMPworObs;
+        
+        attSolutionMotion->appendSample(motionsample);
     }
 
     /*

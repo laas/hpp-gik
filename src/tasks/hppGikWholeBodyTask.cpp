@@ -241,12 +241,8 @@ bool ChppGikWholeBodyTask::onestepSolve()
     ChppGikStepElement* stepTask = 0;
 
     ChppGikInterpolatedElement* waistTask = 0;
-    vector3d targetOrientation,laxis;
-    laxis[0] = 0;
-    laxis[1] = 0;
-    laxis[2] = 1;
-    targetOrientation = laxis;
-    ChppGikParallelConstraint* waistConstraint = new ChppGikParallelConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->waist()),laxis,targetOrientation);
+    vector3d laxis = attStandingRobot->halfsittingLocalWaistVertical();
+    ChppGikParallelConstraint* waistConstraint = new ChppGikParallelConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->waist()),laxis,vector3d(0,0,1));
 
     for (unsigned int i=0;i<attMaxIterations;i++)
     {

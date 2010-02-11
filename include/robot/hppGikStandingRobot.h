@@ -81,6 +81,11 @@ public:
     vectorN& halfsittingConfiguration();
 
     /**
+    return a unitary vector expressed in the waist joint's local frame, coinciding with the reference frame (world) Z axis
+    */
+    const vector3d& halfsittingLocalWaistVertical();
+            
+    /**
     \brief Get the distance separating the feet in halfsitting stance
      */
     double halfsittingFeetDistance();
@@ -156,6 +161,7 @@ private:
     matrix4d attWaist, attLFoot, attRFoot;
     ChppGik2DShape attLeftFootShape, attRightFootShape;
     vector3d tempVec;
+    vector3d attWaistVertical;
     matrix4d tempInv, tempM4;
     vectorN attPreviousConfiguration, attConfiguration, attVelocity, attPreviousVelocity, attAcceleration;
     ChppGik2DShape attSPShape;

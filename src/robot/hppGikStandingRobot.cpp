@@ -12,19 +12,19 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot, 
     attRobot = &inRobot;
     attLeftFootShape = inLeftFootprintShape;
     attRightFootShape = inRightFootprintShape;
-    
+
     attSupportPolygonConfig.resize ( attRobot->numberDof(),false );
     vector3d anklePos;
 
-    attRobot->rightFoot()->getAnklePositionInLocalFrame(anklePos);
+    attRobot->rightFoot()->getAnklePositionInLocalFrame ( anklePos );
 
 
     attAnklePos = anklePos[2];
     attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
-      (attRobot->leftAnkle()->currentTransformation(),
-       attRobot->rightAnkle()->currentTransformation(),
-       attAnklePos);
-attSupportPolygonConfig = attRobot->currentConfiguration();
+                               ( attRobot->leftAnkle()->currentTransformation(),
+                                 attRobot->rightAnkle()->currentTransformation(),
+                                 attAnklePos );
+    attSupportPolygonConfig = attRobot->currentConfiguration();
 
     attHalfSittingConfig = attRobot->currentConfiguration();
 
@@ -43,6 +43,16 @@ attSupportPolygonConfig = attRobot->currentConfiguration();
     attRelativeCOM[1] = relcy;
 
     attConfiguration.resize ( attRobot->numberDof() );
+
+    matrix4d tempM4 = attRobot->waist()->currentTransformation();
+    matrix4d tempInv;
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attWaistVertical,tempInv,vector3d(0,0,1) );
+}
+
+const vector3d& ChppGikStandingRobot::halfsittingLocalWaistVertical()
+{
+    return attWaistVertical;
 }
 
 const ChppGik2DShape& ChppGikStandingRobot::supportPolygonShape()
@@ -378,12 +388,12 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     if ( !idem )
     {
         delete attCurrentSupportPolygon;
-	
-       
+
+
         attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
-	  (attRobot->leftAnkle()->currentTransformation(),
-	   attRobot->rightAnkle()->currentTransformation(),
-	   attAnklePos);
+                                   ( attRobot->leftAnkle()->currentTransformation(),
+                                     attRobot->rightAnkle()->currentTransformation(),
+                                     attAnklePos );
 
         attSupportPolygonConfig = attRobot->currentConfiguration();
     }

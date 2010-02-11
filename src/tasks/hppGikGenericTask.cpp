@@ -140,7 +140,8 @@ bool ChppGikGenericTask::algorithmSolve()
     motionEndTime = attMotionPlan->endTime()+attEps;
     time = motionStartTime;
     rank = 1;
-    
+    ChppRobotMotionSample motionsample;
+           
     while (time < motionEndTime)
     {
         supportJoint = attLocomotionPlan->supportFootJoint(time);
@@ -154,12 +155,22 @@ bool ChppGikGenericTask::algorithmSolve()
         attGikSolver->solve(constraintStack);
 
         attStandingRobot->updateRobot(attGikSolver->solutionRootPose(),attGikSolver->solutionJointConfiguration(),attSamplingPeriod);
-        ZMPworObs = attRobot->zeroMomentumPoint();
         
+        ZMPworObs = attRobot->zeroMomentumPoint();
         attLocomotionPlan->getZMPAtTime(time, uZMPworPla);
         ChppGikTools::UblastoVector3(uZMPworPla, ZMPworPla);
         zmpInWaist( ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
-        attSolutionMotion->appendSample(attRobot->currentConfiguration(),ZMPwstPla,ZMPwstObs,ZMPworPla,ZMPworObs);
+        
+        motionsample.configuration = attRobot->currentConfiguration();
+        motionsample.velocity = attRobot->currentVelocity();
+        motionsample.acceleration = attRobot->currentAcceleration();
+        motionsample.rootpose = attGikSolver->solutionRootPose();
+        motionsample.ZMPwstPla = ZMPwstPla;
+        motionsample.ZMPwstObs = ZMPwstObs;
+        motionsample.ZMPworPla = ZMPworPla;
+        motionsample.ZMPworObs = ZMPworObs;
+        
+        attSolutionMotion->appendSample(motionsample);
         
         curSupportPolygon = attStandingRobot->supportPolygon();
         if (!curSupportPolygon)

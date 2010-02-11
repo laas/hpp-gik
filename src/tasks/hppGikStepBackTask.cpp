@@ -120,12 +120,8 @@ bool ChppGikStepBackTask::algorithmSolve()
 
     /*waist is always vertical (element)*/
     ChppGikInterpolatedElement* waistverticalElement = 0;
-    vector3d targetOrientation,laxis;
-    laxis[0] = 0;
-    laxis[1] = 0;
-    laxis[2] = 1;
-    targetOrientation = laxis;
-    ChppGikParallelConstraint* waistverticalConstraint = new ChppGikParallelConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->waist()),laxis,targetOrientation);
+    vector3d laxis=attStandingRobot->halfsittingLocalWaistVertical();
+    ChppGikParallelConstraint* waistverticalConstraint = new ChppGikParallelConstraint(*(attStandingRobot->robot()),*(attStandingRobot->robot()->waist()),laxis,vector3d(0,0,1));
     waistverticalElement = new ChppGikInterpolatedElement(attStandingRobot->robot(),waistverticalConstraint, 2, 0.0, stepStartTime+stepElement->duration()+1.0, attSamplingPeriod);
 
     /*element stack*/

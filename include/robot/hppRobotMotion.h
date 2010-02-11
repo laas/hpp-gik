@@ -3,8 +3,7 @@
 
 #include <list>
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "gikTask/jrlRobotMotion.h"
-
+#include "robotDynamics/jrlHumanoidDynamicRobot.h"
 
 typedef vectorN CjrlRobotConfiguration;
 
@@ -15,14 +14,26 @@ typedef vectorN CjrlRobotConfiguration;
 class ChppRobotMotionSample
 {
     public:
-        ChppRobotMotionSample(const CjrlRobotConfiguration& inConfig, const vector3d& inZMPwstPla, const vector3d& inZMPwstObs,const vector3d& inZMPworPla, const vector3d& inZMPworObs);
-        
-        ~ChppRobotMotionSample();
+       
+        /**
+        \brief Root pose
+         */
+        matrix4d rootpose;
         
         /**
-        \brief Configuration of the robot
+        \brief OpenHRP configuration of the robot
          */
-        CjrlRobotConfiguration configuration;
+        vectorN configuration;
+        
+        /**
+        \brief Velocity
+         */
+        vectorN velocity;
+        
+        /**
+        \brief Acceleration
+         */
+        vectorN acceleration;
         
         /**
         \brief Planned Zero Momentum Point in waist frame
@@ -53,7 +64,7 @@ class ChppRobotMotion;
 The motion is stored as a list of ublas vectors.
 \ingroup robot
  */
-class ChppRobotMotion:public CjrlRobotMotion
+class ChppRobotMotion
 {
 public:
 
@@ -90,32 +101,10 @@ public:
     \brief Get the sampling period of this motion
     */
     double samplingPeriod();
-                
-    /**
-    \brief Get Configuration at given time.
-    \return The configuration vector.
-     */
-    bool configAtTime(double inTime, vectorN& outConfig) const;
-
-    /**
-    \brief (not implemented) Get velocity at given time.
-     */
-    bool velocityAtTime(double inTime, vectorN& outVector) const;
-
-    /**
-    \brief (not implemented) Get Acceleration at given time.
-     */
-    bool accelerationAtTime(double inTime, vectorN& outVector) const;
-
     /**
     \brief Append a new sample 
      */
     void appendSample(const ChppRobotMotionSample& inSample);
-    /**
-    \brief Append a new sample
-     */
-    bool appendSample(const CjrlRobotConfiguration& inConfig, const vector3d& inZMPwstPla, const vector3d& inZMPwstObs,const vector3d& inZMPworPla, const vector3d& inZMPworObs);
-    
     /**
     \brief Append another robot motion. The passed motion is copied sample by sample and added to the end of this motion.
     \return false in case the robot associated to the passed motion is different.
@@ -169,6 +158,12 @@ public:
     \brief Get a pointer to the last sample stored. The returned pointer is null in case the motion is empty.
     */
     const ChppRobotMotionSample* lastSample();
+    
+    /**
+    \brief Copy the sample corresponding to time \param inTime in \param outSample
+    \return false if time out of bounds
+    */
+    bool getSampleAtTime(double inTime, ChppRobotMotionSample& outSample) const;
     
     /**
     \brief Get the number of samples

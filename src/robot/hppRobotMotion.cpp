@@ -7,18 +7,6 @@
 
 using namespace boost::numeric::ublas;
 
-ChppRobotMotionSample::ChppRobotMotionSample(const CjrlRobotConfiguration& inConfig, const vector3d& inZMPwstPla, const vector3d& inZMPwstObs,const vector3d& inZMPworPla, const vector3d& inZMPworObs)
-{
-    configuration = inConfig;
-
-    ZMPworObs = inZMPworObs;
-    ZMPworPla = inZMPworPla;
-    ZMPwstObs = inZMPwstObs;
-    ZMPwstPla = inZMPwstPla;
-}
-
-ChppRobotMotionSample::~ChppRobotMotionSample()
-{}
 
 ChppRobotMotion::ChppRobotMotion(CjrlHumanoidDynamicRobot* inRobot, double inStartTime, double inSamplingPeriod)
 {
@@ -53,11 +41,11 @@ const CjrlHumanoidDynamicRobot& ChppRobotMotion::robot()
     return *attRobot;
 }
 
-bool ChppRobotMotion::configAtTime(double inTime, vectorN& outConfig) const
+bool ChppRobotMotion::getSampleAtTime(double inTime, ChppRobotMotionSample& outSample) const
 {
     if (inTime >= attEndTime+attSamplingPeriod/2 || inTime < attStartTime+attSamplingPeriod/2 )
     {
-        std::cout << "ChppRobotMotion::configAtTime(): requested time( "<< inTime<<" ) is out of range ( "<< attStartTime<<"; "<< attEndTime<<" )\n";
+        std::cout << "ChppRobotMotion::getSampleAtTime: requested time( "<< inTime<<" ) is out of range ( "<< attStartTime<<"; "<< attEndTime<<" )\n";
         return false;
     }
     unsigned int i = ChppGikTools::timetoRank(attStartTime,inTime,attSamplingPeriod)-1;
@@ -66,7 +54,7 @@ bool ChppRobotMotion::configAtTime(double inTime, vectorN& outConfig) const
 
     listGetRange(i,1,resVec);
 
-    outConfig = resVec[0].configuration;
+    outSample = resVec[0];
     return true;
 }
 
@@ -90,76 +78,11 @@ bool ChppRobotMotion::listGetRange(unsigned int index, unsigned int numberElemen
     return true;
 }
 
-bool ChppRobotMotion::velocityAtTime(double inTime, vectorN& outVector) const
-{
-    if (inTime >= attEndTime+attSamplingPeriod/2 || inTime < attStartTime+attSamplingPeriod/2 )
-    {
-        std::cout << "ChppRobotMotion::velocityAtTime(): requested time( "<< inTime<<" ) is out of range ( "<< attStartTime<<"; "<< attEndTime<<" )\n";
-        return false;
-    }
-    unsigned int i = ChppGikTools::timetoRank( attStartTime, inTime, attSamplingPeriod)-1;
-    std::vector<ChppRobotMotionSample> resVec;
-
-
-    if (i == 0)
-        outVector = zero_vector<double>(attRobot->numberDof());
-    else
-    {
-        listGetRange(i-1,2,resVec);
-        outVector = (resVec[1].configuration-resVec[0].configuration)/attSamplingPeriod;
-    }
-    return true;
-}
-
-bool ChppRobotMotion::accelerationAtTime(double inTime, vectorN& outVector) const
-{
-    if (inTime >= attEndTime+attSamplingPeriod/2 || inTime < attStartTime+attSamplingPeriod/2 )
-    {
-        std::cout << "ChppRobotMotion::accelerationAtTime(): requested time( "<< inTime<<" ) is out of range ( "<< attStartTime<<"; "<< attEndTime<<" )\n";
-        return false;
-    }
-    unsigned int i = ChppGikTools::timetoRank( attStartTime, inTime, attSamplingPeriod)-1;
-    std::vector<ChppRobotMotionSample> resVec;
-
-    if (i == 0)
-        outVector = zero_vector<double>(attRobot->numberDof());
-    else
-        if (i == 1)
-        {
-            listGetRange(i-1,2,resVec);
-            outVector = (resVec[1].configuration-resVec[0].configuration)/(attSamplingPeriod*attSamplingPeriod);
-        }
-        else
-        {
-            listGetRange(i-2,3,resVec);
-            outVector = (resVec[0].configuration+resVec[2].configuration-2*resVec[1].configuration)/(attSamplingPeriod*attSamplingPeriod);
-        }
-    return true;
-}
-
-
 void ChppRobotMotion::appendSample(const ChppRobotMotionSample& inSample)
 {
     attSamples.push_back(inSample);
     attEndTime += attSamplingPeriod;
     attNumerSamples++;
-}
-
-bool ChppRobotMotion::appendSample(const CjrlRobotConfiguration& inConfig, const vector3d& inZMPwstPla, const vector3d& inZMPwstObs,const vector3d& inZMPworPla, const vector3d& inZMPworObs)
-{
-    if (inConfig.size() != attRobot->numberDof())
-    {
-        std::cout << "ChppRobotMotion::appendSample(): Incorrect size of config\n";
-        return false;
-    }
-    ChppRobotMotionSample* nS = new ChppRobotMotionSample(inConfig, inZMPwstPla,inZMPwstObs, inZMPworPla,  inZMPworObs);
-
-    attSamples.push_back(*nS);
-    delete nS;
-
-    attEndTime += attSamplingPeriod;
-    attNumerSamples++;
-    return true;
 }
 
 double ChppRobotMotion::samplingPeriod()
