@@ -1,60 +1,102 @@
-dnl autoconf script for hppGik libs
-dnl
-dnl   Research carried out within the scope of the Associated
-dnl	International Laboratory: Joint Japanese-French Robotics
-dnl	Laboratory (JRL)
-dnl
-dnl   Author: Florent Lamiraux LAAS-CNRS
-dnl
+# Don't expend macros beginning by JRL_.
+m4_pattern_forbid([^JRL_])
+AC_PREREQ([2.63])
 
-AC_INIT([hppGik],[2.5.0.99],[openrobots@laas.fr])
-AC_PREREQ(2.59)
+## --------------------- ##
+## Package configuration ##
+## --------------------- ##
+AC_INIT([hpp-gik],
+	[0.1],
+	[florent@laas.fr],
+	[hpp-gik])
 
-if test "$CFLAGS$CXXFLAGS" = ""; then
-  setdefaultflags=yes
-else
-  setdefaultflags=no
-fi
+# Auxiliary files.
+AC_CONFIG_AUX_DIR([build-aux])
 
-AM_INIT_AUTOMAKE([foreign no-define])
-AC_PROG_INSTALL
-AC_PROG_LIBTOOL
+# Macros are stored in build-aux.
+AC_CONFIG_MACRO_DIR([build-aux])
 
+# Automake.
+AM_INIT_AUTOMAKE([1.9.6 dist-bzip2 -Wall nostdinc])
+
+## ------------- ##
+## C++ compiler  ##
+## ------------- ##
+
+# Search for a C++ compiler.
+AC_LANG([C++])
 AC_PROG_CXX
 
-if test "$setdefaultflags" = "yes"; then
-  if test "$GCC" = "yes"; then
-    CFLAGS="$CFLAGS -Wall"
-    AC_MSG_NOTICE([adding default "-Wall" c flags])
-  fi
-  if test "$GXX" = "yes"; then
-    CXXFLAGS="$CXXFLAGS -Wall"
-    AC_MSG_NOTICE([adding default "-Wall" c++ flags])
-  fi
+# Speed-up compilation.
+if test "$GXX" = yes; then
+  CXXFLAGS="$CXXFLAGS -pipe"
 fi
 
-define(abstractgiktask_reqd, [abstractGikTask >= 2.4])
-AC_SUBST(ABSTRACTGIKTASK_REQD, "abstractgiktask_reqd")
-PKG_CHECK_MODULES(ABS_GIKTASK, abstractgiktask_reqd)
-ABS_GIKTASK_PREFIX=`$PKG_CONFIG abstractGikTask --variable=prefix`
-ABS_GIKTASK_DOCDIR=`$PKG_CONFIG abstractGikTask --variable=docdir`
-AC_SUBST(ABS_GIKTASK_CFLAGS)
-AC_SUBST(ABS_GIKTASK_LIBS)
-AC_SUBST(ABS_GIKTASK_DOCDIR)
+# Customize warnings.
+JRL_CXX_WARNINGS([[-Wall],
+                   [-Werror],
+                   [-Wcast-align],
+                   [-Wcast-qual],
+                   [-Wformat],
+                   [-Wmissing-prototypes],
+                   [-Wstrict-prototypes],
+                   [-Wwrite-strings],
+                   [-Wbad-function-cast],
+                   [-Wmissing-declarations],
+                   [-Wnested-externs]])
 
-define(hrp2dynamics_reqd, [hrp2Dynamics >= 1.4.0])
-AC_SUBST(HRP2DYNAMICS_REQD, "hrp2dynamics_reqd")
-PKG_CHECK_MODULES(HRP2, hrp2dynamics_reqd)
-HRP2_DOCDIR=`$PKG_CONFIG hrp2Dynamics --variable=docdir`
-AC_SUBST(HRP2_DOCDIR)
-AC_SUBST(HRP2_CFLAGS)
-AC_SUBST(HRP2_LIBS)
+## ------------------- ##
+## Additionnal tools.  ##
+## ------------------- ##
 
-AC_OUTPUT(Makefile
-	src/Makefile
-	include/Makefile
-	doc/Makefile
-	doc/hpp.dox
-	hppGik.pc
-	unitTesting/Makefile
-)
+# Search for misc. common tools.
+AC_PROG_MKDIR_P
+AC_PROG_SED
+
+# Search for Doxygen.
+JRL_PROG_DOXYGEN
+
+# Search for Libtool.
+LT_INIT
+
+# Search for pkg-config dependencies.
+m4_include([deps.ac])
+
+## ------------ ##
+## Pkg-config.  ##
+## ------------ ##
+
+AC_SUBST([PKGCONFIG_DESCRIPTION], [hpp-gik])
+AC_SUBST([PKGCONFIG_CONFLICTS], [])
+AC_SUBST([PKGCONFIG_LIBS], [-lhpp-gik])
+AC_SUBST([PKGCONFIG_CFLAGS], [])
+
+
+## ------------ ##
+## Test-suite.  ##
+## ------------ ##
+
+AC_CONFIG_TESTDIR([tests])
+AM_MISSING_PROG([AUTOM4TE], [autom4te])
+
+
+## -------------- ##
+## Write output.  ##
+## -------------- ##
+
+# Create config.h
+AC_CONFIG_HEADERS([config.h])
+
+# Create Makefiles.
+AC_CONFIG_FILES([
+  Makefile
+   include/Makefile
+   src/Makefile
+   doc/Makefile
+   tests/Makefile
+    tests/atlocal
+    tests/package.m4
+])
+
+# Write files.
+AC_OUTPUT
