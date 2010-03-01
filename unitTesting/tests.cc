@@ -54,11 +54,11 @@ void test1 ()
     unsigned int priority;
 
     ChppGikWholeBodyTask attWholeBodyTask ( attStandingRobot, 5e-3 );
-    CjrlJoint* joint = attRobot->rightWrist();
-    CjrlHand* hand = attRobot->rightHand();
+    CjrlJoint* joint = attRobot->leftWrist();
+    CjrlHand* hand = attRobot->leftHand();
     vector3d lpoint;
     hand->getCenter ( lpoint );
-    vector3d targetPoint ( 0.8,-0.2,1.04 );
+    vector3d targetPoint ( 0.8,0.2,1.04 );
     ChppGikPositionConstraint psc ( *attRobot,*joint,lpoint,targetPoint );
     priority = 1;
     attWholeBodyTask.addStateConstraint ( &psc,priority );
