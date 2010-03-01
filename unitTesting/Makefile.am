@@ -6,7 +6,6 @@ TESTS = tests
 noinst_PROGRAMS = tests
 
 tests_SOURCES= tests.cc
-	
 
 tests_CPPFLAGS=\
 	-I$(top_srcdir)/include		\

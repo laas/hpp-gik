@@ -15,17 +15,17 @@
 #include "dynamicsJRLJapan/dynamicsJRLJapanFactory.h"
 #include "hrp2Dynamics/hrp2OptHumanoidDynamicRobot.h"
 
-#include "hppGik/tasks/hppGikWholeBodyTask.h"
-#include "hppGik/constraints/hppGikPositionConstraint.h"
-#include "hppGik/constraints/hppGikParallelConstraint.h"
-#include "hppGik/constraints/hppGikGazeConstraint.h"
+#include "tasks/hppGikWholeBodyTask.h"
+#include "constraints/hppGikPositionConstraint.h"
+#include "constraints/hppGikParallelConstraint.h"
+#include "constraints/hppGikGazeConstraint.h"
 
 
-#include "hppGik/motionplanners/elements/hppGikStepElement.h"
-#include "hppGik/motionplanners/elements/hppGikInterpolatedElement.h"
+#include "motionplanners/elements/hppGikStepElement.h"
+#include "motionplanners/elements/hppGikInterpolatedElement.h"
 
 
-#include "hppGik/hppGikTools.h"
+#include "hppGikTools.h"
 
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
