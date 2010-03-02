@@ -34,7 +34,6 @@ fi
 
 # Customize warnings.
 JRL_CXX_WARNINGS([[-Wall],
-                   [-Werror],
                    [-Wcast-align],
                    [-Wcast-qual],
                    [-Wformat],
