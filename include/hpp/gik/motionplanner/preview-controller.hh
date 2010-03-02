@@ -10,7 +10,7 @@ public:
     \brief Constructor
     \param inSamplingPeriod: currently only two values supported : 5e-3 and 5e-2. If the value entered in the constructor call is different the instance cannot be constructed.
     The used gains were computed for a robot having its center of mass at height 0.80914.
-    The program using this class needs to find either of the files "hppGikPreviewController5ms.ini" and "hppGikPreviewController50ms.ini" in the running directory
+    The program using this class needs to find either of the files "preview-controller-5ms.ini" and "preview-controller-50ms.ini" in the running directory
      */
     ChppGikPreviewController(double inSamplingPeriod);
     /**

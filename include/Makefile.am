@@ -65,12 +65,12 @@ nobase_include_HEADERS +=				\
 	robot/hppGikStandingRobot.h \
 	robot/hppGik2DShape.h
 
-gainfiledir=	$(datadir)/gik
+gainfiledir=	$(datadir)/hpp/gik
 gainfile_DATA=\
-	motionplanners/hppGikPreviewController5ms.ini	\
-	motionplanners/hppGikPreviewController10ms.ini	\
-	motionplanners/hppGikPreviewController20ms.ini	\
-	motionplanners/hppGikPreviewController50ms.ini
+	hpp/gik/motionplanner/preview-controller-5ms.ini	\
+	hpp/gik/motionplanner/preview-controller-10ms.ini	\
+	hpp/gik/motionplanner/preview-controller-20ms.ini	\
+	hpp/gik/motionplanner/preview-controller-50ms.ini
 EXTRA_DIST+=	$(gainfile_DATA)
 
 #

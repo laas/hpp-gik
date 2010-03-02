@@ -20,16 +20,16 @@ ChppGikPreviewController::ChppGikPreviewController(double inSamplingPeriod)
     attSamplingPeriod = inSamplingPeriod;
     attNumberPreviewSamples = ChppGikTools::timetoRank(0.0,attPreviewTime,attSamplingPeriod);
     if (fabs(inSamplingPeriod-5e-3)<1e-5)
-        loadGains(GAINDIR "/hppGikPreviewController5ms.ini");
+        loadGains(GAINDIR "/preview-controller-5ms.ini");
     else
         if (fabs(inSamplingPeriod-1e-2)<1e-5)
-            loadGains(GAINDIR "/hppGikPreviewController10ms.ini");
+            loadGains(GAINDIR "/preview-controller-10ms.ini");
         else
             if (fabs(inSamplingPeriod-2e-2)<1e-5)
-                loadGains(GAINDIR "/hppGikPreviewController20ms.ini");
+                loadGains(GAINDIR "/preview-controller-20ms.ini");
             else
                 if (fabs(inSamplingPeriod-5e-2)<1e-5)
-                    loadGains(GAINDIR "/hppGikPreviewController50ms.ini");
+                    loadGains(GAINDIR "/preview-controller-50ms.ini");
 }
 
 double ChppGikPreviewController::previewTime()

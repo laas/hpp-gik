@@ -58,4 +58,4 @@ robot/standing-robot.cc
 libhpp_gik_la_LIBADD = $(ABSTRACTGIKTASK_LIBS) $(HRP2DYNAMICS_LIBS) 
 libhpp_gik_la_CPPFLAGS = \
 	$(AM_CPPFLAGS) $(ABSTRACTGIKTASK_CFLAGS) $(HRP2DYNAMICS_CFLAGS) \
-	-DGAINDIR='"${datadir}/gik"'
+	-DGAINDIR='"${datadir}/hpp/gik"'
