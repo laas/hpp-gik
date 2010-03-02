@@ -12,7 +12,7 @@ AM_CXXFLAGS += $(WARNING_CXXFLAGS)
 
 lib_LTLIBRARIES = libhpp-gik.la
 
-libhpp-gik_la_SOURCES = 			\
+libhpp_gik_la_SOURCES = 			\
 	constraints/hppGikJointStateConstraint.cpp \
 	constraints/hppGikPlaneConstraint.cpp \
 	constraints/hppGikPointingConstraint.cpp \
@@ -56,5 +56,5 @@ libhpp-gik_la_SOURCES = 			\
 	hppGikTools.cpp
 
 
-libhpp-gik_la_LIBADD = $(ABSTRACTGIKTASK_LIBS) $(HRP2DYNAMICS_LIBS) 
-libhpp-gik_la_CPPFLAGS = $(AM_CPPFLAGS) $(ABSTRACTGIKTASK_CFLAGS) $(HRP2DYNAMICS_CFLAGS) 
+libhpp_gik_la_LIBADD = $(ABSTRACTGIKTASK_LIBS) $(HRP2DYNAMICS_LIBS) 
+libhpp_gik_la_CPPFLAGS = $(AM_CPPFLAGS) $(ABSTRACTGIKTASK_CFLAGS) $(HRP2DYNAMICS_CFLAGS) 

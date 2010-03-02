@@ -68,7 +68,7 @@ gainfile_DATA=\
 	hpp/gik/motionplanners/hppGikPreviewController10ms.ini	\
 	hpp/gik/motionplanners/hppGikPreviewController20ms.ini	\
 	hpp/gik/motionplanners/hppGikPreviewController50ms.ini
-EXTRA_DIST=	$(gainfile_DATA)
+EXTRA_DIST+=	$(gainfile_DATA)
 
 #
 #  Install deprecated headers

@@ -15,9 +15,9 @@ COMMON_SOURCES = common.hh
 
 # simple-test
 check_PROGRAMS = tests
-simple_test_SOURCES = tests.cc $(COMMON_SOURCES)
-simple_test_LDADD = $(top_builddir)/src/lib@PACKAGE_TARNAME@.la
-simple_test_CPPFLAGS = $(AM_CPPFLAGS) $(ABSTRACTGIKTASK_CFLAGS) $(HRP2DYNAMICS_CFLAGS) 
+tests_SOURCES = tests.cc $(COMMON_SOURCES)
+tests_LDADD = $(top_builddir)/src/lib@PACKAGE_TARNAME@.la
+tests_CPPFLAGS = $(AM_CPPFLAGS) $(ABSTRACTGIKTASK_CFLAGS) $(HRP2DYNAMICS_CFLAGS) 
 
 .PHONY: generate-reference
 
