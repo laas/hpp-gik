@@ -1,5 +1,5 @@
-#include "tasks/hppGikStepTask.h"
-#include "motionplanners/elements/hppGikStepElement.h"
+#include "hpp/gik/task/step-task.hh"
+#include "hpp/gik/motionplanner/element/step-element.hh"
 
 ChppGikStepTask::ChppGikStepTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, bool inForRightFoot, double relativeTargetX, double relativeTargetY, double relativeTargetTheta):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"StepTask")
 {

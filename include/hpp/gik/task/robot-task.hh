@@ -4,8 +4,8 @@
 #include <time.h>
 #include <sys/time.h>
 #include <string>
-#include "robot/hppGikStandingRobot.h"
-#include "robot/hppRobotMotion.h"
+#include "hpp/gik/robot/standing-robot.hh"
+#include "hpp/gik/robot/robot-motion.hh"
 
 class ChppGikRobotTask;
 /**

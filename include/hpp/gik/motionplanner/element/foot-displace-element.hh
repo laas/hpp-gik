@@ -1,8 +1,8 @@
 #ifndef HPP_GIK_FOOTDISPLACE_ELEMENT_H
 #define HPP_GIK_FOOTDISPLACE_ELEMENT_H
 
-#include "motionplanners/elements/hppGikLocomotionElement.h"
-#include "constraints/hppGikTransformationConstraint.h"
+#include "hpp/gik/motionplanner/element/locomotion-element.hh"
+#include "hpp/gik/constraint/transformation-constraint.hh"
 
 /**
 \brief A locomotion element for displacing a foot to the given footprint

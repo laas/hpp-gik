@@ -1,6 +1,6 @@
 
-#include "tasks/hppGikHandTask.h"
-#include "hppGikTools.h"
+#include "hpp/gik/task/hand-task.hh"
+#include "hpp/gik/tools.hh"
 #define V3_I MAL_S3_VECTOR_ACCESS
 
 ChppGikHandTask::ChppGikHandTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"HandTask")

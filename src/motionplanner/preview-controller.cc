@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "motionplanners/hppGikPreviewController.h"
-#include "hppGikTools.h"
+#include "hpp/gik/motionplanner/preview-controller.hh"
+#include "hpp/gik/tools.hh"
 #include <iostream>
 #include <fstream>
 #include <string>

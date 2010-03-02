@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "core/hppGikSolver.h"
-#include "hppGikTools.h"
+#include "hpp/gik/core/solver.hh"
+#include "hpp/gik/tools.hh"
 
 #define V3_I  MAL_S3_VECTOR_ACCESS
 

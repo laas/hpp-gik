@@ -1,9 +1,9 @@
 #ifndef HPP_GIK_INTERPOLATED_ELEMENT_H
 #define HPP_GIK_INTERPOLATED_ELEMENT_H
 
-#include "constraints/hppGikVectorizableConstraint.h"
-#include "core/hppGikPrioritizedMotion.h"
-#include "core/hppGikMotionPlanRow.h"
+#include "hpp/gik/constraint/vectorizable-constraint.hh"
+#include "hpp/gik/core/prioritized-motion.hh"
+#include "hpp/gik/core/motion-plan-row.hh"
 #include "gikTask/jrlGikMotionConstraint.h"
 
 /**

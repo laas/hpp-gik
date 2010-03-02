@@ -1,7 +1,7 @@
-#include "tasks/hppGikHalfSittingTask.h"
-#include "hppGikTools.h"
-#include "constraints/hppGikConfigurationConstraint.h"
-#include "motionplanners/elements/hppGikInterpolatedElement.h"
+#include "hpp/gik/task/half-sitting-task.hh"
+#include "hpp/gik/tools.hh"
+#include "hpp/gik/constraint/configuration-constraint.hh"
+#include "hpp/gik/motionplanner/element/interpolated-element.hh"
 
 
 

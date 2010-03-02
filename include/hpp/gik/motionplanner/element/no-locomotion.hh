@@ -1,10 +1,10 @@
 #ifndef HPP_GIK_NOLOCOMOTION_ELEMENT_H
 #define HPP_GIK_NOLOCOMOTION_ELEMENT_H
 
-#include "core/hppGikPrioritizedMotion.h"
-#include "core/hppGikMotionPlanElement.h"
-#include "constraints/hppGikComConstraint.h"
-#include "constraints/hppGikTransformationConstraint.h"
+#include "hpp/gik/core/prioritized-motion.hh"
+#include "hpp/gik/core/motion-plan-element.hh"
+#include "hpp/gik/constraint/com-constraint.hh"
+#include "hpp/gik/constraint/transformation-constraint.hh"
 
 /**
 \brief A motion that return a constraint composed of a Com and a Foot transformation. The constraint is built upon construction and is returned between startTime and endTime.

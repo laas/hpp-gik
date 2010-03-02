@@ -2,7 +2,7 @@
 #define HPP_GIK_MOTION_PLAN_COLUMN_H
 
 
-#include "core/hppGikMotionPlanElement.h"
+#include "hpp/gik/core/motion-plan-element.hh"
 
 /**
 \brief A motion plan column is a column of motion elements inside a motion plan. It is the equivalent of a prioritized stack of constraints.

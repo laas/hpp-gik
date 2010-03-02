@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "motionplanners/elements/hppGikWalkElement.h"
-#include "hppGikTools.h"
+#include "hpp/gik/motionplanner/element/walk-element.hh"
+#include "hpp/gik/tools.hh"
 
 
 using namespace boost::numeric::ublas;

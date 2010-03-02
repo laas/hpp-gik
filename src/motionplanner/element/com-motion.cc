@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "hppGikTools.h"
-#include "motionplanners/elements/hppGikComMotion.h"
+#include "hpp/gik/tools.hh"
+#include "hpp/gik/motionplanner/element/com-motion.hh"
 
 
 ChppGikComMotion::ChppGikComMotion(CjrlDynamicRobot* inRobot, double inStartTime, double inSamplingPeriod, const vectorN& inWorkingJoints, unsigned int inPriority):ChppGikPrioritizedMotion(inRobot, inPriority,this)

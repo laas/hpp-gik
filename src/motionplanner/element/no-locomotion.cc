@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "hppGikTools.h"
-#include "motionplanners/elements/hppGikNoLocomotion.h"
+#include "hpp/gik/tools.hh"
+#include "hpp/gik/motionplanner/element/no-locomotion.hh"
 
 ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, CjrlJoint* inSupportFoot, double inStartTime, double inEndTime, const vectorN& inWorkingJoints, unsigned int inPriority):ChppGikPrioritizedMotion(inRobot, inPriority, this)
 {

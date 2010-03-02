@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_HAND_TASK_H
 #define HPP_GIK_HAND_TASK_H
 
-#include "tasks/hppGikRobotTask.h"
+#include "hpp/gik/task/robot-task.hh"
 
 /**
 \brief This is a robot hand task. It can be used to plan joint motion to change the clench of a hand. The clench is represented by a single scalar value ranging from 0 (open hand) to 1 (closed hand).

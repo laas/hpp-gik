@@ -3,9 +3,9 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "robotDynamics/jrlHumanoidDynamicRobot.h"
-#include "robot/hppGikFootprintRelated.h"
-#include "core/hppGikPrioritizedMotion.h"
-#include "constraints/hppGikTransformationConstraint.h"
+#include "hpp/gik/robot/foot-print-related.hh"
+#include "hpp/gik/core/prioritized-motion.hh"
+#include "hpp/gik/constraint/transformation-constraint.hh"
 
 /**
 \brief A locomotion element is a motion planning task that produces threes motion chunks: a 2D Zero Momentum Point motion, a foot motion constraint and a support polygon motion.

@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "core/hppGikBounder.h"
-#include "hppGikTools.h"
+#include "hpp/gik/core/bounder.hh"
+#include "hpp/gik/tools.hh"
 
 using namespace boost::numeric::ublas;
 

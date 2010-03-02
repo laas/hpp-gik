@@ -1,8 +1,8 @@
-#include "tasks/hppGikReachTask.h"
+#include "hpp/gik/task/reach-task.hh"
 
-#include "constraints/hppGikParallelConstraint.h"
-#include "constraints/hppGikPositionConstraint.h"
-#include "constraints/hppGikGazeConstraint.h"
+#include "hpp/gik/constraint/parallel-constraint.hh"
+#include "hpp/gik/constraint/position-constraint.hh"
+#include "hpp/gik/constraint/gaze-constraint.hh"
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 
 ChppGikReachTask::ChppGikReachTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"ReachTask")

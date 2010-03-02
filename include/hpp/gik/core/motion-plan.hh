@@ -1,8 +1,8 @@
 #ifndef HPP_GIK_MOTION_PLAN_H
 #define HPP_GIK_MOTION_PLAN_H
 
-#include "core/hppGikMotionPlanColumn.h"
-#include "core/hppGikMotionPlanRow.h"
+#include "hpp/gik/core/motion-plan-column.hh"
+#include "hpp/gik/core/motion-plan-row.hh"
 
 /**
 The Motion Plan contains references to ChppGikPrioritizedMotion objects, sorted by descending priority in ChppGikMotionPlanRow objects.

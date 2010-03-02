@@ -13,48 +13,47 @@ AM_CXXFLAGS += $(WARNING_CXXFLAGS)
 lib_LTLIBRARIES = libhpp-gik.la
 
 libhpp_gik_la_SOURCES = 			\
-	constraints/hppGikJointStateConstraint.cpp \
-	constraints/hppGikPlaneConstraint.cpp \
-	constraints/hppGikPointingConstraint.cpp \
-	constraints/hppGikGazeConstraint.cpp \
-	constraints/hppGikParallelConstraint.cpp \
-	constraints/hppGikRotationConstraint.cpp \
-	constraints/hppGikPositionConstraint.cpp \
-	constraints/hppGikConfigurationConstraint.cpp \
-	constraints/hppGikComConstraint.cpp \
-	constraints/hppGikTransformationConstraint.cpp \
-	constraints/hppGikMotionConstraint.cpp \
-	core/hppGikBounder.cpp \
-	core/hppGikSolver.cpp \
-	core/hppGikSolverBasic.cpp \
-	core/hppGikMotionPlanColumn.cpp \
-	core/hppGikMotionPlanElement.cpp \
-	core/hppGikMotionPlan.cpp \
-	core/hppGikMotionPlanRow.cpp \
-	motionplanners/hppGikLocomotionPlan.cpp \
-	motionplanners/hppGikPreviewController.cpp \
-	motionplanners/elements/hppGikComMotion.cpp \
-	motionplanners/elements/hppGikFootDisplaceElement.cpp \
-	motionplanners/elements/hppGikInterpolatedElement.cpp \
-	motionplanners/elements/hppGikNoLocomotion.cpp \
-	motionplanners/elements/hppGikStepElement.cpp \
-	motionplanners/elements/hppGikWalkElement.cpp \
-	motionplanners/elements/hppGikZMPshiftElement.cpp \
-	tasks/hppGikGenericTask.cpp \
-	tasks/hppGikWholeBodyTask.cpp \
-	tasks/hppGikRobotTask.cpp \
-	tasks/hppGikStepBackTask.cpp \
-	tasks/hppGikStepTask.cpp \
-	tasks/hppGikHandTask.cpp \
-	tasks/hppGikMetaTask.cpp \
-	tasks/hppGikReachTask.cpp \
-	tasks/hppGikHalfSittingTask.cpp \
-	robot/hppGikFootprintRelated.cpp \
-	robot/hppGikMaskFactory.cpp \
-	robot/hppRobotMotion.cpp \
-	robot/hppGikStandingRobot.cpp \
-	hppGikTools.cpp
-
+constraint/joint-state-constraint.cc \
+constraint/plane-constraint.cc \
+constraint/pointing-constraint.cc \
+constraint/gaze-constraint.cc \
+constraint/parallel-constraint.cc \
+constraint/rotation-constraint.cc \
+constraint/position-constraint.cc \
+constraint/configuration-constraint.cc \
+constraint/com-constraint.cc \
+constraint/transformation-constraint.cc \
+constraint/motion-constraint.cc \
+core/bounder.cc \
+core/solver.cc \
+core/solver-basic.cc \
+core/motion-plan-column.cc \
+core/motion-plan-element.cc \
+core/motion-plan.cc \
+core/motion-plan-row.cc \
+motionplanner/locomotion-plan.cc \
+motionplanner/preview-controller.cc \
+motionplanner/element/com-motion.cc \
+motionplanner/element/foot-displace-element.cc \
+motionplanner/element/interpolated-element.cc \
+motionplanner/element/no-locomotion.cc \
+motionplanner/element/step-element.cc \
+motionplanner/element/walk-element.cc \
+motionplanner/element/zmp-shift-element.cc \
+task/generic-task.cc \
+task/whole-body-task.cc \
+task/robot-task.cc \
+task/step-back-task.cc \
+task/step-task.cc \
+task/hand-task.cc \
+task/meta-task.cc \
+task/reach-task.cc \
+task/half-sitting-task.cc \
+robot/foot-print-related.cc \
+robot/mask-factory.cc \
+robot/robot-motion.cc \
+robot/standing-robot.cc \
+tools.cc'
 
 libhpp_gik_la_LIBADD = $(ABSTRACTGIKTASK_LIBS) $(HRP2DYNAMICS_LIBS) 
 libhpp_gik_la_CPPFLAGS = \

@@ -1,4 +1,4 @@
-#include "tasks/hppGikRobotTask.h"
+#include "hpp/gik/task/robot-task.hh"
 
 ChppGikRobotTask::ChppGikRobotTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, const char* inTaskName)
 {

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "constraints/hppGikPointingConstraint.h"
+#include "hpp/gik/constraint/pointing-constraint.hh"
 #include "gikTask/jrlGikGazeConstraint.h"
 
 /**

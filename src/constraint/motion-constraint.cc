@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "constraints/hppGikMotionConstraint.h"
-#include "hppGikTools.h"
+#include "hpp/gik/constraint/motion-constraint.hh"
+#include "hpp/gik/tools.hh"
 
 
 ChppGikMotionConstraint::ChppGikMotionConstraint(CjrlDynamicRobot* inRobot, double inSamplingPeriod, double inStartTime)

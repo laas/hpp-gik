@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_META_TASK_H
 #define HPP_GIK_META_TASK_H
 
-#include "tasks/hppGikRobotTask.h"
+#include "hpp/gik/task/robot-task.hh"
 
 /**
 \brief This is a robot task  composed of a sequence of robot tasks.

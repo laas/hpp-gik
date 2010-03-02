@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_READY_ELEMENT_H
 #define HPP_GIK_READY_ELEMENT_H
 
-#include "core/hppGikPrioritizedMotion.h"
+#include "hpp/gik/core/prioritized-motion.hh"
 
 /**
 \brief CjrlMotionConstraint + priority + working joints

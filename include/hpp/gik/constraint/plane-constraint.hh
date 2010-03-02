@@ -3,8 +3,8 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikPlaneConstraint.h"
-#include "constraints/hppGikJointStateConstraint.h"
-#include "constraints/hppGikVectorizableConstraint.h"
+#include "hpp/gik/constraint/joint-state-constraint.hh"
+#include "hpp/gik/constraint/vectorizable-constraint.hh"
 
 /**
 \brief Description of a constraint that limits the position of a point of the robot to a given plan.

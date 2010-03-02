@@ -1,5 +1,5 @@
-#include "robot/hppGikStandingRobot.h"
-#include "hppGikTools.h"
+#include "hpp/gik/robot/standing-robot.hh"
+#include "hpp/gik/tools.hh"
 
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 #define V3_I  MAL_S3_VECTOR_ACCESS

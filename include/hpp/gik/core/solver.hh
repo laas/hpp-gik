@@ -2,8 +2,8 @@
 #define HPP_GIK_SOLVER_H
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "core/hppGikSolverBasic.h"
-#include "core/hppGikBounder.h"
+#include "hpp/gik/core/solver-basic.hh"
+#include "hpp/gik/core/bounder.hh"
 
 /**
 \brief this object is a prioritized inverse kinematics for a dynamic robot (CjrlDynamicRobot).

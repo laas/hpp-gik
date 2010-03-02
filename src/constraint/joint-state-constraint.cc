@@ -1,6 +1,6 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "constraints/hppGikJointStateConstraint.h"
+#include "hpp/gik/constraint/joint-state-constraint.hh"
 
 using namespace boost::numeric::ublas;
 

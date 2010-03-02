@@ -3,8 +3,8 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikPointingConstraint.h"
-#include "constraints/hppGikJointStateConstraint.h"
-#include "constraints/hppGikVectorizableConstraint.h"
+#include "hpp/gik/constraint/joint-state-constraint.hh"
+#include "hpp/gik/constraint/vectorizable-constraint.hh"
 
 /**
 \brief Constraint on a line segment attached to a body to be aligned with a given point in the world frame. The line segment is defined by an origin point and a vector both given in the body's local frame.

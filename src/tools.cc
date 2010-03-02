@@ -2,7 +2,7 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/io.hpp"
-#include "hppGikTools.h"
+#include "hpp/gik/tools.hh"
 
 
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J

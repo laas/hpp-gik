@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "robot/hppRobotMotion.h"
-#include "hppGikTools.h"
+#include "hpp/gik/robot/robot-motion.hh"
+#include "hpp/gik/tools.hh"
 
 #define V3_I MAL_S3_VECTOR_ACCESS
 

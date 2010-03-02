@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "constraints/hppGikComConstraint.h"
-#include "hppGikTools.h"
+#include "hpp/gik/constraint/com-constraint.hh"
+#include "hpp/gik/tools.hh"
 #include <time.h>
 #include <sys/time.h>
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J

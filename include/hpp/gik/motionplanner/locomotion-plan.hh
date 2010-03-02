@@ -1,12 +1,12 @@
 #ifndef HPP_GIK_LOCOMOTION_PLAN_H
 #define HPP_GIK_LOCOMOTION_PLAN_H
 
-#include "robot/hppGikStandingRobot.h"
-#include "motionplanners/hppGikPreviewController.h"
-#include "motionplanners/elements/hppGikLocomotionElement.h"
-#include "motionplanners/elements/hppGikNoLocomotion.h"
-#include "motionplanners/elements/hppGikComMotion.h"
-#include "core/hppGikMotionPlan.h"
+#include "hpp/gik/robot/standing-robot.hh"
+#include "hpp/gik/motionplanner/preview-controller.hh"
+#include "hpp/gik/motionplanner/element/locomotion-element.hh"
+#include "hpp/gik/motionplanner/element/no-locomotion.hh"
+#include "hpp/gik/motionplanner/element/com-motion.hh"
+#include "hpp/gik/core/motion-plan.hh"
 
 class ChppGikLocomotionData
 {

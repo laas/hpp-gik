@@ -3,9 +3,9 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "robotDynamics/jrlHumanoidDynamicRobot.h"
-#include "robot/hppGikFootprintRelated.h"
-#include "robot/hppGikMaskFactory.h"
-#include "robot/hppGik2DShape.h"
+#include "hpp/gik/robot/foot-print-related.hh"
+#include "hpp/gik/robot/mask-factory.hh"
+#include "hpp/gik/robot/shape-2d.hh"
 
 
 /**

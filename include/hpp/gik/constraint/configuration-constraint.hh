@@ -2,7 +2,7 @@
 #define HPP_GIK_CONF_CONSTRAINT_H
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "constraints/hppGikVectorizableConstraint.h"
+#include "hpp/gik/constraint/vectorizable-constraint.hh"
 
 
 /**

@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "motionplanners/elements/hppGikFootDisplaceElement.h"
-#include "hppGikTools.h"
+#include "hpp/gik/motionplanner/element/foot-displace-element.hh"
+#include "hpp/gik/tools.hh"
 
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 using namespace boost::numeric::ublas;

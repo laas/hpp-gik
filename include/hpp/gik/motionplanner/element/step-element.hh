@@ -1,8 +1,8 @@
 #ifndef HPP_GIK_STEP_ELEMENT_H
 #define HPP_GIK_STEP_ELEMENT_H
 
-#include "motionplanners/elements/hppGikZMPshiftElement.h"
-#include "motionplanners/elements/hppGikFootDisplaceElement.h"
+#include "hpp/gik/motionplanner/element/zmp-shift-element.hh"
+#include "hpp/gik/motionplanner/element/foot-displace-element.hh"
 
 /**
 \brief This is motion planner for a step

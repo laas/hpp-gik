@@ -3,15 +3,15 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 
-#include "tasks/hppGikWholeBodyTask.h"
-#include "constraints/hppGikPrioritizedStateConstraint.h"
-#include "motionplanners/elements/hppGikReadyElement.h"
-#include "motionplanners/elements/hppGikInterpolatedElement.h"
-#include "motionplanners/elements/hppGikStepElement.h"
-#include "constraints/hppGikPositionConstraint.h"
-#include "constraints/hppGikParallelConstraint.h"
-#include "constraints/hppGikTransformationConstraint.h"
-#include "hppGikTools.h"
+#include "hpp/gik/task/whole-body-task.hh"
+#include "hpp/gik/constraint/prioritized-state-constraint.hh"
+#include "hpp/gik/motionplanner/element/ready-element.hh"
+#include "hpp/gik/motionplanner/element/interpolated-element.hh"
+#include "hpp/gik/motionplanner/element/step-element.hh"
+#include "hpp/gik/constraint/position-constraint.hh"
+#include "hpp/gik/constraint/parallel-constraint.hh"
+#include "hpp/gik/constraint/transformation-constraint.hh"
+#include "hpp/gik/tools.hh"
 
 
 ChppGikWholeBodyTask::ChppGikWholeBodyTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, unsigned int inMaxIterations, ChppGikGenericTask *inGenericTask):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"WholebodyTask")

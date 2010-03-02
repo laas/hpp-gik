@@ -2,9 +2,9 @@
 #define HPP_GIK_PARALLEL_CONSTRAINT_H
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "constraints/hppGikJointStateConstraint.h"
+#include "hpp/gik/constraint/joint-state-constraint.hh"
 #include "gikTask/jrlGikParallelConstraint.h"
-#include "constraints/hppGikVectorizableConstraint.h"
+#include "hpp/gik/constraint/vectorizable-constraint.hh"
 
 /**
 \brief Specify a 2D orientation constraint on a body of the robot.

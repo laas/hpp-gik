@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "core/hppGikMotionPlanRow.h"
-#include "hppGikTools.h"
+#include "hpp/gik/core/motion-plan-row.hh"
+#include "hpp/gik/tools.hh"
 using namespace boost::numeric::ublas;
 
 ChppGikMotionPlanRow::ChppGikMotionPlanRow(CjrlDynamicRobot* inRobot,unsigned int inPriority)

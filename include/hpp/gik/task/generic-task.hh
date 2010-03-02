@@ -1,10 +1,10 @@
 #ifndef HPP_GIK_GENERICTASK_H
 #define HPP_GIK_GENERICTASK_H
 
-#include "motionplanners/hppGikLocomotionPlan.h"
-#include "tasks/hppGikRobotTask.h"
-#include "core/hppGikSolver.h"
-#include "core/hppGikPrioritizedMotion.h"
+#include "hpp/gik/motionplanner/locomotion-plan.hh"
+#include "hpp/gik/task/robot-task.hh"
+#include "hpp/gik/core/solver.hh"
+#include "hpp/gik/core/prioritized-motion.hh"
 
 /**
 \brief This object produces whole body joint motion based on entered "elements".These elements are cartesian motion planners of class ChppGikPrioritizedMotion or class ChppGikLocomotionElement.

@@ -1,9 +1,9 @@
-#include "tasks/hppGikStepBackTask.h"
-#include "constraints/hppGikParallelConstraint.h"
-#include "constraints/hppGikPlaneConstraint.h"
-#include "motionplanners/elements/hppGikZMPshiftElement.h"
-#include "motionplanners/elements/hppGikInterpolatedElement.h"
-#include "motionplanners/elements/hppGikStepElement.h"
+#include "hpp/gik/task/step-back-task.hh"
+#include "hpp/gik/constraint/parallel-constraint.hh"
+#include "hpp/gik/constraint/plane-constraint.hh"
+#include "hpp/gik/motionplanner/element/zmp-shift-element.hh"
+#include "hpp/gik/motionplanner/element/interpolated-element.hh"
+#include "hpp/gik/motionplanner/element/step-element.hh"
 #define V3_I  MAL_S3_VECTOR_ACCESS
 
 ChppGikStepBackTask::ChppGikStepBackTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod, "StepbackTask")

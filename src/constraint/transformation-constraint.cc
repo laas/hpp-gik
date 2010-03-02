@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "constraints/hppGikTransformationConstraint.h"
-#include "hppGikTools.h"
+#include "hpp/gik/constraint/transformation-constraint.hh"
+#include "hpp/gik/tools.hh"
 #include <time.h>
 #include <sys/time.h>
 #include <fstream>

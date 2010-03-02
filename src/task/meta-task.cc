@@ -1,4 +1,4 @@
-#include "tasks/hppGikMetaTask.h"
+#include "hpp/gik/task/meta-task.hh"
 
 
 ChppGikMetaTask::ChppGikMetaTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod,"MetaTask")

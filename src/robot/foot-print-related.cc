@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "robot/hppGikFootprintRelated.h"
-#include "hppGikTools.h"
+#include "hpp/gik/robot/foot-print-related.hh"
+#include "hpp/gik/tools.hh"
 
 using namespace boost::numeric::ublas;
 

@@ -1,8 +1,8 @@
 #ifndef HPP_GIK_HALFSITTING_TASK_H
 #define HPP_GIK_HALFSITTING_TASK_H
 
-#include "tasks/hppGikStepBackTask.h"
-#include "tasks/hppGikGenericTask.h"
+#include "hpp/gik/task/step-back-task.hh"
+#include "hpp/gik/task/generic-task.hh"
 
 
 /**

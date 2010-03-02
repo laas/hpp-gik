@@ -4,10 +4,10 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
-#include "core/hppGikSolverBasic.h"
-#include "constraints/hppGikConfigurationConstraint.h"
-#include "core/hppGikMotionPlanElement.h"
-#include "hppGikTools.h"
+#include "hpp/gik/core/solver-basic.hh"
+#include "hpp/gik/constraint/configuration-constraint.hh"
+#include "hpp/gik/core/motion-plan-element.hh"
+#include "hpp/gik/tools.hh"
 
 namespace lapack = boost::numeric::bindings::lapack;
 using namespace boost::numeric::ublas;

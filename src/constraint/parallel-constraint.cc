@@ -1,7 +1,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "constraints/hppGikParallelConstraint.h"
-#include "hppGikTools.h"
+#include "hpp/gik/constraint/parallel-constraint.hh"
+#include "hpp/gik/tools.hh"
 
 using namespace boost::numeric::ublas;
 

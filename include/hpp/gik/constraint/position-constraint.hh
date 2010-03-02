@@ -3,8 +3,8 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikPositionConstraint.h"
-#include "constraints/hppGikJointStateConstraint.h"
-#include "constraints/hppGikVectorizableConstraint.h"
+#include "hpp/gik/constraint/joint-state-constraint.hh"
+#include "hpp/gik/constraint/vectorizable-constraint.hh"
 
 /**
         \brief Specify a 3D position constraint on a point of the robot.

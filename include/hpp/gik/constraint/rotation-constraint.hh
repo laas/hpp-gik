@@ -3,8 +3,8 @@
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
 #include "gikTask/jrlGikRotationConstraint.h"
-#include "constraints/hppGikJointStateConstraint.h"
-#include "constraints/hppGikVectorizableConstraint.h"
+#include "hpp/gik/constraint/joint-state-constraint.hh"
+#include "hpp/gik/constraint/vectorizable-constraint.hh"
 
 /**
 \brief Specify a 3D orientation constraint on a body of the robot.

@@ -4,10 +4,10 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/io.hpp"
-#include "tasks/hppGikGenericTask.h"
-#include "motionplanners/elements/hppGikInterpolatedElement.h"
-#include "hppGikTools.h"
-#include "motionplanners/elements/hppGikZMPshiftElement.h"
+#include "hpp/gik/task/generic-task.hh"
+#include "hpp/gik/motionplanner/element/interpolated-element.hh"
+#include "hpp/gik/tools.hh"
+#include "hpp/gik/motionplanner/element/zmp-shift-element.hh"
 
 #define V3_I MAL_S3_VECTOR_ACCESS
 

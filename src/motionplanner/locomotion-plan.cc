@@ -1,10 +1,10 @@
 
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "motionplanners/hppGikLocomotionPlan.h"
-#include "motionplanners/elements/hppGikStepElement.h"
+#include "hpp/gik/motionplanner/locomotion-plan.hh"
+#include "hpp/gik/motionplanner/element/step-element.hh"
 
-#include "hppGikTools.h"
+#include "hpp/gik/tools.hh"
 
 using namespace boost::numeric::ublas;
 

@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_STEPBACK_TASK_H
 #define HPP_GIK_STEPBACK_TASK_H
 
-#include "tasks/hppGikGenericTask.h"
+#include "hpp/gik/task/generic-task.hh"
 
 /**
 \brief This is a task to make the robot step back to have his feet parallel and symmetrical.

@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_REACH_TASK_H
 #define HPP_GIK_REACH_TASK_H
 
-#include "tasks/hppGikWholeBodyTask.h"
+#include "hpp/gik/task/whole-body-task.hh"
 
 /**
 \brief Use this task to make the robot reach for a target

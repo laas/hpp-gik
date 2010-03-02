@@ -2,7 +2,7 @@
 #define HPP_GIK_WHOLEBODY_TASK_H
 
 #include  <vector>
-#include "tasks/hppGikGenericTask.h"
+#include "hpp/gik/task/generic-task.hh"
 class ChppGikPrioritizedStateConstraint;
 class ChppGikReadyElement;
 

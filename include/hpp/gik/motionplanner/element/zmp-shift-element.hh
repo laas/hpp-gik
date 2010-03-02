@@ -1,8 +1,8 @@
 #ifndef HPP_GIK_ZMPSHIFT_ELEMENT_H
 #define HPP_GIK_ZMPSHIFT_ELEMENT_H
 
-#include "motionplanners/elements/hppGikLocomotionElement.h"
-#include "constraints/hppGikTransformationConstraint.h"
+#include "hpp/gik/motionplanner/element/locomotion-element.hh"
+#include "hpp/gik/constraint/transformation-constraint.hh"
 
 /**
 \brief A locomotion element for shifting the body mass by planning a linear zmp motion inside the support polygon.

@@ -2,8 +2,8 @@
 #define HPP_GIK_MOTION_PLAN_ROW_H
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "core/hppGikMotionPlanElement.h"
-#include "core/hppGikPrioritizedMotion.h"
+#include "hpp/gik/core/motion-plan-element.hh"
+#include "hpp/gik/core/prioritized-motion.hh"
 
 
 /**
