@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/motionplanner/element/ready-element.hh instead.
 #ifndef HPP_GIK_READY_ELEMENT_H
 #define HPP_GIK_READY_ELEMENT_H
 

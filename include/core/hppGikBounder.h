@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/core/bounder.hh instead.
 #ifndef HPP_GIK_BOUNDER_H
 #define HPP_GIK_BOUNDER_H
 

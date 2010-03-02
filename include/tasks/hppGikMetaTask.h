@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/task/meta-task.hh instead.
 #ifndef HPP_GIK_META_TASK_H
 #define HPP_GIK_META_TASK_H
 

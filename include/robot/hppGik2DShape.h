@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/robot/shape-2d.hh instead.
 #ifndef HPP_GIK_2DSHAPE_H
 #define HPP_GIK_2DSHAPE_H
 

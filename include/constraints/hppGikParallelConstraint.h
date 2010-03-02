@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/constraint/parallel-constraint.hh instead.
 #ifndef HPP_GIK_PARALLEL_CONSTRAINT_H
 #define HPP_GIK_PARALLEL_CONSTRAINT_H
 

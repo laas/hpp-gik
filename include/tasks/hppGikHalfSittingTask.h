@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/task/half-sitting-task.hh instead.
 #ifndef HPP_GIK_HALFSITTING_TASK_H
 #define HPP_GIK_HALFSITTING_TASK_H
 

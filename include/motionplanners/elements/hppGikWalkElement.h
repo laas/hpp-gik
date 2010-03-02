@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/motionplanner/element/walk-element.hh instead.
 #ifndef HPP_GIK_WALK_ELEMENT_H
 #define HPP_GIK_WALK_ELEMENT_H
 

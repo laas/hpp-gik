@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/robot/foot-print-related.hh instead.
 #ifndef HPP_FOOTPRINT_RELATED_H
 #define HPP_FOOTPRINT_RELATED_H
 

@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/motionplanner/preview-controller.hh instead.
 #ifndef HPP_GIK_PREVIEW_CONTROLLER_H
 #define HPP_GIK_PREVIEW_CONTROLLER_H
 

@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/example/example.hh instead.
 /**
 \page example1_page Example I
 \section intro_sec Introduction

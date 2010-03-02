@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/task/generic-task.hh instead.
 #ifndef HPP_GIK_GENERICTASK_H
 #define HPP_GIK_GENERICTASK_H
 

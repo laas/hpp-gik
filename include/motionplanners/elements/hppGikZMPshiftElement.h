@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/motionplanner/element/zmp-shift-element.hh instead.
 #ifndef HPP_GIK_ZMPSHIFT_ELEMENT_H
 #define HPP_GIK_ZMPSHIFT_ELEMENT_H
 

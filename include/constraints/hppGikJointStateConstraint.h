@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/constraint/joint-state-constraint.hh instead.
 #ifndef HPP_GIK_JOINT_STATE_CONSTRAINT_H
 #define HPP_GIK_JOINT_STATE_CONSTRAINT_H
 

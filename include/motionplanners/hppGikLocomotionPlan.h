@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/motionplanner/locomotion-plan.hh instead.
 #ifndef HPP_GIK_LOCOMOTION_PLAN_H
 #define HPP_GIK_LOCOMOTION_PLAN_H
 

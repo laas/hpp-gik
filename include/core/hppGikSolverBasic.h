@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/core/solver-basic.hh instead.
 #ifndef HPP_GIK_SOLVER_BASIC_H
 #define HPP_GIK_SOLVER_BASIC_H
 

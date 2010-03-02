@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/core/prioritized-motion.hh instead.
 #ifndef HPP_GIK_PRIORITIZED_MOTION_H
 #define HPP_GIK_PRIORITIZED_MOTION_H
 

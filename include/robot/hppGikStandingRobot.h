@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/robot/standing-robot.hh instead.
 #ifndef HPP_GIK_STANDING_ROBOT_H
 #define HPP_GIK_STANDING_ROBOT_H
 

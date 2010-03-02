@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/task/step-back-task.hh instead.
 #ifndef HPP_GIK_STEPBACK_TASK_H
 #define HPP_GIK_STEPBACK_TASK_H
 

@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/task/robot-task.hh instead.
 #ifndef HPP_GIK_ROBOT_TASK_H
 #define HPP_GIK_ROBOT_TASK_H
 

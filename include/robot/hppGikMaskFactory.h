@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/robot/mask-factory.hh instead.
 #ifndef HPP_GIK_MASK_FACTORY_H
 #define HPP_GIK_MASK_FACTORY_H
 

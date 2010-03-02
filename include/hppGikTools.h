@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/tools.hh instead.
 #ifndef HPP_GIK_TOOLS_H
 #define HPP_GIK_TOOLS_H
 

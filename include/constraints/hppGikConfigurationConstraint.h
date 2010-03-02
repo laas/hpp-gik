@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/constraint/configuration-constraint.hh instead.
 #ifndef HPP_GIK_CONF_CONSTRAINT_H
 #define HPP_GIK_CONF_CONSTRAINT_H
 

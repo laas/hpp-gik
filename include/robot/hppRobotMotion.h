@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/robot/robot-motion.hh instead.
 #ifndef HPP_ROBOT_MOTION_H
 #define HPP_ROBOT_MOTION_H
 

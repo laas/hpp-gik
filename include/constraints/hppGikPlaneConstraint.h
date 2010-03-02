@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/constraint/plane-constraint.hh instead.
 #ifndef HPP_GIK_PLANE_CONSTRAINT_H
 #define HPP_GIK_PLANE_CONSTRAINT_H
 

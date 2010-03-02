@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/constraint/prioritized-state-constraint.hh instead.
 #ifndef HPP_GIK_PRIO_CONSTRAINT_H
 #define HPP_GIK_PRIO_CONSTRAINT_H
 

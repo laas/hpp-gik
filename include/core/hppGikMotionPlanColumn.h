@@ -1,3 +1,5 @@
+#warning This header is deprecated,
+#warning use hpp/gik/core/motion-plan-column.hh instead.
 #ifndef HPP_GIK_MOTION_PLAN_COLUMN_H
 #define HPP_GIK_MOTION_PLAN_COLUMN_H
 
