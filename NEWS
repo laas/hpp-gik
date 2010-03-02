@@ -1,4 +1,5 @@
                                                                 -*- outline -*-
 
-New in 0.1, hpp-gik:
-* First release.
+New in 2.6, hpp-gik:
+* The package has been reorganized: names of files are now standard.
+

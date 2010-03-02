@@ -6,7 +6,7 @@ AC_PREREQ([2.63])
 ## Package configuration ##
 ## --------------------- ##
 AC_INIT([hpp-gik],
-	[0.1],
+	[2.6],
 	[florent@laas.fr],
 	[hpp-gik])
 
