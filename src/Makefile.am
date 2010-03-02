@@ -12,7 +12,8 @@ AM_CXXFLAGS += $(WARNING_CXXFLAGS)
 
 lib_LTLIBRARIES = libhpp-gik.la
 
-libhpp_gik_la_SOURCES = 			\
+libhpp_gik_la_SOURCES = \
+tools.cc \
 constraint/joint-state-constraint.cc \
 constraint/plane-constraint.cc \
 constraint/pointing-constraint.cc \
@@ -52,8 +53,7 @@ task/half-sitting-task.cc \
 robot/foot-print-related.cc \
 robot/mask-factory.cc \
 robot/robot-motion.cc \
-robot/standing-robot.cc \
-tools.cc'
+robot/standing-robot.cc
 
 libhpp_gik_la_LIBADD = $(ABSTRACTGIKTASK_LIBS) $(HRP2DYNAMICS_LIBS) 
 libhpp_gik_la_CPPFLAGS = \

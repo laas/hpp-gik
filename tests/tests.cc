@@ -15,14 +15,14 @@
 #include "dynamicsJRLJapan/dynamicsJRLJapanFactory.h"
 #include "hrp2Dynamics/hrp2OptHumanoidDynamicRobot.h"
 
-#include "tasks/hppGikWholeBodyTask.h"
-#include "constraints/hppGikPositionConstraint.h"
-#include "constraints/hppGikParallelConstraint.h"
-#include "constraints/hppGikGazeConstraint.h"
+#include "hpp/gik/task/whole-body-task.hh"
+#include "hpp/gik/constraint/position-constraint.hh"
+#include "hpp/gik/constraint/parallel-constraint.hh"
+#include "hpp/gik/constraint/gaze-constraint.hh"
 
 
-#include "motionplanners/elements/hppGikStepElement.h"
-#include "motionplanners/elements/hppGikInterpolatedElement.h"
+#include "hpp/gik/motionplanner/element/step-element.hh"
+#include "hpp/gik/motionplanner/element/interpolated-element.hh"
 
 
 #include "hppGikTools.h"
