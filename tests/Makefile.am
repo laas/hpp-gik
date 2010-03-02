@@ -13,7 +13,7 @@ CLEANFILES += atconfig
 # Source which are shared by all tests.
 COMMON_SOURCES = common.hh
 
-# simple-test
+# tests
 check_PROGRAMS = tests
 tests_SOURCES = tests.cc $(COMMON_SOURCES)
 tests_LDADD = $(top_builddir)/src/lib@PACKAGE_TARNAME@.la
@@ -40,8 +40,8 @@ generate-reference: $(check_PROGRAMS)
 # ------------ #
 
 TESTSUITE_AT +=					\
-	simple-test.at
+	tests.at
 
 # Distribute reference files.
 EXTRA_DIST +=					\
-	simple-test.stdout
+	tests.stdout
