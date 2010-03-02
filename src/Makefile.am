@@ -5,8 +5,14 @@
 # Author: Florent Lamiraux
 #
 
-lib_LTLIBRARIES = libhppGik.la
-libhppGik_la_SOURCES = \
+include $(top_srcdir)/build-aux/init.mk
+
+# Add available warnings flags.
+AM_CXXFLAGS += $(WARNING_CXXFLAGS)
+
+lib_LTLIBRARIES = libhpp-gik.la
+
+libhpp-gik_la_SOURCES = 			\
 	constraints/hppGikJointStateConstraint.cpp \
 	constraints/hppGikPlaneConstraint.cpp \
 	constraints/hppGikPointingConstraint.cpp \
@@ -50,10 +56,5 @@ libhppGik_la_SOURCES = \
 	hppGikTools.cpp
 
 
-libhppGik_la_CPPFLAGS=\
-	-I$(srcdir)/../include		\
-	$(ABS_GIKTASK_CFLAGS)		\
-	-DGAINDIR='"${datadir}/gik"'
-
-libhppGik_la_LDFLAGS= $(ABS_GIKTASK_LIBS)	\
-	-release ${PACKAGE_VERSION}
+libhpp-gik_la_LIBADD = $(ABSTRACTGIKTASK_LIBS) $(HRP2DYNAMICS_LIBS) 
+libhpp-gik_la_CPPFLAGS = $(AM_CPPFLAGS) $(ABSTRACTGIKTASK_CFLAGS) $(HRP2DYNAMICS_CFLAGS) 
