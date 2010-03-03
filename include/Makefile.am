@@ -5,13 +5,17 @@ include $(top_srcdir)/build-aux/init.mk
 #
 #  Install deprecated headers
 #
-nobase_include_HEADERS =				\
+hppGikdir = $(includedir)/hppGik
+hppGik_HEADERS = \
 	hppGikTools.h
 
-nobase_include_HEADERS +=				\
+hppGikExampledir = $(includedir)/hppGik/examples
+hppGikExample_HEADERS = \
 	examples/example.h
 
-nobase_include_HEADERS +=				\
+
+hppGikConstdir = $(includedir)/hppGik/constraints
+hppGikConst_HEADERS = \
 	constraints/hppGikJointStateConstraint.h \
 	constraints/hppGikComConstraint.h	\
 	constraints/hppGikPlaneConstraint.h 	\
@@ -26,7 +30,8 @@ nobase_include_HEADERS +=				\
 	constraints/hppGikPrioritizedStateConstraint.h \
 	constraints/hppGikMotionConstraint.h 
 
-nobase_include_HEADERS +=				\
+hppGikCoredir = $(includedir)/hppGik/core
+hppGikCore_HEADERS = \
 	core/hppGikBounder.h \
 	core/hppGikSolver.h \
 	core/hppGikSolverBasic.h \
@@ -36,7 +41,8 @@ nobase_include_HEADERS +=				\
 	core/hppGikPrioritizedMotion.h \
 	core/hppGikMotionPlanRow.h
 
-nobase_include_HEADERS +=				\
+hppGikTasksdir = $(includedir)/hppGik/tasks
+hppGikTasks_HEADERS = \
 	tasks/hppGikGenericTask.h \
 	tasks/hppGikWholeBodyTask.h \
 	tasks/hppGikRobotTask.h \
@@ -47,11 +53,13 @@ nobase_include_HEADERS +=				\
 	tasks/hppGikReachTask.h \
 	tasks/hppGikHalfSittingTask.h
 
-nobase_include_HEADERS +=				\
+hppGikPlannersdir = $(includedir)/hppGik/motionplanners
+hppGikPlanners_HEADERS = \
 	motionplanners/hppGikLocomotionPlan.h \
 	motionplanners/hppGikPreviewController.h
 
-nobase_include_HEADERS +=				\
+hppGikElementsdir = $(includedir)/hppGik/motionplanners/elements
+hppGikElements_HEADERS = \
 	motionplanners/elements/hppGikComMotion.h \
 	motionplanners/elements/hppGikFootDisplaceElement.h \
 	motionplanners/elements/hppGikInterpolatedElement.h \
@@ -62,26 +70,19 @@ nobase_include_HEADERS +=				\
 	motionplanners/elements/hppGikWalkElement.h \
 	motionplanners/elements/hppGikZMPshiftElement.h
 
-nobase_include_HEADERS +=				\
+hppGikRobotdir = $(includedir)/hppGik/robot
+hppGikRobot_HEADERS = \
 	robot/hppGikFootprintRelated.h \
 	robot/hppGikMaskFactory.h \
 	robot/hppRobotMotion.h \
 	robot/hppGikStandingRobot.h \
 	robot/hppGik2DShape.h
 
-gainfiledir=	$(datadir)/hpp/gik
-gainfile_DATA=\
-	hpp/gik/motionplanner/preview-controller-5ms.ini	\
-	hpp/gik/motionplanner/preview-controller-10ms.ini	\
-	hpp/gik/motionplanner/preview-controller-20ms.ini	\
-	hpp/gik/motionplanner/preview-controller-50ms.ini
-EXTRA_DIST+=	$(gainfile_DATA)
-
 #
 #  Install new headers
 #
 
-nobase_include_HEADERS +=				\
+nobase_include_HEADERS = \
 	hpp/gik/tools.hh \
 	hpp/gik/example/example.hh \
 	hpp/gik/constraint/joint-state-constraint.hh \
@@ -130,3 +131,11 @@ nobase_include_HEADERS +=				\
 	hpp/gik/task/meta-task.hh \
 	hpp/gik/task/reach-task.hh \
 	hpp/gik/task/half-sitting-task.hh
+
+gainfiledir=	$(datadir)/hpp/gik
+gainfile_DATA=\
+	hpp/gik/motionplanner/preview-controller-5ms.ini	\
+	hpp/gik/motionplanner/preview-controller-10ms.ini	\
+	hpp/gik/motionplanner/preview-controller-20ms.ini	\
+	hpp/gik/motionplanner/preview-controller-50ms.ini
+EXTRA_DIST+=	$(gainfile_DATA)
