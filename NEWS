@@ -1,4 +1,5 @@
-                                                                -*- outline -*-
+New in 2.6.1, hpp-gik:
+* Main page of documentation was not exported anymore in archive. This is fixed.
 
 New in 2.6, hpp-gik:
 * The package has been reorganized: names of files are now standard.
