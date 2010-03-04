@@ -83,6 +83,7 @@ hppGikRobot_HEADERS = \
 #
 
 nobase_include_HEADERS = \
+	hpp/gik/doc.hh \
 	hpp/gik/tools.hh \
 	hpp/gik/example/example.hh \
 	hpp/gik/constraint/joint-state-constraint.hh \
