@@ -25,7 +25,7 @@
 #include "hpp/gik/motionplanner/element/interpolated-element.hh"
 
 
-#include "hpp/gik/tools.h"
+#include "hpp/gik/tools.hh"
 
 #define M3_IJ MAL_S3x3_MATRIX_ACCESS_I_J
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
