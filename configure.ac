@@ -68,7 +68,7 @@ m4_include([deps.ac])
 AC_SUBST([PKGCONFIG_DESCRIPTION], [hpp-gik])
 AC_SUBST([PKGCONFIG_CONFLICTS], [])
 AC_SUBST([PKGCONFIG_LIBS], [-lhpp-gik])
-AC_SUBST([PKGCONFIG_CFLAGS], [])
+AC_SUBST([PKGCONFIG_CFLAGS], [-I${includedir}/hppGik])
 
 
 ## ------------ ##
