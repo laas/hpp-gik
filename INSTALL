@@ -3,9 +3,9 @@ Installation instructions
 Configuration
 -------------
 untar the package
-cd hppGik
-mkdir build
-cd build
+cd hpp-gik
+mkdir _build
+cd _build
 ../configure 
 
 Compilation
