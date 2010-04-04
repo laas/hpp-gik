@@ -99,11 +99,12 @@ void ChppGikPointingConstraint::computeValue()
     vecOT = attWorldTarget - posO;
     double normOP = norm_2(vecOP);
     double normOT = norm_2(vecOT);
-
+	
     if (normOP != 0)
         vecOP /= normOP;
     if (normOT != 0)
         vecOT /= normOT;
+		
     ChppGikTools::CrossProduct(vecOP,vecOT,attValue);
 }
 
@@ -125,12 +126,15 @@ void ChppGikPointingConstraint::computeJacobian()
         vecOP /= normOP;
     if (normOT != 0)
         vecOT /= normOT;
-
+		
     ChppGikTools::equivAsymMat(vecOT,matOT);
     ChppGikTools::equivAsymMat(vecOP,matOP);
 
     noalias(tempRot) = prod(matOT,matOP);
 
+    if (normOT != 0)
+	matOP /= normOT;
+		
     noalias(attJacobian) = prod(tempRot,subrange(tempJacobian,3,6,0,robot().numberDof()));
     noalias(attJacobian) -= prod(matOP,subrange(tempJacobian,0,3,0,robot().numberDof()));
 }
