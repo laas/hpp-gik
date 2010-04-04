@@ -58,7 +58,7 @@ void test1 ()
     CjrlHand* hand = attRobot->leftHand();
     vector3d lpoint;
     hand->getCenter ( lpoint );
-    vector3d targetPoint ( 0.8,0.2,1.04 );
+    vector3d targetPoint ( 0.8,0.2,0.8 );
     ChppGikPositionConstraint psc ( *attRobot,*joint,lpoint,targetPoint );
     priority = 1;
     attWholeBodyTask.addStateConstraint ( &psc,priority );
@@ -67,7 +67,7 @@ void test1 ()
     attWholeBodyTask.addStateConstraint ( &gc,priority );
     bool solved = attWholeBodyTask.solve();
     attWholeBodyTask.solutionMotion().dumpTo ( "test1" );
-    if (  solved )
+    if ( solved )
     {
         attWholeBodyTask.solutionMotion().dumpTo ( "test1" );
         std::cout<< "Files for test 1 dumped."<< std::endl;
@@ -91,13 +91,13 @@ void test2 ()
     vector3d targetAxis ( 0,0,1 );
     ChppGikPositionConstraint psc ( *attRobot,*joint,lpoint,targetPoint );
     ChppGikParallelConstraint pal ( *attRobot,*joint,lvector,targetAxis );
-    priority = 1;
+    priority = 10;
     attWholeBodyTask.addStateConstraint ( &psc,priority );
+	priority = 20;
     attWholeBodyTask.addStateConstraint ( &pal,priority );
     ChppGikGazeConstraint gc ( *attRobot, targetPoint );
-    priority = 2;
+    priority = 30;
     attWholeBodyTask.addStateConstraint ( &gc,priority );
-    attWholeBodyTask.solutionMotion().dumpTo ( "test2" );
     bool solved = attWholeBodyTask.solve();
     if ( solved )
     {
@@ -127,7 +127,7 @@ void createHRP2 ( const std::string& inPath )
     property="ComputeMomentum"; value="true";attRobot->setProperty ( property,value );
     property="ComputeAcceleration"; value="true";attRobot->setProperty ( property,value );
     property="ComputeVelocity"; value="true";attRobot->setProperty ( property,value );
-    property="ComputeSkewCoM"; value="false";attRobot->setProperty ( property,value );
+    property="ComputeSkewCom"; value="false";attRobot->setProperty ( property,value );
     property="ComputeCoM"; value="true";attRobot->setProperty ( property,value );
     
     unsigned int nDof = attRobot->numberDof();
@@ -142,9 +142,9 @@ void createHRP2 ( const std::string& inPath )
         0.0, 0.0, // head
         15.0, -10.0, 0.0, -30.0, 0.0, 0.0, // right arm
         10.0, // right hand clench
+		-10.0, 10.0, -10.0, 10.0, -10.0, // right hand parallel mechanism
         15.0,  10.0, 0.0, -30.0, 0.0, 0.0, // left arm
         10.0, // left hand clench
-        -10.0, 10.0, -10.0, 10.0, -10.0, // right hand parallel mechanism
         -10.0, 10.0, -10.0, 10.0, -10.0  // left hand parallel mechanism
     };
 
@@ -216,10 +216,11 @@ int main ( int argc, char** argv )
         return  -1;
     }
 
+    
     createHRP2 ( std::string ( argv[1] ) );
-    test1();
-    resetRobot();
     test2();
+    resetRobot();
+    test1();
 
     delete attStandingRobot;
 
