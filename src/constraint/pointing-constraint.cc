@@ -113,15 +113,16 @@ void ChppGikPointingConstraint::computeJacobian()
 {
     robot().getJacobian( *attRootJoint,*joint(),attLocalOriginVector3,tempJacobian);
 
-    //compute the jacobian of this constraint
+    ChppGikTools::HtoRT(joint()->currentTransformation(),jointrot,jointpos);
+    noalias(posO) = prod(jointrot,attLocalOrigin);//origin point in world
+    posO.plus_assign(jointpos);
     noalias(posP) =  prod(jointrot,attLocalVector);//second point in world
     posP.plus_assign(posO);
     vecOP = posP - posO;
     vecOT = attWorldTarget - posO;
-
     double normOP = norm_2(vecOP);
     double normOT = norm_2(vecOT);
-
+	
     if (normOP != 0)
         vecOP /= normOP;
     if (normOT != 0)
