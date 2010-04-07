@@ -20,6 +20,8 @@
 #include "hpp/gik/constraint/parallel-constraint.hh"
 #include "hpp/gik/constraint/gaze-constraint.hh"
 
+#include "hpp/gik/task/half-sitting-task.hh"
+
 
 #include "hpp/gik/motionplanner/element/step-element.hh"
 #include "hpp/gik/motionplanner/element/interpolated-element.hh"
@@ -69,6 +71,7 @@ void test1 ()
     attWholeBodyTask.solutionMotion().dumpTo ( "test1" );
     if ( solved )
     {
+        attStandingRobot->staticState ( attWholeBodyTask.solutionMotion().lastSample()->configuration );
         attWholeBodyTask.solutionMotion().dumpTo ( "test1" );
         std::cout<< "Files for test 1 dumped."<< std::endl;
     }
@@ -93,7 +96,7 @@ void test2 ()
     ChppGikParallelConstraint pal ( *attRobot,*joint,lvector,targetAxis );
     priority = 10;
     attWholeBodyTask.addStateConstraint ( &psc,priority );
-	priority = 20;
+    priority = 20;
     attWholeBodyTask.addStateConstraint ( &pal,priority );
     ChppGikGazeConstraint gc ( *attRobot, targetPoint );
     priority = 30;
@@ -101,6 +104,7 @@ void test2 ()
     bool solved = attWholeBodyTask.solve();
     if ( solved )
     {
+        attStandingRobot->staticState ( attWholeBodyTask.solutionMotion().lastSample()->configuration );
         attWholeBodyTask.solutionMotion().dumpTo ( "test2" );
         std::cout<< "Files for test 2 dumped."<< std::endl;
     }
@@ -129,7 +133,7 @@ void createHRP2 ( const std::string& inPath )
     property="ComputeVelocity"; value="true";attRobot->setProperty ( property,value );
     property="ComputeSkewCom"; value="false";attRobot->setProperty ( property,value );
     property="ComputeCoM"; value="true";attRobot->setProperty ( property,value );
-    
+
     unsigned int nDof = attRobot->numberDof();
     vectorN halfsittingConf ( nDof );
 
@@ -142,7 +146,7 @@ void createHRP2 ( const std::string& inPath )
         0.0, 0.0, // head
         15.0, -10.0, 0.0, -30.0, 0.0, 0.0, // right arm
         10.0, // right hand clench
-		-10.0, 10.0, -10.0, 10.0, -10.0, // right hand parallel mechanism
+        -10.0, 10.0, -10.0, 10.0, -10.0, // right hand parallel mechanism
         15.0,  10.0, 0.0, -30.0, 0.0, 0.0, // left arm
         10.0, // left hand clench
         -10.0, 10.0, -10.0, 10.0, -10.0  // left hand parallel mechanism
@@ -170,8 +174,8 @@ void createHRP2 ( const std::string& inPath )
     //set gaze origin and direction
     vector3d gazeDir,gazeOrigin;
     gazeDir[0] = 0;
-    gazeDir[1] = cos(10*M_PI/180);
-    gazeDir[2] = sin(10*M_PI/180);
+    gazeDir[1] = cos ( 10*M_PI/180 );
+    gazeDir[2] = sin ( 10*M_PI/180 );
 
     gazeOrigin[0] = 0;
     gazeOrigin[1] = 0;
@@ -216,11 +220,22 @@ int main ( int argc, char** argv )
         return  -1;
     }
 
-    
+
     createHRP2 ( std::string ( argv[1] ) );
-    test2();
-    resetRobot();
     test1();
+    
+    
+    ChppGikHalfSittingTask task(attStandingRobot,0.005);
+    if (!task.solve())
+        std::cout << "Failed to complete ChppGikHalfSittingTask::solve" << std::endl;
+    else
+    {
+        task.solutionMotion().dumpTo ( "test-halfsitting" );
+        std::cout<< "Files for halfsitting test dumped."<< std::endl;
+    }
+    
+    
+    test2();
 
     delete attStandingRobot;
 
