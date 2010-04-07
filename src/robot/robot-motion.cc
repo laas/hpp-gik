@@ -146,12 +146,13 @@ void  ChppRobotMotion::dumpTo(const char* inFilename, const char* option) const
     dumpFileZMPworPla = fopen (fnameZMPworPla, option);
 
 
-    unsigned int ndof = attRobot->numberDof();
     //double time = attStartTime;
     double time = 0.0;
 
     std::list<ChppRobotMotionSample>::const_iterator iter= attSamples.begin();
-
+    const std::vector<CjrlJoint*> openHRPJoints = attRobot->getActuatedJoints();
+    unsigned int sz = openHRPJoints.size();
+    CjrlJoint* joint;
     for (unsigned int j=0; iter!=attSamples.end(); j++)
     {
         fprintf(dumpFileQ,"%lf ",time);
@@ -166,8 +167,11 @@ void  ChppRobotMotion::dumpTo(const char* inFilename, const char* option) const
             fprintf (dumpFileRPY, "%lf ", (*iter).configuration(i));
         fprintf (dumpFileRPY,"\n");
 
-        for (unsigned int i=6;i<ndof;i++)
-            fprintf (dumpFileQ, "%lf ", (*iter).configuration(i));
+        for (unsigned int i = 0 ;i < sz; i++)
+        {
+            joint = openHRPJoints[i];
+            fprintf (dumpFileQ, "%lf ", (*iter).configuration(joint->rankInConfiguration()));
+        }
         fprintf (dumpFileQ,"\n");
 
 
