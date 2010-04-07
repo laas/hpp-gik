@@ -254,7 +254,7 @@ bool ChppGikWholeBodyTask::onestepSolve()
 
         attGenericTask->addElement(stepTask);
 
-        waistTask = new ChppGikInterpolatedElement(attStandingRobot->robot(),waistConstraint, 100, 0.0, otherTasksStartTime+otherTasksDuration, attSamplingPeriod);
+        waistTask = new ChppGikInterpolatedElement(attStandingRobot->robot(),waistConstraint, 1, 0.0, otherTasksStartTime+otherTasksDuration, attSamplingPeriod);
         attGenericTask->addElement(waistTask);
 
         //wrap & time user-entered state constraints, and add them to attPlannerTasks vector
