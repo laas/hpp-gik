@@ -48,8 +48,9 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
         }
     }
 
+	attConstraint->addConstraint( attFootConstraint );
     attConstraint->addConstraint( attComConstraint );
-    attConstraint->addConstraint( attFootConstraint );
+    
 
     attStartTime = (inStartTime>0.0)?inStartTime:0.0;
     attEndTime = (inEndTime>attStartTime)?inEndTime:attStartTime;
