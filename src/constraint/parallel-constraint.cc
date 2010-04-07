@@ -81,12 +81,13 @@ void ChppGikParallelConstraint::computeJacobian()
     robot().getOrientationJacobian( *attRootJoint,*joint(),tempJointOrientJacobian);
     
     ChppGikTools::HtoRT(joint()->currentTransformation(),tempRot,temp3DVec);
-    temp3DVec =  prod(tempRot,attLocalVector);
+    noalias(temp3DVec) =  prod(tempRot,attLocalVector);
 
     ChppGikTools::equivAsymMat(attTargetVector,tempRot1);
     ChppGikTools::equivAsymMat(temp3DVec,tempRot2);
 
     noalias(tempRot3) = prod(tempRot1,tempRot2);
+    
     noalias(attJacobian) = prod(tempRot3,tempJointOrientJacobian);
 }
 
