@@ -62,10 +62,10 @@ void test1 ()
     hand->getCenter ( lpoint );
     vector3d targetPoint ( 0.8,0.2,0.8 );
     ChppGikPositionConstraint psc ( *attRobot,*joint,lpoint,targetPoint );
-    priority = 1;
+    priority = 4;
     attWholeBodyTask.addStateConstraint ( &psc,priority );
     ChppGikGazeConstraint gc ( *attRobot, targetPoint );
-    priority = 2;
+    priority = 5;
     attWholeBodyTask.addStateConstraint ( &gc,priority );
     bool solved = attWholeBodyTask.solve();
     attWholeBodyTask.solutionMotion().dumpTo ( "test1" );
@@ -233,8 +233,8 @@ int main ( int argc, char** argv )
         task.solutionMotion().dumpTo ( "test-halfsitting" );
         std::cout<< "Files for halfsitting test dumped."<< std::endl;
     }
-    
-    
+    attStandingRobot->staticState ( task.solutionMotion().lastSample()->configuration );
+
     test2();
 
     delete attStandingRobot;

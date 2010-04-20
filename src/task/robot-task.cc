@@ -39,7 +39,7 @@ void ChppGikRobotTask::restoreRobot()
     attStandingRobot->staticState(attInitialConfiguration);
 }
 
-const ChppRobotMotion& ChppGikRobotTask::solutionMotion() const
+ChppRobotMotion& ChppGikRobotTask::solutionMotion() const
 {
     return *attSolutionMotion;
 }
