@@ -147,7 +147,7 @@ void ChppGikMaskFactory::algoWeights ( CjrlJoint* supportJoint, vectorN& outWeig
     for (unsigned int i = 6; i< outWeights.size(); i++)
     {
         if (outWeights(i)!=0)
-            outWeights(i) = attRobot->mass()/outWeights(i);
+            outWeights(i) = sqrt(attRobot->mass()/outWeights(i));
     }
     
     
