@@ -25,9 +25,8 @@ constraint/configuration-constraint.cc \
 constraint/com-constraint.cc \
 constraint/transformation-constraint.cc \
 constraint/motion-constraint.cc \
-core/bounder.cc \
 core/solver.cc \
-core/solver-basic.cc \
+core/lne-solver.cc \
 core/motion-plan-column.cc \
 core/motion-plan-element.cc \
 core/motion-plan.cc \

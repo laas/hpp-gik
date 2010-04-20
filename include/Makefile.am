@@ -99,9 +99,8 @@ nobase_include_HEADERS = \
 	hpp/gik/constraint/transformation-constraint.hh \
 	hpp/gik/constraint/prioritized-state-constraint.hh \
 	hpp/gik/constraint/motion-constraint.hh \
-	hpp/gik/core/bounder.hh \
 	hpp/gik/core/solver.hh \
-	hpp/gik/core/solver-basic.hh \
+	hpp/gik/core/lne-solver.hh \
 	hpp/gik/core/motion-plan-column.hh \
 	hpp/gik/core/motion-plan-element.hh \
 	hpp/gik/core/motion-plan.hh \
