@@ -63,7 +63,6 @@ void ChppGikPositionConstraint::computeValue()
     attValue += temp3DVec;
     noalias(temp3DVec1) = prod(tempRot,attLocalPoint);
     attValue += temp3DVec1;
-
 }
 
 void ChppGikPositionConstraint::computeJacobian()
@@ -112,7 +111,6 @@ void ChppGikPositionConstraint::computeVectorizedState()
     subrange(attVectorizedState,0,3) = curpos;
     subrange(attVectorizedState,3,6) = curvel;
     subrange(attVectorizedState,6,9) = curaccel;
-
 }
 
 bool ChppGikPositionConstraint::vectorizedTarget ( const vectorN& inVector )

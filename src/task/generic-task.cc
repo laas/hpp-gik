@@ -13,15 +13,15 @@
 
 using namespace boost::numeric::ublas;
 
-ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  double inSamplingPeriod):ChppGikRobotTask(inStandingRobot,inSamplingPeriod, "GenericTask")
+ChppGikGenericTask::ChppGikGenericTask ( ChppGikStandingRobot* inStandingRobot,  double inSamplingPeriod ) :ChppGikRobotTask ( inStandingRobot,inSamplingPeriod, "GenericTask" )
 {
     attRobot = inStandingRobot->robot();
 
-    attMotionPlan = new ChppGikMotionPlan(attRobot);
+    attMotionPlan = new ChppGikMotionPlan ( attRobot );
 
-    attLocomotionPlan = new ChppGikLocomotionPlan( attMotionPlan, attStandingRobot, attSamplingPeriod);
+    attLocomotionPlan = new ChppGikLocomotionPlan ( attMotionPlan, attStandingRobot, attSamplingPeriod );
 
-    attGikSolver = new ChppGikSolver(*attRobot);
+    attGikSolver = new ChppGikSolver ( *attRobot );
 
     attUseDynamicWeights = true;
     attNeutralBodyOption = false;
@@ -30,49 +30,49 @@ ChppGikGenericTask::ChppGikGenericTask(ChppGikStandingRobot* inStandingRobot,  d
     attBringBackZmp = false;
 }
 
-void ChppGikGenericTask::bringBackZMP(bool inChoice, double inStartTime, double inDuration)
+void ChppGikGenericTask::bringBackZMP ( bool inChoice, double inStartTime, double inDuration )
 {
     attBringBackZmp = inChoice;
     attBringStart = inStartTime;
     attBringDuration = inDuration;
 }
 
-bool ChppGikGenericTask::addElement(ChppGikPrioritizedMotion* inMotion)
+bool ChppGikGenericTask::addElement ( ChppGikPrioritizedMotion* inMotion )
 {
-    if (inMotion->robot() != attRobot)
+    if ( inMotion->robot() != attRobot )
     {
         std::cout<< "addElement failed -> different robot\n";
         return false;
     }
 
-    ChppGikInterpolatedElement* interp = dynamic_cast<ChppGikInterpolatedElement*>(inMotion);
-    if (interp)
+    ChppGikInterpolatedElement* interp = dynamic_cast<ChppGikInterpolatedElement*> ( inMotion );
+    if ( interp )
     {
-        ChppGikJointStateConstraint* jntc = dynamic_cast<ChppGikJointStateConstraint*>(interp->targetConstraint());
-        if (jntc)
+        ChppGikJointStateConstraint* jntc = dynamic_cast<ChppGikJointStateConstraint*> ( interp->targetConstraint() );
+        if ( jntc )
         {
             CjrlJoint* joint = jntc->joint();
-            interp->workingJoints( attStandingRobot->maskFactory()->maskForJointsBetween(attRobot->waist(),joint) );
+            interp->workingJoints ( attStandingRobot->maskFactory()->maskForJointsBetween ( attRobot->waist(),joint ) );
         }
     }
 
-    attPrioritizedMotions.push_back(inMotion);
-    ChppGikMotionPlanRow* motionRow = attMotionPlan->addMotion(inMotion);
-    attPrioritizedMotionRows.push_back(motionRow);
+    attPrioritizedMotions.push_back ( inMotion );
+    ChppGikMotionPlanRow* motionRow = attMotionPlan->addMotion ( inMotion );
+    attPrioritizedMotionRows.push_back ( motionRow );
     return true;
 }
 
-bool ChppGikGenericTask::addElement(ChppGikLocomotionElement* inElement)
+bool ChppGikGenericTask::addElement ( ChppGikLocomotionElement* inElement )
 {
-    return attLocomotionPlan->addElement( inElement );
+    return attLocomotionPlan->addElement ( inElement );
 }
 
 void ChppGikGenericTask::clearElements()
 {
     //Remove readymotions from motio plan
-    for( unsigned int i=0; i< attPrioritizedMotionRows.size();i++)
+    for ( unsigned int i=0; i< attPrioritizedMotionRows.size();i++ )
     {
-        attPrioritizedMotionRows[i]->removeMotion(attPrioritizedMotions[i]);
+        attPrioritizedMotionRows[i]->removeMotion ( attPrioritizedMotions[i] );
         delete attPrioritizedMotions[i];
     }
     attPrioritizedMotionRows.clear();
@@ -85,18 +85,18 @@ bool ChppGikGenericTask::planZMPBack()
 {
     //std::cout << "ChppGikGenericTask::planZMPBack Started " << std::endl;
     ChppGikSupportPolygon *curSP = attStandingRobot->supportPolygon();
-    if (!curSP)
+    if ( !curSP )
     {
         std::cout << "ChppGikGenericTask::planZMPBack failed: support polygon not found, check your robot configuration" << std::endl;
         return false;
     }
-    vector3d targetZMP = curSP->nearestCenterPointTo(attRobot->positionCenterOfMass());
+    vector3d targetZMP = curSP->nearestCenterPointTo ( attRobot->positionCenterOfMass() );
     double myStartTime = attLocomotionPlan->startTime() + attBringStart;
     attBringEnd = myStartTime + attBringDuration;
-    ChppGikZMPshiftElement* startshift = new ChppGikZMPshiftElement(attRobot,targetZMP,myStartTime,attBringDuration,attSamplingPeriod);
-    startshift->startZMPCheck( false );
-    bool inserted = addElement( startshift );
-    if (!inserted)
+    ChppGikZMPshiftElement* startshift = new ChppGikZMPshiftElement ( attRobot,targetZMP,myStartTime,attBringDuration,attSamplingPeriod );
+    startshift->startZMPCheck ( false );
+    bool inserted = addElement ( startshift );
+    if ( !inserted )
     {
         std::cout << "ChppGikGenericTask::planZMPBack Failed: timings overlapping with the first locomotion element." << std::endl;
         return false;
@@ -110,42 +110,42 @@ bool ChppGikGenericTask::algorithmSolve()
     bool ok,atLeastOneZMPUnsafe = false, atLeastOneZMPEccentered = false;;
     double time, motionStartTime, motionEndTime, gapTime;
     CjrlJoint* supportJoint = 0;
-    vectorN gikWeights(attRobot->numberDof());
+    vectorN gikWeights ( attRobot->numberDof() );
     std::vector<CjrlGikStateConstraint*> constraintStack;
     ChppGikMotionPlanColumn* columnInTime;
-    vectorN uZMPworPla(3);
+    vectorN uZMPworPla ( 3 );
     ChppGikSupportPolygon* curSupportPolygon=0;
     vector3d ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla;
 
-    attSolutionMotion->startTime(0.0);
+    attSolutionMotion->startTime ( 0.0 );
 
     gapTime = attLocomotionPlan->endTime() - attMotionPlan->endTime();
 
-    if (gapTime<0)
-        attLocomotionPlan->extraEndTime(-gapTime);
+    if ( gapTime<0 )
+        attLocomotionPlan->extraEndTime ( -gapTime );
 
-    attLocomotionPlan->extraEndTime( attLocomotionPlan->extraEndTime() + attExtraEndTime );
+    attLocomotionPlan->extraEndTime ( attLocomotionPlan->extraEndTime() + attExtraEndTime );
 
-    if (attBringBackZmp)
+    if ( attBringBackZmp )
         planZMPBack();
 
     ok = attLocomotionPlan->solve();
-    if (!ok)
+    if ( !ok )
     {
         std::cout << "Locomotion planning Failed\n";
         return false;
     }
 
-    motionStartTime = attMotionPlan->startTime()+attSamplingPeriod;
-    motionEndTime = attMotionPlan->endTime()+attEps;
+    motionStartTime = attMotionPlan->startTime() +attSamplingPeriod;
+    motionEndTime = attMotionPlan->endTime() +attEps;
     time = motionStartTime;
     rank = 1;
     ChppRobotMotionSample motionsample;
-           
-    while (time < motionEndTime)
+   
+    while ( time < motionEndTime )
     {
-        supportJoint = attLocomotionPlan->supportFootJoint(time);
-        columnInTime = attMotionPlan->columnAtTime(time);
+        supportJoint = attLocomotionPlan->supportFootJoint ( time );
+        columnInTime = attMotionPlan->columnAtTime ( time );
         constraintStack = columnInTime->constraints();
         computeGikWeights(time, columnInTime->workingJoints(), gikWeights);
         
@@ -154,13 +154,13 @@ bool ChppGikGenericTask::algorithmSolve()
         attGikSolver->prepare( constraintStack );
         attGikSolver->solve(constraintStack);
 
-        attStandingRobot->updateRobot(attGikSolver->solutionRootPose(),attGikSolver->solutionJointConfiguration(),attSamplingPeriod);
-        
+        attStandingRobot->updateRobot ( attGikSolver->solutionRootPose(),attGikSolver->solutionJointConfiguration(),attSamplingPeriod );
+
         ZMPworObs = attRobot->zeroMomentumPoint();
-        attLocomotionPlan->getZMPAtTime(time, uZMPworPla);
-        ChppGikTools::UblastoVector3(uZMPworPla, ZMPworPla);
-        zmpInWaist( ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla);
-        
+        attLocomotionPlan->getZMPAtTime ( time, uZMPworPla );
+        ChppGikTools::UblastoVector3 ( uZMPworPla, ZMPworPla );
+        zmpInWaist ( ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla );
+
         motionsample.configuration = attRobot->currentConfiguration();
         motionsample.velocity = attRobot->currentVelocity();
         motionsample.acceleration = attRobot->currentAcceleration();
@@ -169,38 +169,41 @@ bool ChppGikGenericTask::algorithmSolve()
         motionsample.ZMPwstObs = ZMPwstObs;
         motionsample.ZMPworPla = ZMPworPla;
         motionsample.ZMPworObs = ZMPworObs;
-        
-        attSolutionMotion->appendSample(motionsample);
-        
+
+        attSolutionMotion->appendSample ( motionsample );
+
         curSupportPolygon = attStandingRobot->supportPolygon();
-        if (!curSupportPolygon)
+        if ( !curSupportPolygon )
         {
-            std::cout << "Produced a \"jumping\" configuration. Aborting."<<std::cout;
+            std::cout << "Produced a \"jumping\" configuration. Aborting."<<std::endl;
             return false;
         }
-        if (!(curSupportPolygon->isPointInsideSafeZone(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1))))
+        if (! ( curSupportPolygon->isPointInsideSafeZone ( V3_I ( ZMPworObs,0 ), V3_I ( ZMPworObs,1 ) ) ))
         {
-            if (!(attStandingRobot->isPointInsideSupportPolygon(V3_I(ZMPworObs,0), V3_I(ZMPworObs,1),0.005)))
+            if ( ! ( attStandingRobot->isPointInsideSupportPolygon ( V3_I ( ZMPworObs,0 ), V3_I ( ZMPworObs,1 ),0.005 ) ) )
             {
-                std::cout << "BAD ZMP: "<< V3_I(ZMPworObs,0) <<" , "<< V3_I(ZMPworObs,1) <<" at time " << time <<std::endl;
-                curSupportPolygon->print();
                 atLeastOneZMPUnsafe = true;
+                std::cout << "BAD ZMP: "<< V3_I ( ZMPworObs,0 ) <<" , "<< V3_I ( ZMPworObs,1 ) <<" at time " << time <<std::endl;
+                curSupportPolygon->print();
             }
             else
+            {
+                std::cout << "Eccentered ZMP: "<< V3_I ( ZMPworObs,0 ) <<" , "<< V3_I ( ZMPworObs,1 ) <<" at time " << time <<std::endl;
                 atLeastOneZMPEccentered = true;
+            }
         }
-
         time += attSamplingPeriod;
         rank++;
     }
 
     ok = !atLeastOneZMPUnsafe;
-    
-    if (ok && atLeastOneZMPEccentered)
-        std::cout << "Eccentered ZMP were detected during motion" << std::endl;
-    
+    if ( ok==true )
+        if ( atLeastOneZMPEccentered )
+            std::cout << "Eccentered ZMP were detected during motion" << std::endl;
+
     return ok;
 }
+
 
 void ChppGikGenericTask::computeGikWeights(double inTime, const vectorN& inActiveJoints, vectorN& outGikWeights)
 {
@@ -228,29 +231,28 @@ void ChppGikGenericTask::computeGikWeights(double inTime, const vectorN& inActiv
         outGikWeights(i) = 0.0;
 }
 
-
-void ChppGikGenericTask::dynamicWeights(bool inSwitch)
+void ChppGikGenericTask::dynamicWeights ( bool inSwitch )
 {
     attUseDynamicWeights = inSwitch;
 }
 
-void ChppGikGenericTask::neutralUpperBody(bool inSwitch)
+void ChppGikGenericTask::neutralUpperBody ( bool inSwitch )
 {
     attNeutralBodyOption = inSwitch;
 }
 
-void ChppGikGenericTask::automaticJointsMask(bool inSwitch, const  vectorN* inMask)
+void ChppGikGenericTask::automaticJointsMask ( bool inSwitch, const  vectorN* inMask )
 {
     attUserDefinedMask = !inSwitch;
-    if (attUserDefinedMask)
+    if ( attUserDefinedMask )
     {
-        if (!inMask)
+        if ( !inMask )
         {
             std::cout << "ChppGikGenericTask::automaticJointsMask() second argument was a null pointer \n";
             attUserDefinedMask = false;
             return;
         }
-        if (inMask->size() != (attRobot->numberDof()))
+        if ( inMask->size() != ( attRobot->numberDof() ) )
         {
             std::cout << "ChppGikGenericTask::automaticJointsMask() invalid joints mask  \n";
             attUserDefinedMask = false;
@@ -260,9 +262,9 @@ void ChppGikGenericTask::automaticJointsMask(bool inSwitch, const  vectorN* inMa
     }
 }
 
-void ChppGikGenericTask::extraEndTime(double inDuration)
+void ChppGikGenericTask::extraEndTime ( double inDuration )
 {
-    attExtraEndTime = (inDuration<0.0)?0.0:inDuration;
+    attExtraEndTime = ( inDuration<0.0 ) ?0.0:inDuration;
 }
 
 ChppGikGenericTask::~ChppGikGenericTask()
@@ -274,10 +276,10 @@ ChppGikGenericTask::~ChppGikGenericTask()
     cleanUp();
 }
 
-void ChppGikGenericTask::zmpInWaist(const vector3d& inZMPworPla, const vector3d& inZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla)
+void ChppGikGenericTask::zmpInWaist ( const vector3d& inZMPworPla, const vector3d& inZMPworObs, vector3d& outZMPwstObs, vector3d& outZMPwstPla )
 {
     tempM4 =attRobot->waist()->currentTransformation();
-    MAL_S4x4_INVERSE(tempM4,tempInv,double);
-    MAL_S4x4_C_eq_A_by_B(outZMPwstObs,tempInv,inZMPworObs);
-    MAL_S4x4_C_eq_A_by_B(outZMPwstPla,tempInv,inZMPworPla);
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( outZMPwstObs,tempInv,inZMPworObs );
+    MAL_S4x4_C_eq_A_by_B ( outZMPwstPla,tempInv,inZMPworPla );
 }

@@ -43,11 +43,14 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot, 
     attRelativeCOM[1] = relcy;
 
     attConfiguration.resize ( attRobot->numberDof() );
+	attVelocity.resize(attRobot->numberDof());
+	attAcceleration.resize(attRobot->numberDof());
 
     matrix4d tempM4 = attRobot->waist()->currentTransformation();
     matrix4d tempInv;
     MAL_S4x4_INVERSE ( tempM4,tempInv,double );
     MAL_S4x4_C_eq_A_by_B ( attWaistVertical,tempInv,vector3d(0,0,1) );
+	
 }
 
 const vector3d& ChppGikStandingRobot::halfsittingLocalWaistVertical()
@@ -527,7 +530,7 @@ void ChppGikStandingRobot::updateRobot ( const matrix4d& inRootPose, const vecto
 
 
     //Build Velocity vector
-    attVelocity = attConfiguration;
+    noalias(attVelocity) = attConfiguration;
     attVelocity.minus_assign ( attRobot->currentConfiguration() );
     for ( i=0;i<3;i++ )
         attVelocity ( i+3 ) = FD_w[i];
@@ -536,7 +539,7 @@ void ChppGikStandingRobot::updateRobot ( const matrix4d& inRootPose, const vecto
 
 
     //Build Acceleration vector
-    attAcceleration = attVelocity;
+    noalias(attAcceleration) = attVelocity;
     attAcceleration.minus_assign ( attRobot->currentVelocity() );
     attAcceleration /= inTimeStep;
 

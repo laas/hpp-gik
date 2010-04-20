@@ -34,7 +34,7 @@ public:
     /**
     \brief Get the computed solution motion. Can be empty.
     */
-    const ChppRobotMotion& solutionMotion() const;
+    ChppRobotMotion& solutionMotion() const;
     
     /**
     \brief Option to bring back the ZMP before any other motion (Disabled by default).
