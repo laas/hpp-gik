@@ -107,7 +107,7 @@ void ChppGikSolver::rootJoint ( CjrlJoint& inRootJoint )
 
 bool ChppGikSolver::weights ( const vectorN& inWeights )
 {
-    assert ( inActiveMask.size() ==attNumParams );
+    assert ( inWeights.size() ==attNumParams );
 
     stored_indices.clear();
     LongSize = 0;
