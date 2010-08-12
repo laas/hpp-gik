@@ -115,7 +115,7 @@ void ChppGikStandingRobot::computeFeet2DConvexHull ( std::vector<const ChppGikLi
 
     std::vector<ChppGik2DVertex> points;
     std::vector<ChppGik2DVertex> localpoints;
-    std::vector<unsigned int> feet;
+    std::vector<CjrlJoint*> feet;
     ChppGik2DVertex vl,vw;
     ChppGik2DVertex bary;
     bary.x = 0;
@@ -130,7 +130,7 @@ void ChppGikStandingRobot::computeFeet2DConvexHull ( std::vector<const ChppGikLi
         vw.y = attCurrentSupportPolygon->leftFootprint()->y() + sin ( th ) *vl.x +cos ( th ) *vl.y;
         points.push_back ( vw );
         localpoints.push_back ( vl );
-        feet.push_back ( 0 );
+        feet.push_back ( attRobot->leftAnkle() );
         bary.x += vw.x;
         bary.y += vw.y;
     }
@@ -143,7 +143,7 @@ void ChppGikStandingRobot::computeFeet2DConvexHull ( std::vector<const ChppGikLi
         vw.y = attCurrentSupportPolygon->rightFootprint()->y() + sin ( th ) *vl.x +cos ( th ) *vl.y;
         points.push_back ( vw );
         localpoints.push_back ( vl );
-        feet.push_back ( 1 );
+        feet.push_back ( attRobot->rightAnkle() );
         bary.x += vw.x;
         bary.y += vw.y;
     }
@@ -153,7 +153,7 @@ void ChppGikStandingRobot::computeFeet2DConvexHull ( std::vector<const ChppGikLi
 
     std::vector<ChppGik2DVertex> sortedpoints;
     std::vector<ChppGik2DVertex> sortedlocalpoints;
-    std::vector<unsigned int> sortedfeet;
+    std::vector<CjrlJoint*> sortedfeet;
     std::vector<double> sortedangles;
     std::vector<double> sorteddist;
 
@@ -175,7 +175,7 @@ void ChppGikStandingRobot::computeFeet2DConvexHull ( std::vector<const ChppGikLi
     std::vector<double>::iterator iterdist;
     std::vector<ChppGik2DVertex>::iterator itervert;
     std::vector<ChppGik2DVertex>::iterator iterlocalvert;
-    std::vector<unsigned int>::iterator iterfoot;
+    std::vector<CjrlJoint*>::iterator iterfoot;
     bool inserted;
     for ( unsigned int i=1;i<nv;i++ )
     {
@@ -246,7 +246,7 @@ void ChppGikStandingRobot::computeFeet2DConvexHull ( std::vector<const ChppGikLi
     {
         lv.world = *itervert;//sortedpoints[i];
         lv.local = *iterlocalvert;//sortedlocalpoints[i];
-        lv.foot = *iterfoot;//sortedfeet[i];
+        lv.joint = *iterfoot;//sortedfeet[i];
         attElements.push_back ( lv );
         iterlocalvert++;
         iterfoot++;

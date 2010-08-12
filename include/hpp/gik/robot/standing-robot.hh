@@ -2,10 +2,11 @@
 #define HPP_GIK_STANDING_ROBOT_H
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "hpp/gik/robot/shape-2d.hh"
 #include "robotDynamics/jrlHumanoidDynamicRobot.h"
 #include "hpp/gik/robot/foot-print-related.hh"
 #include "hpp/gik/robot/mask-factory.hh"
-#include "hpp/gik/robot/shape-2d.hh"
+
 
 
 /**

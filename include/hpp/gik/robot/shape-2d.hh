@@ -3,6 +3,7 @@
 
 #include <vector>
 
+class CjrlJoint;
 
 class ChppGik2DVertex
 {
@@ -33,7 +34,9 @@ class ChppGikLinkedVertex
         ChppGik2DVertex nout;
         double b;
         double dtonext;
-        unsigned int foot;
+        //associated body info
+        CjrlJoint* joint;
+        vector3d localContactPoint;
 };
 
 #endif
