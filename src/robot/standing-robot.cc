@@ -53,6 +53,98 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot, 
 	
 }
 
+ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot& inRobot):
+  attMaskFactory(NULL)
+{
+  // build foot shape
+  double length, width;
+  CjrlFoot* foot=NULL;
+  ChppGik2DVertex vert;
+  vector3d AnklePositionInLocalFrame;
+  foot = inRobot.leftFoot();
+  assert(foot);
+  foot->getSoleSize(length, width);
+  foot->getAnklePositionInLocalFrame(AnklePositionInLocalFrame);
+  double ax = AnklePositionInLocalFrame(0);
+  double ay = AnklePositionInLocalFrame(1);
+
+  double xmax = .5*length-ax;
+  double xmin = -.5*length-ax;
+  double ymax = .5*width-ay;
+  double ymin = -.5*width-ay;
+  vert.x = xmax;
+  vert.y = ymax;
+  attLeftFootShape.vertices.push_back(vert);
+  vert.x = xmin;
+  attLeftFootShape.vertices.push_back(vert);
+  vert.y = ymin;
+  attLeftFootShape.vertices.push_back(vert);
+  vert.x = xmax;
+  attLeftFootShape.vertices.push_back(vert);
+
+  foot = inRobot.rightFoot();
+  assert(foot);
+  foot->getSoleSize(length, width);
+  foot->getAnklePositionInLocalFrame(AnklePositionInLocalFrame);
+  ax = AnklePositionInLocalFrame(0);
+  ay = AnklePositionInLocalFrame(1);
+
+  xmax = .5*length-ax;
+  xmin = -.5*length-ax;
+  ymax = .5*width-ay;
+  ymin = -.5*width-ay;
+  vert.x = xmax;
+  vert.y = ymax;
+  attRightFootShape.vertices.push_back(vert);
+  vert.x = xmin;
+  attRightFootShape.vertices.push_back(vert);
+  vert.y = ymin;
+  attRightFootShape.vertices.push_back(vert);
+  vert.x = xmax;
+  attRightFootShape.vertices.push_back(vert);
+
+    attRobot = &inRobot;
+
+    attSupportPolygonConfig.resize ( attRobot->numberDof(),false );
+    vector3d anklePos;
+
+    attRobot->rightFoot()->getAnklePositionInLocalFrame ( anklePos );
+
+
+    attAnklePos = anklePos[2];
+    attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
+                               ( attRobot->leftAnkle()->currentTransformation(),
+                                 attRobot->rightAnkle()->currentTransformation(),
+                                 attAnklePos );
+    attSupportPolygonConfig = attRobot->currentConfiguration();
+
+    attHalfSittingConfig = attRobot->currentConfiguration();
+
+    attWaist = attRobot->waist()->currentTransformation();
+    attRFoot = attRobot->rightAnkle()->currentTransformation();
+    attLFoot = attRobot->leftAnkle()->currentTransformation();
+
+    attRelativeCOM = attRobot->positionCenterOfMass();
+    for ( unsigned int i=0; i < 3; i++ )
+        attRelativeCOM[i] = attRelativeCOM[i] - M4_IJ ( attRFoot,i,3 );
+    double yaw = atan2 ( M4_IJ ( attRFoot,1,0 ), M4_IJ ( attRFoot,0,0 ) );
+
+    double relcx = cos ( yaw ) * attRelativeCOM[0] + sin ( yaw ) * attRelativeCOM[1];
+    double relcy = cos ( yaw ) * attRelativeCOM[1] - sin ( yaw ) * attRelativeCOM[0];
+    attRelativeCOM[0] = relcx;
+    attRelativeCOM[1] = relcy;
+
+    attConfiguration.resize ( attRobot->numberDof() );
+	attVelocity.resize(attRobot->numberDof());
+	attAcceleration.resize(attRobot->numberDof());
+
+    matrix4d tempM4 = attRobot->waist()->currentTransformation();
+    matrix4d tempInv;
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attWaistVertical,tempInv,vector3d(0,0,1) );
+	
+}
+
 const vector3d& ChppGikStandingRobot::halfsittingLocalWaistVertical()
 {
     return attWaistVertical;

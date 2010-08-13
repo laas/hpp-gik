@@ -33,8 +33,15 @@ class ChppGikStandingRobot
 public:
     /**
     \brief constructor. The passed robot should be in half sitting configuration. The world frame has its center on the ground on the middle of ankle projections, x axis pointing ahead, y axis to the left foot of the robot and z axis up.
+
+    \deprecated foot shapes are now computed from the robot.
     */
-    ChppGikStandingRobot(CjrlHumanoidDynamicRobot& inRobot, ChppGik2DShape& inLeftFootprintShape, ChppGik2DShape& inRightFootprintShape);
+  JRLDEPRECATED(ChppGikStandingRobot(CjrlHumanoidDynamicRobot& inRobot, ChppGik2DShape& inLeftFootprintShape, ChppGik2DShape& inRightFootprintShape));
+
+  /**
+     \brief The robot should be in half-sitting configuration
+  */
+    ChppGikStandingRobot(CjrlHumanoidDynamicRobot& inRobot);
 
     /**
     \brief Get the jrl robot
