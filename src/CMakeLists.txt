@@ -10,7 +10,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 # provide path to library libabstractGikTask.so
 LINK_DIRECTORIES(${ABSTRACTGIKTASK_LIBRARY_DIRS})
 
-ADD_DEFINITIONS(-DHPP_GIK_GAINDIR="${CMAKE_INSTALL_PREFIX}/share/hpp/gik/motionplanner")
+ADD_DEFINITIONS(-DHPP_GIK_GAINDIR="${CMAKE_INSTALL_PREFIX}/share/hpp/gik")
 
 # provide path to library libhrp2Dynamics.so
 LINK_DIRECTORIES(${HRP2DYNAMICS_LIBRARY_DIRS})
