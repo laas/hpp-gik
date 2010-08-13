@@ -1,0 +1,31 @@
+# 
+#  Copyright 
+# 
+
+SET(EXECUTABLE_NAME test${PROJECT_NAME})
+
+ADD_DEFINITIONS(-DDEBUG=2)
+
+# provide path to library libabstractGikTask.so
+LINK_DIRECTORIES(${ABSTRACTGIKTASK_LIBRARY_DIRS})
+
+# provide path to library libhrp2Dynamics.so
+LINK_DIRECTORIES(${HRP2DYNAMICS_LIBRARY_DIRS})
+
+ADD_EXECUTABLE(${EXECUTABLE_NAME}
+  tests.cc
+  common.hh)
+
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+
+LINK_DIRECTORIES(${${PROJECT_NAME}_BINARY_DIR}/src)
+TARGET_LINK_LIBRARIES(${EXECUTABLE_NAME}
+  hpp-gik)
+
+# Add abstractGikTask compilation flags and link to library libabstractGikTask.so
+ADD_DEFINITIONS(${ABSTRACTGIKTASK_CFLAGS})
+TARGET_LINK_LIBRARIES(${EXECUTABLE_NAME} ${ABSTRACTGIKTASK_LIBRARIES})
+
+# Add hrp2Dynamics compilation flags and link to library libhrp2Dynamics.so
+ADD_DEFINITIONS(${HRP2DYNAMICS_CFLAGS})
+TARGET_LINK_LIBRARIES(${EXECUTABLE_NAME} ${HRP2DYNAMICS_LIBRARIES})
