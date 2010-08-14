@@ -230,7 +230,7 @@ VERBATIM_HEADERS       = NO
 #---------------------------------------------------------------------------
 # configuration options related to the HTML output
 #---------------------------------------------------------------------------
-HTML_OUTPUT            = html
+HTML_OUTPUT            = doxygen-html
 HTML_STYLESHEET        = ${CMAKE_CURRENT_SOURCE_DIR}/package.css
 HTML_HEADER            = ${CMAKE_CURRENT_SOURCE_DIR}/header.html
 HTML_FOOTER            = ${CMAKE_CURRENT_SOURCE_DIR}/footer.html
