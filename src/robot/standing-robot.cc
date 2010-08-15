@@ -766,7 +766,6 @@ ChppGikStandingRobot::~ChppGikStandingRobot()
 {
   delete attCurrentSupportPolygon;
   delete attMaskFactory;
-  delete attRobot;
 }
 
 
