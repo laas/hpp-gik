@@ -5,53 +5,32 @@ In this basic example, a motion for the center of the right hand is planned whil
 
         \section code_sec Code
 
-                Set a sampling period: 5ms second is the value used on HRP2
+        Set a sampling period: 5ms second is the value used on HRP2
  
-                \code
-                attSamplingPeriod = 5e-3;
+        \code
+        samplingPeriod = 5e-3;
         \endcode
 
-Create the shape of the feet contact area as a polygon (here we give the example of a rectangle for each foot):
-                \code
-                ChppGik2DShape leftFootShape, rightFootShape;
-
-        ChppGik2DVertex RupperRightCorner, RupperLeftCorner, RlowerLeftCorner, RlowerRightCorner;
-        ChppGik2DVertex LupperRightCorner, LupperLeftCorner, LlowerLeftCorner, LlowerRightCorner;
-
-    //fill in vertices (values for HRP-2 can be computed from info in CjrlFoot)
-        ...
-
-    //Add vertices to shapes
-                leftFootShape.vertices.push_back ( LupperRightCorner );
-        leftFootShape.vertices.push_back ( LupperLeftCorner );
-        leftFootShape.vertices.push_back ( LlowerLeftCorner );
-        leftFootShape.vertices.push_back ( LlowerRightCorner );
-
-        rightFootShape.vertices.push_back ( RupperRightCorner );
-        rightFootShape.vertices.push_back ( RupperLeftCorner );
-        rightFootShape.vertices.push_back ( RlowerLeftCorner );
-        rightFootShape.vertices.push_back ( RlowerRightCorner );
-        \endcode
-
-Supposing we have already constructed a CjrlHumanoidDynamicRobot object in halfsitting configuration and for which we have stored a pointer \c attRobot, create a standing robot:
+Assuming that we have already constructed a CjrlHumanoidDynamicRobot object in halfsitting configuration and for which we have stored a pointer \c robot, create a standing robot:
                 \code
 
-                attStandingRobot = new ChppGikStandingRobot ( *attRobot, leftFootShape, rightFootShape );
+                standingRobot = new ChppGikStandingRobot ( *robot );
         \endcode
+\note The degrees of freedom of the joints of the robot need to be bounded with actual values. If left to 0, the robot will not move.
 
                 Create a Gik solver
                 \code
-                ChppGikSolver gikSolver(*attRobot);
+                ChppGikSolver gikSolver(*robot);
         \endcode
 
                 Select the root of the robot at the right foot (reduces computation complexity)
                 \code
-                gikSolver.rootJoint(*attRobot->rightAnkle());
+                gikSolver.rootJoint(*robot->rightAnkle());
         \endcode
 
                 Create an empty motion (optional)
                 \code
-                ChppRobotMotion attSolutionMotion(attRobot, 0.0 , attSamplingPeriod);
+                ChppRobotMotion solutionMotion(robot, 0.0 , samplingPeriod);
         vector3d ZMPworPla;//planned ZMP in absolute frame
         vector3d ZMPwstPla;//Planned ZMP in robot waist frame
         vector3d ZMPworObs;//Observed ZMP in absolute frame
@@ -67,24 +46,24 @@ Supposing we have already constructed a CjrlHumanoidDynamicRobot object in halfs
         localPoint[0] = 0.0;
         localPoint[1] = 0.0;
         localPoint[2] = 0.0;
-        CjrlJoint& nsfJoint = *(attRobot->leftAnkle());
+        CjrlJoint& nsfJoint = *(robot->leftAnkle());
         matrix4d nsfTransform = nsfJoint.currentTransformation();
-        ChppGikTransformationConstraint nsfc(*attRobot, nsfJoint, localPoint, nsfTransform);
+        ChppGikTransformationConstraint nsfc(*robot, nsfJoint, localPoint, nsfTransform);
         \endcode
     
                 Second priority: static Center of Mass
                 \code
-                vector3d com = attRobot->positionCenterOfMass();
-        ChppGikComConstraint comc(*attRobot, com[0], com[1]);
+                vector3d com = robot->positionCenterOfMass();
+        ChppGikComConstraint comc(*robot, com[0], com[1]);
     
         \endcode
     
                 Third priority: A position constraint on a point in the right wrist frame
                 \code
-                matrix4d curT=  attRobot->rightWrist()->currentTransformation();
-        CjrlJoint& rwJoint = *(attRobot->rightWrist());
-        attRobot->rightHand()->getCenter(localPoint);
-        ChppGikPositionConstraint pc(*attRobot,rwJoint,localPoint, curT*localPoint);
+                matrix4d curT=  robot->rightWrist()->currentTransformation();
+        CjrlJoint& rwJoint = *(robot->rightWrist());
+        robot->rightHand()->getCenter(localPoint);
+        ChppGikPositionConstraint pc(*robot,rwJoint,localPoint, curT*localPoint);
         \endcode
                 Stack the constraints in a vector
                 \code
@@ -96,8 +75,8 @@ Supposing we have already constructed a CjrlHumanoidDynamicRobot object in halfs
  
                 Build the weights used in solving the pseudo inverse kinematics
                 \code
-                vectorN activated =  attStandingRobot->maskFactory()->wholeBodyMask();// active joints
-        vectorN weights = attStandingRobot->maskFactory()->weightsDoubleSupport(); //With these weights, the more mass a joint is lifting the less it's used
+                vectorN activated =  standingRobot->maskFactory()->wholeBodyMask();// active joints
+        vectorN weights = standingRobot->maskFactory()->weightsDoubleSupport(); //With these weights, the more mass a joint is lifting the less it's used
         vectorN combined = weights;
         for (unsigned int i=0;i<combined.size();i++)
             combined(i) *= activated(i);
@@ -135,13 +114,13 @@ Attempt solve with a single one step:
     \endcode
             Apply solution to robot
             \code
-            attStandingRobot->updateRobot(gikSolver.solutionRootPose(), gikSolver.solutionJointConfiguration(), attSamplingPeriod);
+            standingRobot->updateRobot(gikSolver.solutionRootPose(), gikSolver.solutionJointConfiguration(), samplingPeriod);
     \endcode
             Store the computed sample (optional)
             \code
         //compute planned and observed ZMP in absolute and waist frames
             ZMPworObs = gikSolver.zeroMomentumPoint();
-    waistTransform = attRobot->waist()->currentTransformation();
+    waistTransform = robot->waist()->currentTransformation();
     MAL_S4x4_INVERSE(waistTransform,inverseWaistTransform,double);
     MAL_S4x4_C_eq_A_by_B(ZMPwstObs,inverseWaistTransform,ZMPworObs);
     MAL_S4x4_C_eq_A_by_B(ZMPwstPla,inverseWaistTransform,ZMPworPla);
@@ -155,7 +134,7 @@ Attempt solve with a single one step:
     motionsample.ZMPworPla = ZMPworPla;
     motionsample.ZMPworObs = ZMPworObs;
         
-    attSolutionMotion.appendSample(motionsample);
+    solutionMotion.appendSample(motionsample);
     \endcode
 
             \code
