@@ -59,7 +59,7 @@ ChppGikSolver::ChppGikSolver ( CjrlDynamicRobot& inRobot )
     attVUb.resize ( attNumParams,false );attVUb.clear();
     attVLb.resize ( attNumParams,false );attVLb.clear();
     attVeloLambda = 0.5;
-    double safetycoef = 0.05, safetyzone;
+    double safetycoef = 0.00, safetyzone;
     double ul,ll;
     for ( unsigned int i =0; i<attNumParams;i++ )
     {
