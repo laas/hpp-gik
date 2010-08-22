@@ -123,6 +123,7 @@ bool ChppGikFootDisplaceElement::planFeet()
             M4_IJ ( curM,i,2 ) = rfup[i];
             M4_IJ ( curM,i,3 ) = M4_IJ ( rightfootT,i,3 );
         }
+		rotangle =  attTargetFootprint->th() - cursp->rightFootprint()->th();
 	}
     else
 	{
