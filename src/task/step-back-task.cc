@@ -90,7 +90,7 @@ bool ChppGikStepBackTask::algorithmSolve()
     double shiftStartTime = 1.7;
     double shiftDuration = 0.6;
     attStandingRobot->supportPolygon()->center( targetZMP[0], targetZMP[1] );
-    ChppGikZMPshiftElement* zmpshiftElement = new ChppGikZMPshiftElement(attStandingRobot->robot(), targetZMP, shiftStartTime, shiftDuration, attSamplingPeriod);
+    ChppGikZMPshiftElement* zmpshiftElement = new ChppGikZMPshiftElement(attStandingRobot, targetZMP, shiftStartTime, shiftDuration, attSamplingPeriod);
 
     /*waist normal height recovery (element)*/
     double whStartTime = 0.0;
@@ -115,8 +115,8 @@ bool ChppGikStepBackTask::algorithmSolve()
     double zmpendshifttime = 0.4;
     double footflighttime = 0.9;
     vector3d& relGap= attStandingRobot->halfsittingRelativeCOM();
-    ChppGikStepElement* stepElement = new ChppGikStepElement(attStandingRobot->robot(), targetFootprint, stepStartTime, FootisRight, V3_I(relGap,0), V3_I(relGap,1), attSamplingPeriod, zmpendshifttime, zmpstartshifttime, footflighttime);
-    //ChppGikStepElement* stepElement = new ChppGikStepElement(attStandingRobot->robot(), stepStartTime, targetFootprint, FootisRight, attSamplingPeriod, 0.5, zmpendshifttime, zmpstartshifttime, footflighttime);
+    ChppGikStepElement* stepElement = new ChppGikStepElement(attStandingRobot, targetFootprint, stepStartTime, FootisRight, V3_I(relGap,0), V3_I(relGap,1), attSamplingPeriod, zmpendshifttime, zmpstartshifttime, footflighttime);
+    //ChppGikStepElement* stepElement = new ChppGikStepElement(attStandingRobot, stepStartTime, targetFootprint, FootisRight, attSamplingPeriod, 0.5, zmpendshifttime, zmpstartshifttime, footflighttime);
 
     /*waist is always vertical (element)*/
     ChppGikInterpolatedElement* waistverticalElement = 0;

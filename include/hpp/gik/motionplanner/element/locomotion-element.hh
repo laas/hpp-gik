@@ -2,8 +2,7 @@
 #define HPP_GIK_LOCOMOTION_ELEMENT_H
 
 #include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "robotDynamics/jrlHumanoidDynamicRobot.h"
-#include "hpp/gik/robot/foot-print-related.hh"
+#include "hpp/gik/robot/standing-robot.hh"
 #include "hpp/gik/core/prioritized-motion.hh"
 #include "hpp/gik/constraint/transformation-constraint.hh"
 
@@ -17,9 +16,10 @@ class ChppGikLocomotionElement: public CjrlGikMotionConstraint, public ChppGikPr
         /**
         \brief constructor
         */
-        ChppGikLocomotionElement ( CjrlHumanoidDynamicRobot* inRobot, double inStartTime, double inDuration, double inSamplingPeriod ) :ChppGikPrioritizedMotion ( inRobot, 0, this )
+        ChppGikLocomotionElement ( ChppGikStandingRobot* inSRobot, double inStartTime, double inDuration, double inSamplingPeriod ) :ChppGikPrioritizedMotion ( inSRobot->robot(), 0, this )
         {
-            attHumanoidRobot = inRobot;
+            attHumanoidRobot = inSRobot->robot();
+            attStandingRobot = inSRobot;
             attStartTime = attModifiedStart = inStartTime;
             attDuration = ( inDuration>=0.0 ) ?inDuration:0.0;
             attEndTime = attModifiedEnd = attStartTime + attDuration;
@@ -145,6 +145,7 @@ class ChppGikLocomotionElement: public CjrlGikMotionConstraint, public ChppGikPr
         bool attPlanSuccess;
         matrixNxP attZMPmotion;
         CjrlHumanoidDynamicRobot* attHumanoidRobot;
+        ChppGikStandingRobot* attStandingRobot;
 };
 
 

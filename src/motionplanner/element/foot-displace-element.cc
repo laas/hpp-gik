@@ -6,7 +6,7 @@
 #define M4_IJ MAL_S4x4_MATRIX_ACCESS_I_J
 using namespace boost::numeric::ublas;
 
-ChppGikFootDisplaceElement::ChppGikFootDisplaceElement(CjrlHumanoidDynamicRobot* inRobot, double inStartTime, const ChppGikFootprint * inTargetFootprint, bool isRight, double inDuration, double inSamplingPeriod, double inHeight):ChppGikLocomotionElement( inRobot, inStartTime, inDuration, inSamplingPeriod)
+ChppGikFootDisplaceElement::ChppGikFootDisplaceElement(ChppGikStandingRobot* inSRobot, double inStartTime, const ChppGikFootprint * inTargetFootprint, bool isRight, double inDuration, double inSamplingPeriod, double inHeight):ChppGikLocomotionElement( inSRobot, inStartTime, inDuration, inSamplingPeriod)
 {
     attTargetFootprint = new ChppGikFootprint(*inTargetFootprint);
     attIsRight = isRight;
@@ -97,15 +97,60 @@ bool ChppGikFootDisplaceElement::planFeet()
     attConstraint->computeVectorizedTarget();
     vectorN startXYZRPY = ((ChppGikVectorizableConstraint*)attConstraint)->vectorizedTarget();
     
-    M4_IJ(m,0,3) = attTargetFootprint->x();
-    M4_IJ(m,1,3) = attTargetFootprint->y();
-    M4_IJ(m,0,0) = M4_IJ(m,1,1) = cos(attTargetFootprint->th());
-    M4_IJ(m,1,0) = sin(attTargetFootprint->th());
-    M4_IJ(m,0,1) = -M4_IJ(m,1,0);
-    M4_IJ(m,0,2) = M4_IJ(m,1,2) = M4_IJ(m,2,0) = M4_IJ(m,2,1) = 0.0;
-    M4_IJ(m,2,2) = 1.0;
+	ChppGikSupportPolygon* cursp = attStandingRobot->supportPolygon();
+	if (!cursp->isDoubleSupport())
+	{
+		std::cout << "No double support polygon found when planning a step" << std::endl;
+		return false;
+	}
+	
+	double rotangle;
+	matrix4d curM;
+	
+	 if (attIsRight)
+	{
+        rotangle =  attTargetFootprint->th() - cursp->rightFootprint()->th();
+		
+
+        matrix4d rightfootT = attHumanoidRobot->rightAnkle()->currentTransformation();
+        vector3d rffwd = rightfootT*attStandingRobot->rightFootLocalForwardVector();
+        vector3d rfsd = rightfootT*attStandingRobot->rightFootLocalSideVector();
+        vector3d rfup = rightfootT*attStandingRobot->rightFootLocalUpVector();
+        for ( unsigned int i=0;i<3;i++ )
+        {
+            M4_IJ ( curM,i,0 ) = rffwd[i];
+            M4_IJ ( curM,i,1 ) = rfsd[i];
+            M4_IJ ( curM,i,2 ) = rfup[i];
+            M4_IJ ( curM,i,3 ) = M4_IJ ( rightfootT,i,3 );
+        }
+	}
+    else
+	{
+		matrix4d leftfootT = attHumanoidRobot->leftAnkle()->currentTransformation();
+        vector3d lffwd = leftfootT*attStandingRobot->leftFootLocalForwardVector();
+        vector3d lfsd = leftfootT*attStandingRobot->leftFootLocalSideVector();
+        vector3d lfup = leftfootT*attStandingRobot->leftFootLocalUpVector();
+        for ( unsigned int i=0;i<3;i++ )
+        {
+            M4_IJ ( curM,i,0 ) = lffwd[i];
+            M4_IJ ( curM,i,1 ) = lfsd[i];
+            M4_IJ ( curM,i,2 ) = lfup[i];
+            M4_IJ ( curM,i,3 ) = M4_IJ ( leftfootT,i,3 );
+        }
+		rotangle =  attTargetFootprint->th() - cursp->leftFootprint()->th();
+	}
+	matrix4d prerot;
+	M4_IJ(prerot, 0,0 ) = M4_IJ(prerot, 1,1 ) = cos (rotangle);
+	M4_IJ(prerot, 1,0 ) = sin (rotangle);
+	M4_IJ(prerot, 0,1 ) = -M4_IJ(prerot, 1,0 );
+	
+	matrix4d targetM;
+	MAL_S4x4_C_eq_A_by_B(targetM,curM,prerot);
+	M4_IJ(targetM, 0,3 ) = attTargetFootprint->x();
+	M4_IJ(targetM, 1,3 ) = attTargetFootprint->y();
+	M4_IJ(targetM, 2,3 ) = attTargetFootprint->th();
     
-    attConstraint->targetTransformation(m);
+    attConstraint->targetTransformation(targetM);
     attConstraint->computeVectorizedTarget();
     vectorN endXYZRPY = ((ChppGikVectorizableConstraint*)attConstraint)->vectorizedTarget();
 
@@ -206,7 +251,7 @@ bool ChppGikFootDisplaceElement::planFeet()
 
 CjrlGikMotionConstraint* ChppGikFootDisplaceElement::clone() const
 {
-    ChppGikFootDisplaceElement* fde = new ChppGikFootDisplaceElement(attHumanoidRobot, attStartTime, attTargetFootprint, attIsRight, attDuration, attSamplingPeriod, attHeight);
+    ChppGikFootDisplaceElement* fde = new ChppGikFootDisplaceElement(attStandingRobot, attStartTime, attTargetFootprint, attIsRight, attDuration, attSamplingPeriod, attHeight);
 
     fde->postProlongate( attPostProlongation );
     fde->preProlongate( attPreProlongation );

@@ -62,6 +62,33 @@ public:
     \brief Test position of left foot against right
     */
     bool leftFootAhead();
+    
+    /**
+    \brief return the root's unitary X vector expressed in the local left ankle frame
+     */
+    const vector3d&  leftFootLocalForwardVector();
+    /**
+    \brief return the root's unitary X vector expressed in the local right ankle frame
+     */
+    const vector3d&  rightFootLocalForwardVector();
+    
+    /**
+    \brief return the root's unitary Y vector expressed in the local left ankle frame
+     */
+    const vector3d&  leftFootLocalSideVector();
+    /**
+    \brief return the root's unitary Y vector expressed in the local right ankle frame
+     */
+    const vector3d&  rightFootLocalSideVector();
+    
+    /**
+    \brief return the root's unitary Z vector expressed in the local left ankle frame
+     */
+    const vector3d&  leftFootLocalUpVector();
+    /**
+    \brief return the root's unitary Z vector expressed in the local right ankle frame
+     */
+    const vector3d&  rightFootLocalUpVector();
 
     /**
     \brief get the 2DShape representing the robot's left foot seen from above. HRP2 feet dimensions hard coded
@@ -178,6 +205,8 @@ private:
 
     vector3d FD_tmp,FD_tmp2,FD_tmp3,FD_w;
     matrix3d FD_Ro,FD_Roo,FD_Rt;
+    
+    vector3d attForwardLeft, attForwardRight, attSideLeft, attSideRight, attUpLeft, attUpRight;
 
 };
 

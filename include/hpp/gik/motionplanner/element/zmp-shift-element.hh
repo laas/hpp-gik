@@ -15,7 +15,7 @@ class ChppGikZMPshiftElement:public ChppGikLocomotionElement
         /**
             \brief Constructor
          */
-        ChppGikZMPshiftElement ( CjrlHumanoidDynamicRobot* inRobot, const vector3d& targetZMP, double inStartTime, double inDuration, double inSamplingPeriod );
+        ChppGikZMPshiftElement ( ChppGikStandingRobot* inSRobot, const vector3d& targetZMP, double inStartTime, double inDuration, double inSamplingPeriod );
 
         /**
             \brief Set target ZMP

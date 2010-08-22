@@ -15,7 +15,7 @@ public:
     /**
         \brief Constructor
      */
-    ChppGikFootDisplaceElement(CjrlHumanoidDynamicRobot* inRobot, double inStartTime, const ChppGikFootprint * inTargetFootprint, bool isRight, double inDuration, double inSamplingPeriod, double inHeight=0.05);
+    ChppGikFootDisplaceElement(ChppGikStandingRobot* inSRobot, double inStartTime, const ChppGikFootprint * inTargetFootprint, bool isRight, double inDuration, double inSamplingPeriod, double inHeight=0.05);
 
     /**
         \brief Tell if this step is to be done by the right foot

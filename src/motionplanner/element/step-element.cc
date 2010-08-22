@@ -7,7 +7,7 @@
 using namespace boost::numeric::ublas;
 
 
-ChppGikStepElement::ChppGikStepElement(CjrlHumanoidDynamicRobot* inRobot,double inStartTime, const ChppGikFootprint* inFootprint, bool isRightFoot, double inSamplingPeriod, double inFinalZMPCoefficient, double inEndShiftTime, double inStartZMPShiftTime, double inFootMotionDuration, double inStepHeight):ChppGikLocomotionElement( inRobot, inStartTime, inFootMotionDuration+inStartZMPShiftTime+inEndShiftTime, inSamplingPeriod)
+ChppGikStepElement::ChppGikStepElement(ChppGikStandingRobot* inSRobot, double inStartTime, const ChppGikFootprint* inFootprint, bool isRightFoot, double inSamplingPeriod, double inFinalZMPCoefficient, double inEndShiftTime, double inStartZMPShiftTime, double inFootMotionDuration, double inStepHeight):ChppGikLocomotionElement( inSRobot, inStartTime, inFootMotionDuration+inStartZMPShiftTime+inEndShiftTime, inSamplingPeriod)
 {
 
     attUseZMPcoefficient = true;
@@ -22,7 +22,7 @@ ChppGikStepElement::ChppGikStepElement(CjrlHumanoidDynamicRobot* inRobot,double 
     init(inFootMotionDuration, isRightFoot, inStepHeight, inFootprint, inStartZMPShiftTime, inEndShiftTime);
 }
 
-ChppGikStepElement::ChppGikStepElement(CjrlHumanoidDynamicRobot* inRobot, const ChppGikFootprint* inFootprint, double inStartTime, bool isRightFoot, double rightfoot2TargetZMPX, double rightfoot2TargetZMPY, double inSamplingPeriod, double inEndShiftTime, double inStartZMPShiftTime, double inFootMotionDuration, double inStepHeight):ChppGikLocomotionElement( inRobot, inStartTime, inFootMotionDuration+inStartZMPShiftTime+inEndShiftTime, inSamplingPeriod)
+ChppGikStepElement::ChppGikStepElement(ChppGikStandingRobot* inSRobot, const ChppGikFootprint* inFootprint, double inStartTime, bool isRightFoot, double rightfoot2TargetZMPX, double rightfoot2TargetZMPY, double inSamplingPeriod, double inEndShiftTime, double inStartZMPShiftTime, double inFootMotionDuration, double inStepHeight):ChppGikLocomotionElement( inSRobot, inStartTime, inFootMotionDuration+inStartZMPShiftTime+inEndShiftTime, inSamplingPeriod)
 {
     attUseZMPcoefficient = false;
     attRfoot2TargetZMPX = rightfoot2TargetZMPX;
@@ -34,10 +34,10 @@ ChppGikStepElement::ChppGikStepElement(CjrlHumanoidDynamicRobot* inRobot, const 
 void ChppGikStepElement::init(double inFootMotionDuration, bool isRight, double inHeight, const ChppGikFootprint* inFootprint,double inStartShiftTime, double inEndShiftTime)
 {
     vector3d dum;
-    attShift1 = new ChppGikZMPshiftElement( attHumanoidRobot, dum, attStartTime, inStartShiftTime, attSamplingPeriod);
-    attShift2 = new ChppGikZMPshiftElement( attHumanoidRobot, dum, attStartTime + inStartShiftTime + inFootMotionDuration, inEndShiftTime, attSamplingPeriod);
+    attShift1 = new ChppGikZMPshiftElement( attStandingRobot, dum, attStartTime, inStartShiftTime, attSamplingPeriod);
+    attShift2 = new ChppGikZMPshiftElement( attStandingRobot, dum, attStartTime + inStartShiftTime + inFootMotionDuration, inEndShiftTime, attSamplingPeriod);
 
-    attFootDisplace = new ChppGikFootDisplaceElement( attHumanoidRobot, attStartTime + inStartShiftTime, inFootprint, isRight, inFootMotionDuration, attSamplingPeriod, inHeight);
+    attFootDisplace = new ChppGikFootDisplaceElement( attStandingRobot, attStartTime + inStartShiftTime, inFootprint, isRight, inFootMotionDuration, attSamplingPeriod, inHeight);
 
     if (isRight)
     {
@@ -146,11 +146,11 @@ CjrlGikMotionConstraint* ChppGikStepElement::clone() const
     ChppGikStepElement* el = 0;
     if (attUseZMPcoefficient)
     {
-        el = new ChppGikStepElement(attHumanoidRobot,attStartTime, attFootDisplace->targetFootprint(), attFootDisplace->isRight(), attSamplingPeriod, attFinalZMPCoef, attShift2->duration(), attShift1->duration(), attFootDisplace->duration(), attFootDisplace->height());
+        el = new ChppGikStepElement(attStandingRobot,attStartTime, attFootDisplace->targetFootprint(), attFootDisplace->isRight(), attSamplingPeriod, attFinalZMPCoef, attShift2->duration(), attShift1->duration(), attFootDisplace->duration(), attFootDisplace->height());
     }
     else
     {
-        el = new ChppGikStepElement(attHumanoidRobot, attFootDisplace->targetFootprint(), attStartTime, attFootDisplace->isRight(), attRfoot2TargetZMPX, attRfoot2TargetZMPY, attSamplingPeriod, attShift2->duration(),  attShift1->duration(), attFootDisplace->duration(), attFootDisplace->height());
+        el = new ChppGikStepElement(attStandingRobot, attFootDisplace->targetFootprint(), attStartTime, attFootDisplace->isRight(), attRfoot2TargetZMPX, attRfoot2TargetZMPY, attSamplingPeriod, attShift2->duration(),  attShift1->duration(), attFootDisplace->duration(), attFootDisplace->height());
     }
 
     el->postProlongate( attPostProlongation );

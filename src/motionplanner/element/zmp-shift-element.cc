@@ -5,7 +5,7 @@
 
 using namespace boost::numeric::ublas;
 
-ChppGikZMPshiftElement::ChppGikZMPshiftElement( CjrlHumanoidDynamicRobot* inRobot, const vector3d& targetZMP, double inStartTime, double inDuration, double inSamplingPeriod):ChppGikLocomotionElement( inRobot, inStartTime, inDuration, inSamplingPeriod)
+ChppGikZMPshiftElement::ChppGikZMPshiftElement( ChppGikStandingRobot* inSRobot, const vector3d& targetZMP, double inStartTime, double inDuration, double inSamplingPeriod):ChppGikLocomotionElement( inSRobot, inStartTime, inDuration, inSamplingPeriod)
 {
     attTargetZMP = targetZMP;
 
@@ -30,7 +30,7 @@ ChppGikZMPshiftElement::~ChppGikZMPshiftElement()
 
 CjrlGikMotionConstraint* ChppGikZMPshiftElement::clone() const
 {
-    ChppGikZMPshiftElement* el =  new ChppGikZMPshiftElement( attHumanoidRobot, attTargetZMP, attStartTime, attDuration, attSamplingPeriod);
+    ChppGikZMPshiftElement* el =  new ChppGikZMPshiftElement( attStandingRobot, attTargetZMP, attStartTime, attDuration, attSamplingPeriod);
 
     el->postProlongate( attPostProlongation );
     el->preProlongate( attPreProlongation );

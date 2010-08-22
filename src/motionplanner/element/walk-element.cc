@@ -6,7 +6,7 @@
 
 using namespace boost::numeric::ublas;
 
-ChppGikWalkElement::ChppGikWalkElement(CjrlHumanoidDynamicRobot* inRobot, double inSamplingPeriod,double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps, double inZMPstart, double inFoot, double inZMPEnd):ChppGikLocomotionElement( inRobot, inStartTime, 0, inSamplingPeriod)
+ChppGikWalkElement::ChppGikWalkElement(ChppGikStandingRobot* inSRobot, double inSamplingPeriod,double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps, double inZMPstart, double inFoot, double inZMPEnd):ChppGikLocomotionElement( inSRobot, inStartTime, 0, inSamplingPeriod)
 {
     attZMPstart = inZMPstart;
     attZMPend = inZMPEnd;
@@ -17,7 +17,7 @@ ChppGikWalkElement::ChppGikWalkElement(CjrlHumanoidDynamicRobot* inRobot, double
     attModifiedEnd = attEndTime;
 
     for (unsigned int i=0;i<inAbsoluteSteps.size();i++)
-        attSteps.push_back(new ChppGikStepElement(attHumanoidRobot, attStartTime+attStepDuration*i, &(inAbsoluteSteps[i]->footprint()), inAbsoluteSteps[i]->isForRight(), attSamplingPeriod , 0.5,  attZMPend, attZMPstart, attFootFlight));
+        attSteps.push_back(new ChppGikStepElement(attStandingRobot, attStartTime+attStepDuration*i, &(inAbsoluteSteps[i]->footprint()), inAbsoluteSteps[i]->isForRight(), attSamplingPeriod , 0.5,  attZMPend, attZMPstart, attFootFlight));
     
     for (unsigned int i=0;i<inAbsoluteSteps.size();i++)
         attStepTargets.push_back(new ChppGikStepTarget(*(inAbsoluteSteps[i])));
@@ -26,7 +26,7 @@ ChppGikWalkElement::ChppGikWalkElement(CjrlHumanoidDynamicRobot* inRobot, double
 }
 
 
-ChppGikWalkElement::ChppGikWalkElement(double rightfoot2TargetZMPX, double rightfoot2TargetZMPY, double zmplasttime, CjrlHumanoidDynamicRobot* inRobot, double inSamplingPeriod,double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps, double inZMPstart, double inFoot, double inZMPEnd):ChppGikLocomotionElement( inRobot, inStartTime, 0, inSamplingPeriod)
+ChppGikWalkElement::ChppGikWalkElement(double rightfoot2TargetZMPX, double rightfoot2TargetZMPY, double zmplasttime, ChppGikStandingRobot* inSRobot, double inSamplingPeriod,double inStartTime, const std::vector<ChppGikStepTarget*>& inAbsoluteSteps, double inZMPstart, double inFoot, double inZMPEnd):ChppGikLocomotionElement( inSRobot, inStartTime, 0, inSamplingPeriod)
 {
     attZMPlasttime = zmplasttime;
     attRightfoot2TargetZMPX = rightfoot2TargetZMPX;
@@ -40,9 +40,9 @@ ChppGikWalkElement::ChppGikWalkElement(double rightfoot2TargetZMPX, double right
     attModifiedEnd = attEndTime;
 
     for (unsigned int i=0;i<inAbsoluteSteps.size()-1;i++)
-        attSteps.push_back(new ChppGikStepElement(attHumanoidRobot, attStartTime+attStepDuration*i, &(inAbsoluteSteps[i]->footprint()), inAbsoluteSteps[i]->isForRight(), attSamplingPeriod , 0.5,  attZMPend, attZMPstart, attFootFlight));
+        attSteps.push_back(new ChppGikStepElement(attStandingRobot, attStartTime+attStepDuration*i, &(inAbsoluteSteps[i]->footprint()), inAbsoluteSteps[i]->isForRight(), attSamplingPeriod , 0.5,  attZMPend, attZMPstart, attFootFlight));
     
-    attSteps.push_back(new ChppGikStepElement(attHumanoidRobot, &inAbsoluteSteps[inAbsoluteSteps.size()-1]->footprint(), attStartTime+attStepDuration*(inAbsoluteSteps.size()-1),inAbsoluteSteps[inAbsoluteSteps.size()-1]->isForRight(), rightfoot2TargetZMPX, rightfoot2TargetZMPY, inSamplingPeriod, zmplasttime, attZMPstart, attFootFlight));
+    attSteps.push_back(new ChppGikStepElement(attStandingRobot, &inAbsoluteSteps[inAbsoluteSteps.size()-1]->footprint(), attStartTime+attStepDuration*(inAbsoluteSteps.size()-1),inAbsoluteSteps[inAbsoluteSteps.size()-1]->isForRight(), rightfoot2TargetZMPX, rightfoot2TargetZMPY, inSamplingPeriod, zmplasttime, attZMPstart, attFootFlight));
     
     for (unsigned int i=0;i<inAbsoluteSteps.size();i++)
         attStepTargets.push_back(new ChppGikStepTarget(*(inAbsoluteSteps[i])));
@@ -108,11 +108,11 @@ CjrlGikMotionConstraint* ChppGikWalkElement::clone() const
 
     if (attUseZMPcoefficient)
     {
-        el = new ChppGikWalkElement(attHumanoidRobot,attSamplingPeriod,attStartTime,attStepTargets,attZMPend, attZMPstart, attFootFlight);
+        el = new ChppGikWalkElement(attStandingRobot,attSamplingPeriod,attStartTime,attStepTargets,attZMPend, attZMPstart, attFootFlight);
     }
     else
     {
-        el = new ChppGikWalkElement( attRightfoot2TargetZMPX,attRightfoot2TargetZMPY,attZMPlasttime, attHumanoidRobot,attSamplingPeriod,attStartTime,attStepTargets,attZMPend, attZMPstart, attFootFlight);
+        el = new ChppGikWalkElement( attRightfoot2TargetZMPX,attRightfoot2TargetZMPY,attZMPlasttime, attStandingRobot,attSamplingPeriod,attStartTime,attStepTargets,attZMPend, attZMPstart, attFootFlight);
     }
 
     el->postProlongate( attPostProlongation );

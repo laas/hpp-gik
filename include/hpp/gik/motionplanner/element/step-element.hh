@@ -22,12 +22,12 @@ class ChppGikStepElement: public ChppGikLocomotionElement
         /**
             \brief Constructor. The minimum time for the step motion (i.e parameter inFlightTime) is 0.5. So if the user constructs a step with anything below, it gets automatically thresholded.
          */
-        ChppGikStepElement ( CjrlHumanoidDynamicRobot* inRobot,double inStartTime, const ChppGikFootprint* inFootprint, bool isRightFoot, double inSamplingPeriod, double inFinalZMPCoefficient=0.75, double inEndShiftTime=0.8, double inStartZMPShiftTime=0.6, double inFootMotionDuration=0.8, double inStepHeight=0.05 );
+        ChppGikStepElement ( ChppGikStandingRobot* inSRobot,double inStartTime, const ChppGikFootprint* inFootprint, bool isRightFoot, double inSamplingPeriod, double inFinalZMPCoefficient=0.75, double inEndShiftTime=0.8, double inStartZMPShiftTime=0.6, double inFootMotionDuration=0.8, double inStepHeight=0.05 );
 
         /**
             \brief Constructor. The minimum time for the step motion (i.e parameter inFlightTime) is 0.5. So if the user constructs a step with anything below, it gets automatically thresholded.
          */
-        ChppGikStepElement ( CjrlHumanoidDynamicRobot* inRobot, const ChppGikFootprint* inFootprint, double inStartTime, bool isRightFoot, double rightfoot2TargetZMPX, double rightfoot2TargetZMPY, double inSamplingPeriod, double inEndShiftTime=0.8, double inStartZMPShiftTime=0.6, double inFootMotionDuration=0.8, double inStepHeight=0.05 );
+        ChppGikStepElement ( ChppGikStandingRobot* inSRobot, const ChppGikFootprint* inFootprint, double inStartTime, bool isRightFoot, double rightfoot2TargetZMPX, double rightfoot2TargetZMPY, double inSamplingPeriod, double inEndShiftTime=0.8, double inStartZMPShiftTime=0.6, double inFootMotionDuration=0.8, double inStepHeight=0.05 );
 
         /**
         \brief Clone constructor

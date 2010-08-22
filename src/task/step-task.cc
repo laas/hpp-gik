@@ -55,7 +55,7 @@ bool ChppGikStepTask::algorithmSolve()
     double footflighttime = 0.9;
     double zmpendcoef = 0.5;
 
-    ChppGikStepElement* stepElement = new ChppGikStepElement(attStandingRobot->robot(), stepStartTime, targetFootprint, attForRightFoot, attSamplingPeriod, zmpendcoef, zmpendshifttime, zmpstartshifttime, footflighttime);
+    ChppGikStepElement* stepElement = new ChppGikStepElement(attStandingRobot, stepStartTime, targetFootprint, attForRightFoot, attSamplingPeriod, zmpendcoef, zmpendshifttime, zmpstartshifttime, footflighttime);
 
     attGenericTask->clearElements();
     attGenericTask->addElement(stepElement);

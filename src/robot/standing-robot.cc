@@ -20,10 +20,9 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot, 
 
 
     attAnklePos = anklePos[2];
-    attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
-                               ( attRobot->leftAnkle()->currentTransformation(),
-                                 attRobot->rightAnkle()->currentTransformation(),
-                                 attAnklePos );
+
+
+
     attSupportPolygonConfig = attRobot->currentConfiguration();
 
     attHalfSittingConfig = attRobot->currentConfiguration();
@@ -43,65 +42,123 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot, 
     attRelativeCOM[1] = relcy;
 
     attConfiguration.resize ( attRobot->numberDof() );
-	attVelocity.resize(attRobot->numberDof());
-	attAcceleration.resize(attRobot->numberDof());
+    attVelocity.resize ( attRobot->numberDof() );
+    attAcceleration.resize ( attRobot->numberDof() );
 
     matrix4d tempM4 = attRobot->waist()->currentTransformation();
     matrix4d tempInv;
     MAL_S4x4_INVERSE ( tempM4,tempInv,double );
-    MAL_S4x4_C_eq_A_by_B ( attWaistVertical,tempInv,vector3d(0,0,1) );
-	
+    MAL_S4x4_C_eq_A_by_B ( attWaistVertical,tempInv,vector3d ( 0,0,1 ) );
+
+
+    vector3d absforward;
+    absforward ( 0 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),0,0 );
+    absforward ( 1 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),1,0 );
+    absforward ( 2 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),2,0 );
+
+    tempM4 = attRobot->leftAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attForwardLeft,tempInv, absforward );
+
+    tempM4 = attRobot->rightAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attForwardRight,tempInv, absforward );
+
+
+    vector3d absside;
+    absside ( 0 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),0,1 );
+    absside ( 1 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),1,1 );
+    absside ( 2 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),2,1 );
+
+    tempM4 = attRobot->leftAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attSideLeft,tempInv, absside );
+
+    tempM4 = attRobot->rightAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attSideRight,tempInv, absside );
+
+
+    vector3d absup;
+    absup ( 0 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),0,2 );
+    absup ( 1 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),1,2 );
+    absup ( 2 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),2,2 );
+
+    tempM4 = attRobot->leftAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attUpLeft,tempInv, absup );
+
+    tempM4 = attRobot->rightAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attUpRight,tempInv, absup );
+
+
+    matrix4d straightLeft = attRobot->rootJoint()->currentTransformation();
+    matrix4d straightRight = attRobot->rootJoint()->currentTransformation();
+    M4_IJ ( straightLeft,0,3 ) =  M4_IJ ( attRobot->leftAnkle()->currentTransformation(),0,3 );
+    M4_IJ ( straightLeft,1,3 ) =  M4_IJ ( attRobot->leftAnkle()->currentTransformation(),1,3 );
+    M4_IJ ( straightLeft,2,3 ) =  M4_IJ ( attRobot->leftAnkle()->currentTransformation(),2,3 );
+
+    M4_IJ ( straightRight,0,3 ) =  M4_IJ ( attRobot->rightAnkle()->currentTransformation(),0,3 );
+    M4_IJ ( straightRight,1,3 ) =  M4_IJ ( attRobot->rightAnkle()->currentTransformation(),1,3 );
+    M4_IJ ( straightRight,2,3 ) =  M4_IJ ( attRobot->rightAnkle()->currentTransformation(),2,3 );
+
+    attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
+                               ( straightLeft,
+                                 straightRight,
+                                 attAnklePos );
+
 }
 
-ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot& inRobot):
-  attMaskFactory(NULL)
+ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot ) :
+        attMaskFactory ( NULL )
 {
-  // build foot shape
-  double length, width;
-  CjrlFoot* foot=NULL;
-  ChppGik2DVertex vert;
-  vector3d AnklePositionInLocalFrame;
-  foot = inRobot.leftFoot();
-  assert(foot);
-  foot->getSoleSize(length, width);
-  foot->getAnklePositionInLocalFrame(AnklePositionInLocalFrame);
-  double ax = AnklePositionInLocalFrame(0);
-  double ay = AnklePositionInLocalFrame(1);
+    // build foot shape
+    double length, width;
+    CjrlFoot* foot=NULL;
+    ChppGik2DVertex vert;
+    vector3d AnklePositionInLocalFrame;
+    foot = inRobot.leftFoot();
+    assert ( foot );
+    foot->getSoleSize ( length, width );
+    foot->getAnklePositionInLocalFrame ( AnklePositionInLocalFrame );
+    double ax = AnklePositionInLocalFrame ( 0 );
+    double ay = AnklePositionInLocalFrame ( 1 );
 
-  double xmax = .5*length-ax;
-  double xmin = -.5*length-ax;
-  double ymax = .5*width-ay;
-  double ymin = -.5*width-ay;
-  vert.x = xmax;
-  vert.y = ymax;
-  attLeftFootShape.vertices.push_back(vert);
-  vert.x = xmin;
-  attLeftFootShape.vertices.push_back(vert);
-  vert.y = ymin;
-  attLeftFootShape.vertices.push_back(vert);
-  vert.x = xmax;
-  attLeftFootShape.vertices.push_back(vert);
+    double xmax = .5*length-ax;
+    double xmin = -.5*length-ax;
+    double ymax = .5*width-ay;
+    double ymin = -.5*width-ay;
+    vert.x = xmax;
+    vert.y = ymax;
+    attLeftFootShape.vertices.push_back ( vert );
+    vert.x = xmin;
+    attLeftFootShape.vertices.push_back ( vert );
+    vert.y = ymin;
+    attLeftFootShape.vertices.push_back ( vert );
+    vert.x = xmax;
+    attLeftFootShape.vertices.push_back ( vert );
 
-  foot = inRobot.rightFoot();
-  assert(foot);
-  foot->getSoleSize(length, width);
-  foot->getAnklePositionInLocalFrame(AnklePositionInLocalFrame);
-  ax = AnklePositionInLocalFrame(0);
-  ay = AnklePositionInLocalFrame(1);
+    foot = inRobot.rightFoot();
+    assert ( foot );
+    foot->getSoleSize ( length, width );
+    foot->getAnklePositionInLocalFrame ( AnklePositionInLocalFrame );
+    ax = AnklePositionInLocalFrame ( 0 );
+    ay = AnklePositionInLocalFrame ( 1 );
 
-  xmax = .5*length-ax;
-  xmin = -.5*length-ax;
-  ymax = .5*width-ay;
-  ymin = -.5*width-ay;
-  vert.x = xmax;
-  vert.y = ymax;
-  attRightFootShape.vertices.push_back(vert);
-  vert.x = xmin;
-  attRightFootShape.vertices.push_back(vert);
-  vert.y = ymin;
-  attRightFootShape.vertices.push_back(vert);
-  vert.x = xmax;
-  attRightFootShape.vertices.push_back(vert);
+    xmax = .5*length-ax;
+    xmin = -.5*length-ax;
+    ymax = .5*width-ay;
+    ymin = -.5*width-ay;
+    vert.x = xmax;
+    vert.y = ymax;
+    attRightFootShape.vertices.push_back ( vert );
+    vert.x = xmin;
+    attRightFootShape.vertices.push_back ( vert );
+    vert.y = ymin;
+    attRightFootShape.vertices.push_back ( vert );
+    vert.x = xmax;
+    attRightFootShape.vertices.push_back ( vert );
 
     attRobot = &inRobot;
 
@@ -112,10 +169,7 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot& inRobot):
 
 
     attAnklePos = anklePos[2];
-    attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
-                               ( attRobot->leftAnkle()->currentTransformation(),
-                                 attRobot->rightAnkle()->currentTransformation(),
-                                 attAnklePos );
+
     attSupportPolygonConfig = attRobot->currentConfiguration();
 
     attHalfSittingConfig = attRobot->currentConfiguration();
@@ -135,15 +189,106 @@ ChppGikStandingRobot::ChppGikStandingRobot(CjrlHumanoidDynamicRobot& inRobot):
     attRelativeCOM[1] = relcy;
 
     attConfiguration.resize ( attRobot->numberDof() );
-	attVelocity.resize(attRobot->numberDof());
-	attAcceleration.resize(attRobot->numberDof());
+    attVelocity.resize ( attRobot->numberDof() );
+    attAcceleration.resize ( attRobot->numberDof() );
 
     matrix4d tempM4 = attRobot->waist()->currentTransformation();
     matrix4d tempInv;
     MAL_S4x4_INVERSE ( tempM4,tempInv,double );
-    MAL_S4x4_C_eq_A_by_B ( attWaistVertical,tempInv,vector3d(0,0,1) );
-	
+    MAL_S4x4_C_eq_A_by_B ( attWaistVertical,tempInv,vector3d ( 0,0,1 ) );
+
+
+
+
+    vector3d absforward;
+    absforward ( 0 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),0,0 );
+    absforward ( 1 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),1,0 );
+    absforward ( 2 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),2,0 );
+
+    tempM4 = attRobot->leftAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attForwardLeft,tempInv, absforward );
+
+    tempM4 = attRobot->rightAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attForwardRight,tempInv, absforward );
+
+
+    vector3d absside;
+    absside ( 0 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),0,1 );
+    absside ( 1 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),1,1 );
+    absside ( 2 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),2,1 );
+
+    tempM4 = attRobot->leftAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attSideLeft,tempInv, absside );
+
+    tempM4 = attRobot->rightAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attSideRight,tempInv, absside );
+
+
+    vector3d absup;
+    absup ( 0 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),0,2 );
+    absup ( 1 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),1,2 );
+    absup ( 2 ) = M4_IJ ( attRobot->rootJoint()->currentTransformation(),2,2 );
+
+    tempM4 = attRobot->leftAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attUpLeft,tempInv, absup );
+
+    tempM4 = attRobot->rightAnkle()->currentTransformation();
+    MAL_S4x4_INVERSE ( tempM4,tempInv,double );
+    MAL_S4x4_C_eq_A_by_B ( attUpRight,tempInv, absup );
+
+
+    matrix4d straightLeft = attRobot->rootJoint()->currentTransformation();
+    matrix4d straightRight = attRobot->rootJoint()->currentTransformation();
+    M4_IJ ( straightLeft,0,3 ) =  M4_IJ ( attRobot->leftAnkle()->currentTransformation(),0,3 );
+    M4_IJ ( straightLeft,1,3 ) =  M4_IJ ( attRobot->leftAnkle()->currentTransformation(),1,3 );
+    M4_IJ ( straightLeft,2,3 ) =  M4_IJ ( attRobot->leftAnkle()->currentTransformation(),2,3 );
+
+    M4_IJ ( straightRight,0,3 ) =  M4_IJ ( attRobot->rightAnkle()->currentTransformation(),0,3 );
+    M4_IJ ( straightRight,1,3 ) =  M4_IJ ( attRobot->rightAnkle()->currentTransformation(),1,3 );
+    M4_IJ ( straightRight,2,3 ) =  M4_IJ ( attRobot->rightAnkle()->currentTransformation(),2,3 );
+
+    attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
+                               ( straightLeft,
+                                 straightRight,
+                                 attAnklePos );
 }
+
+
+const vector3d&  ChppGikStandingRobot::leftFootLocalForwardVector()
+{
+    return attForwardLeft;
+}
+
+const vector3d&  ChppGikStandingRobot::rightFootLocalForwardVector()
+{
+    return attForwardRight;
+}
+
+const vector3d&  ChppGikStandingRobot::leftFootLocalSideVector()
+{
+    return attSideLeft;
+}
+
+const vector3d&  ChppGikStandingRobot::rightFootLocalSideVector()
+{
+    return attSideRight;
+}
+
+const vector3d&  ChppGikStandingRobot::leftFootLocalUpVector()
+{
+    return attUpLeft;
+}
+
+const vector3d&  ChppGikStandingRobot::rightFootLocalUpVector()
+{
+    return attUpRight;
+}
+
 
 const vector3d& ChppGikStandingRobot::halfsittingLocalWaistVertical()
 {
@@ -484,11 +629,42 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     {
         delete attCurrentSupportPolygon;
 
+        matrix4d leftfootT = attRobot->leftAnkle()->currentTransformation();
+        vector3d lffwd = leftfootT*attForwardLeft;
+        vector3d lfsd = leftfootT*attSideLeft;
+        vector3d lfup = leftfootT*attUpLeft;
+
+        matrix4d rightfootT = attRobot->rightAnkle()->currentTransformation();
+        vector3d rffwd = rightfootT*attForwardRight;
+        vector3d rfsd = rightfootT*attSideRight;
+        vector3d rfup = rightfootT*attUpRight;
+
+
+        matrix4d mleft;
+        for ( unsigned int i=0;i<3;i++ )
+        {
+            M4_IJ ( mleft,i,0 ) = lffwd[i];
+            M4_IJ ( mleft,i,1 ) = lfsd[i];
+            M4_IJ ( mleft,i,2 ) = lfup[i];
+            M4_IJ ( mleft,i,3 ) = M4_IJ ( leftfootT,i,3 );
+        }
+
+        matrix4d mright;
+        for ( unsigned int i=0;i<3;i++ )
+        {
+            M4_IJ ( mright,i,0 ) = rffwd[i];
+            M4_IJ ( mright,i,1 ) = rfsd[i];
+            M4_IJ ( mright,i,2 ) = rfup[i];
+            M4_IJ ( mright,i,3 ) = M4_IJ ( rightfootT,i,3 );
+        }
+
 
         attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
-                                   ( attRobot->leftAnkle()->currentTransformation(),
-                                     attRobot->rightAnkle()->currentTransformation(),
+                                   ( mleft,
+                                     mright,
                                      attAnklePos );
+
+
 
         attSupportPolygonConfig = attRobot->currentConfiguration();
     }
@@ -622,7 +798,7 @@ void ChppGikStandingRobot::updateRobot ( const matrix4d& inRootPose, const vecto
 
 
     //Build Velocity vector
-    noalias(attVelocity) = attConfiguration;
+    noalias ( attVelocity ) = attConfiguration;
     attVelocity.minus_assign ( attRobot->currentConfiguration() );
     for ( i=0;i<3;i++ )
         attVelocity ( i+3 ) = FD_w[i];
@@ -631,7 +807,7 @@ void ChppGikStandingRobot::updateRobot ( const matrix4d& inRootPose, const vecto
 
 
     //Build Acceleration vector
-    noalias(attAcceleration) = attVelocity;
+    noalias ( attAcceleration ) = attVelocity;
     attAcceleration.minus_assign ( attRobot->currentVelocity() );
     attAcceleration /= inTimeStep;
 

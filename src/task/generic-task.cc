@@ -93,7 +93,7 @@ bool ChppGikGenericTask::planZMPBack()
     vector3d targetZMP = curSP->nearestCenterPointTo ( attRobot->positionCenterOfMass() );
     double myStartTime = attLocomotionPlan->startTime() + attBringStart;
     attBringEnd = myStartTime + attBringDuration;
-    ChppGikZMPshiftElement* startshift = new ChppGikZMPshiftElement ( attRobot,targetZMP,myStartTime,attBringDuration,attSamplingPeriod );
+    ChppGikZMPshiftElement* startshift = new ChppGikZMPshiftElement ( attStandingRobot,targetZMP,myStartTime,attBringDuration,attSamplingPeriod );
     startshift->startZMPCheck ( false );
     bool inserted = addElement ( startshift );
     if ( !inserted )

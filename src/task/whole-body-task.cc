@@ -250,7 +250,7 @@ bool ChppGikWholeBodyTask::onestepSolve()
         clear();
 
         //Create step task (default timings)
-        stepTask = new ChppGikStepElement( attStandingRobot->robot(), stepStartTime, vectorFootprints[i], whichFoot, attSamplingPeriod , zmpendcoef,  zmpendshifttime, zmpstartshifttime, footflighttime);
+        stepTask = new ChppGikStepElement( attStandingRobot, stepStartTime, vectorFootprints[i], whichFoot, attSamplingPeriod , zmpendcoef,  zmpendshifttime, zmpstartshifttime, footflighttime);
 
         attGenericTask->addElement(stepTask);
 
