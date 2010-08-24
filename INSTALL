@@ -2,16 +2,15 @@ Installation instructions
 
 Configuration
 -------------
-untar the package
-cd hpp-gik
 mkdir _build
 cd _build
-../configure 
+cmake [OPTIONS] ..
 
-Compilation
------------
-make
+Options:
+  -DCMAKE_INSTALL_PREFIX=path
+    define where to install headers, libraries and other material
+  -DDISABLE_TEST=YES disable tests and cut dependency to hrp2Dynamics
 
-Installation
-------------
+Compilation and Installation
+----------------------------
 make install
