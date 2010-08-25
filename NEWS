@@ -1,3 +1,20 @@
+New in 2.7, hpp-gik:
+
+* Solvers have been rewritten to make computation faster,
+* Changes in interface:
+    1. ChppGikRobotTask::solutionMotion() now returns a non const reference to
+       ChppRobotMotion,
+    2. constructor of ChppGikStandingRobot now takes only a reference to a
+       CjrlHumanoidDynamicRobot as input parameters. The foot shapes are
+       computed from information stored in this object.
+       Old constructor is now deprecated,
+    3. ChppGikFootDisplaceElement,
+       ChppGikStandingRobot,
+       ChppGikStepElement,
+       ChppGikWalkElement,
+       ChppGikZMPshiftElement  constructors take as first argument a pointer
+       to ChppGikStandingRobot instead of a pointer to CjrlHumanoidDynamicRobot.
+
 New in 2.6.1, hpp-gik:
 * Main page of documentation was not exported anymore in archive. This is fixed.
 
