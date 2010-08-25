@@ -1,3 +1,12 @@
+//
+// Copyright 2006, 2007, 2008, 2009, 2010 CNRS-LAAS
+// Author: Oussama Kanoun
+//
+
+// Locally disable type checking to avoid exceptions raised by axpy_prod.
+#ifndef BOOST_UBLAS_TYPE_CHECK
+# define BOOST_UBLAS_TYPE_CHECK 0  
+#endif
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 
@@ -234,6 +243,7 @@ void ChppGikSolver::solve ( std::vector<CjrlGikStateConstraint*>& inTasks, const
                 if ( ( curTask!=0 ) || ( ( curTask=0 ) && ( iteration!=0 ) ) )
                 {
                     value = task->value();
+		    // value += task->jacobian()*work_deltas
                     axpy_prod ( task->jacobian(),work_deltas,value,false );
                     noalias ( subrange ( attSolver->workvector(),0,task->dimension() ) ) = -value;
                 }
@@ -315,6 +325,7 @@ void ChppGikSolver::solveOver ( CjrlGikStateConstraint* overTask, double overCoe
         {
 
             value = overTask->value();
+	    // value += overTask->jacobian()*work_deltas
             axpy_prod ( overTask->jacobian(),work_deltas,value,false );
             noalias ( subrange ( attSolver->workvector(),0,overTask->dimension() ) ) = -value;
 
