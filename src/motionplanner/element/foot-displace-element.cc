@@ -93,11 +93,8 @@ bool ChppGikFootDisplaceElement::planFeet()
     unsigned int nsamples = ( unsigned int ) round ( attDuration/attSamplingPeriod ) +1;
 
     matrix4d m  = attConstrainedFoot->currentTransformation();
-    /*
-    attConstraint->targetTransformation ( m );
-    attConstraint->computeVectorizedTarget();
-    */
-    vectorN startXYZRPY(3);// = ( ( ChppGikVectorizableConstraint* ) attConstraint )->vectorizedTarget();
+
+    vectorN startXYZRPY(3);
     startXYZRPY(0) = M4_IJ(m,0,3);
     startXYZRPY(1) = M4_IJ(m,1,3);
     startXYZRPY(2) = M4_IJ(m,2,3);
@@ -111,30 +108,14 @@ bool ChppGikFootDisplaceElement::planFeet()
 	std::cout << "right foot" << attStandingRobot->robot()->rightAnkle()->currentTransformation() <<std::endl;
         return false;
     }
-
-
+    
     double startYaw;
     if ( attIsRight )
         startYaw = cursp->rightFootprint()->th();
     else
         startYaw = cursp->leftFootprint()->th();
 
-/*
-    matrix4d prerot;
-    M4_IJ ( prerot, 0,0 ) = M4_IJ ( prerot, 1,1 ) = cos ( rotangle );
-    M4_IJ ( prerot, 1,0 ) = sin ( rotangle );
-    M4_IJ ( prerot, 0,1 ) = -M4_IJ ( prerot, 1,0 );
-
-    matrix4d targetM;
-    MAL_S4x4_C_eq_A_by_B ( targetM,m,prerot );
-    M4_IJ ( targetM, 0,3 ) = attTargetFootprint->x();
-    M4_IJ ( targetM, 1,3 ) = attTargetFootprint->y();
-    
-
-    attConstraint->targetTransformation ( targetM );
-    attConstraint->computeVectorizedTarget();
-    */
-    vectorN endXYZRPY(3); //= ( ( ChppGikVectorizableConstraint* ) attConstraint )->vectorizedTarget();
+    vectorN endXYZRPY(3); 
     endXYZRPY(0) = attTargetFootprint->x();
     endXYZRPY(1) = attTargetFootprint->y();
     endXYZRPY(2) = startXYZRPY(2);
@@ -152,14 +133,6 @@ bool ChppGikFootDisplaceElement::planFeet()
     matrixNxP data ( 6,nsamples );
     data.clear();
     vectorN tempInterpolationResult ( nsamples );
-
-
-//     std::cout << "startXYZRPY "<< startXYZRPY << std::endl;
-//     std::cout << "endXYZRPY "<< endXYZRPY << std::endl;
-// 
-//     std::cout << "m "<< m << std::endl;
-//     std::cout << "targetM "<< targetM << std::endl;
-
 
     if ( attSamplingPeriod <= 11e-3 ) // small enough
     {
@@ -195,19 +168,18 @@ bool ChppGikFootDisplaceElement::planFeet()
                 M4_IJ ( prerot, 0,1 ) = -M4_IJ ( prerot, 1,0 );
 
                 matrix4d targetM;
-                MAL_S4x4_C_eq_A_by_B ( targetM,m,prerot );
+		MAL_S4x4_C_eq_A_by_B ( targetM,prerot,m);
+		M4_IJ (targetM,0,3) = M4_IJ (m,0,3);
+		M4_IJ (targetM,1,3) = M4_IJ (m,1,3);
+		M4_IJ (targetM,2,3) = M4_IJ (m,2,3);
       
                 attConstraint->targetTransformation ( targetM );
                 attConstraint->computeVectorizedTarget();
-                
+
                 data(3,k) = ( ( ChppGikVectorizableConstraint* ) attConstraint )->vectorizedTarget() (3);
                 data(4,k) = ( ( ChppGikVectorizableConstraint* ) attConstraint )->vectorizedTarget() (4);
                 data(5,k) = ( ( ChppGikVectorizableConstraint* ) attConstraint )->vectorizedTarget() (5);
             }
-            /*
-            row ( vectomat,0 ) = subrange ( tempInterpolationResult,0,padStart );
-            subrange ( data,i,i+1,0,padStart ) = vectomat;
-            */
         }
 
         //pad last Samples  with the reached final values
@@ -221,9 +193,6 @@ bool ChppGikFootDisplaceElement::planFeet()
         double flightTime = attDuration;
         for ( unsigned int i = 0; i< 2 ; i++ )
         {
-//             if ( i==2 )
-//                 continue;
-
             attPlanSuccess = ChppGikTools::minJerkCurve ( flightTime,attSamplingPeriod,startXYZRPY ( i ),0.0,0.0,endXYZRPY ( i ),tempInterpolationResult );
             if ( !attPlanSuccess )
                 return attPlanSuccess;
@@ -244,8 +213,12 @@ bool ChppGikFootDisplaceElement::planFeet()
                 M4_IJ ( prerot, 1,0 ) = sin ( tempInterpolationResult(k) );
                 M4_IJ ( prerot, 0,1 ) = -M4_IJ ( prerot, 1,0 );
 
+		
                 matrix4d targetM;
-                MAL_S4x4_C_eq_A_by_B ( targetM,m,prerot );
+		MAL_S4x4_C_eq_A_by_B ( targetM,prerot,m);
+		M4_IJ (targetM,0,3) = M4_IJ (m,0,3);
+		M4_IJ (targetM,1,3) = M4_IJ (m,1,3);
+		M4_IJ (targetM,2,3) = M4_IJ (m,2,3);
     
                 attConstraint->targetTransformation ( targetM );
                 attConstraint->computeVectorizedTarget();
