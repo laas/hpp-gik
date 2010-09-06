@@ -73,7 +73,7 @@ void ChppGikGenericTask::clearElements()
     for ( unsigned int i=0; i< attPrioritizedMotionRows.size();i++ )
     {
         attPrioritizedMotionRows[i]->removeMotion ( attPrioritizedMotions[i] );
-        delete attPrioritizedMotions[i];
+        //delete attPrioritizedMotions[i];
     }
     attPrioritizedMotionRows.clear();
     attPrioritizedMotions.clear();

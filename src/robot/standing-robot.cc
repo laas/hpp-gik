@@ -269,6 +269,7 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot )
       ( straightLeft,
 	straightRight,
  attAnklePos );
+  
 }
 
 
@@ -643,23 +644,29 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     delete attCurrentSupportPolygon;
 
     matrix4d leftfootT = attRobot->leftAnkle()->currentTransformation();
+    M4_IJ(leftfootT,0,3) = 0.0;
+    M4_IJ(leftfootT,1,3) = 0.0;
+    M4_IJ(leftfootT,2,3) = 0.0;
     vector3d lffwd = leftfootT*attForwardLeft;
     vector3d lfsd = leftfootT*attSideLeft;
     vector3d lfup = leftfootT*attUpLeft;
 
     matrix4d rightfootT = attRobot->rightAnkle()->currentTransformation();
+    M4_IJ(rightfootT,0,3) = 0.0;
+    M4_IJ(rightfootT,1,3) = 0.0;
+    M4_IJ(rightfootT,2,3) = 0.0;
     vector3d rffwd = rightfootT*attForwardRight;
     vector3d rfsd = rightfootT*attSideRight;
     vector3d rfup = rightfootT*attUpRight;
 
-
+    
     matrix4d mleft;
     for ( unsigned int i=0;i<3;i++ )
     {
       M4_IJ ( mleft,i,0 ) = lffwd[i];
       M4_IJ ( mleft,i,1 ) = lfsd[i];
       M4_IJ ( mleft,i,2 ) = lfup[i];
-      M4_IJ ( mleft,i,3 ) = M4_IJ ( leftfootT,i,3 );
+      M4_IJ ( mleft,i,3 ) = M4_IJ ( attRobot->leftAnkle()->currentTransformation(),i,3 );
     }
 
     matrix4d mright;
@@ -668,16 +675,15 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
       M4_IJ ( mright,i,0 ) = rffwd[i];
       M4_IJ ( mright,i,1 ) = rfsd[i];
       M4_IJ ( mright,i,2 ) = rfup[i];
-      M4_IJ ( mright,i,3 ) = M4_IJ ( rightfootT,i,3 );
+      M4_IJ ( mright,i,3 ) = M4_IJ ( attRobot->rightAnkle()->currentTransformation(),i,3 );
     }
 
-
+    
+    
     attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
 	( mleft,
 	  mright,
    attAnklePos );
-
-
 
     attSupportPolygonConfig = attRobot->currentConfiguration();
   }

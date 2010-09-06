@@ -114,6 +114,7 @@ ChppGikFootprint*  ChppGikFootprint::cookFootprint ( const matrix4d& inTransform
     //assuming the planner ensures the flatness of the feet
     vectorN eulerZYX ( 3 );
     ChppGikTools::RottoEulerZYX ( subrange ( ublasM4,0,3,0,3 ), eulerZYX );
+
     return new ChppGikFootprint ( ublasM4 ( 0,3 ),ublasM4 ( 1,3 ),eulerZYX ( 2 ) );
 }
 
