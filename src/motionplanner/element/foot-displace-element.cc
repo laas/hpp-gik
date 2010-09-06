@@ -103,9 +103,12 @@ bool ChppGikFootDisplaceElement::planFeet()
     startXYZRPY(2) = M4_IJ(m,2,3);
 
     ChppGikSupportPolygon* cursp = attStandingRobot->supportPolygon();
+    
     if ( !cursp->isDoubleSupport() )
     {
         std::cout << "No double support polygon found when planning a step" << std::endl;
+	std::cout << "left foot" << attStandingRobot->robot()->leftAnkle()->currentTransformation() <<std::endl;
+	std::cout << "right foot" << attStandingRobot->robot()->rightAnkle()->currentTransformation() <<std::endl;
         return false;
     }
 
