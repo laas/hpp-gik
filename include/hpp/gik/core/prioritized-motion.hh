@@ -15,9 +15,10 @@ public:
     /**
     \brief Constructor
     */
-    ChppGikPrioritizedMotion(CjrlDynamicRobot* inRobot, unsigned int inPriority, CjrlGikMotionConstraint* inMotionConstraint)
+    ChppGikPrioritizedMotion(CjrlDynamicRobot* inRobot, unsigned int inPriority, CjrlGikMotionConstraint* inMotionConstraint, double inDampingFactor)
     {
         attRobot = inRobot;
+	attDampingFactor = inDampingFactor>=0.0?inDampingFactor:0.0;
         attPriority = inPriority;
         attWorkingJoints.resize(inRobot->numberDof());
         attWorkingJoints.clear();
@@ -45,6 +46,14 @@ public:
     unsigned int priority() const
     {
         return attPriority;
+    }
+    
+    /**
+    \brief Get the damping factor
+     */
+    double dampingFactor() const
+    {
+      return attDampingFactor;
     }
 
     /**
@@ -76,6 +85,7 @@ protected:
     vectorN attWorkingJoints;
     unsigned int attPriority;
     CjrlDynamicRobot* attRobot;
+    double attDampingFactor;
 
 
 };

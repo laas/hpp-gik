@@ -19,7 +19,7 @@ public:
     /**
     \brief Constructor.
      */
-    ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, unsigned int inPriority);
+    ChppGikMotionPlanElement(CjrlDynamicRobot* inRobot, unsigned int inPriority, double inDampingFactor = 0.0);
 
     /**
     \brief Copy
@@ -47,6 +47,16 @@ public:
      */
     bool removeConstraint(const CjrlGikStateConstraint* inJrlStateConstraint);
 
+    /**
+    \brief Set the damping factor
+     */
+    void dampingFactor(double inDF);
+    
+    /**
+    \brief Get the damping factor
+     */
+    double dampingFactor() const;
+    
     /**
     \brief Get the dimension of this motion plan element
      */
@@ -133,6 +143,7 @@ private:
     matrixNxP attJacobian;
     vectorN attInfluencingDofs;
     vectorN attWorkingJoints;
+    double attDampingFactor;
 };
 
 #endif

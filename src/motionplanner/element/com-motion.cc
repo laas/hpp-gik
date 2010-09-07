@@ -4,7 +4,7 @@
 #include "hpp/gik/motionplanner/element/com-motion.hh"
 
 
-ChppGikComMotion::ChppGikComMotion(CjrlDynamicRobot* inRobot, double inStartTime, double inSamplingPeriod, const vectorN& inWorkingJoints, unsigned int inPriority):ChppGikPrioritizedMotion(inRobot, inPriority,this)
+ChppGikComMotion::ChppGikComMotion(CjrlDynamicRobot* inRobot, double inStartTime, double inSamplingPeriod, const vectorN& inWorkingJoints, unsigned int inPriority):ChppGikPrioritizedMotion(inRobot, inPriority,this,0.0)
 {
     vector3d pcom;
     pcom = attRobot->positionCenterOfMass();

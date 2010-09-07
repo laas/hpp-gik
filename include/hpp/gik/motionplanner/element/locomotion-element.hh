@@ -16,7 +16,7 @@ class ChppGikLocomotionElement: public CjrlGikMotionConstraint, public ChppGikPr
         /**
         \brief constructor
         */
-        ChppGikLocomotionElement ( ChppGikStandingRobot* inSRobot, double inStartTime, double inDuration, double inSamplingPeriod ) :ChppGikPrioritizedMotion ( inSRobot->robot(), 0, this )
+        ChppGikLocomotionElement ( ChppGikStandingRobot* inSRobot, double inStartTime, double inDuration, double inSamplingPeriod ) :ChppGikPrioritizedMotion ( inSRobot->robot(), 0, this, 0.0 )
         {
             attHumanoidRobot = inSRobot->robot();
             attStandingRobot = inSRobot;
