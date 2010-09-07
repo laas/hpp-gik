@@ -29,6 +29,11 @@ public:
         \brief Get the number of motion plan elements in this column
      */
     unsigned int numberElements()const;
+    
+    /**
+    \brief Get the vector of damping factors
+     */
+    const std::vector<double>& dampingFactors();
 
     /**
         \brief Get a mask on the configuration vector denoting the working degrees of freedom
@@ -62,6 +67,7 @@ private:
 
     CjrlDynamicRobot* attRobot;
     std::vector<ChppGikMotionPlanElement*> attTaskStack;
+    std::vector<double> attDampingFactors;
     vectorN attWorkingJoints;
 
 };

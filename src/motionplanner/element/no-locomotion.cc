@@ -3,7 +3,7 @@
 #include "hpp/gik/tools.hh"
 #include "hpp/gik/motionplanner/element/no-locomotion.hh"
 
-ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, CjrlJoint* inSupportFoot, double inStartTime, double inEndTime, const vectorN& inWorkingJoints, unsigned int inPriority):ChppGikPrioritizedMotion(inRobot, inPriority, this)
+ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, CjrlJoint* inSupportFoot, double inStartTime, double inEndTime, const vectorN& inWorkingJoints, unsigned int inPriority):ChppGikPrioritizedMotion(inRobot, inPriority, this,0.0)
 {
     attHumanoidRobot = inRobot;
     attConstraint = new ChppGikMotionPlanElement(inRobot, 0);

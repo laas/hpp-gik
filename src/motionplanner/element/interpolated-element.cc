@@ -5,7 +5,7 @@
 
 using namespace boost::numeric::ublas;
 
-ChppGikInterpolatedElement::ChppGikInterpolatedElement(CjrlDynamicRobot* inRobot, ChppGikVectorizableConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime, double inDuration, double inSamplingPeriod):ChppGikPrioritizedMotion(inRobot, inPriority+2, this)
+ChppGikInterpolatedElement::ChppGikInterpolatedElement(CjrlDynamicRobot* inRobot, ChppGikVectorizableConstraint* inTargetConstraint, unsigned int inPriority, double inStartTime, double inDuration, double inSamplingPeriod, double inDampingFactor):ChppGikPrioritizedMotion(inRobot, inPriority+2, this, inDampingFactor)
 {
     attStartTime = inStartTime;
     attDuration = inDuration;

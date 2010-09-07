@@ -41,6 +41,14 @@ void ChppGikMotionPlanColumn::workingJoints(const vectorN& inVec)
         attWorkingJoints = inVec;
 }
 
+const std::vector<double>& ChppGikMotionPlanColumn::dampingFactors()
+{
+  attDampingFactors.clear();
+  std::vector<ChppGikMotionPlanElement*>::iterator iter;
+  for (iter = attTaskStack.begin(); iter != attTaskStack.end(); iter++)
+    attDampingFactors.push_back((*iter)->dampingFactor());
+  return attDampingFactors;
+}
 
 std::vector<CjrlGikStateConstraint*> ChppGikMotionPlanColumn::constraints()
 {

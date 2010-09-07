@@ -38,7 +38,7 @@ bool ChppGikMotionPlanRow::removeMotion(ChppGikPrioritizedMotion* inMotion)
 {
     bool ret = false;
     std::vector<ChppGikPrioritizedMotion*>::iterator iter;
-    for( iter = attMotions.begin(); iter != attMotions.end(); iter++)
+    for (iter = attMotions.begin(); iter != attMotions.end(); iter++)
         if ((*iter) == inMotion)
         {
             attMotions.erase(iter);
@@ -53,20 +53,24 @@ bool ChppGikMotionPlanRow::removeMotion(ChppGikPrioritizedMotion* inMotion)
 ChppGikMotionPlanElement* ChppGikMotionPlanRow::elementAtTime(double inTime)
 {
     attWorkElement->clear();
+    attWorkElement->dampingFactor(0.0);
     CjrlGikStateConstraint* constraint = 0;
     std::vector<ChppGikPrioritizedMotion*>::iterator iter;
     attVector.clear();
-    for( iter = attMotions.begin(); iter != attMotions.end(); iter++)
+    for (iter = attMotions.begin(); iter != attMotions.end(); iter++)
     {
         constraint = 0;
         constraint = (*iter)->motionConstraint()->stateConstraintAtTime(inTime);
         if (constraint)
         {
+            if (attWorkElement->dampingFactor() < (*iter)->dampingFactor())
+                attWorkElement->dampingFactor((*iter)->dampingFactor());
+
             attWorkElement->addConstraint(constraint);
-            ChppGikTools::combineMasks( attVector, (*iter)->workingJoints(), attVector );
+            ChppGikTools::combineMasks(attVector, (*iter)->workingJoints(), attVector);
         }
     }
-    attWorkElement->workingJoints( attVector );
+    attWorkElement->workingJoints(attVector);
     return attWorkElement;
 }
 
@@ -90,7 +94,7 @@ void ChppGikMotionPlanRow::updateStartTime()
     {
         double newStartTime = attEndTime;
         std::vector<ChppGikPrioritizedMotion*>::iterator iter;
-        for( iter = attMotions.begin(); iter != attMotions.end(); iter++)
+        for (iter = attMotions.begin(); iter != attMotions.end(); iter++)
             if ((*iter)->motionConstraint()->startTime() < newStartTime)
                 newStartTime = (*iter)->motionConstraint()->startTime();
         attStartTime = newStartTime;
@@ -105,7 +109,7 @@ void ChppGikMotionPlanRow::updateEndTime()
     {
         double newEndTime = attStartTime;
         std::vector<ChppGikPrioritizedMotion*>::iterator iter;
-        for( iter = attMotions.begin(); iter != attMotions.end(); iter++)
+        for (iter = attMotions.begin(); iter != attMotions.end(); iter++)
             if ((*iter)->motionConstraint()->endTime() > newEndTime)
                 newEndTime = (*iter)->motionConstraint()->endTime();
         attEndTime = newEndTime;
