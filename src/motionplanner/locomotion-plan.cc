@@ -42,9 +42,6 @@ void ChppGikLocomotionPlan::clearElements() //i.e a different problem is coming
 {
     clearSolverMess();
 
-    for ( unsigned int i=0;i<attElements.size();i++ )
-        delete attElements[i];
-
     attElements.clear();
 
     attPlanSuccess = false;
