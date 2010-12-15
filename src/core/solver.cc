@@ -240,7 +240,7 @@ void ChppGikSolver::solve ( std::vector<CjrlGikStateConstraint*>& inTasks, const
             attSolver->transform ( task->dimension() );
             for ( iteration = 0; iteration<LeftSize; iteration++ )
             {
-                if ( ( curTask!=0 ) || ( ( curTask=0 ) && ( iteration!=0 ) ) )
+                if ( ( curTask!=0 ) || ( ( curTask==0 ) && ( iteration!=0 ) ) )
                 {
                     value = task->value();
 		    // value += task->jacobian()*work_deltas
