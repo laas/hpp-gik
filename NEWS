@@ -1,3 +1,8 @@
+New in 2.7.1, hpp-gik:
+
+* Important bug fix in solver,
+* export doxygendocdir variable in hpp-gik.pc.
+
 New in 2.7, hpp-gik:
 
 * Solvers have been rewritten to make computation faster,
