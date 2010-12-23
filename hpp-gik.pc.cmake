@@ -4,6 +4,7 @@ libdir=${install_pkg_exec_prefix}/lib
 includedir=${install_pkg_prefix}/include
 datarootdir=${install_pkg_prefix}/share
 docdir=${install_pkg_datarootdir}/doc/${PROJECT_NAME}
+doxygendocdir=${install_pkg_datarootdir}/doc/${PROJECT_NAME}/doxygen-html
 
 Name: ${PROJECT_NAME}
 Description: 
