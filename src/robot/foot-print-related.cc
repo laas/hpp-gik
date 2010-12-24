@@ -108,7 +108,7 @@ ChppGikFootprint*  ChppGikFootprint::cookFootprint ( const matrix4d& inTransform
     matrixNxP ublasM4 ( 4,4 );
     ChppGikTools::Matrix4toUblas ( inTransformation, ublasM4 );
 
-    if ( fabs(ublasM4 ( 2,3 ) - inNormalFootHeight) >  threshDist )
+    if ( ublasM4 ( 2,3 )  > inNormalFootHeight + threshDist )
         return 0;
 
     //assuming the planner ensures the flatness of the feet
