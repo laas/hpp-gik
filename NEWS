@@ -1,3 +1,7 @@
+New in 2.7.2, hpp-gik:
+
+* Desctructor of ChppGikStandingRobot does not delete robot anymore.
+
 New in 2.7.1, hpp-gik:
 
 * Important bug fix in solver,
