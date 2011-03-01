@@ -14,47 +14,50 @@ typedef vectorN CjrlRobotConfiguration;
 class ChppRobotMotionSample
 {
     public:
-       
+
         /**
         \brief Root pose
          */
         matrix4d rootpose;
-        
+
         /**
         \brief OpenHRP configuration of the robot
          */
         vectorN configuration;
-        
+
         /**
         \brief Velocity
          */
         vectorN velocity;
-        
+
         /**
         \brief Acceleration
          */
         vectorN acceleration;
-        
+
         /**
         \brief Planned Zero Momentum Point in waist frame
          */
         vector3d ZMPwstPla;
-        
+
         /**
         \brief Planned Zero Momentum Point in world frame
          */
         vector3d ZMPworPla;
-        
+
         /**
         \brief Motion-resulting (Observed) Zero Momentum Point in waist frame
          */
         vector3d ZMPwstObs;
-        
+
         /**
         \brief Motion-resulting (Observed) Zero Momentum Point in world frame
         */
         vector3d ZMPworObs;
-        
+        vector3d COM;
+        vector3d leftFoot;
+        vector3d rightFoot;
+
 };
 
 
@@ -102,7 +105,7 @@ public:
     */
     double samplingPeriod();
     /**
-    \brief Append a new sample 
+    \brief Append a new sample
      */
     void appendSample(const ChppRobotMotionSample& inSample);
     /**
@@ -118,17 +121,17 @@ public:
 
     /**
     \brief Motion dumper:
-    
+
     5 files are produced for openHRP
        joint configuration
        freeflyer position
-       freeflyer orientation 
+       freeflyer orientation
        zmp reference motion in waist frame
        observed zmp motion in waist frame
     2 files are produced for debug:
        zmp reference motion in world frame
        zmp for solution motion in world frame
-    
+
     In all these files, a data sample is output to a line beginning by the sample time, starting from 0.0.
     */
     void dumpTo(const char* inFilename, const char* option="w") const;
@@ -144,35 +147,35 @@ public:
     */
     const ChppRobotMotionSample* firstSample();
     /**
-    \brief This object keeps an iterator on the list of stored samples and it is incremented by this method to access the samples list sequentially. 
+    \brief This object keeps an iterator on the list of stored samples and it is incremented by this method to access the samples list sequentially.
     \return 0 if the end of the list is met.
      */
     const ChppRobotMotionSample* nextSample();
     /**
-    \brief This object keeps an iterator on the list of stored samples and it is decremented by this method. 
+    \brief This object keeps an iterator on the list of stored samples and it is decremented by this method.
     \return first sample if current is sample is first, previous otherwise.
-     */    
+     */
     const ChppRobotMotionSample* previousSample();
-    
+
     /**
     \brief Get a pointer to the last sample stored. The returned pointer is null in case the motion is empty.
     */
     const ChppRobotMotionSample* lastSample();
-    
+
     /**
     \brief Copy the sample corresponding to time \param inTime in \param outSample
     \return false if time out of bounds
     */
     bool getSampleAtTime(double inTime, ChppRobotMotionSample& outSample) const;
-    
+
     /**
     \brief Get the number of samples
      */
     unsigned int numberSamples() const;
-    
-    
-    
-    
+
+
+
+
 
 
 
@@ -189,13 +192,13 @@ private:
     double attSamplingPeriod;
 
     std::list<ChppRobotMotionSample> attSamples;
-    
+
     std::list<ChppRobotMotionSample>::iterator attAccessedSample;
-    
+
     unsigned int attNumerSamples;
-    
+
     std::list<ChppRobotMotionSample>::iterator attLastSample;
-    
+
 
 };
 
