@@ -145,6 +145,14 @@ bool ChppGikGenericTask::algorithmSolve()
     while ( time < motionEndTime )
     {
         supportJoint = attLocomotionPlan->supportFootJoint ( time );
+
+	if (!supportJoint)
+	  {
+	    std::cout << "No support joint at time: " << time
+		      << std::endl;
+	    return false;
+	  }
+
         columnInTime = attMotionPlan->columnAtTime ( time );
         constraintStack = columnInTime->constraints();
         computeGikWeights(time, columnInTime->workingJoints(), gikWeights);
