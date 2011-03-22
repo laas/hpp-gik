@@ -178,6 +178,7 @@ bool ChppGikGenericTask::algorithmSolve()
             std::cout << "Produced a \"jumping\" configuration. Aborting."<<std::endl;
             return false;
         }
+	/* Commented out by Seb because of fallacious zmp computations
         if (! ( curSupportPolygon->isPointInsideSafeZone ( V3_I ( ZMPworObs,0 ), V3_I ( ZMPworObs,1 ) ) ))
         {
             if ( ! ( attStandingRobot->isPointInsideSupportPolygon ( V3_I ( ZMPworObs,0 ), V3_I ( ZMPworObs,1 ),0.005 ) ) )
@@ -192,6 +193,7 @@ bool ChppGikGenericTask::algorithmSolve()
                 atLeastOneZMPEccentered = true;
             }
         }
+	*/
         time += attSamplingPeriod;
         rank++;
     }

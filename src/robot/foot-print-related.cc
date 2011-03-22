@@ -115,6 +115,11 @@ ChppGikFootprint*  ChppGikFootprint::cookFootprint ( const matrix4d& inTransform
     vectorN eulerZYX ( 3 );
     ChppGikTools::RottoEulerZYX ( subrange ( ublasM4,0,3,0,3 ), eulerZYX );
 
+    //If euler angles on x and y are non null, failed to cook footprint
+    if ( (fabs(eulerZYX(0)) > threshDist) ||  
+	 (fabs(eulerZYX(0)) > threshDist) )
+      return 0;
+
     return new ChppGikFootprint ( ublasM4 ( 0,3 ),ublasM4 ( 1,3 ),eulerZYX ( 2 ) );
 }
 
