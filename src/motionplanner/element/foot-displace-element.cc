@@ -98,7 +98,8 @@ bool ChppGikFootDisplaceElement::planFeet()
     vectorN startXYZRPY(3);
     startXYZRPY(0) = M4_IJ(m,0,3);
     startXYZRPY(1) = M4_IJ(m,1,3);
-    startXYZRPY(2) = M4_IJ(m,2,3);
+    //startXYZRPY(2) = M4_IJ(m,2,3);
+    startXYZRPY(2) = 0.105;
 
     ChppGikSupportPolygon* cursp = attStandingRobot->supportPolygon();
     
