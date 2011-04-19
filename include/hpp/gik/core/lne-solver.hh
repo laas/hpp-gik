@@ -1,7 +1,7 @@
 #ifndef GIK_LNE_SOLVER_H
 #define GIK_LNE_SOLVER_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 
 class ChppGikSolverLNE
 {

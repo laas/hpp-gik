@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_PRIORITIZED_MOTION_H
 #define HPP_GIK_PRIORITIZED_MOTION_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "gikTask/jrlGikMotionConstraint.h"
 
 /**

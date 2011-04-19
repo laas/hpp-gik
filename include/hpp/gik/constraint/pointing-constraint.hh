@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_POINTING_CONSTRAINT_H
 #define HPP_GIK_POINTING_CONSTRAINT_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "gikTask/jrlGikPointingConstraint.h"
 #include "hpp/gik/constraint/joint-state-constraint.hh"
 #include "hpp/gik/constraint/vectorizable-constraint.hh"

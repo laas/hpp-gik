@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_SOLVER_BASIC_H
 #define HPP_GIK_SOLVER_BASIC_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "jrl/mal/matrixabstractlayer.hh"
 #include "gikTask/jrlGikStateConstraint.h"
 
 /**

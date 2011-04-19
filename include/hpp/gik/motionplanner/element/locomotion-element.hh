@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_LOCOMOTION_ELEMENT_H
 #define HPP_GIK_LOCOMOTION_ELEMENT_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "hpp/gik/robot/standing-robot.hh"
 #include "hpp/gik/core/prioritized-motion.hh"
 #include "hpp/gik/constraint/transformation-constraint.hh"

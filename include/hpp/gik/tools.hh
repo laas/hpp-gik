@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_TOOLS_H
 #define HPP_GIK_TOOLS_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 
 /**
 \ingroup tools

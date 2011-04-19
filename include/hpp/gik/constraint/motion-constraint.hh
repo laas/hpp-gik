@@ -2,7 +2,7 @@
 #define HPP_GIK_MOTION_CONSTRAINT_H
 
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "gikTask/jrlGikMotionConstraint.h"
 
 

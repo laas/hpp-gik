@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_JOINT_STATE_CONSTRAINT_H
 #define HPP_GIK_JOINT_STATE_CONSTRAINT_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "gikTask/jrlGikJointStateConstraint.h"
 
 /**
