@@ -207,7 +207,7 @@ void createHRP2 ( const std::string& inPath )
     vert.x = 0.135;
     rightFootShape.vertices.push_back ( vert );
 
-    attStandingRobot = new ChppGikStandingRobot ( *attRobot, leftFootShape, rightFootShape );
+    attStandingRobot = new ChppGikStandingRobot ( *attRobot );
     attStandingRobot->staticState ( halfsittingConf );
 }
 
