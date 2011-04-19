@@ -1,3 +1,4 @@
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/task/reach-task.hh"
 
 #include "hpp/gik/constraint/parallel-constraint.hh"

@@ -4,6 +4,7 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/io.hpp"
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/task/generic-task.hh"
 #include "hpp/gik/motionplanner/element/interpolated-element.hh"
 #include "hpp/gik/tools.hh"

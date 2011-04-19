@@ -1,4 +1,6 @@
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/core/motion-plan-column.hh"
+
 using namespace boost::numeric::ublas;
 
 ChppGikMotionPlanColumn::ChppGikMotionPlanColumn(CjrlDynamicRobot* inRobot)

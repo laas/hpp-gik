@@ -1,3 +1,4 @@
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/task/half-sitting-task.hh"
 #include "hpp/gik/tools.hh"
 #include "hpp/gik/constraint/configuration-constraint.hh"

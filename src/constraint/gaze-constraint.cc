@@ -1,3 +1,4 @@
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/constraint/gaze-constraint.hh"
 
 ChppGikGazeConstraint::ChppGikGazeConstraint(CjrlHumanoidDynamicRobot& inRobot, const vector3d& inTargetWorldPoint): ChppGikPointingConstraint(inRobot,*(inRobot.gazeJoint()),inRobot.gazeOrigin(),inRobot.gazeDirection(),inTargetWorldPoint)

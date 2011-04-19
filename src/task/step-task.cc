@@ -1,3 +1,4 @@
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/task/step-task.hh"
 #include "hpp/gik/motionplanner/element/step-element.hh"
 

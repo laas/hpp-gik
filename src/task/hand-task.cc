@@ -1,4 +1,5 @@
 
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/task/hand-task.hh"
 #include "hpp/gik/tools.hh"
 #define V3_I MAL_S3_VECTOR_ACCESS

@@ -1,3 +1,4 @@
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/task/step-back-task.hh"
 #include "hpp/gik/constraint/parallel-constraint.hh"
 #include "hpp/gik/constraint/plane-constraint.hh"

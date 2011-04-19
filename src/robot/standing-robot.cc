@@ -1,3 +1,4 @@
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/robot/standing-robot.hh"
 #include "hpp/gik/tools.hh"
 

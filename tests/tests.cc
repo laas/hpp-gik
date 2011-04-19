@@ -11,6 +11,7 @@
 #include <time.h>
 #include <sys/time.h>
 
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "jrl/dynamics/dynamicsfactory.hh"
 #include "hrp2-dynamics/hrp2OptHumanoidDynamicRobot.h"

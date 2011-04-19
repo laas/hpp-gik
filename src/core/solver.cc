@@ -10,6 +10,7 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "hpp/gik/core/solver.hh"
 #include "hpp/gik/constraint/configuration-constraint.hh"
 #include "hpp/gik/core/motion-plan-element.hh"
