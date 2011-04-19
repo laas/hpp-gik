@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "hpp/gik/robot/robot-motion.hh"
