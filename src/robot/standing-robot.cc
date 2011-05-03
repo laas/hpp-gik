@@ -68,6 +68,8 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot )
 
   attAnklePos = anklePos[2];
 
+  std::cout << "Gik standing robot: attAnklePos: " << attAnklePos << std::endl;
+
   attSupportPolygonConfig = attRobot->currentConfiguration();
 
   attHalfSittingConfig = attRobot->currentConfiguration();

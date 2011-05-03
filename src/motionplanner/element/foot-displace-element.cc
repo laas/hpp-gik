@@ -13,8 +13,10 @@ ChppGikFootDisplaceElement::ChppGikFootDisplaceElement ( ChppGikStandingRobot* i
     attIsRight = isRight;
     attHeight = inHeight;
 
+    /*
     if ( attDuration < 0.5 )
         attDuration = 0.5;
+    */
 
     if ( attIsRight )
     {
