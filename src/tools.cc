@@ -400,8 +400,11 @@ bool ChppGikTools::linearInterpolation(double D, double inSamplingPeriod, double
     double alpha;
     for (unsigned int i =0; i<n+1;i++)
     {
+      if (n)
         alpha = i/n;
-        outTrajectory(i) = (1-alpha)*xi + alpha*xf;
+      else
+	alpha = 0.5;
+      outTrajectory(i) = (1-alpha)*xi + alpha*xf;
     }
     return true;
 }
