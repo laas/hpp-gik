@@ -21,7 +21,7 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot, 
 
   attAnklePos = anklePos[2];
 
-
+  std::cout << "Gik standing robot: attAnklePos: " << attAnklePos << std::endl;
 
   attSupportPolygonConfig = attRobot->currentConfiguration();
 
@@ -176,6 +176,8 @@ ChppGikStandingRobot::ChppGikStandingRobot ( CjrlHumanoidDynamicRobot& inRobot )
 
 
   attAnklePos = anklePos[2];
+
+  std::cout << "Gik standing robot: attAnklePos: " << attAnklePos << std::endl;
 
   attSupportPolygonConfig = attRobot->currentConfiguration();
 
@@ -683,7 +685,7 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
 	( mleft,
 	  mright,
-   attAnklePos );
+	  attAnklePos );
 
     attSupportPolygonConfig = attRobot->currentConfiguration();
   }

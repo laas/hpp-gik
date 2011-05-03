@@ -104,7 +104,7 @@ bool ChppGikFootprint::isPointInsideSafeZone(double inX, double inY)const
 
 ChppGikFootprint*  ChppGikFootprint::cookFootprint ( const matrix4d& inTransformation, double inNormalFootHeight )
 {
-    double threshDist = 4e-3;//4 mm
+    double threshDist = 4e-3;//4 mm  **CHANGED BY SEB *** was 4e-3
     matrixNxP ublasM4 ( 4,4 );
     ChppGikTools::Matrix4toUblas ( inTransformation, ublasM4 );
 
