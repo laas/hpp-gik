@@ -11,13 +11,14 @@ ChppGikStepElement::ChppGikStepElement(ChppGikStandingRobot* inSRobot, double in
 {
 
     attUseZMPcoefficient = true;
+    attFinalZMPCoef = inFinalZMPCoefficient;
     //thresholding endZMPcoef
     if (attFinalZMPCoef > 1)
         attFinalZMPCoef = 1;
     if (attFinalZMPCoef < 0)
         attFinalZMPCoef = 0;
 
-    attFinalZMPCoef = inFinalZMPCoefficient;
+
 
     init(inFootMotionDuration, isRightFoot, inStepHeight, inFootprint, inStartZMPShiftTime, inEndShiftTime);
 }

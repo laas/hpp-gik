@@ -473,6 +473,8 @@ bool ChppGikTools::minJerkCurve(double D, double inSamplingPeriod, double xi, do
             outPosition(i) += coeff[j]*pow(ti,(double)j);
     }
 
+    outPosition ( nsamples - 1) = xf;
+
     ti = 0;
 
     if (doVel)
