@@ -112,6 +112,12 @@ class ChppGikLocomotionPlan
          */
         ChppGikLocomotionData*  dataAtTime( double inTime );
 
+  /**
+     \brief filter ZMP trajectory.
+  */
+
+  bool filterZMP(matrixNxP & zmpError);
+
 
 
         /**
@@ -144,6 +150,9 @@ class ChppGikLocomotionPlan
         bool attPlanSuccess;
         matrixNxP attPlannedZMP;
         ChppGikLocomotionData attData;
+  
+  bool attIsSolved;
+  matrixNxP attTrajComXY;
 
 };
 

@@ -29,6 +29,7 @@ ChppGikGenericTask::ChppGikGenericTask ( ChppGikStandingRobot* inStandingRobot, 
     attUserDefinedMask = false;
     attExtraEndTime = 1.0;
     attBringBackZmp = false;
+    isReplanning = false;
 }
 
 void ChppGikGenericTask::bringBackZMP ( bool inChoice, double inStartTime, double inDuration )
@@ -118,14 +119,18 @@ bool ChppGikGenericTask::algorithmSolve()
     ChppGikSupportPolygon* curSupportPolygon=0;
     vector3d ZMPworPla, ZMPworObs, ZMPwstObs, ZMPwstPla;
 
+    attSolutionMotion->clear();
     attSolutionMotion->startTime ( 0.0 );
 
     gapTime = attLocomotionPlan->endTime() - attMotionPlan->endTime();
 
-    if ( gapTime<0 )
-        attLocomotionPlan->extraEndTime ( -gapTime );
+    if(!isReplanning) 
+      {
+	if ( gapTime<0 )
+	  attLocomotionPlan->extraEndTime ( -gapTime );
 
-    attLocomotionPlan->extraEndTime ( attLocomotionPlan->extraEndTime() + attExtraEndTime );
+	attLocomotionPlan->extraEndTime ( attLocomotionPlan->extraEndTime() + attExtraEndTime );
+      }
 
     if ( attBringBackZmp )
         planZMPBack();
@@ -191,7 +196,7 @@ bool ChppGikGenericTask::algorithmSolve()
         {
             if ( ! ( attStandingRobot->isPointInsideSupportPolygon ( V3_I ( ZMPworObs,0 ), V3_I ( ZMPworObs,1 ),0.005 ) ) )
             {
-                atLeastOneZMPUnsafe = true;
+	      //atLeastOneZMPUnsafe = true;
                 std::cout << "BAD ZMP: "<< V3_I ( ZMPworObs,0 ) <<" , "<< V3_I ( ZMPworObs,1 ) <<" at time " << time <<std::endl;
                 curSupportPolygon->print();
             }
@@ -291,4 +296,40 @@ void ChppGikGenericTask::zmpInWaist ( const vector3d& inZMPworPla, const vector3
     MAL_S4x4_INVERSE ( tempM4,tempInv,double );
     MAL_S4x4_C_eq_A_by_B ( outZMPwstObs,tempInv,inZMPworObs );
     MAL_S4x4_C_eq_A_by_B ( outZMPwstPla,tempInv,inZMPworPla );
+}
+
+matrixNxP ChppGikGenericTask::computeZmpError()
+{
+  unsigned int n = attSolutionMotion->numberSamples ();
+  matrixNxP zmpError(2,n);
+
+  const ChppRobotMotionSample * currentSample = attSolutionMotion->firstSample();
+  for(unsigned int i =0;i<n;i++)
+    {
+      zmpError(0,i) = currentSample->ZMPworPla(0)  - currentSample->ZMPworObs(0);
+      zmpError(1,i) = currentSample->ZMPworPla(1)  - currentSample->ZMPworObs(1);
+      currentSample =  attSolutionMotion->nextSample();
+    }
+  return zmpError;
+}
+
+bool ChppGikGenericTask::filterZmpError()
+{
+  matrixNxP zmpError = computeZmpError();
+  unsigned int n = attSolutionMotion->numberSamples ();
+
+  double maxError = 0;
+
+  for(unsigned int i =0;i<n-10;i++)
+    {
+      double curError = sqrt ( pow(zmpError(0,i),2) + pow(zmpError(1,i),2));
+      if (curError > maxError) maxError = curError;
+    }
+ 
+  std::cout << "Maximum ZMP error: " << maxError << std::endl;
+  isReplanning = true;
+
+  return ( attLocomotionPlan->filterZMP(zmpError) );
+
+
 }
