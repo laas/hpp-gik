@@ -70,6 +70,12 @@ public:
      */
     std::vector<ChppGikPrioritizedMotion*> activeAtTime(double inTime);
 
+  /**
+     \brief Remove inMotion from all motion plan rows.
+  */
+  void removeMotion(ChppGikPrioritizedMotion* inMotion);
+
+
     
 private:
 

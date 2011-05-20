@@ -219,7 +219,59 @@ void ChppGikPreviewController::singleZMPtoCOMState(matrixNxP& inZMPChunk, matrix
     inZmpError +=  subrange(inZMPChunk,0,1,0,2) - plannedZMP;
 }
 
+bool ChppGikPreviewController::newComFromZmpError( matrixNxP & io_trajCom, matrixNxP & zmpError)
+{
+  unsigned int ZMPlength = zmpError.size2();
 
+  unsigned int COMlength = io_trajCom.size2();
+
+  std::cout << "Com vector size: " << COMlength 
+	    << " , zmp vector size: " << ZMPlength 
+	    << std::endl ;
+
+  if (COMlength > ZMPlength) 
+    {
+      zmpError.resize(2,COMlength,true);
+      for (unsigned int i = ZMPlength ; i< COMlength ; i++)
+	{
+	  zmpError(0,i) = 0;
+	  zmpError(1,i) = 0;
+	}
+    }
+  ZMPlength = COMlength;
+
+  matrixNxP ZMPref = trans(zmpError);
+
+  matrixNxP ZMPChunk(attNumberPreviewSamples,2);
+  matrixNxP currentComState = zero_matrix<double>(3,2);
+
+  tempoCalc = currentComState;
+  matrixNxP plannedZMPError(1,2);
+  plannedZMPError(0,0) = 0;
+  plannedZMPError(0,1) = 0;
+
+  double startZMPoffsetX = ZMPref(0,0),startZMPoffsetY = ZMPref(0,1);
+
+  std::cout << "Zmp offset: " 
+	    << startZMPoffsetX << " , "
+	    << startZMPoffsetY << std::endl;
+
+  for (unsigned int i=0;i < ZMPlength;i++)
+    {
+      ZMPref(i,0) = ZMPref(i,0) - startZMPoffsetX;
+      ZMPref(i,1) = ZMPref(i,1) - startZMPoffsetY;
+    }
+
+  for (unsigned int i=0;i < ZMPlength-attNumberPreviewSamples+1;i++)
+    {
+      ZMPChunk = subrange(ZMPref,i,i+attNumberPreviewSamples,0,2);
+      singleZMPtoCOMState(ZMPChunk, currentComState, plannedZMPError);
+      io_trajCom(0,i) += currentComState(0,0)  + startZMPoffsetX;
+      io_trajCom(1,i) += currentComState(0,1)  + startZMPoffsetY;
+    }
+
+  return true;
+}
 
 
 

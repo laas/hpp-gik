@@ -23,6 +23,15 @@ ChppGikMotionPlan::~ChppGikMotionPlan()
     delete attWorkColumn;
 }
 
+void ChppGikMotionPlan::removeMotion(ChppGikPrioritizedMotion* inMotion)
+{
+  std::vector<ChppGikMotionPlanRow*>::iterator iter;
+  for (iter = attRows.begin(); iter != attRows.end(); iter++)
+    {
+      (*iter)->removeMotion(inMotion);
+    }
+}
+
 
 ChppGikMotionPlanRow* ChppGikMotionPlan::addMotion(ChppGikPrioritizedMotion* inMotion)
 {
