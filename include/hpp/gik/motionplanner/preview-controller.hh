@@ -20,6 +20,13 @@ public:
     \return false if inZMP does not hold enough samples or other paramters fail to match expected (minimum)size
      */
     bool ZMPtoCOM(const matrixNxP& inZMP, matrixNxP& outCOM);
+
+  /**
+     Filtering of Com motion from Zmp computed error
+  */
+  bool newComFromZmpError( matrixNxP & io_trajCom, matrixNxP & zmpError);
+
+
     /**
     \brief The time corresponding to the preview window
      */

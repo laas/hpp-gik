@@ -30,6 +30,8 @@ ChppGikLocomotionPlan::ChppGikLocomotionPlan ( ChppGikMotionPlan* inAssociatedMo
     attComMotion = 0;
 
     attPlanSuccess = false;
+
+    attIsSolved = false;
 }
 
 ChppGikLocomotionPlan::~ChppGikLocomotionPlan()
@@ -143,6 +145,9 @@ double ChppGikLocomotionPlan::startTime()
 
 bool ChppGikLocomotionPlan::solve()
 {
+  if (attIsSolved)
+    return true;
+
     attPlanSuccess = false;
 
     clearSolverMess();
@@ -194,6 +199,7 @@ bool ChppGikLocomotionPlan::solve()
             std::cout << "Failed to plan center of mass motion\n";
             return false;
         }
+	attTrajComXY = resultTrajCOMXY;
         attComMotion = new ChppGikComMotion ( attRobot, attModifiedStartTime, attSamplingPeriod, attStandingRobot->maskFactory()->legsMask(),1 );
         attComMotion->setSamples ( resultTrajCOMXY );
         attComMotionPlanRow = attAssociatedMotionPlan->addMotion ( attComMotion );
@@ -203,6 +209,30 @@ bool ChppGikLocomotionPlan::solve()
 
     attPlanSuccess = true;
     return true;
+}
+
+bool ChppGikLocomotionPlan::filterZMP(matrixNxP & zmpError)
+{
+  attAssociatedMotionPlan->removeMotion( attComMotion );
+  delete attComMotion;
+  attComMotion = NULL;
+
+  bool retVal = attPreviewController->newComFromZmpError(attTrajComXY, zmpError);
+  if (!retVal )
+    {
+      std::cout << "Failed to re-plan center of mass motion\n";
+      return false;
+    }
+  attComMotion = new ChppGikComMotion ( attRobot, attModifiedStartTime, attSamplingPeriod, attStandingRobot->maskFactory()->legsMask(),1 );
+  attComMotion->setSamples ( attTrajComXY );
+  attComMotionPlanRow = attAssociatedMotionPlan->addMotion ( attComMotion );
+
+  attIsSolved = true;
+
+  std::cout << "Locomotion plan has " 
+	    << attElements.size() <<   " elements." 
+	    << std::endl;
+  return true;
 }
 
 
@@ -232,13 +262,13 @@ bool ChppGikLocomotionPlan::planElementsZMP()
             std::cout << "Failed 0\n";
             return false;
         }
-/*
+
         if ( !supportPolygon.isPointInsideSafeZone ( ZMP[0],ZMP[1] ) )
         {
             std::cout << "Planned ZMP out of support polygon. Aborting Locomotion planning\n";
             return false;
         }
-*/
+
         ChppGikTools::overlapConcat ( attPlannedZMP, ( *iter )->ZMPmotion(),  1 );
     }
 
