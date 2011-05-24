@@ -10,6 +10,17 @@ class ChppGikReadyElement;
 /**
 \brief Implementation of the Humanoid2006 papers by E.Yoshida.
 \ingroup tasks
+
+This class implements a solver for a humanoid robot. Constructor takes as input
+\li a pointer to a ChppGikStandingRobot object.
+
+Computation of the motion is performed by method
+ChppGikWholeBodyTask::algorithmSolve in two steps:
+\li first the solvers tries to solve the hierarchy of tasks by keeping the feet
+on the ground (method basicSolve),
+\li if failure, the robot tries to solve the hierarchy of tasks by performing a step (method ChppGikWholeBodyTask::onestepSolve)
+
+\note before solving, the solver checks the support polygon of the robot (see ChppGikStandingRobot::supportPolygon)
  */
 class ChppGikWholeBodyTask: public ChppGikRobotTask
 {

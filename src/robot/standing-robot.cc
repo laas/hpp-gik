@@ -643,6 +643,10 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
   {
     delete attCurrentSupportPolygon;
 
+    // Compute left foot orientation in global frame:
+    //  lffwd: vector of left foot pointing forward,
+    //  lfsd: vector of left foot pointing to the left,
+    //  lfup: vector of left foot pointing upward.
     matrix4d leftfootT = attRobot->leftAnkle()->currentTransformation();
     M4_IJ(leftfootT,0,3) = 0.0;
     M4_IJ(leftfootT,1,3) = 0.0;
@@ -651,6 +655,10 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     vector3d lfsd = leftfootT*attSideLeft;
     vector3d lfup = leftfootT*attUpLeft;
 
+    // Compute right foot orientation in global frame:
+    //  rffwd: vector of right foot pointing forward,
+    //  rfsd: vector of right foot pointing to the left,
+    //  rfup: vector of right foot pointing upward.
     matrix4d rightfootT = attRobot->rightAnkle()->currentTransformation();
     M4_IJ(rightfootT,0,3) = 0.0;
     M4_IJ(rightfootT,1,3) = 0.0;
@@ -659,7 +667,10 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     vector3d rfsd = rightfootT*attSideRight;
     vector3d rfup = rightfootT*attUpRight;
 
-    
+    // Compute homogeneous matrix moving local frame of left foot defined by
+    //   - origin of the left ankle
+    //   - basis (forward, left, up)
+    // to current position in global frame.
     matrix4d mleft;
     for ( unsigned int i=0;i<3;i++ )
     {
@@ -669,6 +680,10 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
       M4_IJ ( mleft,i,3 ) = M4_IJ ( attRobot->leftAnkle()->currentTransformation(),i,3 );
     }
 
+    // Compute homogeneous matrix moving local frame of right foot defined by
+    //   - origin of the right ankle
+    //   - basis (forward, left, up)
+    // to current position in global frame.
     matrix4d mright;
     for ( unsigned int i=0;i<3;i++ )
     {
@@ -683,7 +698,8 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     attCurrentSupportPolygon = ChppGikSupportPolygon::makeSupportPolygon
 	( mleft,
 	  mright,
-   attAnklePos );
+	  attAnklePos // height of the ankle wrt sole
+	  );
 
     attSupportPolygonConfig = attRobot->currentConfiguration();
   }

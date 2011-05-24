@@ -25,7 +25,7 @@ public:
 };
 
 /**
-\brief This is a wrapper for a jrlHumanoidDynamicRobot, its support polygon and related information.  Some returned data are hardcoded for hrp2 robot.
+\brief Wrapper for a jrlHumanoidDynamicRobot, support polygon and related information.
 \ingroup robot
 */
 class ChppGikStandingRobot
@@ -50,6 +50,10 @@ public:
 
     /**
     \brief Get the current support polygon
+
+    Return NULL if the feet are not on the ground at elevation 0.
+    \note The configuration of the robot when this method is called is stored
+    in cache in order to avoid recomputing if the configuration has not changed.
     */
     ChppGikSupportPolygon* supportPolygon();
 
