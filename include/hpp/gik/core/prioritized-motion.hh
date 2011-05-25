@@ -5,8 +5,13 @@
 #include "gikTask/jrlGikMotionConstraint.h"
 
 /**
-\brief This object keeps a pointer to a CjrlGikMotionConstraint, and asdsociates a CjrlHumanoidDynamicRobot, a priority and a mask vector indicating active degrees of freedom for the motion constraint.
-\ingroup motionsplan
+   \brief Store a pointer to a CjrlGikMotionConstraint and additional information
+
+   \li a CjrlHumanoidDynamicRobot,
+   \li a priority
+   \li and a mask vector indicating active degrees of freedom for the motion constraint.
+
+   \ingroup motionsplan
  */
 class ChppGikPrioritizedMotion
 {

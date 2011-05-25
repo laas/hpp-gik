@@ -163,7 +163,12 @@ public:
     bool staticState(const vectorN& inConfig);
 
     /**
-    \brief Update robot kinematics(cartesian positions, velocities and accelerations of bodies + center of mass) and dynamics(ZMP) based on given root and other joints configurations.
+    \brief Update robot kinematics
+
+    Compute
+    \li cartesian positions,
+    \li velocities and accelerations using finite-difference
+    \li call CjrlDynamicRobot::computeForwardKinematics.
     */
     void updateRobot(const matrix4d& inRootPose, const vectorN& inJoints, double inTimeStep);
     /**
