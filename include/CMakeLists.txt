@@ -27,6 +27,7 @@ SET(${PROJECT_NAME}_GIK_CONSTRAINT_HEADERS
 )
 SET(${PROJECT_NAME}_GIK_CORE_HEADERS
 	hpp/gik/core/solver.hh
+	hpp/gik/core/solver-basic.hh
 	hpp/gik/core/lne-solver.hh
 	hpp/gik/core/motion-plan-column.hh
 	hpp/gik/core/motion-plan-element.hh

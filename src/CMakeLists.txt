@@ -31,6 +31,7 @@ SET(${PACKAGE_NAME}_SOURCES
   constraint/transformation-constraint.cc
   constraint/motion-constraint.cc
   core/solver.cc
+  core/solver-basic.cc
   core/lne-solver.cc
   core/motion-plan-column.cc
   core/motion-plan-element.cc
