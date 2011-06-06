@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/io.hpp"
@@ -49,9 +49,9 @@ bool ChppGikTools::Matrix4dFromVec(const vectorN& inVec, matrix4d& outH)
     V3_I(NE_wn,0) = inVec(3);
     V3_I(NE_wn,1) = inVec(4);
     V3_I(NE_wn,2) = inVec(5);
-    
+
     double th = MAL_S3_VECTOR_NORM(NE_wn);
-    
+
     if (th< attEps)
     {
         MAL_S4x4_MATRIX_SET_IDENTITY(outH);
@@ -76,7 +76,7 @@ bool ChppGikTools::Matrix4dFromVec(const vectorN& inVec, matrix4d& outH)
     M4_IJ(outH,0,3) = inVec(0);
     M4_IJ(outH,1,3) = inVec(1);
     M4_IJ(outH,2,3) = inVec(2);
-    
+
     return true;
 }
 

@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_PREVIEW_CONTROLLER_H
 #define HPP_GIK_PREVIEW_CONTROLLER_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "jrl/mal/matrixabstractlayer.hh"
 
 class ChppGikPreviewController
 {

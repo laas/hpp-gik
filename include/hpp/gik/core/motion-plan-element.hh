@@ -2,7 +2,7 @@
 #define HPP_GIK_MOTION_PLAN_ELEMENT_H
 
 #include <stdlib.h>
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "jrl/mal/matrixabstractlayer.hh"
 #include "gikTask/jrlGikStateConstraint.h"
 
 

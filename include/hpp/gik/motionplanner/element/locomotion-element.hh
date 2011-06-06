@@ -1,8 +1,8 @@
 #ifndef HPP_GIK_LOCOMOTION_ELEMENT_H
 #define HPP_GIK_LOCOMOTION_ELEMENT_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "robotDynamics/jrlHumanoidDynamicRobot.h"
+#include "jrl/mal/matrixabstractlayer.hh"
+#include "abstract-robot-dynamics/humanoid-dynamic-robot.hh"
 #include "hpp/gik/robot/foot-print-related.hh"
 #include "hpp/gik/core/prioritized-motion.hh"
 #include "hpp/gik/constraint/transformation-constraint.hh"

@@ -1,3 +1,6 @@
 [submodule "build-aux"]
 	path = build-aux
 	url = roboptim:build-aux
+[submodule "cmake"]
+	path = cmake
+	url = git@github.com:jrl-umi3218/jrl-cmakemodules.git

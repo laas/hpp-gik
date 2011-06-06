@@ -2,7 +2,7 @@
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include "hpp/gik/robot/robot-motion.hh"
 #include "hpp/gik/tools.hh"
-
+#include <stdio.h>
 #define V3_I MAL_S3_VECTOR_ACCESS
 
 using namespace boost::numeric::ublas;

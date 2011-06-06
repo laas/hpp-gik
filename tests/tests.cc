@@ -11,9 +11,9 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "dynamicsJRLJapan/dynamicsJRLJapanFactory.h"
-#include "hrp2Dynamics/hrp2OptHumanoidDynamicRobot.h"
+#include "jrl/mal/matrixabstractlayer.hh"
+#include "jrl/dynamics/bdynamicsfactory.hh"
+#include "hrp2-dynamics/hrp2OptHumanoidDynamicRobot.h"
 
 #include "hpp/gik/task/whole-body-task.hh"
 #include "hpp/gik/constraint/position-constraint.hh"

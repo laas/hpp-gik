@@ -1,8 +1,8 @@
 #ifndef HPP_GIK_STANDING_ROBOT_H
 #define HPP_GIK_STANDING_ROBOT_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "robotDynamics/jrlHumanoidDynamicRobot.h"
+#include "jrl/mal/matrixabstractlayer.hh"
+#include "abstract-robot-dynamics/humanoid-dynamic-robot.hh"
 #include "hpp/gik/robot/foot-print-related.hh"
 #include "hpp/gik/robot/mask-factory.hh"
 #include "hpp/gik/robot/shape-2d.hh"

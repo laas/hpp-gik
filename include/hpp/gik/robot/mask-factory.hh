@@ -2,8 +2,8 @@
 #define HPP_GIK_MASK_FACTORY_H
 
 #include <vector>
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "robotDynamics/jrlHumanoidDynamicRobot.h"
+#include "jrl/mal/matrixabstractlayer.hh"
+#include "abstract-robot-dynamics/humanoid-dynamic-robot.hh"
 
 
 /**

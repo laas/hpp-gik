@@ -8,3 +8,4 @@ doc/Makefile.in
 include/Makefile.in
 src/Makefile.in
 unitTesting/Makefile.in
+build

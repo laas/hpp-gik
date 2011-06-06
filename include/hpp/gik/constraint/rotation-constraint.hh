@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_ROTATION_CONSTRAINT_H
 #define HPP_GIK_ROTATION_CONSTRAINT_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "jrl/mal/matrixabstractlayer.hh"
 #include "gikTask/jrlGikRotationConstraint.h"
 #include "hpp/gik/constraint/joint-state-constraint.hh"
 #include "hpp/gik/constraint/vectorizable-constraint.hh"

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <iostream>
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "jrl/mal/matrixabstractlayer.hh"
 
 
 class ChppGikFootprint;

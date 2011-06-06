@@ -1,12 +1,1 @@
-FILE_PATTERNS          = *.cc *.hh *.hxx \
-		       	 *.c *.h   	 \
-                         *.ice
 
-INPUT                  = @abs_top_srcdir@/include \
-                         @abs_top_srcdir@/src	  \
-                         @abs_top_srcdir@/doc
-
-HTML_HEADER            = @abs_top_srcdir@/doc/header.html
-HTML_FOOTER            = @abs_top_srcdir@/doc/footer.html
-
-TAGFILES               = @ABSTRACTGIKTASK_DOXYGENDOCDIR@/abstractGikTask.doxytag=@ABSTRACTGIKTASK_DOXYGENDOCDIR@ @HRP2DYNAMICS_DOXYGENDOCDIR@/hrp2Dynamics.doxytag=@HRP2DYNAMICS_DOXYGENDOCDIR@ 

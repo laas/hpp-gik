@@ -1,7 +1,7 @@
 #ifndef HPP_GIK_PLANE_CONSTRAINT_H
 #define HPP_GIK_PLANE_CONSTRAINT_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "jrl/mal/matrixabstractlayer.hh"
 #include "gikTask/jrlGikPlaneConstraint.h"
 #include "hpp/gik/constraint/joint-state-constraint.hh"
 #include "hpp/gik/constraint/vectorizable-constraint.hh"

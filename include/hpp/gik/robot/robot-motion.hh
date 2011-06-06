@@ -2,8 +2,8 @@
 #define HPP_ROBOT_MOTION_H
 
 #include <list>
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
-#include "robotDynamics/jrlHumanoidDynamicRobot.h"
+#include "jrl/mal/matrixabstractlayer.hh"
+#include "abstract-robot-dynamics/humanoid-dynamic-robot.hh"
 
 typedef vectorN CjrlRobotConfiguration;
 

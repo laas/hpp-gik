@@ -1,19 +1,19 @@
 #include "hpp/gik/task/robot-task.hh"
-
+#include <stdio.h>
 ChppGikRobotTask::ChppGikRobotTask(ChppGikStandingRobot* inStandingRobot, double inSamplingPeriod, const char* inTaskName)
 {
     attStartTime = 0.0;
-    
+
     attShowTime = false;
 
     attTaskName = inTaskName;
-             
+
     attSamplingPeriod = inSamplingPeriod;
-    
+
     attEps = attSamplingPeriod/2;
 
     attStandingRobot = inStandingRobot;
-    
+
     attSolutionMotion = new ChppRobotMotion(inStandingRobot->robot(), attStartTime, attSamplingPeriod);
 
     attInitialConfiguration.resize(inStandingRobot->robot()->numberDof(),false);
@@ -64,7 +64,7 @@ bool ChppGikRobotTask::solve()
     attSolutionMotion->clear();
 
     backupRobot();
-    
+
     bool isSolved = algorithmSolve();
 
     if (isSolved && attShowTime)

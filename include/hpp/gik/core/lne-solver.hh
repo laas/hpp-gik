@@ -1,7 +1,7 @@
 #ifndef GIK_LNE_SOLVER_H
 #define GIK_LNE_SOLVER_H
 
-#include "MatrixAbstractLayer/MatrixAbstractLayer.h"
+#include "jrl/mal/matrixabstractlayer.hh"
 
 class ChppGikSolverLNE
 {
