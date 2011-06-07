@@ -12,7 +12,7 @@
 #include <sys/time.h>
 
 #include "jrl/mal/matrixabstractlayer.hh"
-#include "jrl/dynamics/bdynamicsfactory.hh"
+#include "jrl/dynamics/dynamicsfactory.hh"
 #include "hrp2-dynamics/hrp2OptHumanoidDynamicRobot.h"
 
 #include "hpp/gik/task/whole-body-task.hh"
@@ -223,8 +223,8 @@ int main ( int argc, char** argv )
 
     createHRP2 ( std::string ( argv[1] ) );
     test1();
-    
-    
+
+
     ChppGikHalfSittingTask task(attStandingRobot,0.005);
     if (!task.solve())
         std::cout << "Failed to complete ChppGikHalfSittingTask::solve" << std::endl;

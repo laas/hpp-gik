@@ -29,6 +29,8 @@ ADD_REQUIRED_DEPENDENCY("jrl-mal >= 1.9.0")
 ADD_REQUIRED_DEPENDENCY("abstract-gik-task >= 2.4")
 ADD_REQUIRED_DEPENDENCY("abstract-robot-dynamics >= 1.16")
 ADD_REQUIRED_DEPENDENCY("fsqp >= 2.5")
+ADD_REQUIRED_DEPENDENCY("jrl-dynamics >= 1.16")
+ADD_REQUIRED_DEPENDENCY("hrp2-dynamics")
 
 SET(CXX_DISABLE_WERROR True)
 
@@ -43,6 +45,7 @@ SETUP_PROJECT()
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(include)
+ADD_SUBDIRECTORY(tests)
 
 # Define subdirectories to explore for cmake
 
