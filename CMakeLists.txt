@@ -41,7 +41,7 @@ SETUP_PROJECT()
 #--------------------------
 # Create list of headers files
 #-----------------------------
-
+ADD_DEFINITIONS("-g -O3")
 
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(include)

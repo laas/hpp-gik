@@ -232,9 +232,9 @@ void ChppGikSolver::solve ( std::vector<CjrlGikStateConstraint*>& inTasks, const
             for ( iteration = 0; iteration<LeftSize; iteration++ )
             {
                 if ( ( curTask!=0 ) || ( ( curTask=0 ) && ( iteration!=0 ) ) )
-                {
-                    value = task->value();
-                    axpy_prod ( task->jacobian(),work_deltas,value,false );
+                  {
+                    value.resize(task->jacobian().size1());
+                    axpy_prod ( task->jacobian(),work_deltas,value, true );
                     noalias ( subrange ( attSolver->workvector(),0,task->dimension() ) ) = -value;
                 }
                 else
@@ -314,7 +314,7 @@ void ChppGikSolver::solveOver ( CjrlGikStateConstraint* overTask, double overCoe
         for ( iteration = 0; iteration<LeftSize; iteration++ )
         {
 
-            value = overTask->value();
+            value.resize(overTask->jacobian().size1());
             axpy_prod ( overTask->jacobian(),work_deltas,value,false );
             noalias ( subrange ( attSolver->workvector(),0,overTask->dimension() ) ) = -value;
 
