@@ -563,6 +563,7 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     //   - basis (forward, left, up)
     // to current position in global frame.
     matrix4d mleft;
+    MAL_S4x4_MATRIX_SET_IDENTITY(mleft);
     for ( unsigned int i=0;i<3;i++ )
     {
       M4_IJ ( mleft,i,0 ) = lffwd[i];
@@ -576,6 +577,7 @@ ChppGikSupportPolygon* ChppGikStandingRobot::supportPolygon()
     //   - basis (forward, left, up)
     // to current position in global frame.
     matrix4d mright;
+    MAL_S4x4_MATRIX_SET_IDENTITY(mright);
     for ( unsigned int i=0;i<3;i++ )
     {
       M4_IJ ( mright,i,0 ) = rffwd[i];
