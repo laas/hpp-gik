@@ -42,7 +42,7 @@ void ChppGikTools::splitM4(const matrix4d& inM, matrix3d& outR, vector3d& outV)
     }
 }
 
-bool ChppGikTools::Matrix4dFromVec(const vectorN& inVec, matrix4d& outH)
+bool ChppGikTools::Rodrigues4d(const vectorN& inVec, matrix4d& outH)
 {
     if (inVec.size()<6)
         return false;

@@ -377,13 +377,13 @@ const vectorN& ChppGikSolver::solution()
 void ChppGikSolver::computeRobotSolution()
 {
 
-    if ( !attChangeRootJoint && !attChangeRootPose )
-        return;
-
     unsigned int i;
 
     for ( i =0; i< LongSize; i++ )
         CurFullConfig ( stored_indices [ i ] ) += work_deltas ( stored_indices [ i ] );
+
+    if ( !attChangeRootJoint && !attChangeRootPose )
+      return;
 
     if ( attChangeRootJoint )
     {
@@ -405,7 +405,7 @@ void ChppGikSolver::computeRobotSolution()
     if ( attChangeRootPose )
     {
         //Compute robot root transformation change due to jacobian root transformation change
-        ChppGikTools::Matrix4dFromVec ( work_deltas, HRC );
+        ChppGikTools::Rodrigues4d ( work_deltas, HRC );
         if ( attChangeRootJoint )
             H0 = HRC * H0;
         else

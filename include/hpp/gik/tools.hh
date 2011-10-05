@@ -40,8 +40,13 @@ public :
     static void EulerZYXtoRot(double inThetaX, double inThetaY,
                               double inThetaZ, matrixNxP& outRot);
 
-    /**Convert the first 6 values of first argument vector into a matrix4d object. */
-    static bool Matrix4dFromVec(const vectorN& inVec, matrix4d& outH);
+    /**Integrate a rigid body velocity.
+     \param inVec: vector of dimension (at least) 6 (v, omega)
+     \retval outH: Homogeneous matrix representing integration of velocity during unit time.
+
+     Computation is perform using Rodrigues' formula.
+    */
+    static bool Rodrigues4d(const vectorN& inVec, matrix4d& outH);
     //inH and outH are supposed distinct
     static void invertTransformation(const matrixNxP& inH, matrixNxP& outH);
 
