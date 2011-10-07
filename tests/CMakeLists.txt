@@ -1,31 +1,44 @@
-# 
-#  Copyright 
-# 
-
-SET(EXECUTABLE_NAME test${PROJECT_NAME})
+# Copyright 2010, 2011, Florent Lamiraux, Thomas Moulard (CNRS/LAAS)
+#
+# This file is part of hpp-gik.
+# sot-motion-planner is free software: you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.
+#
+# sot-motion-planner is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Lesser Public License for more details.  You should have
+# received a copy of the GNU Lesser General Public License along with
+# sot-motion-planner. If not, see <http://www.gnu.org/licenses/>.
 
 ADD_DEFINITIONS(-DDEBUG=2)
 
-# provide path to library libabstractGikTask.so
-LINK_DIRECTORIES(${ABSTRACTGIKTASK_LIBRARY_DIRS})
+# Add Boost path to include directories.
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
-# provide path to library libhrp2Dynamics.so
-LINK_DIRECTORIES(${HRP2DYNAMICS_LIBRARY_DIRS})
+# Make Boost.Test generates the main function in test cases.
+ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
 
-ADD_EXECUTABLE(${EXECUTABLE_NAME}
-  tests.cc
-  common.hh)
+# HPP_GIK_TEST(NAME)
+# ------------------
+#
+# Define a test named `NAME'.
+#
+# This macro will create a binary from `NAME.cc', link it against
+# Boost and add it to the test suite.
+#
+MACRO(HPP_GIK_TEST NAME)
+  ADD_EXECUTABLE(${NAME} ${NAME}.cc)
+  ADD_TEST(${NAME} ${RUNTIME_OUTPUT_DIRECTORY}/${NAME})
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
+  PKG_CONFIG_USE_DEPENDENCY(${NAME} hrp2-dynamics)
 
-LINK_DIRECTORIES(${${PROJECT_NAME}_BINARY_DIR}/src)
-TARGET_LINK_LIBRARIES(${EXECUTABLE_NAME}
-  hpp-gik)
+  # Link against Boost.
+  TARGET_LINK_LIBRARIES(${NAME} ${Boost_LIBRARIES})
 
-# Add abstractGikTask compilation flags and link to library libabstractGikTask.so
-ADD_DEFINITIONS(${ABSTRACTGIKTASK_CFLAGS})
-TARGET_LINK_LIBRARIES(${EXECUTABLE_NAME} ${ABSTRACTGIKTASK_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${NAME} hpp-gik)
+ENDMACRO(HPP_GIK_TEST)
 
-# Add hrp2Dynamics compilation flags and link to library libhrp2Dynamics.so
-ADD_DEFINITIONS(${HRP2DYNAMICS_CFLAGS})
-TARGET_LINK_LIBRARIES(${EXECUTABLE_NAME} ${HRP2DYNAMICS_LIBRARIES})
+HPP_GIK_TEST(tests)

@@ -1,161 +1,55 @@
+# Copyright 2010, 2011, Florent Lamiraux, Thomas Moulard (CNRS/LAAS)
 #
-#  Copyright 2010 CNRS-LAAS
-#  Author: Florent Lamiraux
+# This file is part of hpp-gik.
+# sot-motion-planner is free software: you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.
 #
+# sot-motion-planner is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Lesser Public License for more details.  You should have
+# received a copy of the GNU Lesser General Public License along with
+# sot-motion-planner. If not, see <http://www.gnu.org/licenses/>.
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
+INCLUDE(cmake/base.cmake)
+INCLUDE(cmake/boost.cmake)
+INCLUDE(cmake/cpack.cmake)
+
 SET(PROJECT_NAME hpp-gik)
-project(${PROJECT_NAME})
+SET(PROJECT_DESCRIPTION "Generalized inversed kinetmatics")
+SET(PROJECT_URL "http://github.com/laas/hpp-gik")
 
-SET(PROJECT_VERSION 2.7.3.99)
+SET(CXX_DISABLE_WERROR 1)
 
-SET(CMAKE_VERBOSE_MAKEFILE true)
+SETUP_PROJECT()
 
-IF(WIN32)
-  SET(LIBDIR_KW "/LIBPATH:")
-  SET(LIBINCL_KW "")
-  SET(LIB_EXT ".lib")
-ENDIF(WIN32)
+# Add option to disable tests.
+SET(DISABLE_TESTS OFF CACHE BOOL
+ "Disable tests (and remove the dependency toward HRP-2 confidential packages)")
 
-IF(UNIX)
-  SET(LIBDIR_KW "-L")
-  SET(LIBINCL_KW "-l")
-  SET(LIB_EXT "")
-ENDIF(UNIX)
+# Search for dependencies.
+ADD_REQUIRED_DEPENDENCY("jrl-mal >= 1.8.0")
+ADD_REQUIRED_DEPENDENCY("abstract-gik-task >= 2.4")
 
-#
-# Look for dependencies
-#
+IF(NOT DISABLE_TESTS)
+  ADD_REQUIRED_DEPENDENCY("hrp2-dynamics >= 1.4.4")
+ENDIF()
 
-# Load Pkgconfig macros
-INCLUDE(FindPkgConfig)
-SET(PACKAGE_REQUIREMENTS "")
+# Search for dependencies.
+# Boost
+SEARCH_FOR_BOOST()
 
-#
-#  Dependency to package abstractGikTask
-#
-SET(ABSTRACTGIKTASK_FOUND 0)
-SET(ABSTRACTGIKTASK_REQUIRED "abstract-gik-task >= 2.4")
-PKG_CHECK_MODULES(ABSTRACTGIKTASK REQUIRED ${ABSTRACTGIKTASK_REQUIRED})
-EXEC_PROGRAM(${PKG_CONFIG_EXECUTABLE} ARGS  --variable=docdir abstract-gik-task
-  OUTPUT_VARIABLE ABSTRACTGIKTASK_DOCDIR)
-MESSAGE(STATUS "pkg-config: ${PKG_CONFIG_EXECUTABLE}")
-MESSAGE(STATUS "ABSTRACTGIKTASK_DOCDIR=${ABSTRACTGIKTASK_DOCDIR}")
-SET(ABSTRACTGIKTASK_FOUND 1)
-
-IF(NOT ${ABSTRACTGIKTASK_FOUND})
-  MESSAGE(FATAL_ERROR "Check that package abstractGikTask is installed in a directory pointed out by PKG_CONFIG_PATH.")
-ENDIF(NOT ${ABSTRACTGIKTASK_FOUND})
-  
-IF(PACKAGE_REQUIREMENTS STREQUAL "")
-  SET(PACKAGE_REQUIREMENTS ${ABSTRACTGIKTASK_REQUIRED})
-ELSE(PACKAGE_REQUIREMENTS STREQUAL "")
-  SET(PACKAGE_REQUIREMENTS "${PACKAGE_REQUIREMENTS}, ${ABSTRACTGIKTASK_REQUIRED}")
-ENDIF(PACKAGE_REQUIREMENTS STREQUAL "")
-
-IF(NOT DEFINED DISABLE_TEST)
-  SET(DISABLE_TEST NO)
-ELSE(NOT DEFINED DISABLE_TEST)
-  IF ((NOT DISABLE_TEST STREQUAL YES) AND (NOT DISABLE_TEST STREQUAL NO))
-    MESSAGE(FATAL_ERROR "Please configure with -DDISABLE_TEST=[YES|NO]")
-  ENDIF((NOT DISABLE_TEST STREQUAL YES) AND (NOT DISABLE_TEST STREQUAL NO))
-ENDIF(NOT DEFINED DISABLE_TEST)
-
-IF(DISABLE_TEST STREQUAL NO)
-  #
-  #  Dependency to package hrp2Dynamics
-  #
-  SET(HRP2DYNAMICS_FOUND 0)
-  SET(HRP2DYNAMICS_REQUIRED "hrp2-dynamics >= 1.4.4")
-  PKG_CHECK_MODULES(HRP2DYNAMICS REQUIRED ${HRP2DYNAMICS_REQUIRED})
-  EXEC_PROGRAM(${PKG_CONFIG_EXECUTABLE} ARGS  --variable=docdir hrp2Dynamics
-    OUTPUT_VARIABLE HRP2DYNAMICS_DOCDIR)
-  MESSAGE(STATUS "pkg-config: ${PKG_CONFIG_EXECUTABLE}")
-  MESSAGE(STATUS "HRP2DYNAMICS_DOCDIR=${HRP2DYNAMICS_DOCDIR}")
-  SET(HRP2DYNAMICS_FOUND 1)
-
-  IF(NOT ${HRP2DYNAMICS_FOUND})
-    MESSAGE(FATAL_ERROR "Check that package hrp2-dynamics is installed in a directory pointed out by PKG_CONFIG_PATH.")
-  ENDIF(NOT ${HRP2DYNAMICS_FOUND})
-  
-  IF(PACKAGE_REQUIREMENTS STREQUAL "")
-    SET(PACKAGE_REQUIREMENTS ${HRP2DYNAMICS_REQUIRED})
-  ELSE(PACKAGE_REQUIREMENTS STREQUAL "")
-    SET(PACKAGE_REQUIREMENTS "${PACKAGE_REQUIREMENTS}, ${HRP2DYNAMICS_REQUIRED}")
-  ENDIF(PACKAGE_REQUIREMENTS STREQUAL "")
-ENDIF(DISABLE_TEST STREQUAL NO)
-
-#
-# pkg-config file
-#
-
-SET(install_pkg_prefix "\${prefix}")
-SET(install_pkg_exec_prefix "\${exec_prefix}")
-SET(install_pkg_libdir "\${libdir}")
-SET(install_pkg_datarootdir "\${datarootdir}")
-SET(install_pkg_include_dir "\${includedir}")
-
-IF(UNIX)
-  SET (${PROJECT_NAME}_LDFLAGS "-Wl,-R${install_pkg_libdir} ${LIBINCL_KW}${PROJECT_NAME}${LIB_EXT} ${${PROJECT_NAME}_LDFLAGS}")
-ENDIF(UNIX)
-
-IF(WIN32)
-  SET (${PROJECT_NAME}_LDFLAGS "${LIBINCL_KW}${PROJECT_NAME}${LIB_EXT} ${${PROJECT_NAME}_LDFLAGS}")
-ENDIF(WIN32)
-
-# Install the file in the appropriate place.
-SET(install_libdir_pkgconfig lib/pkgconfig)
-
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc)
-
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
-  DESTINATION ${install_libdir_pkgconfig}	
-  PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
-
-ADD_SUBDIRECTORY(src)
+# Add subdirectories.
 ADD_SUBDIRECTORY(include)
-IF(DISABLE_TEST STREQUAL NO)
+ADD_SUBDIRECTORY(src)
+
+IF(NOT DISABLE_TESTS)
   ADD_SUBDIRECTORY(tests)
-ENDIF(DISABLE_TEST STREQUAL NO)
+ENDIF()
 
-#
-# Documentation produced by doxygen
-#
-INCLUDE(FindDoxygen)
-IF(DOXYGEN_FOUND)
-  add_subdirectory(doc)
-ENDIF(DOXYGEN_FOUND)
-
-#
-# Uninstall target
-#
-CONFIGURE_FILE(
-${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in
-${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
-IMMEDIATE )
-
-ADD_CUSTOM_TARGET(uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-
-#
-# Package
-#
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "hpp-gik")
-set(CPACK_PACKAGE_VENDOR "LAAS-CNRS")
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README)
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Your name")
-set(CPACK_GENERATOR DEB)
-set(
-CPACK_SOURCE_PACKAGE_FILE_NAME
-"hpp-gik-${PROJECT_VERSION}"
-CACHE INTERNAL "tarball basename"
-)
-set(CPACK_SOURCE_GENERATOR TGZ)
-
-set(CPACK_SOURCE_IGNORE_FILES
-"~$""^${PROJECT_SOURCE_DIR}/build/"
-"^${PROJECT_SOURCE_DIR}/.git/"
-)
-include(CPack)
+SETUP_PROJECT_FINALIZE()
+SETUP_PROJECT_CPACK()

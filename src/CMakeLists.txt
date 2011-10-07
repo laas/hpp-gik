@@ -1,23 +1,22 @@
+# Copyright 2010, 2011, Florent Lamiraux, Thomas Moulard (CNRS/LAAS)
 #
-#  Copyright 2010 CNRS-LAAS
-#  Author: Florent Lamiraux
+# This file is part of hpp-gik.
+# sot-motion-planner is free software: you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public License
+# as published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.
 #
-
-SET(LIBRARY_NAME ${PROJECT_NAME})
-
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
-
-# provide path to library libabstractGikTask.so
-LINK_DIRECTORIES(${ABSTRACTGIKTASK_LIBRARY_DIRS})
+# sot-motion-planner is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Lesser Public License for more details.  You should have
+# received a copy of the GNU Lesser General Public License along with
+# sot-motion-planner. If not, see <http://www.gnu.org/licenses/>.
 
 ADD_DEFINITIONS(-DHPP_GIK_GAINDIR="${CMAKE_INSTALL_PREFIX}/share/hpp/gik")
 
-IF(DISABLE_TEST STREQUAL NO)
-  # provide path to library libhrp2Dynamics.so
-  LINK_DIRECTORIES(${HRP2DYNAMICS_LIBRARY_DIRS})
-ENDIF(DISABLE_TEST STREQUAL NO)
-
-SET(${PACKAGE_NAME}_SOURCES
+ADD_LIBRARY(hpp-gik
+  SHARED
   tools.cc
   constraint/joint-state-constraint.cc
   constraint/plane-constraint.cc
@@ -60,52 +59,10 @@ SET(${PACKAGE_NAME}_SOURCES
   robot/robot-motion.cc
   robot/standing-robot.cc
 )
-ADD_LIBRARY(${LIBRARY_NAME}
-  SHARED
-  ${${PACKAGE_NAME}_SOURCES}
-)
 
-SET_TARGET_PROPERTIES(${LIBRARY_NAME}
-  PROPERTIES
-  SOVERSION ${PROJECT_VERSION}
-  INSTALL_RPATH lib)
+PKG_CONFIG_USE_DEPENDENCY(hpp-gik abstract-gik-task)
+PKG_CONFIG_USE_DEPENDENCY(hpp-gik jrl-mal)
 
-SET_TARGET_PROPERTIES(${PROJECT_NAME_LIB}
-  PROPERTIES
-  COMPILE_FLAGS ${${PROJECT_NAME}_src_CXXFLAGS}
-  LINK_FLAGS ${${PROJECT_NAME}_src_LDFLAGS}
-)
+SET_TARGET_PROPERTIES(hpp-gik PROPERTIES SOVERSION ${PROJECT_VERSION})
 
-# Add abstractGikTask compilation flags and link to library libabstractGikTask.so
-ADD_DEFINITIONS(${ABSTRACTGIKTASK_CFLAGS})
-IF(UNIX)
-TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${ABSTRACTGIKTASK_LIBRARIES})
-ENDIF(UNIX)
-
-IF(WIN32)
-foreach(dlink ${ABSTRACTGIKTASK_LDFLAGS})
-	SET ( ${PROJECT_NAME}_src_LDFLAGS "${${PROJECT_NAME}_src_LDFLAGS}  ${dlink}")
-endforeach(dlink)
-ENDIF(WIN32)
-
-IF(DISABLE_TEST STREQUAL NO)
-  # Add hrp2Dynamics compilation flags and link to library libhrp2Dynamics.so
-  ADD_DEFINITIONS(${HRP2DYNAMICS_CFLAGS})
-  IF(UNIX)
-    TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${HRP2DYNAMICS_LIBRARIES})
-  ENDIF(UNIX)
-
-  IF(WIN32)
-    foreach(dlink ${HRP2DYNAMICS_LDFLAGS})
-      SET ( ${PROJECT_NAME}_src_LDFLAGS "${${PROJECT_NAME}_src_LDFLAGS}  ${dlink}")
-    endforeach(dlink)
-  ENDIF(WIN32)
-ENDIF(DISABLE_TEST STREQUAL NO)
-
-SET_TARGET_PROPERTIES(${LIBRARY_NAME}
-  PROPERTIES
-  LINK_FLAGS "${${PROJECT_NAME}_src_LDFLAGS}"
-)
-
-INSTALL(TARGETS ${LIBRARY_NAME}
-  DESTINATION lib)
+INSTALL(TARGETS hpp-gik DESTINATION lib)
