@@ -33,6 +33,7 @@ SET(DISABLE_TESTS OFF CACHE BOOL
 
 # Search for dependencies.
 ADD_REQUIRED_DEPENDENCY("jrl-mal >= 1.8.0")
+ADD_REQUIRED_DEPENDENCY("abstract-robot-dynamics")
 ADD_REQUIRED_DEPENDENCY("abstract-gik-task >= 2.4")
 
 IF(NOT DISABLE_TESTS)

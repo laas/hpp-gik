@@ -61,6 +61,7 @@ ADD_LIBRARY(hpp-gik
 )
 
 PKG_CONFIG_USE_DEPENDENCY(hpp-gik abstract-gik-task)
+PKG_CONFIG_USE_DEPENDENCY(hpp-gik abstract-robot-dynamics)
 PKG_CONFIG_USE_DEPENDENCY(hpp-gik jrl-mal)
 
 SET_TARGET_PROPERTIES(hpp-gik PROPERTIES SOVERSION ${PROJECT_VERSION})
