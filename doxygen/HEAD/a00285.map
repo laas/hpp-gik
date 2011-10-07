@@ -1,0 +1,8 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00048.html" title="This is a support polygon class." alt="" coords="621,37,784,67"/>
+<area shape="rect" href="$a00010.html" title="This object describes a footprint on a flat floor, by its (x,y) position and its rotation in world fr..." alt="" coords="276,20,399,49"/>
+<area shape="rect" href="$a00017.html" title="Chained list element." alt="" coords="264,135,411,164"/>
+<area shape="rect" href="$a00004.html" title="ChppGik2DVertex" alt="" coords="7,161,129,191"/>
+<area shape="rect" href="$a00003.html" title="ChppGik2DShape" alt="" coords="641,188,764,217"/>
+<area shape="rect" href="$a00021.html" title="Build some joint masks and weighting vectors for the GIK solver." alt="" coords="629,241,776,271"/>
+</map>

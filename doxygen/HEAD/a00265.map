@@ -1,0 +1,11 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00007.html" title="A motion that return a constraint composed of a Com and a Foot transformation." alt="" coords="248,5,384,35"/>
+<area shape="rect" href="$a00015.html" title="An object that plans a motion a constraint based on a given target constraint." alt="" coords="223,59,409,88"/>
+<area shape="rect" href="$a00019.html" title="A locomotion element is a motion planning task that produces threes motion chunks: a 2D Zero Momentum..." alt="" coords="223,112,409,141"/>
+<area shape="rect" href="$a00028.html" title="A motion that return a constraint composed of a Com and a Foot transformation." alt="" coords="239,165,393,195"/>
+<area shape="rect" href="$a00037.html" title="CjrlMotionConstraint + priority + working joints." alt="" coords="239,219,393,248"/>
+<area shape="rect" href="$a00009.html" title="A locomotion element for displacing a foot to the given footprint." alt="" coords="460,32,655,61"/>
+<area shape="rect" href="$a00045.html" title="This is motion planner for a step This is a sequence ChppGikZMPshiftElement&#45;ChppGikFootDisplaceElemen..." alt="" coords="484,85,631,115"/>
+<area shape="rect" href="$a00052.html" title="This is motion planner for a walk (multiple steps)" alt="" coords="484,139,631,168"/>
+<area shape="rect" href="$a00054.html" title="A locomotion element for shifting the body mass by planning a linear zmp motion inside the support po..." alt="" coords="472,192,643,221"/>
+</map>

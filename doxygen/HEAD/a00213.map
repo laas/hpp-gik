@@ -1,0 +1,31 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00038.html" title="Abstract class of an object that produces a ChppRobotMotion through a method ChppGikRobotTask::solve(..." alt="" coords="1584,667,1717,696"/>
+<area shape="rect" href="$a00043.html" title="Wrapper for a jrlHumanoidDynamicRobot, support polygon and related information." alt="" coords="1145,363,1300,392"/>
+<area shape="rect" href="$a00020.html" title="This is a locomotion plan for objects of type ChppGikLocomotionElement." alt="" coords="2439,363,2601,392"/>
+<area shape="rect" href="$a00019.html" title="A locomotion element is a motion planning task that produces threes motion chunks: a 2D Zero Momentum..." alt="" coords="1557,311,1744,340"/>
+<area shape="rect" href="$a00048.html" title="This is a support polygon class." alt="" coords="672,503,835,532"/>
+<area shape="rect" href="$a00010.html" title="This object describes a footprint on a flat floor, by its (x,y) position and its rotation in world fr..." alt="" coords="293,507,416,536"/>
+<area shape="rect" href="$a00017.html" title="Chained list element." alt="" coords="281,332,428,361"/>
+<area shape="rect" href="$a00004.html" title="ChppGik2DVertex" alt="" coords="7,379,129,408"/>
+<area shape="rect" href="$a00003.html" title="ChppGik2DShape" alt="" coords="692,444,815,473"/>
+<area shape="rect" href="$a00021.html" title="Build some joint masks and weighting vectors for the GIK solver." alt="" coords="680,280,827,309"/>
+<area shape="rect" title="STL class." alt="" coords="1183,811,1263,840"/>
+<area shape="rect" title="STL class." alt="" coords="671,835,836,864"/>
+<area shape="rect" href="$a00055.html" title="Defines the motion of a robot along time." alt="" coords="1161,895,1284,924"/>
+<area shape="rect" href="$a00056.html" title="This is a stored robot motion sample." alt="" coords="271,911,439,940"/>
+<area shape="rect" href="$a00040.html" title="Compute the joints updates for a hierarchy of simultaneous tasks." alt="" coords="2467,709,2573,739"/>
+<area shape="rect" href="$a00042.html" title="ChppGikSolverLNE" alt="" coords="2035,703,2168,732"/>
+<area shape="rect" href="$a00024.html" title="The Motion Plan contains references to ChppGikPrioritizedMotion objects, sorted by descending priorit..." alt="" coords="2033,232,2169,261"/>
+<area shape="rect" href="$a00027.html" title="A &quot;motion row&quot; is a container for motion constraints that share the same priority..." alt="" coords="1143,107,1303,136"/>
+<area shape="rect" href="$a00026.html" title="Use this to concatenate several CjrlGikStateConstraint objects." alt="" coords="661,152,845,181"/>
+<area shape="rect" href="$a00028.html" title="A motion that return a constraint composed of a Com and a Foot transformation." alt="" coords="1145,555,1300,584"/>
+<area shape="rect" href="$a00034.html" title="Store a pointer to a CjrlGikMotionConstraint and additional information." alt="" coords="271,385,439,415"/>
+<area shape="rect" href="$a00007.html" title="A motion that return a constraint composed of a Com and a Foot transformation." alt="" coords="1155,467,1291,496"/>
+<area shape="rect" href="$a00025.html" title="A motion plan column is a column of motion elements inside a motion plan." alt="" coords="1561,233,1740,263"/>
+<area shape="rect" href="$a00033.html" title="ChppGikPreviewController" alt="" coords="2016,415,2187,444"/>
+<area shape="rect" href="$a00018.html" title="ChppGikLocomotionData" alt="" coords="1140,741,1305,771"/>
+<area shape="rect" href="$a00050.html" title="Specify a 3D position constraint on a point of the robot." alt="" coords="645,739,861,768"/>
+<area shape="rect" href="$a00016.html" title="Implementation of some commom functions in CjrlGikJointStateConstraint." alt="" coords="260,765,449,795"/>
+<area shape="rect" href="$a00051.html" title="ChppGikVectorizableConstraint" alt="" coords="255,712,455,741"/>
+<area shape="rect" href="$a00006.html" title="Specify a full or partial position constraint on the center of mass." alt="" coords="675,643,832,672"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00019.html" title="A locomotion element is a motion planning task that produces threes motion chunks: a 2D Zero Momentum..." alt="" coords="1383,179,1569,208"/>
+<area shape="rect" href="$a00009.html" title="A locomotion element for displacing a foot to the given footprint." alt="" coords="1708,55,1903,84"/>
+<area shape="rect" href="$a00054.html" title="A locomotion element for shifting the body mass by planning a linear zmp motion inside the support po..." alt="" coords="1720,137,1891,167"/>
+<area shape="rect" href="$a00034.html" title="Store a pointer to a CjrlGikMotionConstraint and additional information." alt="" coords="1033,232,1201,261"/>
+<area shape="rect" href="$a00043.html" title="Wrapper for a jrlHumanoidDynamicRobot, support polygon and related information." alt="" coords="1040,179,1195,208"/>
+<area shape="rect" href="$a00048.html" title="This is a support polygon class." alt="" coords="621,115,784,144"/>
+<area shape="rect" href="$a00010.html" title="This object describes a footprint on a flat floor, by its (x,y) position and its rotation in world fr..." alt="" coords="276,60,399,89"/>
+<area shape="rect" href="$a00017.html" title="Chained list element." alt="" coords="264,279,411,308"/>
+<area shape="rect" href="$a00004.html" title="ChppGik2DVertex" alt="" coords="7,221,129,251"/>
+<area shape="rect" href="$a00003.html" title="ChppGik2DShape" alt="" coords="641,183,764,212"/>
+<area shape="rect" href="$a00021.html" title="Build some joint masks and weighting vectors for the GIK solver." alt="" coords="629,61,776,91"/>
+<area shape="rect" href="$a00050.html" title="Specify a 3D position constraint on a point of the robot." alt="" coords="1368,87,1584,116"/>
+<area shape="rect" href="$a00016.html" title="Implementation of some commom functions in CjrlGikJointStateConstraint." alt="" coords="1023,72,1212,101"/>
+<area shape="rect" href="$a00051.html" title="ChppGikVectorizableConstraint" alt="" coords="1017,125,1217,155"/>
+</map>

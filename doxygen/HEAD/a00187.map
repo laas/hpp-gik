@@ -1,0 +1,11 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00098.html" title="hpp/gik/motionplanner/element/step&#45;element.hh" alt="" coords="736,83,1032,112"/>
+<area shape="rect" href="$a00105.html" title="hpp/gik/motionplanner/element/zmp&#45;shift&#45;element.hh" alt="" coords="19,160,341,189"/>
+<area shape="rect" href="$a00062.html" title="hpp/gik/motionplanner/element/foot&#45;displace&#45;element.hh" alt="" coords="1080,160,1424,189"/>
+<area shape="rect" href="$a00071.html" title="hpp/gik/motionplanner/element/locomotion&#45;element.hh" alt="" coords="1085,237,1419,267"/>
+<area shape="rect" href="$a00096.html" title="hpp/gik/robot/standing&#45;robot.hh" alt="" coords="715,315,915,344"/>
+<area shape="rect" href="$a00101.html" title="hpp/gik/constraint/transformation&#45;constraint.hh" alt="" coords="1499,315,1789,344"/>
+<area shape="rect" href="$a00093.html" title="hpp/gik/robot/shape&#45;2d.hh" alt="" coords="416,392,587,421"/>
+<area shape="rect" href="$a00063.html" title="hpp/gik/robot/foot&#45;print&#45;related.hh" alt="" coords="611,392,821,421"/>
+<area shape="rect" href="$a00073.html" title="hpp/gik/robot/mask&#45;factory.hh" alt="" coords="896,392,1088,421"/>
+</map>

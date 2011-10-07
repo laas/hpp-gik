@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00009.html" title="A locomotion element for displacing a foot to the given footprint." alt="" coords="457,5,652,35"/>
+<area shape="rect" href="$a00045.html" title="This is motion planner for a step This is a sequence ChppGikZMPshiftElement&#45;ChppGikFootDisplaceElemen..." alt="" coords="481,59,628,88"/>
+<area shape="rect" href="$a00052.html" title="This is motion planner for a walk (multiple steps)" alt="" coords="481,112,628,141"/>
+<area shape="rect" href="$a00054.html" title="A locomotion element for shifting the body mass by planning a linear zmp motion inside the support po..." alt="" coords="469,165,640,195"/>
+<area shape="rect" href="$a00034.html" title="Store a pointer to a CjrlGikMotionConstraint and additional information." alt="" coords="5,85,173,115"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00008.html" title="Specify a full or partial configuration constraint." alt="" coords="261,5,467,35"/>
+<area shape="rect" href="$a00029.html" title="Specify a 2D orientation constraint on a body of the robot." alt="" coords="279,59,449,88"/>
+<area shape="rect" href="$a00030.html" title="Description of a constraint that limits the position of a point of the robot to a given plan..." alt="" coords="283,112,445,141"/>
+<area shape="rect" href="$a00031.html" title="Constraint on a line segment attached to a body to be aligned with a given point in the world frame..." alt="" coords="276,165,452,195"/>
+<area shape="rect" href="$a00032.html" title="Specify a 3D position constraint on a point of the robot." alt="" coords="276,219,452,248"/>
+<area shape="rect" href="$a00039.html" title="Specify a 3D orientation constraint on a body of the robot." alt="" coords="275,272,453,301"/>
+<area shape="rect" href="$a00050.html" title="Specify a 3D position constraint on a point of the robot." alt="" coords="256,325,472,355"/>
+<area shape="rect" href="$a00011.html" title="Constraint on a line segment attached to a body to be aligned with a given point in the world frame..." alt="" coords="521,165,681,195"/>
+</map>

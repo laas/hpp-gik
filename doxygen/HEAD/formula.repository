@@ -1,0 +1,62 @@
+\form#0:$v$
+\form#1:$J$
+\form#2:$ r \leftarrow v - J\delta q $
+\form#3:$ \hat{J} \leftarrow JN $
+\form#4:$ S, U, V^t \leftarrow SVD(\hat{J}W\hat{J}^t) $
+\form#5:$ (\hat{J}W\hat{J}^t)^{-1} \leftarrow US^{-1}V^t $
+\form#6:$ \hat{J}^\# \leftarrow W\hat{J}^t(\hat{J}W\hat{J}^t)^{-1}$
+\form#7:$ \delta q \leftarrow \delta q + \hat{J}^\#r $
+\form#8:$ N \leftarrow N(I-\hat{J}^\#\hat{J}) $
+\form#9:$ (\hat{J}W\hat{J}^t)^{-1} $
+\form#10:$ A \in \Re^{m \times n} $
+\form#11:$ b \in \Re^{m} $
+\form#12:$ \lbrace A x = b \rbrace$
+\form#13:$x$
+\form#14:$ x \in \Re^{n}$
+\form#15:$ A x = b$
+\form#16:$ m<n $
+\form#17:\[ x = x^{*} + N y\]
+\form#18:$x^{*}$
+\form#19:$N \in \Re^{n \times n}$
+\form#20:$ {vect(A^{T})}^{\perp}$
+\form#21:$y \in \Re^{n}$
+\form#22:\[ x^{*} = A^{T} ( A A^{T} )^{-1} b\]
+\form#23:$ x^{T} W x$
+\form#24:$W$
+\form#25:\[ x^{*} = W^{-1} A^{T} ( A W^{-1} A^{T} )^{-1} b\]
+\form#26:$A A^{T} $
+\form#27:$\|A x - b\|$
+\form#28:\[ x^{*} = A^{T} ( tsvd(A A^{T}) )^{-1} b\]
+\form#29:$tsvd()$
+\form#30:$\sigma$
+\form#31:\[ x^{*} = A^{T} ( A A^{T} + \lambda I )^{-1} b\]
+\form#32:$ \lambda $
+\form#33:$ I $
+\form#34:\[ \lambda I = 0\]
+\form#35:$ x^{*} $
+\form#36:$\lambda$
+\form#37:$ n $
+\form#38:$A \in \Re^{m \times n} $
+\form#39:$b \in \Re^{m}$
+\form#40:$n$
+\form#41:$ (E1): (A_{1},b_{1})$
+\form#42:$ (E2): (A_{2},b_{2})$
+\form#43:$E1$
+\form#44:\[ x = {x_{1}}^{*} + N_1 y\]
+\form#45:$N_1$
+\form#46:\[ N_1 = (I - A^{T}(A A^{T})^{-1}A)\]
+\form#47:$E2$
+\form#48:\[ N_1 A_2 x = b_2- A_2 {x_{1}}^{*}\]
+\form#49:${x_{2}}^{*}$
+\form#50:$[(E1), (E2)]$
+\form#51:\[ x = {x_{1}}^{*} + {x_{2}}^{*} + N_1 N_2 z\]
+\form#52:$(E1)$
+\form#53:$A$
+\form#54:$q$
+\form#55:$P(q)$
+\form#56:$M$
+\form#57:$R$
+\form#58:$T(q)$
+\form#59:\[ {{\partial (P - T)} \over {\partial {q}}}(q) \delta q = r V \]
+\form#60:$T$
+\form#61:$[0,+\inf[$

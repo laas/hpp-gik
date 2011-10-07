@@ -1,0 +1,13 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00043.html" title="Wrapper for a jrlHumanoidDynamicRobot, support polygon and related information." alt="" coords="1023,188,1177,217"/>
+<area shape="rect" href="$a00048.html" title="This is a support polygon class." alt="" coords="624,44,787,73"/>
+<area shape="rect" href="$a00010.html" title="This object describes a footprint on a flat floor, by its (x,y) position and its rotation in world fr..." alt="" coords="276,16,399,45"/>
+<area shape="rect" href="$a00017.html" title="Chained list element." alt="" coords="264,131,411,160"/>
+<area shape="rect" href="$a00004.html" title="ChppGik2DVertex" alt="" coords="7,157,129,187"/>
+<area shape="rect" href="$a00003.html" title="ChppGik2DShape" alt="" coords="644,184,767,213"/>
+<area shape="rect" href="$a00021.html" title="Build some joint masks and weighting vectors for the GIK solver." alt="" coords="632,237,779,267"/>
+<area shape="rect" title="STL class." alt="" coords="1060,291,1140,320"/>
+<area shape="rect" title="STL class." alt="" coords="623,291,788,320"/>
+<area shape="rect" href="$a00055.html" title="Defines the motion of a robot along time." alt="" coords="1039,355,1161,384"/>
+<area shape="rect" href="$a00056.html" title="This is a stored robot motion sample." alt="" coords="253,367,421,396"/>
+</map>

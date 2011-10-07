@@ -1,0 +1,16 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00072.html" title="hpp/gik/motionplanner/locomotion&#45;plan.hh" alt="" coords="937,83,1196,112"/>
+<area shape="rect" href="$a00091.html" title="hpp/gik/task/robot&#45;task.hh" alt="" coords="2591,83,2761,112"/>
+<area shape="rect" href="$a00095.html" title="hpp/gik/core/solver.hh" alt="" coords="2839,237,2988,267"/>
+<area shape="rect" href="$a00085.html" title="hpp/gik/motionplanner/preview&#45;controller.hh" alt="" coords="1048,237,1320,267"/>
+<area shape="rect" href="$a00080.html" title="hpp/gik/motionplanner/element/no&#45;locomotion.hh" alt="" coords="692,237,993,267"/>
+<area shape="rect" href="$a00058.html" title="hpp/gik/motionplanner/element/com&#45;motion.hh" alt="" coords="5,237,293,267"/>
+<area shape="rect" href="$a00079.html" title="hpp/gik/core/motion&#45;plan.hh" alt="" coords="1864,160,2043,189"/>
+<area shape="rect" href="$a00057.html" title="hpp/gik/constraint/com&#45;constraint.hh" alt="" coords="33,315,265,344"/>
+<area shape="rect" href="$a00076.html" title="hpp/gik/core/motion&#45;plan&#45;column.hh" alt="" coords="2063,237,2289,267"/>
+<area shape="rect" href="$a00078.html" title="hpp/gik/core/motion&#45;plan&#45;row.hh" alt="" coords="1359,237,1561,267"/>
+<area shape="rect" href="$a00077.html" title="hpp/gik/core/motion&#45;plan&#45;element.hh" alt="" coords="2576,315,2805,344"/>
+<area shape="rect" href="$a00086.html" title="hpp/gik/core/prioritized&#45;motion.hh" alt="" coords="1355,315,1565,344"/>
+<area shape="rect" href="$a00090.html" title="hpp/gik/robot/robot&#45;motion.hh" alt="" coords="2368,160,2557,189"/>
+<area shape="rect" href="$a00070.html" title="hpp/gik/core/lne&#45;solver.hh" alt="" coords="2384,315,2552,344"/>
+</map>

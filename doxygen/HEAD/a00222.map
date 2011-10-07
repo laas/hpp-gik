@@ -1,0 +1,6 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00034.html" title="Store a pointer to a CjrlGikMotionConstraint and additional information." alt="" coords="5,5,173,35"/>
+<area shape="rect" href="$a00051.html" title="ChppGikVectorizableConstraint" alt="" coords="320,197,520,227"/>
+<area shape="rect" href="$a00027.html" title="A &quot;motion row&quot; is a container for motion constraints that share the same priority..." alt="" coords="136,197,296,227"/>
+<area shape="rect" href="$a00026.html" title="Use this to concatenate several CjrlGikStateConstraint objects." alt="" coords="372,101,556,131"/>
+</map>

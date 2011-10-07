@@ -1,0 +1,18 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00019.html" title="A locomotion element is a motion planning task that produces threes motion chunks: a 2D Zero Momentum..." alt="" coords="1511,339,1697,368"/>
+<area shape="rect" href="$a00045.html" title="This is motion planner for a step This is a sequence ChppGikZMPshiftElement&#45;ChppGikFootDisplaceElemen..." alt="" coords="2171,373,2317,403"/>
+<area shape="rect" href="$a00009.html" title="A locomotion element for displacing a foot to the given footprint." alt="" coords="1836,455,2031,484"/>
+<area shape="rect" href="$a00054.html" title="A locomotion element for shifting the body mass by planning a linear zmp motion inside the support po..." alt="" coords="1848,380,2019,409"/>
+<area shape="rect" href="$a00034.html" title="Store a pointer to a CjrlGikMotionConstraint and additional information." alt="" coords="1033,344,1201,373"/>
+<area shape="rect" href="$a00043.html" title="Wrapper for a jrlHumanoidDynamicRobot, support polygon and related information." alt="" coords="1040,193,1195,223"/>
+<area shape="rect" href="$a00048.html" title="This is a support polygon class." alt="" coords="621,247,784,276"/>
+<area shape="rect" href="$a00010.html" title="This object describes a footprint on a flat floor, by its (x,y) position and its rotation in world fr..." alt="" coords="276,300,399,329"/>
+<area shape="rect" href="$a00046.html" title="This is a step target with information on the moving foot." alt="" coords="636,300,769,329"/>
+<area shape="rect" href="$a00017.html" title="Chained list element." alt="" coords="264,67,411,96"/>
+<area shape="rect" href="$a00004.html" title="ChppGik2DVertex" alt="" coords="7,93,129,123"/>
+<area shape="rect" href="$a00003.html" title="ChppGik2DShape" alt="" coords="641,125,764,155"/>
+<area shape="rect" href="$a00021.html" title="Build some joint masks and weighting vectors for the GIK solver." alt="" coords="629,193,776,223"/>
+<area shape="rect" href="$a00050.html" title="Specify a 3D position constraint on a point of the robot." alt="" coords="1496,445,1712,475"/>
+<area shape="rect" href="$a00016.html" title="Implementation of some commom functions in CjrlGikJointStateConstraint." alt="" coords="1023,401,1212,431"/>
+<area shape="rect" href="$a00051.html" title="ChppGikVectorizableConstraint" alt="" coords="1017,455,1217,484"/>
+</map>

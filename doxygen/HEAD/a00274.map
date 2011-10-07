@@ -1,0 +1,10 @@
+<map id="G" name="G">
+<area shape="rect" href="$a00012.html" title="This object produces whole body joint motion based on entered &quot;elements&quot;.These elements are cartesian motion planners of class ChppGikPrioritizedMotion or class ChppGikLocomotionElement." alt="" coords="197,5,341,35"/>
+<area shape="rect" href="$a00013.html" title="This robot task consists in going back to half&#45;sitting stance." alt="" coords="189,59,349,88"/>
+<area shape="rect" href="$a00014.html" title="This is a robot hand task." alt="" coords="205,112,333,141"/>
+<area shape="rect" href="$a00022.html" title="This is a robot task composed of a sequence of robot tasks." alt="" coords="205,165,333,195"/>
+<area shape="rect" href="$a00036.html" title="Use this task to make the robot reach for a target." alt="" coords="201,219,337,248"/>
+<area shape="rect" href="$a00044.html" title="This is a task to make the robot step back to have his feet parallel and symmetrical." alt="" coords="192,272,347,301"/>
+<area shape="rect" href="$a00047.html" title="This is a task to make the robot do a single step." alt="" coords="207,325,332,355"/>
+<area shape="rect" href="$a00053.html" title="Implementation of the Humanoid2006 papers by E.Yoshida." alt="" coords="187,379,352,408"/>
+</map>
