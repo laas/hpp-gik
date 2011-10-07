@@ -20,7 +20,7 @@ INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/cpack.cmake)
 
 SET(PROJECT_NAME hpp-gik)
-SET(PROJECT_DESCRIPTION "Generalized inversed kinetmatics")
+SET(PROJECT_DESCRIPTION "Generalized inversed kinematics")
 SET(PROJECT_URL "http://github.com/laas/hpp-gik")
 
 SET(CXX_DISABLE_WERROR 1)
