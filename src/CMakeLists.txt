@@ -29,6 +29,7 @@ ADD_LIBRARY(hpp-gik
   constraint/com-constraint.cc
   constraint/transformation-constraint.cc
   constraint/motion-constraint.cc
+  constraint/relative-com-constraint.cc
   core/solver.cc
   core/solver-basic.cc
   core/lne-solver.cc

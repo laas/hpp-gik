@@ -34,6 +34,7 @@ SET(GIK_CONSTRAINT_HEADERS
 	hpp/gik/constraint/transformation-constraint.hh
 	hpp/gik/constraint/prioritized-state-constraint.hh
 	hpp/gik/constraint/motion-constraint.hh
+	hpp/gik/constraint/relative-com-constraint.hh
 )
 SET(GIK_CORE_HEADERS
 	hpp/gik/core/solver.hh
