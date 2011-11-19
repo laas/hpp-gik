@@ -45,6 +45,20 @@ public:
      */
   virtual ~ChppGikRelativeComConstraint();
 
+
+  /**
+    \brief Get the constraint value.
+  */
+  virtual const vectorN& value();
+
+
+  /**
+    \brief Get the constraint jacobian
+  */
+  virtual const matrixNxP& jacobian();
+
+
+
 private:
   CjrlDynamicRobot* robot_;
 
@@ -62,7 +76,7 @@ private:
   vectorN value_;
 
   vectorN localTarget_;
-
+  vector3d localTargetVector3d_;
 };
 
 #endif
