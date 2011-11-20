@@ -60,8 +60,8 @@ ChppGikRelativeComConstraint::computeValue()
 void
 ChppGikRelativeComConstraint::computeJacobian()
 {
-  robot().getJacobianCenterOfMass(*robot().rootJoint(),comJacobian_,0,false);
-  robot().getPositionJacobian(*robot().rootJoint(),*rootJoint_,localTargetVector3d_,posJacobian_,0,false);
+  robot().getJacobianCenterOfMass(*robot().rootJoint(),comJacobian_,6,false);
+  robot().getPositionJacobian(*robot().rootJoint(),*rootJoint_,localTargetVector3d_,posJacobian_,6,false);
 
   row(jacobian_,0) = row(comJacobian_,0) - row(posJacobian_,0);
   row(jacobian_,1) = row(comJacobian_,1) - row(posJacobian_,1);
