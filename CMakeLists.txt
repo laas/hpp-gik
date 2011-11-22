@@ -44,6 +44,9 @@ ENDIF()
 # Boost
 SEARCH_FOR_BOOST()
 
+# Add dependency toward hpp-gik library in pkg-config file.
+PKG_CONFIG_APPEND_LIBS("hpp-gik")
+
 # Add subdirectories.
 ADD_SUBDIRECTORY(include)
 ADD_SUBDIRECTORY(src)
