@@ -54,4 +54,9 @@ void
 ChppGikRelativeTransformationConstraint::computeJacobian()
 {
   robot().getJacobian( *rootJoint_,*joint(),vector3d(0,0,0),attJacobian,6,false);
+  for (int i=0;i<6;i++) {
+    for (int j=0;j<6;j++) {
+      attJacobian(i,j) = 0;
+    }
+  }
 }
