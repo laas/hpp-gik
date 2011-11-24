@@ -47,12 +47,6 @@ public:
 
 
   /**
-    \brief Get the constraint value.
-  */
-  virtual const vectorN& value();
-
-
-  /**
     \brief Get the constraint jacobian
   */
   virtual const matrixNxP& jacobian();
@@ -65,18 +59,11 @@ private:
   CjrlJoint *rootJoint_;
 
   matrixNxP comJacobian_;
-  matrixNxP posJacobian_;
   matrixNxP jacobian_;
 
-  matrixNxP jointRot_;
+  vector4d worldTarget_;
+  vector4d localTarget_;
 
-  vectorN comPos_;
-  vectorN jointTr_;
-  vectorN worldTarget_;
-  vectorN value_;
-
-  vectorN localTarget_;
-  vector3d localTargetVector3d_;
 };
 
 #endif

@@ -15,25 +15,11 @@ ChppGikRelativeComConstraint::ChppGikRelativeComConstraint(CjrlDynamicRobot& inR
   rootJoint_ = inJoint;
   jacobian_.resize(2,robot_->numberDof(),false);
   comJacobian_.resize(3,robot_->numberDof(),false);
-  posJacobian_.resize(3,robot_->numberDof(),false);
 
-  jointRot_.resize(3,3,false);
-  jointTr_.resize(3,false);
-
-  comPos_.resize(3,false);
-  worldTarget_.resize(3,false);
-  value_.resize(2,false);
-
-  localTarget_.resize(3,false);
   localTarget_(0) = inX;
   localTarget_(1) = inY;
   localTarget_(2) = 0;
-
-  localTargetVector3d_(0) = inX;
-  localTargetVector3d_(1) = inY;
-  localTargetVector3d_(2) = 0;   
-
-
+  localTarget_(3) = 1;
 }
 
 ChppGikRelativeComConstraint::~ChppGikRelativeComConstraint()
@@ -50,27 +36,26 @@ ChppGikRelativeComConstraint::clone() const
 void
 ChppGikRelativeComConstraint::computeValue()
 {
-  ChppGikTools::Vector3toUblas( robot_->positionCenterOfMass(), comPos_);
-  ChppGikTools::HtoRT(rootJoint_->currentTransformation(),jointRot_,jointTr_);
-  worldTarget_ = prod(jointRot_,localTarget_) + jointTr_;
+  MAL_S4x4_C_eq_A_by_B (worldTarget_,
+			rootJoint_->currentTransformation(),
+			localTarget_);
+  targetXY(worldTarget_[0],worldTarget_[1]);
 
-  value_ = subrange(comPos_ - worldTarget_,0,2);
+  ChppGikComConstraint::computeValue();
 }
 
 void
 ChppGikRelativeComConstraint::computeJacobian()
 {
-  robot().getJacobianCenterOfMass(*robot().rootJoint(),comJacobian_,6,false);
-  robot().getPositionJacobian(*robot().rootJoint(),*rootJoint_,localTargetVector3d_,posJacobian_,6,false);
+  robot().getJacobianCenterOfMass(*rootJoint_,comJacobian_);
 
-  row(jacobian_,0) = row(comJacobian_,0) - row(posJacobian_,0);
-  row(jacobian_,1) = row(comJacobian_,1) - row(posJacobian_,1);
-}
+  noalias(row(jacobian_,0)) = row(comJacobian_,0);
+  noalias(row(jacobian_,1)) = row(comJacobian_,1);
 
-const vectorN& 
-ChppGikRelativeComConstraint::value()
-{
-    return value_;
+  for(unsigned int i =0;i<6;i++){
+    jacobian_(0,i) = 0;
+    jacobian_(1,i) = 0;
+  }
 }
 
 const matrixNxP& 

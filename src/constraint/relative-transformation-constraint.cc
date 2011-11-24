@@ -37,7 +37,9 @@ ChppGikRelativeTransformationConstraint::computeValue()
   MAL_S4x4_C_eq_A_by_B ( globalTargetTransformation_,
 			 rootJoint_->currentTransformation(),
 			 targetTransformation4_);
-
+  targetTransformation(globalTargetTransformation_);
+  ChppGikTransformationConstraint::computeValue();
+  /*
  ChppGikTools::HtoRT(joint()->currentTransformation(),jointR_,jointT_);
 
  ChppGikTools::HtoRT(globalTargetTransformation_,targetR_,targetT_);
@@ -47,13 +49,14 @@ ChppGikRelativeTransformationConstraint::computeValue()
  ChppGikTools::RottoOmega(gapR_,gapREuler_);
 
  noalias(subrange(attValue,3,6)) = -prod(jointR_,gapREuler_);
+  */
 }
 
 
 void 
 ChppGikRelativeTransformationConstraint::computeJacobian()
 {
-  robot().getJacobian( *rootJoint_,*joint(),vector3d(0,0,0),attJacobian,6,false);
+  robot().getJacobian( *rootJoint_,*joint(),vector3d(0,0,0),attJacobian);
   for (int i=0;i<6;i++) {
     for (int j=0;j<6;j++) {
       attJacobian(i,j) = 0;
