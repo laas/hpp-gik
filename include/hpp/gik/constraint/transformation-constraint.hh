@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_TRANSFORMATION_CONSTRAINT_H
 #define HPP_GIK_TRANSFORMATION_CONSTRAINT_H
 
+#include <jrl/mal/matrixabstractlayer.hh>
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "hpp/gik/constraint/joint-state-constraint.hh"
 #include "gikTask/jrlGikTransformationConstraint.h"
