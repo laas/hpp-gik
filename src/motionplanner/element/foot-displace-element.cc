@@ -1,6 +1,8 @@
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
 #include <jrl/mal/matrixabstractlayer.hh>
+#include <hpp/util/debug.hh>
+
 #include "hpp/gik/motionplanner/element/foot-displace-element.hh"
 #include "hpp/gik/tools.hh"
 
@@ -253,7 +255,9 @@ bool ChppGikFootDisplaceElement::planFeet()
     tempInterpolationResult.resize ( halfnsamples,false );
     matrixNxP vectomat ( 1,halfnsamples );
     //foot z up
-    attPlanSuccess = ChppGikTools::minJerkCurve ( flightTime,attSamplingPeriod,lowZ,0.0,0.0,highZ,tempInterpolationResult );
+    attPlanSuccess = ChppGikTools::minJerkCurve (flightTime, attSamplingPeriod,
+						 lowZ, 0.0, 0.0, highZ,
+						 tempInterpolationResult);
 
     if ( !attPlanSuccess )
         return attPlanSuccess;
@@ -262,16 +266,21 @@ bool ChppGikFootDisplaceElement::planFeet()
     subrange ( data,2,3,0,halfnsamples ) = vectomat;
 
     //foot z down
-    ChppGikTools::minJerkCurve ( flightTime,attSamplingPeriod,highZ,0.0,0.0,lowZ,tempInterpolationResult );
+    ChppGikTools::minJerkCurve (flightTime,attSamplingPeriod, highZ, 0.0, 0.0,
+				lowZ, tempInterpolationResult);
+    hppDout (info, "nsamples     = " << nsamples);
+    hppDout (info, "halfnsamples = " << halfnsamples);
     if ( simpleConcat )
     {
         row ( vectomat,0 ) = tempInterpolationResult;
         subrange ( data,2,3,halfnsamples,nsamples ) = vectomat;
+	hppDout (info, "z at end     = " << vectomat(0, halfnsamples - 1));
     }
     else
     {
         row ( vectomat,0 ) = tempInterpolationResult;
         subrange ( data,2,3,halfnsamples-1,nsamples ) = vectomat;
+	hppDout (info, "z at end     = " << vectomat(0, halfnsamples - 1));
     }
 
     ChppGikTools::prolongateTimeBased ( attPreProlongation, attPostProlongation, attSamplingPeriod, data,  attFootMotion );
