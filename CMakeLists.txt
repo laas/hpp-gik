@@ -30,11 +30,16 @@ SETUP_PROJECT()
 # Add option to disable tests.
 SET(DISABLE_TESTS OFF CACHE BOOL
  "Disable tests (and remove the dependency toward HRP-2 confidential packages)")
-
+# Add option to use hpp-util log
+SET(HPP_DEBUG OFF CACHE BOOL "Log data into files.")
+IF(HPP_DEBUG)
+  ADD_DEFINITIONS(-DHPP_DEBUG)
+ENDIF()
 # Search for dependencies.
 ADD_REQUIRED_DEPENDENCY("jrl-mal >= 1.8.0")
 ADD_REQUIRED_DEPENDENCY("abstract-robot-dynamics")
 ADD_REQUIRED_DEPENDENCY("abstract-gik-task >= 2.4")
+ADD_REQUIRED_DEPENDENCY("hpp-util >= 0.4")
 
 IF(NOT DISABLE_TESTS)
   ADD_REQUIRED_DEPENDENCY("hrp2-dynamics >= 1.4.4")
