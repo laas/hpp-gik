@@ -50,7 +50,8 @@ CjrlGikStateConstraint* ChppGikZMPshiftElement::stateConstraintAtTime(double inT
 
     unsigned int i = ChppGikTools::timetoRank( attModifiedStart, inTime, attSamplingPeriod );
     if (i==1)
-        attConstraint->targetTransformation( attConstrainedFoot->currentTransformation() );
+        attConstraint->targetTransformation
+	  (attConstrainedFoot->associatedAnkle()->currentTransformation() );
 
     //if (attConstraint)
     //std::cout << "time " << inTime << " targetTr " << attConstraint->targetTransformation() << "\n";
@@ -67,12 +68,13 @@ ChppGikTransformationConstraint* ChppGikZMPshiftElement::footConstraintAtTime ( 
 
     unsigned int i = ChppGikTools::timetoRank( attModifiedStart, inTime, attSamplingPeriod );
     if (i==1)
-        attConstraint->targetTransformation( attConstrainedFoot->currentTransformation() );
+        attConstraint->targetTransformation
+	  (attConstrainedFoot->associatedAnkle()->currentTransformation());
 
     return attConstraint;
 }
 
-CjrlJoint* ChppGikZMPshiftElement::supportFootAtTime(double inTime)
+CjrlFoot* ChppGikZMPshiftElement::supportFootAtTime(double inTime)
 {
     if (!attPlanSuccess)
         return 0;
@@ -116,16 +118,16 @@ bool ChppGikZMPshiftElement::plan(ChppGikSupportPolygon& supportPolygon, vector3
 
     if (supportPolygon.isRightLegSupporting())
     {
-        attSupportFoot = attHumanoidRobot->rightAnkle();
-        attConstrainedFoot = attHumanoidRobot->leftAnkle();
+        attSupportFoot = attHumanoidRobot->rightFoot();
+        attConstrainedFoot = attHumanoidRobot->leftFoot();
     }
     else
     {
-        attSupportFoot = attHumanoidRobot->leftAnkle();
-        attConstrainedFoot = attHumanoidRobot->rightAnkle();
+        attSupportFoot = attHumanoidRobot->leftFoot();
+        attConstrainedFoot = attHumanoidRobot->rightFoot();
     }
 
-    attConstraint->joint(attConstrainedFoot);
+    attConstraint->joint(attConstrainedFoot->associatedAnkle());
 
     vectorN initialZMPU(3);
     vectorN finalZMPU(3);

@@ -156,11 +156,11 @@ ChppGikTransformationConstraint* ChppGikWalkElement::footConstraintAtTime ( doub
     return retC;
 }
 
-CjrlJoint* ChppGikWalkElement::supportFootAtTime(double inTime)
+CjrlFoot* ChppGikWalkElement::supportFootAtTime(double inTime)
 {
     if (!attPlanSuccess)
         return 0;
-    CjrlJoint* retJ = 0;
+    CjrlFoot* retJ = 0;
     
     for (unsigned int i=0;i<attSteps.size();i++)
     {

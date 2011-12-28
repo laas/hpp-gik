@@ -41,7 +41,7 @@ class ChppGikWalkElement: public ChppGikLocomotionElement
             \brief Get the support foot joint at time inTime
             \return 0 if the time is out of definition bounds
          */
-        virtual CjrlJoint* supportFootAtTime ( double inTime );
+        virtual CjrlFoot* supportFootAtTime ( double inTime );
 
         /**
             \brief Plan stability-consistent ZMP and update given arguments in case of success.

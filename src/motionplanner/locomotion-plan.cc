@@ -162,7 +162,7 @@ bool ChppGikLocomotionPlan::solve()
         attModifiedStartTime = attStartTime;
         attModifiedEndTime = attEndTime + attExtraEndTime;
         attNoElementCase = 
-	  new ChppGikNoLocomotion (attRobot, attRobot->rightAnkle(),
+	  new ChppGikNoLocomotion (attRobot, attRobot->rightFoot(),
 				   attModifiedStartTime, attModifiedEndTime,
 				   attStandingRobot->maskFactory()->legsMask(),
 				   0);
@@ -306,21 +306,23 @@ CjrlJoint* ChppGikLocomotionPlan::supportFootJoint ( double inTime )
 {
     if ( !attPlanSuccess )
         return 0;
-    CjrlJoint* joint = 0;
+    CjrlFoot* foot = 0;
     if ( attElements.empty() )
     {
         if ( inTime > attNoElementCase->endTime() + attEps || inTime < attNoElementCase->startTime() + attEps )
             return 0;
-        return attNoElementCase->supportFoot();
+	if (attNoElementCase->supportFoot())
+	  return attNoElementCase->supportFoot()->associatedAnkle();
+	else return 0;
     }
     else
     {
         std::vector<ChppGikLocomotionElement*>::iterator iter;
         for ( iter = attElements.begin(); iter != attElements.end(); iter++ )
         {
-            joint = ( *iter )->supportFootAtTime ( inTime );
-            if ( joint )
-                return joint;
+	  foot = ( *iter )->supportFootAtTime ( inTime );
+	  if ( foot )
+	    return foot->associatedAnkle();
         }
         return 0;
     }
@@ -339,7 +341,8 @@ ChppGikLocomotionData*  ChppGikLocomotionPlan::dataAtTime( double inTime )
             return 0;
         attData.footConstraint =  attNoElementCase->footConstraint();
         attData.comConstraint = attNoElementCase->comConstraint();
-        attData.supportJoint = attNoElementCase->supportFoot();
+        attData.supportJoint =
+	  attNoElementCase->supportFoot()->associatedAnkle();
         return &attData;
     }
     else
@@ -349,12 +352,14 @@ ChppGikLocomotionData*  ChppGikLocomotionPlan::dataAtTime( double inTime )
         std::vector<ChppGikLocomotionElement*>::iterator iter;
         for ( iter = attElements.begin(); iter != attElements.end(); iter++ )
         {
-            attData.supportJoint = ( *iter )->supportFootAtTime ( inTime );
-            if ( attData.supportJoint )
-            {
-                attData.footConstraint =  ( *iter )->footConstraintAtTime(inTime);
-                return &attData;
-            }
+	  if ((*iter)->supportFootAtTime(inTime)) {
+            attData.supportJoint =
+	      (*iter)->supportFootAtTime(inTime)->associatedAnkle();
+	    attData.footConstraint =  ( *iter )->footConstraintAtTime(inTime);
+	    return &attData;
+	  } else {
+	    attData.supportJoint = 0;
+	  }
         }
         return 0;
     }

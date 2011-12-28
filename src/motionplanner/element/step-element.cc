@@ -43,13 +43,13 @@ void ChppGikStepElement::init(double inFootMotionDuration, bool isRight, double 
 
     if (isRight)
     {
-        attSupportFoot = attHumanoidRobot->leftAnkle();
-        attConstrainedFoot = attHumanoidRobot->rightAnkle();
+        attSupportFoot = attHumanoidRobot->leftFoot();
+        attConstrainedFoot = attHumanoidRobot->rightFoot();
     }
     else
     {
-        attSupportFoot = attHumanoidRobot->rightAnkle();
-        attConstrainedFoot = attHumanoidRobot->leftAnkle();
+        attSupportFoot = attHumanoidRobot->rightFoot();
+        attConstrainedFoot = attHumanoidRobot->leftFoot();
     }
 }
 
@@ -197,11 +197,11 @@ ChppGikTransformationConstraint* ChppGikStepElement::footConstraintAtTime ( doub
     return retC;
 }
         
-CjrlJoint* ChppGikStepElement::supportFootAtTime(double inTime)
+CjrlFoot* ChppGikStepElement::supportFootAtTime(double inTime)
 {
     if (!attPlanSuccess)
         return 0;
-    CjrlJoint* retJ = 0;
+    CjrlFoot* retJ = 0;
     retJ = attShift1->supportFootAtTime( inTime );
     if (!retJ)
     {

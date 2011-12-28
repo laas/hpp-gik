@@ -17,7 +17,10 @@ public:
         \brief Constructor
         \note given times should be superior to 0.0
      */
-    ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, CjrlJoint* inConstrainedFoot, double inStartTime, double inEndTime, const vectorN& inWorkingJoints, unsigned int inPriority);
+    ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot,
+			CjrlFoot* inConstrainedFoot, double inStartTime,
+			double inEndTime, const vectorN& inWorkingJoints,
+			unsigned int inPriority);
 
     /**
         \brief Get a pointer to associated robot
@@ -73,7 +76,7 @@ public:
     /**
         \brief Get the support foot
     */
-    CjrlJoint* supportFoot();
+    CjrlFoot* supportFoot();
     
     /**
     \brief Get the support foot
@@ -90,7 +93,7 @@ private:
     ChppGikComConstraint* attComConstraint;
     ChppGikTransformationConstraint* attFootConstraint;
     ChppGikMotionPlanElement* attConstraint;
-    CjrlJoint* attSupportFoot;
+    CjrlFoot* attSupportFoot;
     CjrlHumanoidDynamicRobot* attHumanoidRobot;
     double attStartTime, attEndTime;
     vectorN attZMP;

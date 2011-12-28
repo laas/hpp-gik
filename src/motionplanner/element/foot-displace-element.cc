@@ -22,19 +22,20 @@ ChppGikFootDisplaceElement::ChppGikFootDisplaceElement ( ChppGikStandingRobot* i
 
     if ( attIsRight )
     {
-        attSupportFoot = attHumanoidRobot->leftAnkle();
-        attConstrainedFoot = attHumanoidRobot->rightAnkle();
+        attSupportFoot = attHumanoidRobot->leftFoot();
+        attConstrainedFoot = attHumanoidRobot->rightFoot();
     }
     else
     {
-        attSupportFoot = attHumanoidRobot->rightAnkle();
-        attConstrainedFoot = attHumanoidRobot->leftAnkle();
+        attSupportFoot = attHumanoidRobot->rightFoot();
+        attConstrainedFoot = attHumanoidRobot->leftFoot();
     }
 
     vector3d zer;
     zer[0] = zer[1] = zer[2] = 0;
     matrix4d m;
-    attConstraint = new ChppGikTransformationConstraint ( *attRobot, *attConstrainedFoot, zer, m );
+    attConstraint = new ChppGikTransformationConstraint
+      (*attRobot, *attConstrainedFoot->associatedAnkle (), zer, m);
     attVectorizedTarget.resize ( 6 );
     attMotionConstraint = this;
 }
@@ -97,7 +98,7 @@ bool ChppGikFootDisplaceElement::planFeet()
 
     unsigned int nsamples = ( unsigned int ) round ( attDuration/attSamplingPeriod ) +1;
 
-    matrix4d m  = attConstrainedFoot->currentTransformation();
+    matrix4d m = attConstrainedFoot->associatedAnkle()->currentTransformation();
 
     vectorN startXYZRPY(3);
     startXYZRPY(0) = M4_IJ(m,0,3);
@@ -361,7 +362,7 @@ ChppGikTransformationConstraint* ChppGikFootDisplaceElement::footConstraintAtTim
         return 0;
 }
 
-CjrlJoint* ChppGikFootDisplaceElement::supportFootAtTime ( double inTime )
+CjrlFoot* ChppGikFootDisplaceElement::supportFootAtTime ( double inTime )
 {
     if ( !attPlanSuccess )
         return 0;

@@ -4,7 +4,12 @@
 #include "hpp/gik/tools.hh"
 #include "hpp/gik/motionplanner/element/no-locomotion.hh"
 
-ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, CjrlJoint* inSupportFoot, double inStartTime, double inEndTime, const vectorN& inWorkingJoints, unsigned int inPriority):ChppGikPrioritizedMotion(inRobot, inPriority, this,0.0)
+ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot,
+					 CjrlFoot* inSupportFoot,
+					 double inStartTime, double inEndTime,
+					 const vectorN& inWorkingJoints,
+					 unsigned int inPriority) :
+  ChppGikPrioritizedMotion(inRobot, inPriority, this,0.0)
 {
     attHumanoidRobot = inRobot;
     attConstraint = new ChppGikMotionPlanElement(inRobot, 0);
@@ -14,8 +19,8 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
     vector3d zer;
     zer[0] = zer[1] = zer[2] = 0;
 
-    if (( inSupportFoot != inRobot->rightAnkle()) &&
-	( inSupportFoot != inRobot->leftAnkle()))
+    if (( inSupportFoot != inRobot->rightFoot()) &&
+	( inSupportFoot != inRobot->leftFoot()))
     {
         attFootConstraint = 
 	  new ChppGikTransformationConstraint(*inRobot,
@@ -23,11 +28,11 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
 					      zer,
 					      inRobot->rightAnkle()->
 					      currentTransformation());
-        attSupportFoot = inRobot->leftAnkle();
+        attSupportFoot = inRobot->leftFoot();
     }
     else
     {
-        if ( inSupportFoot == inRobot->rightAnkle() )
+        if ( inSupportFoot == inRobot->rightFoot() )
         {
             attFootConstraint = 
 	      new ChppGikTransformationConstraint(*inRobot,
@@ -35,7 +40,7 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
 						  zer,
 						  inRobot->leftAnkle()->
 						  currentTransformation());
-            attSupportFoot = inRobot->rightAnkle();
+            attSupportFoot = inRobot->rightFoot();
         }
         else
         {
@@ -45,7 +50,7 @@ ChppGikNoLocomotion::ChppGikNoLocomotion(CjrlHumanoidDynamicRobot* inRobot, Cjrl
 						  zer,
 						  inRobot->rightAnkle()->
 						  currentTransformation());
-            attSupportFoot = inRobot->leftAnkle();
+            attSupportFoot = inRobot->leftFoot();
         }
     }
 
@@ -78,7 +83,9 @@ CjrlGikMotionConstraint* ChppGikNoLocomotion::motionConstraint()
 
 CjrlGikMotionConstraint* ChppGikNoLocomotion::clone() const
 {
-    return (CjrlGikMotionConstraint*) new ChppGikNoLocomotion(attHumanoidRobot, attSupportFoot, attStartTime, attEndTime, attWorkingJoints, attPriority);
+    return (CjrlGikMotionConstraint*) new ChppGikNoLocomotion
+      (attHumanoidRobot, attSupportFoot, attStartTime,
+       attEndTime, attWorkingJoints, attPriority);
 }
 
 CjrlDynamicRobot* ChppGikNoLocomotion::robot()
@@ -120,7 +127,7 @@ double ChppGikNoLocomotion::endTime()
     return attEndTime;
 }
 
-CjrlJoint* ChppGikNoLocomotion::supportFoot()
+CjrlFoot* ChppGikNoLocomotion::supportFoot()
 {
     return attSupportFoot;
 }

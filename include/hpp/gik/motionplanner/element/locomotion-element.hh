@@ -120,7 +120,7 @@ class ChppGikLocomotionElement: public CjrlGikMotionConstraint, public ChppGikPr
         \brief Get the support foot joint at time inTime
         \return 0 if the time is out of definition bounds
          */
-        virtual CjrlJoint* supportFootAtTime ( double inTime ) = 0;
+        virtual CjrlFoot* supportFootAtTime ( double inTime ) = 0;
 
         /**
         \brief Plan stability-consistent ZMP and update given arguments in case of success.
@@ -141,7 +141,8 @@ class ChppGikLocomotionElement: public CjrlGikMotionConstraint, public ChppGikPr
         double attPreProlongation;
         double attPostProlongation;
         double attStartTime, attEndTime, attSamplingPeriod, attEps, attDuration, attModifiedStart, attModifiedEnd;
-        CjrlJoint* attSupportFoot, *attConstrainedFoot;
+  CjrlFoot* attSupportFoot; 
+  CjrlFoot* attConstrainedFoot;
         bool attPlanSuccess;
         matrixNxP attZMPmotion;
         CjrlHumanoidDynamicRobot* attHumanoidRobot;
