@@ -103,7 +103,10 @@ bool ChppGikFootDisplaceElement::planFeet()
     vectorN startXYZRPY(3);
     startXYZRPY(0) = M4_IJ(m,0,3);
     startXYZRPY(1) = M4_IJ(m,1,3);
-    startXYZRPY(2) = M4_IJ(m,2,3);
+    // Force foot on the ground
+    vector3d anklePosition;
+    attConstrainedFoot->getAnklePositionInLocalFrame(anklePosition);
+    startXYZRPY(2) = anklePosition (2);
 
     ChppGikSupportPolygon* cursp = attStandingRobot->supportPolygon();
     
