@@ -1,3 +1,34 @@
+2012-01-19, release 2.8
+  * Add dependency to hpp-gik library in pkg-config file.
+  * Add jrl-mal related headers for successful compilation of dependencies.
+  * Update to comply with abstract-gik-task-2.6.
+  * Fix a bug when using jrl-mathtools instead of t3d.
+  * Add dependency to hpp-util for logging purposes.
+  * Log height of foot at end of step.
+  * Replace ankle CjrlJoint by CjrlFoot when possible
+  * Fix computation of foot height in foot trajectory generation
+  * Do not run test by default since they require extra dependencies.
+  * Clean up:
+    * remove unused function,
+    * fix some warnings,
+    * remove a strange semi-colon that anihilates test.
+  * Before constructing a support polygon, check that feet are flat on
+    the ground.
+  * Add a pointer check to prevent the solver from segfaulting when locomotion
+    planning has failed.
+  * Bug fix: initialize variable before thresholding it.
+  * Add interface for a zmp second pass filter based on preview controll
+  * Rename Rodrigues computation function to be more explicit, fix small bug to
+    correctly update the configuration when the free flyer dofs are not
+    activated.
+  * Add new constraint to fix the com x,y position relatively to a given joint.
+  * Add missing include.
+  * Add a constraint to fix the transformation of a joint relatively to another.
+  * Fix computation of jacobians in relative transformation and com constraints
+  * Use cmake submodule.
+  * Enforce zero value for free flyer part of the jacobian of relative
+    transformation.
+
 New in 2.7.2, hpp-gik:
 
 * Desctructor of ChppGikStandingRobot does not delete robot anymore.
