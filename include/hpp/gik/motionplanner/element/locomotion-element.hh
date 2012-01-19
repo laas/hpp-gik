@@ -69,7 +69,7 @@ class ChppGikLocomotionElement: public CjrlGikMotionConstraint, public ChppGikPr
         /**
         \brief Disactivated
          */
-        virtual void startTime ( double inStartTime )
+        virtual void startTime ( double )
         {}
 
         /**

@@ -22,20 +22,17 @@ public:
     */
     ChppGikGazeConstraint(CjrlHumanoidDynamicRobot& inRobot, const vector3d& inTargetWorldPoint);
  
-    /**
-    \brief Set the joint associated to the constraint.
-     */
-    void  joint(CjrlJoint* inJoint) {};
+  /// \brief Set the joint associated to the constraint.
+  /// \note Does nothing since not applicable for this class.
+  void  joint(CjrlJoint*) {}
     
-    /**
-    \brief Set the origin of the pointing vector.
-     */
-    void  localOrigin(const vector3d& inPoint) {};
+  /// \brief Set the origin of the pointing vector.
+  /// \note Does nothing since not applicable for this class.
+  void  localOrigin(const vector3d&) {}
     
-    /**
-    \brief Set the pointing vector in joint's local frame
-     */
-    void  localVector(const vector3d& inPoint) {};
+  /// \brief Set the pointing vector in joint's local frame
+  /// \note Does nothing since not applicable for this class.
+  void  localVector(const vector3d&) {}
     
     /**
     \brief Destructor

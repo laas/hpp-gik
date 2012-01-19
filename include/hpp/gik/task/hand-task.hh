@@ -41,7 +41,7 @@ public:
      */
     double motionDuration();
 
-    void bringBackZMP(bool inChoice, double inStartTime, double inDuration) {}
+    void bringBackZMP(bool, double, double) {}
     
     /**
         \brief Destructor

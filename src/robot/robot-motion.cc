@@ -157,37 +157,37 @@ void  ChppRobotMotion::dumpTo(const char* inFilename, const char* option) const
     CjrlJoint* joint;
     for (unsigned int j=0; iter!=attSamples.end(); j++)
     {
-        fprintf(dumpFileQ,"%lf ",time);
-        fprintf(dumpFileRPY,"%lf ",time);
-        fprintf(dumpFileWST,"%lf ",time);
+        fprintf(dumpFileQ,"%16f ",time);
+        fprintf(dumpFileRPY,"%16f ",time);
+        fprintf(dumpFileWST,"%16f ",time);
 
         for (unsigned int i=0;i<3;i++)
-            fprintf (dumpFileWST, "%lf ", (*iter).configuration(i));
+            fprintf (dumpFileWST, "%16f ", (*iter).configuration(i));
         fprintf (dumpFileWST,"\n");
 
         for (unsigned int i=3;i<6;i++)
-            fprintf (dumpFileRPY, "%lf ", (*iter).configuration(i));
+            fprintf (dumpFileRPY, "%16f ", (*iter).configuration(i));
         fprintf (dumpFileRPY,"\n");
 
         for (unsigned int i = 0 ;i < sz; i++)
         {
             joint = openHRPJoints[i];
-            fprintf (dumpFileQ, "%lf ", (*iter).configuration(joint->rankInConfiguration()));
+            fprintf (dumpFileQ, "%16f ", (*iter).configuration(joint->rankInConfiguration()));
         }
         fprintf (dumpFileQ,"\n");
 
 
-        fprintf(dumpFileZMPwstObs,"%lf ",time);
-        fprintf(dumpFileZMPworObs,"%lf ",time);
-        fprintf(dumpFileZMPwstPla,"%lf ",time);
-        fprintf(dumpFileZMPworPla,"%lf ",time);
+        fprintf(dumpFileZMPwstObs,"%16f ",time);
+        fprintf(dumpFileZMPworObs,"%16f ",time);
+        fprintf(dumpFileZMPwstPla,"%16f ",time);
+        fprintf(dumpFileZMPworPla,"%16f ",time);
 
         for (unsigned int i=0;i<3;i++)
         {
-            fprintf (dumpFileZMPwstObs, "%lf ", V3_I((*iter).ZMPwstObs,i));
-            fprintf (dumpFileZMPworObs, "%lf ", V3_I((*iter).ZMPworObs,i));
-            fprintf (dumpFileZMPwstPla, "%lf ", V3_I((*iter).ZMPwstPla,i));
-            fprintf (dumpFileZMPworPla, "%lf ", V3_I((*iter).ZMPworPla,i));
+            fprintf (dumpFileZMPwstObs, "%16f ", V3_I((*iter).ZMPwstObs,i));
+            fprintf (dumpFileZMPworObs, "%16f ", V3_I((*iter).ZMPworObs,i));
+            fprintf (dumpFileZMPwstPla, "%16f ", V3_I((*iter).ZMPwstPla,i));
+            fprintf (dumpFileZMPworPla, "%16f ", V3_I((*iter).ZMPworPla,i));
         }
 
         fprintf (dumpFileZMPwstObs, "\n");

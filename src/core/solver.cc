@@ -180,7 +180,7 @@ bool ChppGikSolver::enforceBounds ( vectorN& inActiveDofs, vectorN& prev, const 
             if ( coefs[i] < coefwinner )
             {
                 coefwinner = coefs[i];
-                rankwinner = ranks[i];
+                rankwinner = (unsigned int) ranks[i];
             }
 
         prev.plus_assign ( coefwinner*extramove );
@@ -271,7 +271,8 @@ void ChppGikSolver::solve ( std::vector<CjrlGikStateConstraint*>& inTasks, const
 }
 
 
-void ChppGikSolver::solveOver ( CjrlGikStateConstraint* overTask, double overCoef, const vectorN& inFreedofs )
+void ChppGikSolver::solveOver ( CjrlGikStateConstraint* overTask,
+				double overCoef, const vectorN& )
 {
     bool specialCase = false;
     ChppGikConfigurationConstraint* confc = dynamic_cast<ChppGikConfigurationConstraint*> ( overTask );

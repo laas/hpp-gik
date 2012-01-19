@@ -93,7 +93,8 @@ CjrlDynamicRobot* ChppGikNoLocomotion::robot()
     return attRobot;
 }
 
-CjrlGikStateConstraint* ChppGikNoLocomotion::stateConstraintAtTime(double inTime)
+CjrlGikStateConstraint*
+ChppGikNoLocomotion::stateConstraintAtTime(double)
 {
     return attConstraint;
 }

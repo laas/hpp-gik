@@ -78,7 +78,7 @@ unsigned int ChppGikConfigurationConstraint::dimension() const
     return attDimension;
 }
 
-void ChppGikConfigurationConstraint::jacobianRoot(CjrlJoint& inJoint)
+void ChppGikConfigurationConstraint::jacobianRoot(CjrlJoint&)
 {}
 
 void ChppGikConfigurationConstraint::computeInfluencingDofs()
