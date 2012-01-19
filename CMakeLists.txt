@@ -28,7 +28,7 @@ SET(CXX_DISABLE_WERROR 1)
 SETUP_PROJECT()
 
 # Add option to disable tests.
-SET(DISABLE_TESTS OFF CACHE BOOL
+SET(DISABLE_TESTS ON CACHE BOOL
  "Disable tests (and remove the dependency toward HRP-2 confidential packages)")
 # Add option to use hpp-util log
 SET(HPP_DEBUG OFF CACHE BOOL "Log data into files.")
