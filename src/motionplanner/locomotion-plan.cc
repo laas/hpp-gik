@@ -188,10 +188,6 @@ bool ChppGikLocomotionPlan::solve()
         matrixNxP filteringResult;
         ChppGikTools::multiFilter ( attSamplingPeriod, attPlannedZMP, filteringResult );
 
-        if ( 0 )
-            ChppGikTools::dumpMatrix ( "filterdebug",  attPlannedZMP, 0.0, attSamplingPeriod );
-
-
         attPlannedZMP = filteringResult;
         matrixNxP resultTrajCOMXY;
         retVal = attPreviewController->ZMPtoCOM ( attPlannedZMP,resultTrajCOMXY );

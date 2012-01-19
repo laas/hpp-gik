@@ -579,25 +579,6 @@ double ChppGikTools::inner_prod_3points(double originX, double originY, double p
     return (point1X-originX)*(point2X-originX) + (point1Y-originY)*(point2Y-originY);
 }
 
-void ChppGikTools::dumpMatrix(const char* inFilename, const matrixNxP& inData, double inStartTime, double inSamplingPeriod)
-{
-    FILE* dumpFile;
-    dumpFile = fopen (inFilename, "w");
-
-    //double time = inStartTime;
-    double time = 0.0;
-    for (unsigned int i=0; i!=inData.size2(); i++)
-    {
-        fprintf(dumpFile,"%lf ",time);
-        for (unsigned int j= 0; j<inData.size1();j++)
-            fprintf(dumpFile,"%lf ",inData(j,i));
-        fprintf(dumpFile,"\n");
-        time += inSamplingPeriod;
-    }
-
-    fclose (dumpFile);
-}
-
 void ChppGikTools::m4dFromXyzt(double inX, double inY, double inZ, double inTh, matrix4d& outMat)
 {
     M4_IJ(outMat,0,0) = M4_IJ(outMat,1,1) = cos(inTh);

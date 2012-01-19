@@ -104,8 +104,6 @@ public :
     /**
     \brief matrix has samples in concatenated columns
     */
-    static void dumpMatrix(const char* inFilename, const matrixNxP& inData, double inStartTime, double inSamplingPeriod);
-
     static bool sinFilter(vectorN& inSignal, double inSamplingPeriod, vectorN& outSignal);
 
     static void filterWindow(double T, double dt, vectorN& outFilter);
