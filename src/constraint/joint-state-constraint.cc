@@ -43,7 +43,6 @@ const matrixNxP& ChppGikJointStateConstraint::jacobian()
 void ChppGikJointStateConstraint::joint(CjrlJoint* inJoint)
 {
     if (attJoint!=inJoint)
-        ;
     {
         attJoint = inJoint;
         computeInfluencingDofs();
