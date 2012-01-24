@@ -58,30 +58,36 @@ public:
     \brief Get the contribution weights when only the right leg is supporting
      */
     const vectorN& weightsRightLegSupporting();
-    
+
     /**
     \brief Destructor
      */
     ~ChppGikMaskFactory();
 
 private:
-            
+
     bool containsJoint(CjrlJoint* inJoint,std::vector<CjrlJoint*>& inVec);
-    
+
     unsigned int rankInSupportedMassVector(const CjrlJoint* inJoint);
-    
+
     void algoWeights(CjrlJoint* supportJoint, vectorN& outWeights );
-    
+
     void supportedMass(vectorN& massVec, const CjrlJoint* inJoint, CjrlJoint* excludedChild);
 
     CjrlHumanoidDynamicRobot* attRobot;
-    
+
     unsigned int attNumJoints;
+  /// Mask for upper body joints :waist to gaze, left and right wrist.
     vectorN attUpperBody;
+  /// Mask for leg joints: right ankle to left ankle.
     vectorN attLegs;
+  ///
     vectorN attMaskForJoint;
+  /// Mask for left arm: gaze to left wrist - gaze to waist
     vectorN attLeftArm;
+  /// Mask for right arm: gaze to right wrist - gaze to waist
     vectorN attRightArm;
+  /// Mask for leg and upper body joints
     vectorN attWholeBody;
     vectorN attWeightsDouble;
     vectorN attCustomMask;
