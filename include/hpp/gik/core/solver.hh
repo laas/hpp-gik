@@ -36,14 +36,33 @@ class ChppGikSolver
         \brief Deprecated. Does nothing.
          */
         void prepare ( std::vector<CjrlGikStateConstraint*>& inTasks );
-        /**
-        \brief Compute a solution to the entered vector of linear systems. the linear systems(CjrlGikStateConstraint objects) should already be computed. The order in the vector of tasks follows decreasing priority.
-         */
-        void solve ( std::vector<CjrlGikStateConstraint*>& inTasks, const std::vector<double>& inSRcoefs );
-        /**
-        \brief Same as previous without damping
-         */
-        void solve ( std::vector<CjrlGikStateConstraint*>& inTasks );
+
+  /// Compute a solution to the input vector of linear systems.
+
+  /// \param inTasks Vector of tasks in decreasing order of priority,
+  /// \param lambda Coefficient applied to solution to update configuration,
+  /// \param inSRcoefs vector of damping coefficient.
+
+  /// The linear systems(CjrlGikStateConstraint objects) should
+  /// already be computed. The order in the vector of tasks follows
+  /// decreasing priority.
+
+  void solve (std::vector<CjrlGikStateConstraint*>& inTasks,
+	      double lambda,
+	      const std::vector<double>& inSRcoefs);
+
+  /// Compute a solution to the input vector of linear systems.
+
+  /// \param inTasks Vector of tasks in decreasing order of priority,
+  /// \param lambda Coefficient applied to solution to update configuration,
+
+  /// The linear systems(CjrlGikStateConstraint objects) should
+  /// already be computed. The order in the vector of tasks follows
+  /// decreasing priority.
+
+  /// Calls the other method ChppGikSolver::solve.
+  void solve (std::vector<CjrlGikStateConstraint*>& inTasks,
+	      double lambda);
 
         /**
         \name Retrieving the solution
@@ -81,7 +100,7 @@ class ChppGikSolver
     private:
         void updateVelocityBounds();
         bool enforceBounds ( vectorN& inActiveDofs, vectorN& prev, const vectorN& extramove,unsigned int& outSaturated );
-        void computeRobotSolution();
+        void computeRobotSolution(double lambda);
         void solveOver(CjrlGikStateConstraint* overTask, double overCoef,const vectorN& inFreedofs);
 
         CjrlDynamicRobot* attRobot;

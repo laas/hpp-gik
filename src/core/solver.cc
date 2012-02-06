@@ -5,7 +5,7 @@
 
 // Locally disable type checking to avoid exceptions raised by axpy_prod.
 #ifndef BOOST_UBLAS_TYPE_CHECK
-# define BOOST_UBLAS_TYPE_CHECK 0  
+# define BOOST_UBLAS_TYPE_CHECK 0
 #endif
 #include "boost/numeric/ublas/vector_proxy.hpp"
 #include "boost/numeric/ublas/matrix_proxy.hpp"
@@ -26,12 +26,14 @@
 
 using namespace boost::numeric::ublas;
 
-void ChppGikSolver::solve ( std::vector<CjrlGikStateConstraint*>& inSortedConstraints )
+void ChppGikSolver::solve (std::vector<CjrlGikStateConstraint*>&
+			   inSortedConstraints,
+			   double lambda)
 {
     unsigned int k = inSortedConstraints.size();
     std::vector<double> SRcoefs ( k );
     for ( unsigned int i=0;i<k;i++ ) SRcoefs[i] = 0.0;
-    solve ( inSortedConstraints, SRcoefs );
+    solve ( inSortedConstraints, lambda, SRcoefs );
 }
 
 
@@ -194,7 +196,9 @@ bool ChppGikSolver::enforceBounds ( vectorN& inActiveDofs, vectorN& prev, const 
     return false;
 }
 
-void ChppGikSolver::solve ( std::vector<CjrlGikStateConstraint*>& inTasks, const std::vector<double>& inSRcoefs )
+void ChppGikSolver::solve (std::vector<CjrlGikStateConstraint*>& inTasks,
+			   double lambda,
+			   const std::vector<double>& inSRcoefs)
 {
     unsigned int nTasks = inTasks.size();
     assert ( inSRcoefs.size() == nTasks );
@@ -267,7 +271,7 @@ void ChppGikSolver::solve ( std::vector<CjrlGikStateConstraint*>& inTasks, const
             }
         }
     }
-    computeRobotSolution();
+    computeRobotSolution(lambda);
 }
 
 
@@ -375,13 +379,15 @@ const vectorN& ChppGikSolver::solution()
 }
 
 
-void ChppGikSolver::computeRobotSolution()
+void ChppGikSolver::computeRobotSolution(double lambda)
 {
 
     unsigned int i;
+    work_deltas *= lambda;
 
     for ( i =0; i< LongSize; i++ )
-        CurFullConfig ( stored_indices [ i ] ) += work_deltas ( stored_indices [ i ] );
+        CurFullConfig ( stored_indices [ i ] ) +=
+	  work_deltas (stored_indices [i]);
 
     if ( !attChangeRootJoint && !attChangeRootPose )
       return;
@@ -406,7 +412,7 @@ void ChppGikSolver::computeRobotSolution()
     if ( attChangeRootPose )
     {
         //Compute robot root transformation change due to jacobian root transformation change
-        ChppGikTools::Rodrigues4d ( work_deltas, HRC );
+        ChppGikTools::Rodrigues4d (work_deltas, HRC);
         if ( attChangeRootJoint )
             H0 = HRC * H0;
         else

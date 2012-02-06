@@ -1,3 +1,7 @@
+  * Add parameter to ChppGikSolver::solve.
+    - parameter lambda is a multiplicative coefficient to apply to the
+      configuration update. For backward compatibility, set parameter to 1.
+
 2012-01-19, release 2.8
   * Add dependency to hpp-gik library in pkg-config file.
   * Add jrl-mal related headers for successful compilation of dependencies.

@@ -166,7 +166,7 @@ bool ChppGikGenericTask::algorithmSolve()
         attGikSolver->weights(gikWeights);
         attGikSolver->rootJoint(*supportJoint);
         attGikSolver->prepare( constraintStack );
-	attGikSolver->solve(constraintStack,columnInTime->dampingFactors());
+	attGikSolver->solve(constraintStack,1.,columnInTime->dampingFactors());
 
         attStandingRobot->updateRobot ( attGikSolver->solutionRootPose(),attGikSolver->solutionJointConfiguration(),attSamplingPeriod );
 
