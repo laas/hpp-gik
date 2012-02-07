@@ -1,4 +1,6 @@
-  * Add parameter to ChppGikSolver::solve.
+2012-02-07, release 2.9
+
+  * Add parameter to both ChppGikSolver::solve methods:
     - parameter lambda is a multiplicative coefficient to apply to the
       configuration update. For backward compatibility, set parameter to 1.
 
