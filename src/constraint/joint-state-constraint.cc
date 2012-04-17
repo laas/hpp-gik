@@ -20,8 +20,14 @@ void ChppGikJointStateConstraint::computeInfluencingDofs()
     std::vector<CjrlJoint*> vecJoints = attRobot->jointsBetween( *attRootJoint, *attJoint);
     unsigned int i,j;
     for (i=0;i<vecJoints.size();i++)
+      {
+	// Do nothing if it is an anchor joint.
+	if (vecJoints[i]->numberDof () == 0)
+	  continue;
+
         for (j=vecJoints[i]->rankInConfiguration();j<vecJoints[i]->rankInConfiguration()+vecJoints[i]->numberDof();j++)
             attInfluencingDofs(j) = 1;
+      }
 
 }
 
