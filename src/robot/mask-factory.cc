@@ -31,37 +31,78 @@ ChppGikMaskFactory::ChppGikMaskFactory (CjrlHumanoidDynamicRobot* inRobot)
     std::vector<CjrlJoint*> joints =
       attRobot->jointsBetween (*attRobot->rightAnkle(),*attRobot->leftAnkle());
     for (unsigned int i =0; i< joints.size();i++)
-        if (joints[i] != attRobot->rootJoint())
-            attLegs (joints[i]->rankInConfiguration()) = (char) 1;
+      {
+	// Do nothing if it is an anchor joint.
+	if (joints[i]->numberDof () == 0)
+	  continue;
+
+	if (joints[i] != attRobot->rootJoint())
+	  attLegs (joints[i]->rankInConfiguration()) = (char) 1;
+      }
 
     // Joints between gaze and left wrist
     joints =
       attRobot->jointsBetween (*attRobot->gazeJoint(),*attRobot->leftWrist());
     for (unsigned int i =0; i< joints.size();i++)
+      {
+	// Do nothing if it is an anchor joint.
+	if (joints[i]->numberDof () == 0)
+	  continue;
+
         if (joints[i] != attRobot->rootJoint())
             attLeftArm (joints[i]->rankInConfiguration()) = (char) 1;
+      }
     for (unsigned int i =0; i< gaze2waist.size();i++)
+      {
+	// Do nothing if it is an anchor joint.
+	if (gaze2waist[i]->numberDof () == 0)
+	  continue;
+
         if (gaze2waist[i] != attRobot->rootJoint())
             attLeftArm (gaze2waist[i]->rankInConfiguration()) = (char) 0;
+      }
 
     joints =
       attRobot->jointsBetween (*attRobot->gazeJoint(),*attRobot->rightWrist());
     for (unsigned int i =0; i< joints.size();i++)
+      {
+	// Do nothing if it is an anchor joint.
+	if (joints[i]->numberDof () == 0)
+	  continue;
+
         if (joints[i] != attRobot->rootJoint())
             attRightArm (joints[i]->rankInConfiguration()) = (char) 1;
+      }
     for (unsigned int i =0; i< gaze2waist.size();i++)
+      {
+	// Do nothing if it is an anchor joint.
+	if (gaze2waist[i]->numberDof () == 0)
+	  continue;
+
         if (gaze2waist[i] != attRobot->rootJoint())
             attRightArm (gaze2waist[i]->rankInConfiguration()) = (char) 0;
+      }
 
     joints =
       attRobot->jointsBetween (*attRobot->leftWrist(),*attRobot->rightWrist());
     for (unsigned int i =0; i< joints.size();i++)
+      {
+	// Do nothing if it is an anchor joint.
+	if (joints[i]->numberDof () == 0)
+	  continue;
+
         if (joints[i] != attRobot->rootJoint())
             attUpperBody (joints[i]->rankInConfiguration()) = (char) 1;
+      }
     for (unsigned int i =0; i< gaze2waist.size();i++)
+      {
+	// Do nothing if it is an anchor joint.
+	if (gaze2waist[i]->numberDof () == 0)
+	  continue;
+
         if (gaze2waist[i] != attRobot->rootJoint())
             attUpperBody (gaze2waist[i]->rankInConfiguration()) = (char) 1;
-
+      }
     ChppGikTools::combineMasks (attLegs,attUpperBody,attWholeBody);
 
     attMaskForJoint.resize(attRobot->numberDof());
@@ -106,8 +147,14 @@ ChppGikMaskFactory::customMask (CjrlJoint* inJoint,
 	  inJoint->jointsFromRootToThis();
 
         for (i= rankOfFirstActivatedJoint; i< root2jointVector.size();i++)
-	  attCustomMask (root2jointVector[i]->rankInConfiguration()) =
-	    (char) 1;
+	  {
+	    // Do nothing if it is an anchor joint.
+	    if (root2jointVector[i]->numberDof () == 0)
+	      continue;
+
+	    attCustomMask (root2jointVector[i]->rankInConfiguration()) =
+	      (char) 1;
+	  }
     }
     return attCustomMask;
 }
@@ -132,6 +179,11 @@ void ChppGikMaskFactory::algoWeights (CjrlJoint* supportJoint,
         for (unsigned int i = 1; i< backbone.size()-1;i++)
 	  if (backbone[i]->countChildJoints() > 1)
             {
+	      // Do nothing if it is an anchor joint.
+	      if (backbone[i]->numberDof () == 0
+		  || backbone[i-1]->numberDof () == 0)
+		continue;
+
 	      // Sum subtree for this node except for branch belonging to
 	      // backbone
 	      supportedMass (supportedMassVec, backbone[i], backbone[i-1]);
@@ -146,6 +198,11 @@ void ChppGikMaskFactory::algoWeights (CjrlJoint* supportJoint,
             }
         for (int i = backbone.size()-2; i>-1;i--)
 	  {
+	    // Do nothing if it is an anchor joint.
+	    if (backbone[i]->numberDof () == 0
+		|| backbone[i+1]->numberDof () == 0)
+	      continue;
+
 	    //subtrees and backbone links masses here ok
             supportedMassVec (rankInSupportedMassVector (backbone[i])) +=
 	      supportedMassVec(rankInSupportedMassVector (backbone[i+1])) +
@@ -157,8 +214,10 @@ void ChppGikMaskFactory::algoWeights (CjrlJoint* supportJoint,
         supportedMass (supportedMassVec, attRobot->rootJoint(), 0);
       }
     //remove link mass from backbone
-    supportedMassVec (rankInSupportedMassVector (backbone[0])) -=
-      backbone[0]->linkedBody()->mass();
+    // Do nothing if it is an anchor joint.
+    if (backbone[0]->numberDof () != 0)
+      supportedMassVec (rankInSupportedMassVector (backbone[0])) -=
+	backbone[0]->linkedBody()->mass();
     subrange (outWeights,6,attNumJoints) =
       subrange (supportedMassVec,1,attNumJoints-6+1);
     for (unsigned int i = 6; i< outWeights.size(); i++)
@@ -173,12 +232,21 @@ void ChppGikMaskFactory::supportedMass (vectorN& massVec,
 					CjrlJoint* excludedChild)
 {
   unsigned int rankJoint, rankChildJoint;
-  rankJoint = rankInSupportedMassVector (inJoint);
-  massVec (rankJoint) += inJoint->linkedBody()->mass();
+  // Do nothing if it is an anchor joint.
+  if (inJoint->numberDof () != 0)
+    {
+      rankJoint = rankInSupportedMassVector (inJoint);
+      massVec (rankJoint) += inJoint->linkedBody()->mass();
+    }
 
   for (unsigned int i = 0; i<inJoint->countChildJoints(); i++)
     {
       const CjrlJoint* childJoint = inJoint->childJoint (i);
+
+      // Do nothing if it is an anchor joint.
+      if (childJoint->numberDof () == 0)
+	continue;
+
       rankChildJoint = rankInSupportedMassVector (childJoint);
 
       if (childJoint == excludedChild)
@@ -218,9 +286,15 @@ const vectorN& ChppGikMaskFactory::maskForJointsBetween(CjrlJoint* inStartJoint,
     attRobot->jointsBetween(*inStartJoint, *inEndJoint);
   unsigned int i,j;
   for (i=0;i<vecJoints.size();i++)
-    for (j=vecJoints[i]->rankInConfiguration();
-	 j<vecJoints[i]->rankInConfiguration()+vecJoints[i]->numberDof();j++)
-      attMaskForJoint(j) = 1;
+    {
+      // Do nothing if it is an anchor joint.
+      if (vecJoints[i]->numberDof () == 0)
+	continue;
+
+      for (j=vecJoints[i]->rankInConfiguration();
+	   j<vecJoints[i]->rankInConfiguration()+vecJoints[i]->numberDof();j++)
+	attMaskForJoint(j) = 1;
+    }
 
   return attMaskForJoint;
 }
