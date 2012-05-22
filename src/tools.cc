@@ -189,9 +189,9 @@ void ChppGikTools::RottoOmega(const matrixNxP& inRot, vectorN& outVec)
 
     if (fabs(alpha-1) < attEps)
     {
-        outVec(0) = 0;
-        outVec(1) = 0;
-        outVec(2) = 0;
+        outVec(0) = 0.5*(inRot(2,1)-inRot(1,2));
+        outVec(1) = 0.5*(inRot(0,2)-inRot(2,0));
+        outVec(2) = 0.5*(inRot(1,0)-inRot(0,1));
     }
     else
     {
