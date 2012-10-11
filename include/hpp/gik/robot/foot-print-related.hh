@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <jrl/mal/matrixabstractlayer.hh>
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 
 

@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_LOCOMOTION_ELEMENT_H
 #define HPP_GIK_LOCOMOTION_ELEMENT_H
 
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "hpp/gik/robot/standing-robot.hh"
 #include "hpp/gik/core/prioritized-motion.hh"

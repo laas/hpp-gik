@@ -2,6 +2,7 @@
 #define HPP_GIK_SOLVER_BASIC_H
 
 #include "jrl/mal/matrixabstractlayer.hh"
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "gikTask/jrlGikStateConstraint.h"
 
 /**

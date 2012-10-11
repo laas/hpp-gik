@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_MOTION_PLAN_ROW_H
 #define HPP_GIK_MOTION_PLAN_ROW_H
 
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "hpp/gik/core/motion-plan-element.hh"
 #include "hpp/gik/core/prioritized-motion.hh"

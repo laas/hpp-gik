@@ -2,6 +2,7 @@
 #define HPP_GIK_MASK_FACTORY_H
 
 #include <vector>
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "abstract-robot-dynamics/humanoid-dynamic-robot.hh"
 

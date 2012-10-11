@@ -2,6 +2,7 @@
 #define HPP_GIK_STANDING_ROBOT_H
 
 #include <jrl/mal/matrixabstractlayer.hh>
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "hpp/gik/robot/shape-2d.hh"
 #include "abstract-robot-dynamics/humanoid-dynamic-robot.hh"

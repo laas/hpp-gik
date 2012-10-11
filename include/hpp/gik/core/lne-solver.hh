@@ -1,6 +1,7 @@
 #ifndef GIK_LNE_SOLVER_H
 #define GIK_LNE_SOLVER_H
 
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 
 class ChppGikSolverLNE

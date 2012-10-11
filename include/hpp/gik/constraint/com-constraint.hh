@@ -2,6 +2,7 @@
 #define HPP_GIK_COM_CONSTRAINT_H
 
 #include <jrl/mal/matrixabstractlayer.hh>
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "gikTask/jrlGikComConstraint.h"
 

@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_SOLVER_H
 #define HPP_GIK_SOLVER_H
 
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "gikTask/jrlGikStateConstraint.h"
 #include "hpp/gik/core/lne-solver.hh"

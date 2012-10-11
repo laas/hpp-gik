@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_POINTING_CONSTRAINT_H
 #define HPP_GIK_POINTING_CONSTRAINT_H
 
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "gikTask/jrlGikPointingConstraint.h"
 #include "hpp/gik/constraint/joint-state-constraint.hh"

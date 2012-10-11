@@ -2,6 +2,7 @@
 #define HPP_GIK_MOTION_CONSTRAINT_H
 
 
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "gikTask/jrlGikMotionConstraint.h"
 

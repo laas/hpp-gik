@@ -1,6 +1,7 @@
 #ifndef HPP_GIK_PREVIEW_CONTROLLER_H
 #define HPP_GIK_PREVIEW_CONTROLLER_H
 
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 
 class ChppGikPreviewController

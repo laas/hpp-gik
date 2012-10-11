@@ -2,6 +2,7 @@
 #define HPP_GIK_GAZE_CONSTRAINT_H
 
 #include <vector>
+#include "abstract-robot-dynamics/traits/default-pointer.hh"
 #include "abstract-robot-dynamics/abstract-robot-dynamics.hh"
 #include "hpp/gik/constraint/pointing-constraint.hh"
 #include "gikTask/jrlGikGazeConstraint.h"
