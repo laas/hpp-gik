@@ -400,8 +400,8 @@ void ChppGikSolver::computeRobotSolution(double lambda)
             CurFullConfig ( i ) = 0.0;
 
         //update joints transformations from robot root to jacobian root
-        for ( i=0; i< supportJoints.size(); i++ )
-            supportJoints[i]->updateTransformation ( CurFullConfig );
+	attRobot->currentConfiguration (CurFullConfig);
+	attRobot->computeForwardKinematics ();
 
         //Compute robot root transformation change due to chain of joints between robot root and jacobian root
         Hf = RootJoint->currentTransformation();
@@ -424,8 +424,8 @@ void ChppGikSolver::computeRobotSolution(double lambda)
 
     if ( attChangeRootJoint )
         //Recover joints transformations from root to fixed joint in waist frame
-        for ( i=0; i< supportJoints.size(); i++ )
-            supportJoints[i]->updateTransformation ( attBackupConfig );
+	attRobot->currentConfiguration (attBackupConfig);
+	attRobot->computeForwardKinematics ();
 }
 
 const std::pair<vector3d,vector3d>& ChppGikSolver::solutionRootConfiguration()
