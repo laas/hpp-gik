@@ -226,7 +226,7 @@ void ChppGikGenericTask::computeGikWeights(double inTime, const vectorN& inActiv
     if (attUseDynamicWeights)
         attLocomotionPlan->getWeightsAtTime( inTime, outGikWeights );
     else
-        outGikWeights = attStandingRobot->maskFactory()->weightsDoubleSupport();
+        outGikWeights = attStandingRobot->maskFactory()->wholeBodyMask();
 
     if (attNeutralBodyOption)
         for (i=0; i< outGikWeights.size();i++)
