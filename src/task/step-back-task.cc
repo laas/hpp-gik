@@ -43,7 +43,7 @@ bool ChppGikStepBackTask::algorithmSolve()
     }
 
     ChppGikFootprint* targetFootprint;
-    const ChppGikFootprint *supportFootprint, *nonsupportFootprint;
+    const ChppGikFootprint *supportFootprint;
     bool FootisRight;
     double relativeTargetY,relativeTargetX =0.0;
     std::string message;
@@ -64,7 +64,6 @@ bool ChppGikStepBackTask::algorithmSolve()
 
     if (attSelectedFootisRight)
     {
-        nonsupportFootprint = attStandingRobot->supportPolygon()->rightFootprint();
         supportFootprint = attStandingRobot->supportPolygon()->leftFootprint();
         FootisRight = true;
         relativeTargetY = -attTargetFeetDistance;
@@ -73,7 +72,6 @@ bool ChppGikStepBackTask::algorithmSolve()
     else
     {
         supportFootprint = attStandingRobot->supportPolygon()->rightFootprint();
-        nonsupportFootprint = attStandingRobot->supportPolygon()->leftFootprint();
         FootisRight = false;
         relativeTargetY = attTargetFeetDistance;
         message = "Stepping back with the left foot\n";
