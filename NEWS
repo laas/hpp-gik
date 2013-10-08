@@ -1,3 +1,8 @@
+2013-08-10, reease 2.10.1
+
+  * Fix compilation warning.
+  * Synchronize cmake submodule.
+
 2013-07-31, release 2.10
   * Do not take into account anchor joints when building weights with mask
   * Do not consider anchor joints when computing influencing dofs.
